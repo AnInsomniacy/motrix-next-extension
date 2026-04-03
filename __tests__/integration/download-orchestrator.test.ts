@@ -86,10 +86,10 @@ describe('DownloadOrchestrator', () => {
 
       // 1. Pause browser download
       expect(deps.downloads.pause).toHaveBeenCalledWith(1);
-      // 2. Send to aria2
+      // 2. Send to aria2 — no `out` option (aria2 resolves filename natively)
       expect(deps.aria2.addUri).toHaveBeenCalledWith(
         ['https://example.com/file.zip'],
-        expect.objectContaining({ out: 'file.zip' }),
+        expect.not.objectContaining({ out: expect.anything() }),
       );
       // 3. Cancel and erase
       expect(deps.downloads.cancel).toHaveBeenCalledWith(1);

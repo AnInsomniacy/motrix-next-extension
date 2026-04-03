@@ -6,6 +6,8 @@ import { ContextMenuService } from '@/modules/services/context-menu';
 import { NotificationService } from '@/modules/services/notification';
 import { DiagnosticLog } from '@/modules/storage/diagnostic-log';
 import { buildProtocolUrl } from '@/modules/protocol/launcher';
+import { decodeThunderLink } from '@/shared/thunder';
+import { extractFilenameFromUrl } from '@/shared/url';
 import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 import type { DownloadSettings, RpcConfig, SiteRule } from '@/shared/types';
 
@@ -153,35 +155,66 @@ export default defineBackground(() => {
   }
 
   chrome.contextMenus.onClicked.addListener((info) => {
-    const url = ContextMenuService.extractUrl({
+    const rawUrl = ContextMenuService.extractUrl({
       linkUrl: info.linkUrl,
       srcUrl: info.srcUrl,
       pageUrl: info.pageUrl,
     });
-    if (!url) return;
+    if (!rawUrl) return;
 
     void loadConfig().then(async () => {
-      try {
-        const headers: string[] = [];
-        if (info.pageUrl) headers.push(`Referer: ${info.pageUrl}`);
+      // ─── URL Classification ────────────────────
+      // Decode thunder:// links to their original HTTP/FTP URL.
+      // Magnet URIs pass through unchanged — aria2 handles them natively.
+      const url = decodeThunderLink(rawUrl);
+      const tabUrl = info.pageUrl ?? '';
 
-        await client.addUri([url], {
-          header: headers.length > 0 ? headers : undefined,
-        });
+      // ─── Collect Metadata (parity with interception path) ─
+      const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
+
+      const headers: string[] = [];
+      if (tabUrl) headers.push(`Referer: ${tabUrl}`);
+
+      // Collect cookies when enhanced permissions are available
+      if (enhancedPermissions) {
+        try {
+          const cookies = await chrome.cookies.getAll({ url });
+          if (cookies.length > 0) {
+            const cookieStr = cookies.map((c) => `${c.name}=${c.value}`).join('; ');
+            headers.push(`Cookie: ${cookieStr}`);
+          }
+        } catch {
+          // Cookie collection is best-effort — graceful degradation
+        }
+      }
+
+      // ─── Send to aria2 ────────────────────────
+      // Do NOT set `out` — let aria2 resolve filename natively
+      // (Content-Disposition > URL path, see HttpResponse.cc:determineFilename)
+      const aria2Options: Record<string, unknown> = {};
+      if (headers.length > 0) {
+        aria2Options.header = headers;
+      }
+
+      try {
+        const gid = await client.addUri([url], aria2Options);
 
         diagnosticLog.append({
           level: 'info',
           code: 'download_sent',
-          message: `Context menu: ${url}`,
-          context: { url },
+          message: `Context menu: ${displayName}`,
+          context: { url, filename: displayName },
         });
         void persistDiagnosticLog();
+
+        // ─── Completion tracking (parity with interception) ─
+        completionTracker.track(gid, displayName);
 
         if (settings.notifyOnStart) {
           await chrome.notifications.create(`sent-ctx-${Date.now()}`, {
             type: 'basic',
             title: chrome.i18n.getMessage('notification_sent_title') || 'Sent to Motrix Next',
-            message: url,
+            message: displayName,
             iconUrl: 'icon/128.png',
           });
         }
@@ -193,6 +226,14 @@ export default defineBackground(() => {
           context: { url, error: String(error) },
         });
         void persistDiagnosticLog();
+
+        // ─── Error notification (not silent anymore) ─
+        await chrome.notifications.create(`failed-ctx-${Date.now()}`, {
+          type: 'basic',
+          title: chrome.i18n.getMessage('notification_failed_title') || 'Download Failed',
+          message: displayName,
+          iconUrl: 'icon/128.png',
+        });
       }
     });
   });

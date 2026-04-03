@@ -3,6 +3,7 @@ import type { DiagnosticInput } from '@/modules/storage/diagnostic-log';
 import { evaluateFilterPipeline } from './filter';
 import { MetadataCollector } from './metadata-collector';
 import { NotificationService } from '@/modules/services/notification';
+import { extractFilenameFromUrl } from '@/shared/url';
 
 // ─── Dependency Interface ───────────────────────────────
 
@@ -91,17 +92,20 @@ export class DownloadOrchestrator {
     // ─── Pause ────────────────────────────────────
     await this.deps.downloads.pause(item.id);
 
-    // chrome.downloads.onCreated fires before the browser resolves the
-    // filename from Content-Disposition, so item.filename is usually empty.
-    // Fallback chain: item.filename → URL path basename → 'download'
+    // ─── Collect Metadata ─────────────────────────
+    // Resolve a display filename for logging and notifications.
+    // We intentionally do NOT pass `out` to aria2 — aria2 has superior
+    // filename resolution via Content-Disposition, redirected URLs, and
+    // URL path segments (see aria2 HttpResponse.cc:determineFilename()).
+    // Forcing `out` would override aria2's native resolution.
     const enhanced = this.deps.hasEnhancedPermissions();
-    const filename = item.filename
-      || this.extractFilenameFromUrl(item.finalUrl || item.url)
+    const displayName = item.filename
+      || extractFilenameFromUrl(item.finalUrl || item.url)
       || 'download';
 
     const metadata = await this.metadataCollector.collectMetadata({
       url: item.url,
-      filename,
+      filename: displayName,
       tabUrl,
       cookiesApi: enhanced ? this.deps.cookies : null,
       hasEnhancedPermissions: enhanced,
@@ -110,10 +114,8 @@ export class DownloadOrchestrator {
     const headers = MetadataCollector.buildAria2Headers(metadata);
 
     // ─── Send to aria2 ────────────────────────────
+    // Do NOT set `out` — let aria2 resolve the filename natively.
     const aria2Options: Record<string, unknown> = {};
-    if (metadata.filename) {
-      aria2Options.out = metadata.filename;
-    }
     if (headers.length > 0) {
       aria2Options.header = headers;
     }
@@ -128,16 +130,16 @@ export class DownloadOrchestrator {
       this.deps.diagnosticLog.append({
         level: 'info',
         code: 'download_sent',
-        message: `Sent: ${metadata.filename}`,
-        context: { url: item.url, filename: metadata.filename, gid },
+        message: `Sent: ${displayName}`,
+        context: { url: item.url, filename: displayName, gid },
       });
 
       // ─── Track for completion ──────────────────
-      this.deps.onSent?.(gid, metadata.filename);
+      this.deps.onSent?.(gid, displayName);
 
       // ─── Notify ─────────────────────────────────
       if (settings.notifyOnStart) {
-        const notification = NotificationService.buildSentNotification(metadata.filename, item.id);
+        const notification = NotificationService.buildSentNotification(displayName, item.id);
         await this.deps.notifications.create(
           notification.id,
           notification.options as Record<string, unknown>,
@@ -162,30 +164,6 @@ export class DownloadOrchestrator {
           context: { url: item.url, error: String(error) },
         });
       }
-    }
-  }
-
-  /**
-   * Extract a filename from a URL's pathname.
-   *
-   * Example: "https://cdn.example.com/files/app-v2.0.zip?token=abc"
-   *       → "app-v2.0.zip"
-   *
-   * Returns null if the URL is invalid or the path has no usable basename.
-   */
-  private extractFilenameFromUrl(url: string): string | null {
-    try {
-      const { pathname } = new URL(url);
-      // Decode percent-encoded characters (e.g. %20 → space)
-      const decoded = decodeURIComponent(pathname);
-      const basename = decoded.split('/').pop();
-      // Filter out empty segments and bare directory paths
-      if (!basename || basename === '/' || !basename.includes('.')) {
-        return null;
-      }
-      return basename;
-    } catch {
-      return null;
     }
   }
 }
