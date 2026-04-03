@@ -1,5 +1,7 @@
 import { defineConfig } from 'wxt';
 import tailwindcss from '@tailwindcss/vite';
+import Components from 'unplugin-vue-components/vite';
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -14,6 +16,13 @@ export default defineConfig({
     optional_host_permissions: ['https://*/*', 'http://*/*'],
   },
   vite: () => ({
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+      Components({
+        resolvers: [NaiveUiResolver()],
+        dirs: ['entrypoints/**/components'],
+        dts: false,
+      }),
+    ],
   }),
 });

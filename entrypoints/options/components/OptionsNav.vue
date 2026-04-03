@@ -1,0 +1,124 @@
+<script lang="ts" setup>
+/**
+ * @fileoverview Left-rail navigation for the Options page.
+ *
+ * Renders a vertical list of section buttons with icons. The active
+ * section is highlighted with the M3 primary-container tonal fill,
+ * matching the desktop PreferenceSubnav.vue visual language.
+ */
+import { NIcon } from 'naive-ui';
+import {
+  LinkOutline,
+  SettingsOutline,
+  ListOutline,
+  ShieldCheckmarkOutline,
+  ColorPaletteOutline,
+  BugOutline,
+} from '@vicons/ionicons5';
+
+const props = defineProps<{
+  active: string;
+}>();
+const emit = defineEmits<{ select: [id: string] }>();
+
+function i18n(key: string, fallback: string): string {
+  return chrome.i18n.getMessage(key) || fallback;
+}
+
+const sections = [
+  { id: 'connection',  icon: LinkOutline,             label: () => i18n('options_section_connection', 'Connection') },
+  { id: 'behavior',    icon: SettingsOutline,         label: () => i18n('options_section_behavior', 'Behavior') },
+  { id: 'rules',       icon: ListOutline,             label: () => i18n('options_section_rules', 'Site Rules') },
+  { id: 'enhanced',    icon: ShieldCheckmarkOutline,  label: () => i18n('options_section_enhanced', 'Enhanced') },
+  { id: 'appearance',  icon: ColorPaletteOutline,     label: () => i18n('options_section_appearance', 'Appearance') },
+  { id: 'diagnostics', icon: BugOutline,              label: () => i18n('options_section_diagnostics', 'Diagnostics') },
+];
+</script>
+
+<template>
+  <nav class="options-nav">
+    <button
+      v-for="s in sections"
+      :key="s.id"
+      type="button"
+      :class="['nav-item', { 'nav-item--active': active === s.id }]"
+      @click="emit('select', s.id)"
+    >
+      <NIcon :size="18" class="nav-item__icon"><component :is="s.icon" /></NIcon>
+      <span class="nav-item__label">{{ s.label() }}</span>
+    </button>
+  </nav>
+</template>
+
+<style scoped>
+.options-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s cubic-bezier(0.2, 0, 0, 1),
+    color 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.nav-item:hover {
+  background: color-mix(in srgb, var(--color-on-surface) 6%, transparent);
+  color: var(--color-on-surface);
+}
+
+.nav-item--active {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.nav-item--active:hover {
+  background: var(--color-primary-container);
+  filter: brightness(0.96);
+}
+
+.nav-item__icon {
+  flex-shrink: 0;
+}
+
+.nav-item__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Responsive: collapse to icon-only on narrow viewports ─── */
+@media (max-width: 640px) {
+  .options-nav {
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    padding: 6px 12px;
+    gap: 4px;
+  }
+
+  .nav-item {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    font-size: 11px;
+    min-width: 64px;
+    align-items: center;
+  }
+}
+</style>

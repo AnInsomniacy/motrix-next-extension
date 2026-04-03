@@ -1,73 +1,123 @@
 @import 'tailwindcss';
 
 @theme {
-  /* ─── Color System (M3-inspired, Motrix Next aligned) ─── */
-  --color-brand-50: oklch(0.97 0.02 160);
-  --color-brand-100: oklch(0.94 0.04 160);
-  --color-brand-200: oklch(0.88 0.08 160);
-  --color-brand-300: oklch(0.8 0.12 160);
-  --color-brand-400: oklch(0.72 0.16 160);
-  --color-brand-500: oklch(0.64 0.18 160);
-  --color-brand-600: oklch(0.52 0.16 160);
-  --color-brand-700: oklch(0.42 0.14 160);
+  /* ── M3 Primary (Amber Gold · seed #E0A422 · desktop-aligned) ────── */
+  --color-primary: #7c5800;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #ffdea3;
+  --color-on-primary-container: #271900;
+  --color-brand: #e0a422;
 
-  --color-surface: oklch(0.985 0.002 260);
-  --color-surface-dim: oklch(0.955 0.002 260);
-  --color-surface-container: oklch(0.965 0.002 260);
-  --color-surface-container-high: oklch(0.94 0.003 260);
-  --color-on-surface: oklch(0.15 0.01 260);
-  --color-on-surface-variant: oklch(0.45 0.01 260);
-  --color-outline: oklch(0.72 0.005 260);
-  --color-outline-variant: oklch(0.85 0.005 260);
+  /* ── M3 Surface Tonal System (6 layers) ─────────────────────────── */
+  --color-surface: #fefbf6;
+  --color-surface-dim: #dfdbd4;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f9f5ee;
+  --color-surface-container: #f3efe8;
+  --color-surface-container-high: #ede9e2;
+  --color-surface-container-highest: #e7e3dd;
 
-  --color-error: oklch(0.55 0.22 25);
-  --color-warning: oklch(0.72 0.16 75);
-  --color-success: oklch(0.64 0.18 160);
+  /* ── M3 On-Surface / Text ──────────────────────────────────────── */
+  --color-on-surface: #1d1b16;
+  --color-on-surface-variant: #4d4639;
 
-  /* ─── Typography ─── */
-  --font-sans: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+  /* ── M3 Outline / Borders ──────────────────────────────────────── */
+  --color-outline: #7f7667;
+  --color-outline-variant: #d1c7b7;
 
-  /* ─── Spacing ─── */
+  /* ── M3 Semantic ───────────────────────────────────────────────── */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-warning: #7c5800;
+  --color-success: #386a20;
+  --color-on-success: #ffffff;
+
+  /* ── M3 Inverse (toasts / snackbars) ───────────────────────────── */
+  --color-inverse-surface: #32302b;
+  --color-on-inverse-surface: #ebe4db;
+
+  /* ── Typography ────────────────────────────────────────────────── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', Menlo,
+    Monaco, 'Courier New', monospace;
+
+  /* ── Spacing ───────────────────────────────────────────────────── */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 0.75rem;
   --spacing-lg: 1rem;
   --spacing-xl: 1.5rem;
 
-  /* ─── Border Radius ─── */
+  /* ── Border Radius ─────────────────────────────────────────────── */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
 
-  /* ─── Shadows ─── */
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
-
-  /* ─── Motion ─── */
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
-  --duration-short: 150ms;
-  --duration-medium: 300ms;
+  /* ── Shadows ───────────────────────────────────────────────────── */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06),
+    0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.08),
+    0 2px 4px -2px rgb(0 0 0 / 0.06);
 }
 
-/* ─── Dark Mode Overrides (class-based) ─── */
+/*
+ * ── M3 Motion Tokens ────────────────────────────────────────────────
+ * IMPORTANT: Defined on :root (NOT in @theme) to guarantee availability
+ * in all CSS contexts including Vue <Transition> class selectors.
+ * Values match desktop Motrix Next variables.css L141-143 exactly.
+ */
+:root {
+  --m3-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --m3-ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --m3-ease-emphasized-accel: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --m3-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --m3-transition-all: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  --m3-transition-fast: 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ── Dark Mode (values from desktop Motrix Next .dark block) ─────── */
 html.dark {
-  --color-surface: oklch(0.13 0.005 260);
-  --color-surface-dim: oklch(0.1 0.005 260);
-  --color-surface-container: oklch(0.18 0.008 260);
-  --color-surface-container-high: oklch(0.22 0.01 260);
-  --color-on-surface: oklch(0.93 0.005 260);
-  --color-on-surface-variant: oklch(0.65 0.008 260);
-  --color-outline: oklch(0.42 0.008 260);
-  --color-outline-variant: oklch(0.3 0.006 260);
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.25);
+  --color-primary: #f0bf48;
+  --color-on-primary: #412d00;
+  --color-primary-container: #5e4200;
+  --color-on-primary-container: #ffdea3;
+
+  --color-surface: #141210;
+  --color-surface-dim: #141210;
+  --color-surface-container-lowest: #0e0d0b;
+  --color-surface-container-low: #1c1a17;
+  --color-surface-container: #201e1b;
+  --color-surface-container-high: #2b2926;
+  --color-surface-container-highest: #363331;
+
+  --color-on-surface: #e8e2d9;
+  --color-on-surface-variant: #d0c8b9;
+
+  --color-outline: #998f80;
+  --color-outline-variant: #4d4639;
+
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-success: #8edb6a;
+  --color-on-success: #0a3900;
+  --color-warning: #f0bf48;
+
+  --color-inverse-surface: #e8e2d9;
+  --color-on-inverse-surface: #32302b;
+
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.25),
+    0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.35),
+    0 2px 4px -2px rgb(0 0 0 / 0.25);
 }
 
-/* ─── Base Styles ─── */
+/* ── Global Reset ────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -85,46 +135,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Custom Toggle Switch ─── */
-.toggle {
-  position: relative;
-  width: 2.75rem;
-  height: 1.5rem;
-  appearance: none;
-  background: var(--color-outline-variant);
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  flex-shrink: 0;
-}
-
-.toggle::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 1.25rem;
-  height: 1.25rem;
-  background: white;
-  border-radius: 9999px;
-  transition: transform 0.2s ease;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
-}
-
-.toggle:checked {
-  background: var(--color-brand-500);
-}
-
-.toggle:checked::after {
-  transform: translateX(1.25rem);
-}
-
-.toggle:focus-visible {
-  outline: 2px solid var(--color-brand-500);
-  outline-offset: 2px;
-}
-
-/* ─── Card Component ─── */
+/* ── Card Component ──────────────────────────────────────────────── */
 .card {
   background: var(--color-surface-container);
   border: 1px solid var(--color-outline-variant);
@@ -133,7 +144,7 @@ body {
   box-shadow: var(--shadow-card);
 }
 
-/* ─── Input Fields ─── */
+/* ── Input Fields ────────────────────────────────────────────────── */
 .input {
   width: 100%;
   padding: 0.625rem 0.875rem;
@@ -143,15 +154,14 @@ body {
   color: var(--color-on-surface);
   font-size: 0.875rem;
   line-height: 1.5;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.15s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--color-brand-500);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-500) 20%, transparent);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
 .input::placeholder {
@@ -159,7 +169,14 @@ body {
   opacity: 0.6;
 }
 
-/* ─── Button Variants ─── */
+/* ═══════════════════════════════════════════════════════════════════
+ * ── Button System ───────────────────────────────────────────────
+ * FIX #4: Asymmetric press/release spring-back animation.
+ *
+ * Desktop pattern (TaskItem.vue L396-411):
+ *   Press:   0.15s  cubic-bezier(0.2, 0, 0, 1)       — fast compress
+ *   Release: 0.35s  cubic-bezier(0.05, 0.7, 0.1, 1)  — springy overshoot
+ * ═══════════════════════════════════════════════════════════════════ */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -171,24 +188,32 @@ body {
   font-weight: 500;
   cursor: pointer;
   border: none;
+  /* Release state: spring-back (emphasized-decelerate) */
   transition:
-    background 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.1s ease;
+    background 0.2s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.35s cubic-bezier(0.05, 0.7, 0.1, 1),
+    border-color 0.3s;
 }
 
 .btn:active {
   transform: scale(0.98);
+  /* Press state: fast compress (emphasized) */
+  transition:
+    background 0.2s cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.15s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.15s;
 }
 
 .btn-primary {
-  background: var(--color-brand-500);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .btn-primary:hover {
-  background: var(--color-brand-600);
   box-shadow: var(--shadow-elevated);
+  filter: brightness(1.1);
 }
 
 .btn-primary:disabled {
@@ -198,26 +223,35 @@ body {
 }
 
 .btn-secondary {
-  background: var(--color-surface);
+  background: var(--color-surface-container);
   color: var(--color-on-surface);
   border: 1px solid var(--color-outline-variant);
 }
 
 .btn-secondary:hover {
-  background: var(--color-surface-dim);
+  background: var(--color-surface-container-high);
+}
+
+.btn-tonal {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.btn-tonal:hover {
+  filter: brightness(0.95);
 }
 
 .btn-danger {
   color: var(--color-error);
-  border: 1px solid color-mix(in oklab, var(--color-error) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-error) 30%, transparent);
   background: transparent;
 }
 
 .btn-danger:hover {
-  background: color-mix(in oklab, var(--color-error) 8%, transparent);
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
 }
 
-/* ─── Section Header ─── */
+/* ── Section Header ──────────────────────────────────────────────── */
 .section-title {
   font-size: 0.8125rem;
   font-weight: 600;
@@ -225,4 +259,257 @@ body {
   letter-spacing: 0.05em;
   color: var(--color-on-surface-variant);
   margin-bottom: 0.75rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * ── Vue <Transition> Classes ────────────────────────────────────
+ *
+ * FIX #1: All easing values HARDCODED as cubic-bezier() — never
+ * referenced via var(). This eliminates the risk of @theme variables
+ * not being available in the global CSS context.
+ *
+ * All values, durations, and transforms are character-for-character
+ * identical to desktop Motrix Next variables.css L366-404.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* ── fade: shared-axis scale transition ──────────────────────────── */
+/* Ref: desktop variables.css L366-382                                */
+.fade-enter-active {
+  transition:
+    opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.fade-leave-active {
+  transition:
+    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
+    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+/* ── fade-scale: stronger entrance for dialogs / panels ──────────── */
+/* Ref: desktop variables.css L384-404                                */
+.fade-scale-enter-active {
+  transition:
+    opacity 0.22s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.22s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.fade-scale-leave-active {
+  transition:
+    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
+    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+.fade-scale-enter-from {
+  opacity: 0;
+  transform: scale(0.94);
+}
+
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* ── phase-switch: vertical content swap for state transitions ───── */
+/* Ref: desktop EngineOverlay.vue, UpdateDialog.vue                   */
+.phase-switch-enter-active {
+  transition:
+    opacity 0.25s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.phase-switch-leave-active {
+  transition:
+    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
+    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+.phase-switch-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.phase-switch-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * ── Vue <TransitionGroup> List Animations ───────────────────────
+ *
+ * FIX #3: Rewritten to match desktop TaskList.vue L154-173 exactly:
+ *   - Y-axis vertical direction (not X-axis horizontal)
+ *   - scale(0.97) on both enter and leave
+ *   - enter: +24px from below, 0.3s emphasized
+ *   - leave: -10px upward, 0.2s emphasized-accel, position absolute
+ *   - move: 0.3s emphasized
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* Ref: desktop TaskList.vue L155-156 */
+.list-item-enter-active {
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Ref: desktop TaskList.vue L158-161 */
+.list-item-leave-active {
+  transition: all 0.2s cubic-bezier(0.3, 0, 0.8, 0.15);
+  position: absolute;
+  width: 100%;
+}
+
+/* Ref: desktop TaskList.vue L163-165 — enter from below */
+.list-item-enter-from {
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
+}
+
+/* Ref: desktop TaskList.vue L167-169 — exit upward */
+.list-item-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.97);
+}
+
+/* Ref: desktop TaskList.vue L171-173 — smooth reflow */
+.list-item-move {
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * ── Naive UI Transition Overrides ───────────────────────────────
+ *
+ * FIX #2: Port the desktop's Naive UI transition overrides verbatim
+ * from variables.css L406-462. These replace Naive UI's built-in
+ * Material Design 2 easing with M3 emphasized easing curves.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Tabs: opacity-only crossfade, kill default transform ────────── */
+/* Ref: desktop variables.css L407-428                                 */
+.n-tabs-pane-wrapper {
+  transition:
+    opacity 0.18s cubic-bezier(0.2, 0, 0, 1),
+    height 0.3s cubic-bezier(0.2, 0, 0, 1) !important;
+  overflow: hidden;
+}
+
+.n-tab-pane-enter-active {
+  transition: opacity 0.18s cubic-bezier(0.2, 0, 0, 1) !important;
+  transform: none !important;
+}
+
+.n-tab-pane-leave-active {
+  transition: opacity 0.12s cubic-bezier(0.3, 0, 0.8, 0.15) !important;
+  transform: none !important;
+}
+
+.n-tab-pane-enter-from,
+.n-tab-pane-leave-to {
+  opacity: 0 !important;
+  transform: none !important;
+}
+
+/* ── Modal: M3 emphasized mask + bounce body ─────────────────────── */
+/* Ref: desktop variables.css L430-462                                 */
+.n-modal-mask-enter-active {
+  transition: opacity 0.25s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+
+.n-modal-mask-leave-active {
+  transition: opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15) !important;
+}
+
+.n-modal-body-wrapper--enter-active {
+  transition:
+    opacity 0.3s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.n-modal-body-wrapper--leave-active {
+  transition:
+    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
+    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15) !important;
+}
+
+.n-modal-body-wrapper--enter-from {
+  opacity: 0 !important;
+  transform: scale(0.92) !important;
+}
+
+.n-modal-body-wrapper--leave-to {
+  opacity: 0 !important;
+  transform: scale(0.96) !important;
+}
+
+.n-dialog {
+  transform-origin: center center !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * ── M3 @keyframes ──────────────────────────────────────────────
+ *
+ * FIX #5: Port key @keyframes from desktop variables.css and
+ * TaskItem.vue that are used for progress and tag animations.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* Ref: desktop variables.css L349-364 — progress bar shimmer        */
+@keyframes mo-progress-active {
+  0% {
+    opacity: 0.1;
+    width: 0;
+  }
+  20% {
+    opacity: 0.5;
+    width: 0;
+  }
+  100% {
+    opacity: 0;
+    width: 100%;
+  }
+}
+
+/* Ref: desktop TaskItem.vue L456 — elastic tag entrance             */
+@keyframes m3-tag-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Scrollbar (M3-aware, desktop-aligned) ───────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--color-on-surface) 25%, transparent);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-on-surface) 40%, transparent);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ── Reduced Motion ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
