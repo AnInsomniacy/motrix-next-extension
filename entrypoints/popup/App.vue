@@ -8,6 +8,7 @@
  * check, task polling) is preserved unchanged from the original.
  */
 import { ref, onMounted, onUnmounted } from 'vue';
+import { usePolling } from '@/shared/use-polling';
 import { NConfigProvider, NSpin, NIcon, NButton } from 'naive-ui';
 import {
   PauseOutline,
@@ -15,12 +16,13 @@ import {
   RocketOutline,
   AlertCircleOutline,
 } from '@vicons/ionicons5';
-import { Aria2Client } from '@/modules/rpc/aria2-client';
-import { ConnectionService, ConnectionStatus } from '@/modules/services/connection';
-import { buildProtocolUrl, ProtocolAction } from '@/modules/protocol/launcher';
-import { resolveThemeClass } from '@/modules/services/theme';
-import type { ThemePreference } from '@/modules/services/theme';
-import type { Aria2Task, Aria2GlobalStat, RpcConfig } from '@/shared/types';
+import { Aria2Client } from '@/modules/rpc';
+import { ConnectionService, ConnectionStatus } from '@/modules/services';
+import { buildProtocolUrl, ProtocolAction } from '@/modules/protocol';
+import { resolveThemeClass } from '@/modules/services';
+import type { ThemePreference } from '@/modules/services';
+import { StorageService } from '@/modules/storage';
+import type { Aria2Task, Aria2GlobalStat } from '@/shared/types';
 import { DEFAULT_RPC_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
 
@@ -54,7 +56,7 @@ const globalStat = ref<Aria2GlobalStat | null>(null);
 const loading = ref(true);
 
 let client: Aria2Client;
-let pollTimer: ReturnType<typeof setInterval> | null = null;
+let stopPolling: (() => void) | null = null;
 
 // ─── Data Fetching ──────────────────────────────────────────────────
 
@@ -118,29 +120,35 @@ function launchApp(): void {
 // ─── Lifecycle ──────────────────────────────────────────────────────
 
 onMounted(async () => {
-  // Apply theme class to <html> for Tailwind `.dark` utilities
-  const uiStored = await chrome.storage.local.get(['uiPrefs']);
-  const uiPrefs = uiStored.uiPrefs as Record<string, string> | undefined;
-  const theme = (uiPrefs?.theme ?? 'system') as ThemePreference;
-  colorSchemeId.value = uiPrefs?.colorScheme ?? DEFAULT_UI_PREFS.colorScheme;
+  const storageService = new StorageService(chrome.storage.local);
+  const data = await storageService.load();
+
+  // Apply theme
+  const theme = data.uiPrefs.theme as ThemePreference;
+  colorSchemeId.value = data.uiPrefs.colorScheme;
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   document.documentElement.className = resolveThemeClass(theme, mediaQuery.matches);
   mediaQuery.addEventListener('change', (e) => {
     document.documentElement.className = resolveThemeClass(theme, e.matches);
   });
 
-  // Initialize RPC client
-  const stored = await chrome.storage.local.get(['rpc']);
-  const rpcConfig: RpcConfig = (stored.rpc as RpcConfig) ?? { ...DEFAULT_RPC_CONFIG };
-  rpcPort.value = rpcConfig.port;
-  client = new Aria2Client(rpcConfig, { timeoutMs: 3000 });
+  // Initialize RPC client with validated config
+  rpcPort.value = data.rpc.port;
+  client = new Aria2Client(data.rpc, { timeoutMs: 3000 });
 
-  await fetchData();
-  pollTimer = setInterval(() => void fetchData(), 2000);
+  // Smart polling with exponential backoff + visibility awareness
+  const poller = usePolling({
+    fn: fetchData,
+    baseIntervalMs: 2000,
+    maxIntervalMs: 30000,
+    backoffMultiplier: 2,
+  });
+  poller.start();
+  stopPolling = () => poller.stop();
 });
 
 onUnmounted(() => {
-  if (pollTimer) clearInterval(pollTimer);
+  stopPolling?.();
 });
 </script>
 

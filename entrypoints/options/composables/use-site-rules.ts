@@ -3,11 +3,13 @@
  *
  * Encapsulates rule state, add/remove operations, and storage persistence.
  * Rules are immediately persisted on every mutation (no dirty tracking needed).
+ * Accepts a StorageService for DI-friendly persistence.
  */
 import { ref } from 'vue';
+import type { StorageService } from '@/modules/storage';
 import type { SiteRule } from '@/shared/types';
 
-export function useSiteRules() {
+export function useSiteRules(storageService: StorageService) {
   const siteRules = ref<SiteRule[]>([]);
 
   function hydrate(rules: SiteRule[]): void {
@@ -15,7 +17,7 @@ export function useSiteRules() {
   }
 
   function persistSiteRules(): void {
-    void chrome.storage.local.set({ siteRules: siteRules.value });
+    void storageService.saveSiteRules(siteRules.value);
   }
 
   function addRule(rule: Omit<SiteRule, 'id'>): void {

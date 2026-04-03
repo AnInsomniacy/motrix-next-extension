@@ -1,13 +1,22 @@
-import { Aria2Client } from '@/modules/rpc/aria2-client';
-import { DownloadOrchestrator } from '@/modules/download/orchestrator';
-import { DownloadBarService } from '@/modules/services/download-bar';
-import { CompletionTracker } from '@/modules/services/completion-tracker';
-import { ContextMenuService } from '@/modules/services/context-menu';
-import { NotificationService } from '@/modules/services/notification';
-import { DiagnosticLog } from '@/modules/storage/diagnostic-log';
-import { buildProtocolUrl } from '@/modules/protocol/launcher';
+import { Aria2Client } from '@/modules/rpc';
+import { DownloadOrchestrator } from '@/modules/download';
+import {
+  DownloadBarService,
+  CompletionTracker,
+  ContextMenuService,
+  NotificationService,
+} from '@/modules/services';
+import {
+  DiagnosticLog,
+  StorageService,
+  parseRpcConfig,
+  parseDownloadSettings,
+  parseSiteRules,
+} from '@/modules/storage';
+import { buildProtocolUrl } from '@/modules/protocol';
 import { decodeThunderLink } from '@/shared/thunder';
 import { extractFilenameFromUrl } from '@/shared/url';
+import { usePolling } from '@/shared/use-polling';
 import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 import type { DownloadSettings, RpcConfig, SiteRule } from '@/shared/types';
 
@@ -38,28 +47,17 @@ export default defineBackground(() => {
     },
   });
 
+  const storageService = new StorageService(chrome.storage.local);
+
   // ─── Load config from storage on startup ──────────
   async function loadConfig(): Promise<void> {
     try {
-      const stored = await chrome.storage.local.get([
-        'rpc',
-        'settings',
-        'siteRules',
-        'diagnosticLog',
-      ]);
-      if (stored.rpc) {
-        rpcConfig = stored.rpc as RpcConfig;
-        client.updateConfig(rpcConfig);
-      }
-      if (stored.settings) {
-        settings = stored.settings as DownloadSettings;
-      }
-      if (stored.siteRules) {
-        siteRules = stored.siteRules as SiteRule[];
-      }
-      if (stored.diagnosticLog) {
-        diagnosticLog.hydrate(stored.diagnosticLog as import('@/shared/types').DiagnosticEvent[]);
-      }
+      const data = await storageService.load();
+      rpcConfig = data.rpc;
+      client.updateConfig(rpcConfig);
+      settings = data.settings;
+      siteRules = data.siteRules;
+      diagnosticLog.hydrate(data.diagnosticLog);
     } catch {
       // Use defaults on first install
     }
@@ -78,7 +76,7 @@ export default defineBackground(() => {
   // ─── Persist diagnostic log to storage ────────────
   async function persistDiagnosticLog(): Promise<void> {
     try {
-      await chrome.storage.local.set({ diagnosticLog: diagnosticLog.getAll() });
+      await storageService.saveDiagnosticLog(diagnosticLog.getAll());
     } catch {
       // Silently fail — not critical
     }
@@ -196,22 +194,22 @@ export default defineBackground(() => {
     }
   });
 
-  // Storage change listener — update config when user modifies settings
+  // Storage change listener — update config with schema validation
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
     if (changes.rpc?.newValue) {
-      rpcConfig = changes.rpc.newValue as RpcConfig;
+      rpcConfig = parseRpcConfig(changes.rpc.newValue);
       client.updateConfig(rpcConfig);
     }
     if (changes.settings?.newValue) {
-      settings = changes.settings.newValue as DownloadSettings;
+      settings = parseDownloadSettings(changes.settings.newValue);
       void downloadBarService.apply({
         hideDownloadBar: settings.hideDownloadBar,
         hasEnhancedPermissions: enhancedPermissions,
       });
     }
     if (changes.siteRules?.newValue) {
-      siteRules = changes.siteRules.newValue as SiteRule[];
+      siteRules = parseSiteRules(changes.siteRules.newValue);
     }
   });
 
@@ -222,11 +220,17 @@ export default defineBackground(() => {
       hasEnhancedPermissions: enhancedPermissions,
     });
 
-    // Poll completion every 3 seconds when there are tracked GIDs
-    setInterval(() => {
-      if (completionTracker.trackedCount > 0) {
-        void completionTracker.poll();
-      }
-    }, 3000);
+    // Smart completion polling with exponential backoff
+    const completionPoller = usePolling({
+      fn: async () => {
+        if (completionTracker.trackedCount > 0) {
+          await completionTracker.poll();
+        }
+      },
+      baseIntervalMs: 3000,
+      maxIntervalMs: 30000,
+      backoffMultiplier: 2,
+    });
+    completionPoller.start();
   });
 });

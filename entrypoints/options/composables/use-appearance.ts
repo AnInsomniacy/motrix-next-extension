@@ -1,15 +1,17 @@
 /**
  * @fileoverview Composable for appearance settings (theme + color scheme).
  *
- * Encapsulates theme/color scheme state, immediate persistence,
- * and DOM class application for light/dark mode.
+ * Encapsulates theme/color scheme state, immediate persistence via
+ * StorageService, and DOM class application for light/dark mode.
  */
 import { ref } from 'vue';
-import { resolveThemeClass } from '@/modules/services/theme';
+import type { StorageService } from '@/modules/storage';
+import { resolveThemeClass } from '@/modules/services';
 import type { UiPrefs } from '@/shared/types';
 import { DEFAULT_UI_PREFS } from '@/shared/constants';
 
 export function useAppearance(
+  storageService: StorageService,
   setTheme: (theme: UiPrefs['theme']) => void,
   setColorSchemeId: (id: string) => void,
 ) {
@@ -29,18 +31,14 @@ export function useAppearance(
     const theme = value as UiPrefs['theme'];
     uiTheme.value = theme;
     setTheme(theme);
-    void chrome.storage.local.set({
-      uiPrefs: { theme, colorScheme: uiColorScheme.value },
-    });
+    void storageService.saveUiPrefs({ theme, colorScheme: uiColorScheme.value });
     applyTheme();
   }
 
   function handleColorSchemeChange(value: string): void {
     uiColorScheme.value = value;
     setColorSchemeId(value);
-    void chrome.storage.local.set({
-      uiPrefs: { theme: uiTheme.value, colorScheme: value },
-    });
+    void storageService.saveUiPrefs({ theme: uiTheme.value, colorScheme: value });
   }
 
   function applyTheme(): void {

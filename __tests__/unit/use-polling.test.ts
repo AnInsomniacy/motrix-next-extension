@@ -122,4 +122,89 @@ describe('usePolling', () => {
 
     stop();
   });
+
+  // ─── Visibility-Aware Tests ───────────────────────────
+
+  it('pauses polling when page becomes hidden', async () => {
+    const fn = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
+    let visibilityCallback: (() => void) | null = null;
+    const visibilityApi = {
+      isHidden: () => false,
+      onVisibilityChange: (cb: () => void) => { visibilityCallback = cb; return () => { visibilityCallback = null; }; },
+    };
+    const { start, stop } = usePolling({
+      fn, baseIntervalMs: 1000, maxIntervalMs: 30000, backoffMultiplier: 2, visibilityApi,
+    });
+
+    start();
+    await vi.advanceTimersByTimeAsync(0); // initial tick
+    expect(fn).toHaveBeenCalledTimes(1);
+
+    // Simulate page becoming hidden
+    visibilityApi.isHidden = () => true;
+    visibilityCallback!();
+
+    // Time passes — should NOT fire
+    await vi.advanceTimersByTimeAsync(10000);
+    expect(fn).toHaveBeenCalledTimes(1);
+
+    stop();
+  });
+
+  it('fires immediately when page becomes visible again', async () => {
+    const fn = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
+    let visibilityCallback: (() => void) | null = null;
+    const visibilityApi = {
+      isHidden: () => false,
+      onVisibilityChange: (cb: () => void) => { visibilityCallback = cb; return () => { visibilityCallback = null; }; },
+    };
+    const { start, stop } = usePolling({
+      fn, baseIntervalMs: 1000, maxIntervalMs: 30000, backoffMultiplier: 2, visibilityApi,
+    });
+
+    start();
+    await vi.advanceTimersByTimeAsync(0); // initial tick
+    expect(fn).toHaveBeenCalledTimes(1);
+
+    // Go hidden
+    visibilityApi.isHidden = () => true;
+    visibilityCallback!();
+
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(fn).toHaveBeenCalledTimes(1); // paused
+
+    // Come back visible — should fire immediately
+    visibilityApi.isHidden = () => false;
+    visibilityCallback!();
+    await vi.advanceTimersByTimeAsync(0); // flush the immediate tick
+    expect(fn).toHaveBeenCalledTimes(2);
+
+    // Normal polling resumes at base interval
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(fn).toHaveBeenCalledTimes(3);
+
+    stop();
+  });
+
+  it('cleans up visibility listener on stop', async () => {
+    const fn = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
+    let registered = false;
+    const visibilityApi = {
+      isHidden: () => false,
+      onVisibilityChange: (_cb: () => void) => {
+        registered = true;
+        return () => { registered = false; };
+      },
+    };
+    const { start, stop } = usePolling({
+      fn, baseIntervalMs: 1000, maxIntervalMs: 30000, backoffMultiplier: 2, visibilityApi,
+    });
+
+    start();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(registered).toBe(true);
+
+    stop();
+    expect(registered).toBe(false);
+  });
 });

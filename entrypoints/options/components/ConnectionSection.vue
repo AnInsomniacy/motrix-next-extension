@@ -16,7 +16,7 @@ import {
   NIcon,
 } from 'naive-ui';
 import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
-import { ConnectionStatus } from '@/modules/services/connection';
+import { ConnectionStatus } from '@/modules/services';
 
 const props = defineProps<{
   port: number;

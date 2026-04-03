@@ -15,7 +15,8 @@
  */
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { NConfigProvider, createDiscreteApi } from 'naive-ui';
-import type { RpcConfig, UiPrefs, SiteRule, DiagnosticEvent } from '@/shared/types';
+import { StorageService } from '@/modules/storage';
+import type { RpcConfig } from '@/shared/types';
 import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
 import { usePreferenceForm } from '@/shared/use-preference-form';
@@ -54,12 +55,16 @@ function i18nSub(key: string, subs: string[], fallback: string): string {
 
 const activeSection = ref('connection');
 
+// ─── StorageService ──────────────────────────────────────────────────
+
+const storageService = new StorageService(chrome.storage.local);
+
 // ─── Composables ────────────────────────────────────────────────────
 
-const { siteRules, hydrate: hydrateSiteRules, addRule, removeRule } = useSiteRules();
+const { siteRules, hydrate: hydrateSiteRules, addRule, removeRule } = useSiteRules(storageService);
 const { enhancedGranted, checkPermissions, grantEnhanced, revokeEnhanced } = useEnhancedPermissions();
-const { diagnosticEvents, hydrate: hydrateDiagnostics, copyDiagnosticLog, clearDiagnosticLog } = useDiagnostics();
-const appearance = useAppearance(setTheme, (id) => { colorSchemeId.value = id; });
+const { diagnosticEvents, hydrate: hydrateDiagnostics, copyDiagnosticLog, clearDiagnosticLog } = useDiagnostics(storageService);
+const appearance = useAppearance(storageService, setTheme, (id) => { colorSchemeId.value = id; });
 
 // ─── Preference Form (dirty-tracked settings) ──────────────────────
 
@@ -93,20 +98,18 @@ const { form, isDirty, handleSave: rawSave, handleReset: rawReset, resetSnapshot
   usePreferenceForm<SettingsForm>({
     buildForm,
     persist: async (f) => {
-      await chrome.storage.local.set({
-        rpc: {
-          host: DEFAULT_RPC_CONFIG.host,
-          port: f.port,
-          secret: f.secret,
-        },
-        settings: {
-          enabled: f.enabled,
-          minFileSize: f.minFileSize,
-          fallbackToBrowser: f.fallbackToBrowser,
-          hideDownloadBar: f.hideDownloadBar,
-          notifyOnStart: f.notifyOnStart,
-          notifyOnComplete: f.notifyOnComplete,
-        },
+      await storageService.saveRpcConfig({
+        host: DEFAULT_RPC_CONFIG.host,
+        port: f.port,
+        secret: f.secret,
+      });
+      await storageService.saveSettings({
+        enabled: f.enabled,
+        minFileSize: f.minFileSize,
+        fallbackToBrowser: f.fallbackToBrowser,
+        hideDownloadBar: f.hideDownloadBar,
+        notifyOnStart: f.notifyOnStart,
+        notifyOnComplete: f.notifyOnComplete,
       });
     },
     afterSave: () => {
@@ -147,44 +150,27 @@ const {
 
 const extensionVersion = chrome.runtime.getManifest().version;
 
+
 // ─── Load from Storage ──────────────────────────────────────────────
 
 async function loadFromStorage(): Promise<void> {
-  const stored = await chrome.storage.local.get([
-    'rpc',
-    'settings',
-    'siteRules',
-    'uiPrefs',
-    'diagnosticLog',
-  ]) as Record<string, Record<string, unknown> | SiteRule[] | DiagnosticEvent[] | undefined>;
+  const data = await storageService.load();
 
-  // Hydrate dirty-tracked form
-  const loaded = buildForm();
-  const rpcData = stored.rpc as Record<string, unknown> | undefined;
-  if (rpcData) {
-    loaded.port = (rpcData.port as number) ?? loaded.port;
-    loaded.secret = (rpcData.secret as string) ?? loaded.secret;
-  }
-  const settingsData = stored.settings as Record<string, unknown> | undefined;
-  if (settingsData) {
-    loaded.enabled = (settingsData.enabled as boolean) ?? loaded.enabled;
-    loaded.minFileSize = (settingsData.minFileSize as number) ?? loaded.minFileSize;
-    loaded.fallbackToBrowser = (settingsData.fallbackToBrowser as boolean) ?? loaded.fallbackToBrowser;
-    loaded.hideDownloadBar = (settingsData.hideDownloadBar as boolean) ?? loaded.hideDownloadBar;
-    loaded.notifyOnStart = (settingsData.notifyOnStart as boolean) ?? loaded.notifyOnStart;
-    loaded.notifyOnComplete = (settingsData.notifyOnComplete as boolean) ?? loaded.notifyOnComplete;
-  }
-  Object.assign(form.value, loaded);
+  // Hydrate dirty-tracked form (schema-validated, no casts)
+  form.value.port = data.rpc.port;
+  form.value.secret = data.rpc.secret;
+  form.value.enabled = data.settings.enabled;
+  form.value.minFileSize = data.settings.minFileSize;
+  form.value.fallbackToBrowser = data.settings.fallbackToBrowser;
+  form.value.hideDownloadBar = data.settings.hideDownloadBar;
+  form.value.notifyOnStart = data.settings.notifyOnStart;
+  form.value.notifyOnComplete = data.settings.notifyOnComplete;
   resetSnapshot();
 
-  // Hydrate composables
-  const uiData = stored.uiPrefs as Record<string, unknown> | undefined;
-  appearance.hydrate({
-    theme: uiData?.theme as UiPrefs['theme'] | undefined,
-    colorScheme: uiData?.colorScheme as string | undefined,
-  });
-  if (stored.siteRules) hydrateSiteRules(stored.siteRules as SiteRule[]);
-  if (stored.diagnosticLog) hydrateDiagnostics(stored.diagnosticLog as DiagnosticEvent[]);
+  // Hydrate composables (already type-safe from Zod)
+  appearance.hydrate(data.uiPrefs);
+  hydrateSiteRules(data.siteRules);
+  hydrateDiagnostics(data.diagnosticLog);
 
   await checkPermissions();
 }

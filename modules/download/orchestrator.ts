@@ -98,28 +98,11 @@ export class DownloadOrchestrator {
     // We intentionally do NOT pass `out` to aria2 — aria2 has superior
     // filename resolution via Content-Disposition, redirected URLs, and
     // URL path segments (see aria2 HttpResponse.cc:determineFilename()).
-    // Forcing `out` would override aria2's native resolution.
-    const enhanced = this.deps.hasEnhancedPermissions();
     const displayName = item.filename
       || extractFilenameFromUrl(item.finalUrl || item.url)
       || 'download';
 
-    const metadata = await this.metadataCollector.collectMetadata({
-      url: item.url,
-      filename: displayName,
-      tabUrl,
-      cookiesApi: enhanced ? this.deps.cookies : null,
-      hasEnhancedPermissions: enhanced,
-    });
-
-    const headers = MetadataCollector.buildAria2Headers(metadata);
-
-    // ─── Send to aria2 ────────────────────────────
-    // Do NOT set `out` — let aria2 resolve the filename natively.
-    const aria2Options: Record<string, unknown> = {};
-    if (headers.length > 0) {
-      aria2Options.header = headers;
-    }
+    const aria2Options = await this.buildAria2Options(item.url, tabUrl);
 
     try {
       const gid = await this.deps.aria2.addUri([item.url], aria2Options);
@@ -180,27 +163,7 @@ export class DownloadOrchestrator {
     const settings = this.deps.getSettings();
     const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
 
-    // ─── Build Headers ────────────────────────────
-    const headers: string[] = [];
-    if (tabUrl) headers.push(`Referer: ${tabUrl}`);
-
-    // Cookie forwarding (best-effort)
-    if (this.deps.hasEnhancedPermissions()) {
-      try {
-        const cookies = await this.deps.cookies.getAll({ url });
-        if (cookies.length > 0) {
-          const cookieStr = cookies.map((c: { name: string; value: string }) => `${c.name}=${c.value}`).join('; ');
-          headers.push(`Cookie: ${cookieStr}`);
-        }
-      } catch {
-        // Graceful degradation
-      }
-    }
-
-    const aria2Options: Record<string, unknown> = {};
-    if (headers.length > 0) {
-      aria2Options.header = headers;
-    }
+    const aria2Options = await this.buildAria2Options(url, tabUrl);
 
     // ─── Send to aria2 ────────────────────────────
     try {
@@ -233,5 +196,33 @@ export class DownloadOrchestrator {
       });
       throw error;
     }
+  }
+
+  // ─── Private Helpers ────────────────────────────────
+
+  /**
+   * Build aria2 options (headers, cookies) for a URL.
+   * Shared by handleCreated and sendUrl to eliminate duplication.
+   */
+  private async buildAria2Options(
+    url: string,
+    tabUrl: string,
+  ): Promise<Record<string, unknown>> {
+    const enhanced = this.deps.hasEnhancedPermissions();
+
+    const metadata = await this.metadataCollector.collectMetadata({
+      url,
+      filename: '', // not used for aria2 options
+      tabUrl,
+      cookiesApi: enhanced ? this.deps.cookies : null,
+      hasEnhancedPermissions: enhanced,
+    });
+
+    const headers = MetadataCollector.buildAria2Headers(metadata);
+    const options: Record<string, unknown> = {};
+    if (headers.length > 0) {
+      options.header = headers;
+    }
+    return options;
   }
 }

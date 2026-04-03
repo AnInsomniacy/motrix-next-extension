@@ -8,7 +8,7 @@
  */
 import { NIcon } from 'naive-ui';
 import { SettingsOutline } from '@vicons/ionicons5';
-import { ConnectionStatus } from '@/modules/services/connection';
+import { ConnectionStatus } from '@/modules/services';
 
 defineProps<{
   status: ConnectionStatus;
