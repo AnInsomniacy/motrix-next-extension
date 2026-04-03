@@ -17,7 +17,7 @@ import {
 } from '@vicons/ionicons5';
 import { Aria2Client } from '@/modules/rpc/aria2-client';
 import { ConnectionService, ConnectionStatus } from '@/modules/services/connection';
-import { buildProtocolUrl } from '@/modules/protocol/launcher';
+import { buildProtocolUrl, ProtocolAction } from '@/modules/protocol/launcher';
 import { resolveThemeClass } from '@/modules/services/theme';
 import type { ThemePreference } from '@/modules/services/theme';
 import type { Aria2Task, Aria2GlobalStat, RpcConfig } from '@/shared/types';
@@ -106,7 +106,11 @@ function openSettings(): void {
 }
 
 function launchApp(): void {
-  void chrome.tabs.create({ url: buildProtocolUrl(), active: false }).then((tab) => {
+  // Connected: focus the existing window. Disconnected: wake the app via OS.
+  const url = status.value === ConnectionStatus.Connected
+    ? buildProtocolUrl(ProtocolAction.Tasks)
+    : buildProtocolUrl();
+  void chrome.tabs.create({ url, active: false }).then((tab) => {
     if (tab.id) setTimeout(() => chrome.tabs.remove(tab.id!), 500);
   });
 }
@@ -253,7 +257,14 @@ onUnmounted(() => {
             <template #icon>
               <NIcon :size="14"><RocketOutline /></NIcon>
             </template>
-            {{ i18n('popup_action_launch', 'Launch') }}
+            <Transition name="text-swap" mode="out-in">
+              <span v-if="status === 'connected'" key="open">
+                {{ i18n('popup_action_open', 'Open Motrix Next') }}
+              </span>
+              <span v-else key="launch">
+                {{ i18n('popup_action_launch', 'Launch Motrix Next') }}
+              </span>
+            </Transition>
           </NButton>
         </div>
       </template>

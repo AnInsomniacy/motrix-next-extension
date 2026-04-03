@@ -6,6 +6,11 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
+  runner: {
+    // Reuse a persistent browser profile across dev restarts so that
+    // chrome.storage.local data (RPC secret, theme, etc.) is preserved.
+    dataPersistence: 'project',
+  },
   manifest: {
     name: '__MSG_ext_name__',
     description: '__MSG_ext_description__',

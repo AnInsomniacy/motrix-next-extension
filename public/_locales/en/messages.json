@@ -47,7 +47,11 @@
   },
   "popup_action_launch": {
     "message": "Launch Motrix Next",
-    "description": "Button to launch the desktop application"
+    "description": "Button to launch the desktop app when disconnected"
+  },
+  "popup_action_open": {
+    "message": "Open Motrix Next",
+    "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
     "message": "Cannot connect to Motrix Next",

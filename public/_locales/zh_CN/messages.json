@@ -47,7 +47,11 @@
   },
   "popup_action_launch": {
     "message": "启动 Motrix Next",
-    "description": "启动桌面应用的按钮"
+    "description": "断连时启动桌面应用的按钮"
+  },
+  "popup_action_open": {
+    "message": "打开 Motrix Next",
+    "description": "已连接时聚焦桌面应用的按钮"
   },
   "popup_error_unreachable": {
     "message": "无法连接到 Motrix Next",
