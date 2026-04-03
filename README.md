@@ -1,7 +1,7 @@
 <div align="center">
   <img src="public/icon/icon.svg" alt="Motrix Next Extension" width="96" height="96" />
   <h1>Motrix Next Extension</h1>
-  <p>Browser extension for <a href="https://github.com/AInsomniacy/motrix-next">Motrix Next</a> — seamless download interception &amp; acceleration.</p>
+  <p>Browser extension for <a href="https://github.com/AInsomniacy/motrix-next">Motrix Next</a> — seamless download interception &amp; delegation.</p>
 </div>
 
 ## Features
