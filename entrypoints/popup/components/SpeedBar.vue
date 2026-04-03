@@ -15,9 +15,9 @@ const props = defineProps<{
   stat: Aria2GlobalStat;
 }>();
 
-function i18nSub(key: string, subs: string[], fallback: string): string {
-  return chrome.i18n.getMessage(key, subs) || fallback;
-}
+import { useI18n } from '@/shared/i18n/engine';
+
+const { tSub: i18nSub } = useI18n();
 
 function formatSpeed(bytesPerSec: string): string {
   const n = parseInt(bytesPerSec, 10);

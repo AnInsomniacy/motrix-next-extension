@@ -134,10 +134,10 @@ describe('StorageService.saveUiPrefs', () => {
     const api = createMockApi({});
     const service = new StorageService(api);
 
-    await service.saveUiPrefs({ theme: 'dark', colorScheme: 'space' });
+    await service.saveUiPrefs({ theme: 'dark', colorScheme: 'space', locale: 'en' });
 
     expect(api.set).toHaveBeenCalledWith({
-      uiPrefs: { theme: 'dark', colorScheme: 'space' },
+      uiPrefs: { theme: 'dark', colorScheme: 'space', locale: 'en' },
     });
   });
 });

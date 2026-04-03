@@ -19,6 +19,8 @@ import { extractFilenameFromUrl } from '@/shared/url';
 import { usePolling } from '@/shared/use-polling';
 import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 import type { DownloadSettings, RpcConfig, SiteRule } from '@/shared/types';
+import { I18nEngine } from '@/shared/i18n/engine';
+import { resolveLocaleId, FALLBACK_LOCALE } from '@/shared/i18n/dictionaries';
 
 export default defineBackground(() => {
   // ─── State (restored from storage on each wake) ───
@@ -26,6 +28,8 @@ export default defineBackground(() => {
   let settings: DownloadSettings = { ...DEFAULT_DOWNLOAD_SETTINGS };
   let siteRules: SiteRule[] = [];
   let enhancedPermissions = false;
+
+  const bgI18n = new I18nEngine(FALLBACK_LOCALE);
 
   const client = new Aria2Client(rpcConfig, { timeoutMs: 5000, maxRetries: 1 });
   const downloadBarService = new DownloadBarService({
@@ -40,7 +44,7 @@ export default defineBackground(() => {
       const notification = NotificationService.buildSentNotification(filename, Date.now());
       void chrome.notifications.create(`complete-${Date.now()}`, {
         type: 'basic',
-        title: chrome.i18n.getMessage('notification_complete_title') || 'Download Complete',
+        title: bgI18n.t('notification_complete_title', 'Download Complete'),
         message: filename,
         iconUrl: notification.options.iconUrl,
       } as chrome.notifications.NotificationCreateOptions);
@@ -58,6 +62,13 @@ export default defineBackground(() => {
       settings = data.settings;
       siteRules = data.siteRules;
       diagnosticLog.hydrate(data.diagnosticLog);
+
+      // Hydrate i18n locale
+      const effectiveLocale =
+        data.uiPrefs.locale === 'auto'
+          ? resolveLocaleId(chrome.i18n.getUILanguage())
+          : data.uiPrefs.locale;
+      bgI18n.setLocale(effectiveLocale);
     } catch {
       // Use defaults on first install
     }
@@ -144,7 +155,7 @@ export default defineBackground(() => {
   for (const menuItem of menuItems) {
     chrome.contextMenus.create({
       id: menuItem.id,
-      title: chrome.i18n.getMessage('context_menu_download') || menuItem.title,
+      title: bgI18n.t('context_menu_download', menuItem.title),
       contexts: menuItem.contexts as [
         chrome.contextMenus.ContextType,
         ...chrome.contextMenus.ContextType[],
@@ -171,7 +182,7 @@ export default defineBackground(() => {
         const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
         await chrome.notifications.create(`failed-ctx-${Date.now()}`, {
           type: 'basic',
-          title: chrome.i18n.getMessage('notification_failed_title') || 'Download Failed',
+          title: bgI18n.t('notification_failed_title', 'Download Failed'),
           message: displayName,
           iconUrl: 'icon/128.png',
         });

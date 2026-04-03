@@ -12,9 +12,9 @@ import { NProgress, NIcon } from 'naive-ui';
 import { ArrowDownOutline } from '@vicons/ionicons5';
 import type { Aria2Task } from '@/shared/types';
 
-function i18n(key: string, fallback: string): string {
-  return chrome.i18n.getMessage(key) || fallback;
-}
+import { useI18n } from '@/shared/i18n/engine';
+
+const { t: i18n } = useI18n();
 
 const props = defineProps<{
   task: Aria2Task;

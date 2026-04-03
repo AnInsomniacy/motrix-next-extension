@@ -13,7 +13,7 @@
  *   - Theme: immediate persist + patchSnapshot (useAppearance)
  *   - Diagnostics: read-only / immediate persist on clear (useDiagnostics)
  */
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, provide, onMounted, onUnmounted, computed, watch } from 'vue';
 import { NConfigProvider, createDiscreteApi } from 'naive-ui';
 import { StorageService } from '@/lib/storage';
 import type { RpcConfig } from '@/shared/types';
@@ -30,6 +30,7 @@ import { useConnectionTest } from './composables/use-connection-test';
 import { useEnhancedPermissions } from './composables/use-enhanced-permissions';
 import { useDiagnostics } from './composables/use-diagnostics';
 import { useAppearance } from './composables/use-appearance';
+import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
 
 import OptionsNav from './components/OptionsNav.vue';
 import ConnectionSection from './components/ConnectionSection.vue';
@@ -39,6 +40,7 @@ import EnhancedSection from './components/EnhancedSection.vue';
 import AppearanceSection from './components/AppearanceSection.vue';
 import DiagnosticsSection from './components/DiagnosticsSection.vue';
 import SettingsActionBar from './components/SettingsActionBar.vue';
+import LanguageSection from './components/LanguageSection.vue';
 
 // ─── Theme + Color Scheme ───────────────────────────────────────────
 
@@ -47,12 +49,16 @@ const { naiveTheme, themeOverrides, setTheme } = useTheme(colorSchemeId);
 
 // ─── i18n ───────────────────────────────────────────────────────────
 
-function i18n(key: string, fallback: string): string {
-  return chrome.i18n.getMessage(key) || fallback;
-}
+const i18nCtx = createI18n();
+provide(I18N_KEY, i18nCtx);
+const { t: i18n, tEn: i18nEn, tSub: i18nSub, effectiveLocale, setLocale: i18nSetLocale } = i18nCtx;
+const { naiveLocale, naiveDateLocale } = useNaiveLocale(effectiveLocale);
 
-function i18nSub(key: string, subs: string[], fallback: string): string {
-  return chrome.i18n.getMessage(key, subs) || fallback;
+/** Bilingual display for the Language section title. */
+function i18nBilingual(key: string, enFallback: string): string {
+  const native = i18n(key, enFallback);
+  const en = i18nEn(key, enFallback);
+  return native === en ? native : `${native} / ${en}`;
 }
 
 // ─── Navigation ─────────────────────────────────────────────────────
@@ -180,6 +186,7 @@ async function loadFromStorage(): Promise<void> {
 
   // Hydrate composables (already type-safe from Zod)
   appearance.hydrate(data.uiPrefs);
+  i18nCtx.setLocale(data.uiPrefs.locale);
   hydrateSiteRules(data.siteRules);
   hydrateDiagnostics(data.diagnosticLog);
 
@@ -215,7 +222,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <NConfigProvider :theme="naiveTheme" :theme-overrides="themeOverrides" inline-theme-disabled>
+  <NConfigProvider
+    :theme="naiveTheme"
+    :theme-overrides="themeOverrides"
+    :locale="naiveLocale"
+    :date-locale="naiveDateLocale"
+    inline-theme-disabled
+  >
     <div class="options-root">
       <!-- ── Header ──────────────────────────────────────────── -->
       <header class="options-header">
@@ -341,6 +354,24 @@ onUnmounted(() => {
                   :color-scheme="appearance.uiColorScheme.value"
                   @update:theme="appearance.handleThemeChange"
                   @update:color-scheme="appearance.handleColorSchemeChange"
+                />
+              </div>
+            </div>
+
+            <!-- Language -->
+            <div v-else-if="activeSection === 'language'" key="language" class="section-wrapper">
+              <h2 class="section-title">
+                {{ i18nBilingual('options_section_language', 'Language') }}
+              </h2>
+              <div class="card">
+                <LanguageSection
+                  :locale="i18nCtx.locale.value"
+                  @update:locale="
+                    (v: string) => {
+                      i18nSetLocale(v);
+                      appearance.handleLocaleChange(v);
+                    }
+                  "
                 />
               </div>
             </div>

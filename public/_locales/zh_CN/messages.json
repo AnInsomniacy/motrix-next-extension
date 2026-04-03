@@ -394,5 +394,17 @@
     "placeholders": {
       "1": { "content": "$1", "example": "16800" }
     }
+  },
+  "options_section_language": {
+    "message": "语言",
+    "description": "界面语言设置区域"
+  },
+  "options_locale_auto": {
+    "message": "跟随系统",
+    "description": "语言选项：跟随浏览器语言"
+  },
+  "options_locale_auto_desc": {
+    "message": "跟随浏览器语言",
+    "description": "自动语言选项的说明"
   }
 }

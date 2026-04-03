@@ -13,44 +13,56 @@ import {
   ListOutline,
   ShieldCheckmarkOutline,
   ColorPaletteOutline,
+  GlobeOutline,
   BugOutline,
 } from '@vicons/ionicons5';
+import { useI18n } from '@/shared/i18n/engine';
 
 defineProps<{
   active: string;
 }>();
 const emit = defineEmits<{ select: [id: string] }>();
 
-function i18n(key: string, fallback: string): string {
-  return chrome.i18n.getMessage(key) || fallback;
+const { t, tEn } = useI18n();
+
+// Bilingual helper for the Language tab — always shows native + English
+function bilingual(key: string, enFallback: string): string {
+  const native = t(key, enFallback);
+  const en = tEn(key, enFallback);
+  return native === en ? native : `${native} / ${en}`;
 }
 
 const sections = [
   {
     id: 'connection',
     icon: LinkOutline,
-    label: () => i18n('options_section_connection', 'Connection'),
+    label: () => t('options_section_connection', 'Connection'),
   },
   {
     id: 'behavior',
     icon: SettingsOutline,
-    label: () => i18n('options_section_behavior', 'Behavior'),
+    label: () => t('options_section_behavior', 'Behavior'),
   },
-  { id: 'rules', icon: ListOutline, label: () => i18n('options_section_rules', 'Site Rules') },
+  { id: 'rules', icon: ListOutline, label: () => t('options_section_rules', 'Site Rules') },
   {
     id: 'enhanced',
     icon: ShieldCheckmarkOutline,
-    label: () => i18n('options_section_enhanced', 'Enhanced'),
+    label: () => t('options_section_enhanced', 'Enhanced'),
   },
   {
     id: 'appearance',
     icon: ColorPaletteOutline,
-    label: () => i18n('options_section_appearance', 'Appearance'),
+    label: () => t('options_section_appearance', 'Appearance'),
+  },
+  {
+    id: 'language',
+    icon: GlobeOutline,
+    label: () => bilingual('options_section_language', 'Language'),
   },
   {
     id: 'diagnostics',
     icon: BugOutline,
-    label: () => i18n('options_section_diagnostics', 'Diagnostics'),
+    label: () => t('options_section_diagnostics', 'Diagnostics'),
   },
 ];
 </script>

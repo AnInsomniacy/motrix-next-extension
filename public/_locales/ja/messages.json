@@ -4,19 +4,19 @@
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "Send browser downloads to Motrix Next — a modern download manager powered by aria2",
+    "message": "ブラウザのダウンロードをMotrix Nextに送信 — aria2ベースのモダンなダウンロードマネージャー",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
-    "message": "Connected",
+    "message": "接続済み",
     "description": "Connection status badge when aria2 RPC is reachable"
   },
   "popup_status_disconnected": {
-    "message": "Disconnected",
+    "message": "未接続",
     "description": "Connection status badge when aria2 RPC is unreachable"
   },
   "popup_status_not_configured": {
-    "message": "Not Configured",
+    "message": "未設定",
     "description": "Connection status badge when RPC secret is empty"
   },
   "popup_speed_download": {
@@ -30,165 +30,165 @@
     "placeholders": { "speed": { "content": "$1" } }
   },
   "popup_no_active_tasks": {
-    "message": "No active downloads",
+    "message": "アクティブなダウンロードなし",
     "description": "Message when there are no active aria2 tasks"
   },
   "popup_action_pause_all": {
-    "message": "Pause All",
+    "message": "すべて一時停止",
     "description": "Button to pause all active downloads"
   },
   "popup_action_resume_all": {
-    "message": "Resume All",
+    "message": "すべて再開",
     "description": "Button to resume all paused downloads"
   },
   "popup_action_settings": {
-    "message": "Settings",
+    "message": "設定",
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Launch Motrix Next",
+    "message": "Motrix Nextを起動",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Open Motrix Next",
+    "message": "Motrix Nextを開く",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "Cannot connect to Motrix Next",
+    "message": "Motrix Nextに接続できません",
     "description": "Error message when RPC is unreachable"
   },
   "popup_error_check_settings": {
-    "message": "Check Settings",
+    "message": "設定を確認",
     "description": "Button to navigate to settings when connection fails"
   },
   "options_title": {
-    "message": "Motrix Next Extension · Settings",
+    "message": "Motrix Next 拡張機能 · 設定",
     "description": "Options page title"
   },
   "options_section_connection": {
-    "message": "Connection",
+    "message": "接続",
     "description": "Settings section for RPC connection"
   },
   "options_rpc_port_label": {
-    "message": "RPC Port",
+    "message": "RPCポート",
     "description": "Label for the RPC port input"
   },
   "options_rpc_secret_label": {
-    "message": "RPC Secret",
+    "message": "RPCシークレット",
     "description": "Label for the RPC secret input"
   },
   "options_test_connection": {
-    "message": "Test Connection",
+    "message": "接続テスト",
     "description": "Button to test the RPC connection"
   },
   "options_connection_success": {
-    "message": "Connected · aria2 $version$",
+    "message": "接続済み · aria2 $version$",
     "description": "Success message after testing connection",
     "placeholders": { "version": { "content": "$1" } }
   },
   "options_section_behavior": {
-    "message": "Download Behavior",
+    "message": "ダウンロード動作",
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Enable Download Interception",
+    "message": "ダウンロードの横取りを有効化",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_enabled_desc": {
-    "message": "Automatically intercept browser downloads",
+    "message": "ブラウザのダウンロードを自動的に横取りする",
     "description": "Description text for the interception toggle"
   },
   "options_min_size_label": {
-    "message": "Minimum File Size (MB)",
+    "message": "最小ファイルサイズ (MB)",
     "description": "Label for minimum file size filter"
   },
   "options_min_size_desc": {
-    "message": "Skip files smaller than this threshold",
+    "message": "この閾値より小さいファイルをスキップ",
     "description": "Description text for minimum file size input"
   },
   "options_fallback_label": {
-    "message": "Fallback to Browser on Failure",
+    "message": "失敗時にブラウザでダウンロード",
     "description": "Toggle label for browser fallback"
   },
   "options_fallback_desc": {
-    "message": "Resume download in browser if aria2 fails",
+    "message": "aria2が失敗した場合、ブラウザでダウンロードを再開",
     "description": "Description text for the fallback toggle"
   },
   "options_notify_label": {
-    "message": "Notifications",
+    "message": "通知",
     "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
-    "message": "Site Rules",
+    "message": "サイトルール",
     "description": "Settings section for per-site download rules"
   },
   "options_add_rule": {
-    "message": "Add Rule",
+    "message": "ルールを追加",
     "description": "Button to add a new site rule"
   },
   "options_section_enhanced": {
-    "message": "Enhanced Mode",
+    "message": "拡張モード",
     "description": "Settings section for optional enhanced permissions"
   },
   "options_enhanced_cookies_label": {
-    "message": "Cookie Forwarding (Best-Effort)",
+    "message": "Cookie転送 (ベストエフォート)",
     "description": "Toggle label for cookie forwarding to aria2"
   },
   "options_enhanced_hide_bar_label": {
-    "message": "Hide Browser Download Bar",
+    "message": "ブラウザのダウンロードバーを非表示",
     "description": "Toggle label for hiding the browser download UI"
   },
   "options_enhanced_grant": {
-    "message": "Grant Enhanced Permissions",
+    "message": "拡張権限を付与",
     "description": "Button to request optional permissions"
   },
   "options_enhanced_granted": {
-    "message": "Permissions Granted",
+    "message": "権限付与済み",
     "description": "Status when enhanced permissions are active"
   },
   "options_section_appearance": {
-    "message": "Appearance",
+    "message": "外観",
     "description": "Settings section for theme"
   },
   "options_theme_system": {
-    "message": "System",
+    "message": "システム",
     "description": "Theme option: follow system preference"
   },
   "options_theme_light": {
-    "message": "Light",
+    "message": "ライト",
     "description": "Theme option: light mode"
   },
   "options_theme_dark": {
-    "message": "Dark",
+    "message": "ダーク",
     "description": "Theme option: dark mode"
   },
   "options_section_diagnostics": {
-    "message": "Diagnostics",
+    "message": "診断",
     "description": "Settings section for diagnostic event log"
   },
   "options_diagnostics_copy": {
-    "message": "Copy Diagnostic Log",
+    "message": "診断ログをコピー",
     "description": "Button to copy diagnostic events as JSON"
   },
   "notification_sent_title": {
-    "message": "Sent to Motrix Next",
+    "message": "Motrix Nextに送信済み",
     "description": "Notification title when download is sent"
   },
   "notification_sent_body": {
-    "message": "$filename$ is now downloading",
+    "message": "$filename$ をダウンロード中",
     "description": "Notification body when download is sent",
     "placeholders": { "filename": { "content": "$1" } }
   },
   "notification_failed_title": {
-    "message": "Download Failed",
+    "message": "ダウンロード失敗",
     "description": "Notification title when download send fails"
   },
   "notification_fallback_title": {
-    "message": "Fallback to Browser",
+    "message": "ブラウザにフォールバック",
     "description": "Notification title when falling back to browser download"
   },
   "context_menu_download": {
-    "message": "Download with Motrix Next",
+    "message": "Motrix Nextでダウンロード",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
   "popup_title": {
@@ -196,12 +196,12 @@
     "description": "Popup header title"
   },
   "popup_speed_active_count": {
-    "message": "$count$ active",
+    "message": "$count$ 件アクティブ",
     "description": "Number of active downloads in speed bar",
     "placeholders": { "count": { "content": "$1" } }
   },
   "popup_error_hint": {
-    "message": "Make sure Motrix Next is running and RPC is enabled.",
+    "message": "Motrix Nextが起動中で、RPCが有効であることを確認してください。",
     "description": "Hint shown when connection fails"
   },
   "options_header_title": {
@@ -209,202 +209,202 @@
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "Extension Settings",
+    "message": "拡張機能の設定",
     "description": "Options page header subtitle"
   },
   "options_testing_connection": {
-    "message": "Testing...",
+    "message": "テスト中...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Connected · aria2",
+    "message": "接続済み · aria2",
     "description": "Prefix for successful connection status"
   },
   "options_notify_start_label": {
-    "message": "Notify on Download Start",
+    "message": "ダウンロード開始時に通知",
     "description": "Toggle label for start notifications"
   },
   "options_notify_complete_label": {
-    "message": "Notify on Download Complete",
+    "message": "ダウンロード完了時に通知",
     "description": "Toggle label for completion notifications"
   },
   "options_rules_empty": {
-    "message": "No rules configured.",
+    "message": "ルールが設定されていません。",
     "description": "Placeholder when no site rules exist"
   },
   "options_enhanced_description": {
-    "message": "Grant additional permissions for cookie forwarding and hiding the browser download bar.",
+    "message": "Cookie転送やブラウザのダウンロードバー非表示のために追加の権限を付与します。",
     "description": "Description of enhanced permissions section"
   },
   "options_enhanced_cookie_note": {
-    "message": "Cookie forwarding is best-effort — it may not work for all sites due to browser privacy policies.",
+    "message": "Cookie転送はベストエフォートです — ブラウザのプライバシーポリシーにより、一部のサイトでは動作しない場合があります。",
     "description": "Disclaimer about cookie forwarding reliability"
   },
   "options_enhanced_status_granted": {
-    "message": "Enhanced permissions granted",
+    "message": "拡張権限が付与されています",
     "description": "Status text when enhanced permissions are active"
   },
   "options_enhanced_revoke": {
-    "message": "Revoke Permissions",
+    "message": "権限を取り消す",
     "description": "Button to revoke enhanced permissions"
   },
   "options_diagnostics_clear": {
-    "message": "Clear Log",
+    "message": "ログを消去",
     "description": "Button to clear diagnostic log"
   },
   "options_diagnostics_empty": {
-    "message": "No diagnostic events.",
+    "message": "診断イベントはありません。",
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Motrix Next Extension v$version$",
+    "message": "Motrix Next 拡張機能 v$version$",
     "description": "Footer text with version number",
     "placeholders": { "version": { "content": "$1" } }
   },
   "notification_complete_title": {
-    "message": "Download Complete",
+    "message": "ダウンロード完了",
     "description": "Title for download completion notification"
   },
   "options_save": {
-    "message": "Save",
+    "message": "保存",
     "description": "Save button in action bar"
   },
   "options_discard": {
-    "message": "Discard",
+    "message": "破棄",
     "description": "Discard button in action bar"
   },
   "options_save_success": {
-    "message": "Settings saved",
+    "message": "設定を保存しました",
     "description": "Toast after saving settings successfully"
   },
   "options_save_error": {
-    "message": "Failed to save settings",
+    "message": "設定の保存に失敗しました",
     "description": "Toast when saving settings fails"
   },
   "options_unsaved_title": {
-    "message": "Unsaved Changes",
+    "message": "未保存の変更",
     "description": "Dialog title when leaving with unsaved changes"
   },
   "options_unsaved_message": {
-    "message": "You have unsaved changes. Save before leaving?",
+    "message": "未保存の変更があります。保存してから離れますか？",
     "description": "Dialog body when leaving with unsaved changes"
   },
   "options_changes_indicator": {
-    "message": "Unsaved changes",
+    "message": "未保存の変更",
     "description": "Indicator text showing there are unsaved modifications"
   },
   "options_color_scheme": {
-    "message": "Color Scheme",
+    "message": "カラースキーム",
     "description": "Label for the color scheme picker"
   },
   "options_color_scheme_amber": {
-    "message": "Amber Gold",
+    "message": "アンバーゴールド",
     "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
-    "message": "Space Blue",
+    "message": "スペースブルー",
     "description": "Space Blue color scheme"
   },
   "options_color_scheme_mint": {
-    "message": "Mint Green",
+    "message": "ミントグリーン",
     "description": "Mint Green color scheme"
   },
   "options_color_scheme_rose": {
-    "message": "Rose Red",
+    "message": "ローズレッド",
     "description": "Rose Red color scheme"
   },
   "options_color_scheme_aurora": {
-    "message": "Aurora Purple",
+    "message": "オーロラパープル",
     "description": "Aurora Purple color scheme"
   },
   "options_color_scheme_coral": {
-    "message": "Coral Orange",
+    "message": "コーラルオレンジ",
     "description": "Coral Orange color scheme"
   },
   "options_color_scheme_glacier": {
-    "message": "Glacier Cyan",
+    "message": "グレイシャーシアン",
     "description": "Glacier Cyan color scheme"
   },
   "options_color_scheme_evergreen": {
-    "message": "Evergreen",
+    "message": "エバーグリーン",
     "description": "Evergreen color scheme"
   },
   "options_color_scheme_graphite": {
-    "message": "Graphite Grey",
+    "message": "グラファイトグレー",
     "description": "Graphite Grey color scheme"
   },
   "options_color_scheme_sakura": {
-    "message": "Sakura Pink",
+    "message": "桜ピンク",
     "description": "Sakura Pink color scheme"
   },
   "error_rpc_unreachable": {
-    "message": "Cannot connect to Motrix Next RPC",
+    "message": "Motrix Next RPCに接続できません",
     "description": "Error when the RPC endpoint is unreachable"
   },
   "error_rpc_auth": {
-    "message": "RPC secret is incorrect",
+    "message": "RPCシークレットが正しくありません",
     "description": "Error when the RPC secret does not match"
   },
   "error_rpc_timeout": {
-    "message": "Connection timed out",
+    "message": "接続がタイムアウトしました",
     "description": "Error when the RPC connection times out"
   },
   "error_unknown": {
-    "message": "An unknown error occurred",
+    "message": "不明なエラーが発生しました",
     "description": "Fallback error message"
   },
   "options_rule_always_intercept": {
-    "message": "Always Intercept",
+    "message": "常に横取り",
     "description": "Site rule action: always intercept downloads"
   },
   "options_rule_always_skip": {
-    "message": "Always Skip",
+    "message": "常にスキップ",
     "description": "Site rule action: never intercept downloads"
   },
   "options_rule_use_global": {
-    "message": "Use Global",
+    "message": "グローバル設定に従う",
     "description": "Site rule action: follow the global setting"
   },
   "task_name_unknown": {
-    "message": "Unknown",
+    "message": "不明",
     "description": "Fallback name when a task filename cannot be resolved"
   },
   "popup_error_auth": {
-    "message": "RPC secret mismatch",
+    "message": "RPCシークレット不一致",
     "description": "Popup banner title when RPC secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the RPC secret in Settings matches your Motrix Next configuration.",
+    "message": "設定のRPCシークレットがMotrix Nextの設定と一致しているか確認してください。",
     "description": "Popup banner hint for RPC auth error"
   },
   "popup_error_timeout": {
-    "message": "Connection timed out",
+    "message": "接続がタイムアウトしました",
     "description": "Popup banner title when RPC connection times out"
   },
   "popup_error_timeout_hint": {
-    "message": "Check your network or firewall settings. RPC port: $1",
+    "message": "ネットワークまたはファイアウォールの設定を確認してください。RPCポート: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
     "placeholders": {
       "1": { "content": "$1", "example": "16800" }
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Motrix Next is running. RPC port: $1",
+    "message": "Motrix Nextが起動中であることを確認してください。RPCポート: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": { "content": "$1", "example": "16800" }
     }
   },
   "options_section_language": {
-    "message": "Language",
+    "message": "言語",
     "description": "Settings section for interface language"
   },
   "options_locale_auto": {
-    "message": "Auto",
+    "message": "自動",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Follow browser language",
+    "message": "ブラウザの言語に従う",
     "description": "Description for auto language option"
   }
 }

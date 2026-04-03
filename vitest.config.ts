@@ -15,6 +15,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, '.'),
+      'locale:en': resolve(__dirname, 'public/_locales/en/messages.json'),
+      'locale:ja': resolve(__dirname, 'public/_locales/ja/messages.json'),
+      'locale:zh_CN': resolve(__dirname, 'public/_locales/zh_CN/messages.json'),
     },
   },
 });

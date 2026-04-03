@@ -7,7 +7,7 @@
  * the data polling lifecycle. All business logic (RPC client, connection
  * check, task polling) is preserved unchanged from the original.
  */
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, provide, onMounted, onUnmounted } from 'vue';
 import { usePolling } from '@/shared/use-polling';
 import { NConfigProvider, NSpin, NIcon, NButton } from 'naive-ui';
 import { PauseOutline, PlayOutline, RocketOutline, AlertCircleOutline } from '@vicons/ionicons5';
@@ -21,19 +21,18 @@ import type { Aria2Task, Aria2GlobalStat } from '@/shared/types';
 import { DEFAULT_RPC_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
 
+import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
+
 import PopupHeader from './components/PopupHeader.vue';
 import SpeedBar from './components/SpeedBar.vue';
 import TaskCard from './components/TaskCard.vue';
 
 // ─── i18n ───────────────────────────────────────────────────────────
 
-function i18n(key: string, fallback: string): string {
-  return chrome.i18n.getMessage(key) || fallback;
-}
-
-function i18nSub(key: string, subs: string[], fallback: string): string {
-  return chrome.i18n.getMessage(key, subs) || fallback;
-}
+const i18nCtx = createI18n();
+provide(I18N_KEY, i18nCtx);
+const { t: i18n, tSub: i18nSub, effectiveLocale } = i18nCtx;
+const { naiveLocale, naiveDateLocale } = useNaiveLocale(effectiveLocale);
 
 // ─── Theme + Color Scheme ───────────────────────────────────────────
 
@@ -119,6 +118,7 @@ onMounted(async () => {
   // Apply theme
   const theme = data.uiPrefs.theme as ThemePreference;
   colorSchemeId.value = data.uiPrefs.colorScheme;
+  i18nCtx.setLocale(data.uiPrefs.locale);
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   document.documentElement.className = resolveThemeClass(theme, mediaQuery.matches);
   mediaQuery.addEventListener('change', (e) => {
@@ -146,7 +146,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <NConfigProvider :theme="naiveTheme" :theme-overrides="themeOverrides" inline-theme-disabled>
+  <NConfigProvider
+    :theme="naiveTheme"
+    :theme-overrides="themeOverrides"
+    :locale="naiveLocale"
+    :date-locale="naiveDateLocale"
+    inline-theme-disabled
+  >
     <div class="popup-root">
       <!-- ── Loading State ─────────────────────────────────────── -->
       <div v-if="loading" class="popup-loading">

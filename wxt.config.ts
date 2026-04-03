@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import Components from 'unplugin-vue-components/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
 import { resolve } from 'node:path';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 
 // Ensure persistent browser profile directories exist before chrome-launcher
 // attempts to write chrome-out.log. mkdirSync is idempotent with recursive.
@@ -40,6 +40,24 @@ export default defineConfig({
         dirs: ['entrypoints/**/components'],
         dts: false,
       }),
+      // Serve public/_locales/*.json as virtual modules so dictionaries.ts
+      // can import them without hitting Vite's "no import from public/" guard.
+      // public/_locales/ remains the SSOT — no duplication, no build scripts.
+      {
+        name: 'locale-virtual-import',
+        enforce: 'pre' as const,
+        resolveId(source: string) {
+          const m = source.match(/^locale:(\w+)$/);
+          if (m) return `\0locale:${m[1]}`;
+        },
+        load(id: string) {
+          const m = id.match(/^\0locale:(\w+)$/);
+          if (!m) return;
+          const filePath = resolve(`public/_locales/${m[1]}/messages.json`);
+          const json = readFileSync(filePath, 'utf-8');
+          return `export default ${json}`;
+        },
+      },
     ],
   }),
 });

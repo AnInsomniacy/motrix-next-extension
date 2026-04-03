@@ -21,9 +21,9 @@ const emit = defineEmits<{
   remove: [id: string];
 }>();
 
-function i18n(key: string, fallback: string): string {
-  return chrome.i18n.getMessage(key) || fallback;
-}
+import { useI18n } from '@/shared/i18n/engine';
+
+const { t: i18n } = useI18n();
 
 const newPattern = ref('');
 const newAction = ref<SiteRule['action']>('always-intercept');

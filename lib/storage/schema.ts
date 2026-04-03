@@ -57,6 +57,7 @@ const UiPrefsSchema = z
   .object({
     theme: z.enum(['system', 'light', 'dark']).default(DEFAULT_UI_PREFS.theme),
     colorScheme: z.string().default(DEFAULT_UI_PREFS.colorScheme),
+    locale: z.string().default(DEFAULT_UI_PREFS.locale),
   })
   .strict();
 

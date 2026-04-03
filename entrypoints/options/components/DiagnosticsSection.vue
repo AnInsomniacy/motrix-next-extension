@@ -20,9 +20,9 @@ const emit = defineEmits<{
   clear: [];
 }>();
 
-function i18n(key: string, fallback: string): string {
-  return chrome.i18n.getMessage(key) || fallback;
-}
+import { useI18n } from '@/shared/i18n/engine';
+
+const { t: i18n } = useI18n();
 
 function formatTime(ts: number): string {
   return new Date(ts).toLocaleTimeString();

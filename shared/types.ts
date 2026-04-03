@@ -112,6 +112,7 @@ export interface SiteRule {
 export interface UiPrefs {
   theme: 'system' | 'light' | 'dark';
   colorScheme: string;
+  locale: string;
 }
 
 export interface PermissionState {

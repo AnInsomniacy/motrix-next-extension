@@ -162,19 +162,30 @@ describe('parseSiteRules', () => {
 
 describe('parseUiPrefs', () => {
   it('returns valid prefs unchanged', () => {
-    const input = { theme: 'dark' as const, colorScheme: 'space' };
+    const input = { theme: 'dark' as const, colorScheme: 'space', locale: 'zh_CN' };
     const result = parseUiPrefs(input);
     expect(result).toEqual(input);
   });
 
   it('fills missing fields with defaults', () => {
     const result = parseUiPrefs({});
-    expect(result).toEqual({ theme: 'system', colorScheme: 'amber' });
+    expect(result).toEqual({ theme: 'system', colorScheme: 'amber', locale: 'auto' });
   });
 
   it('fills undefined input with defaults', () => {
     const result = parseUiPrefs(undefined);
-    expect(result).toEqual({ theme: 'system', colorScheme: 'amber' });
+    expect(result).toEqual({ theme: 'system', colorScheme: 'amber', locale: 'auto' });
+  });
+
+  it('preserves valid locale values', () => {
+    expect(parseUiPrefs({ locale: 'en' }).locale).toBe('en');
+    expect(parseUiPrefs({ locale: 'zh_CN' }).locale).toBe('zh_CN');
+    expect(parseUiPrefs({ locale: 'auto' }).locale).toBe('auto');
+  });
+
+  it('defaults locale when missing', () => {
+    const result = parseUiPrefs({ theme: 'dark' });
+    expect(result.locale).toBe('auto');
   });
 
   it('replaces invalid theme with default', () => {
@@ -256,7 +267,7 @@ describe('parseStorage', () => {
       notifyOnComplete: false,
     });
     expect(result.siteRules).toEqual([]);
-    expect(result.uiPrefs).toEqual({ theme: 'system', colorScheme: 'amber' });
+    expect(result.uiPrefs).toEqual({ theme: 'system', colorScheme: 'amber', locale: 'auto' });
     expect(result.diagnosticLog).toEqual([]);
   });
 
