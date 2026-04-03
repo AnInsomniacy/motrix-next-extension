@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveThemeClass } from '@/modules/services/theme';
+import { resolveThemeClass } from '@/lib/services/theme';
 
 describe('resolveThemeClass', () => {
   it('returns "dark" for explicit dark preference', () => {

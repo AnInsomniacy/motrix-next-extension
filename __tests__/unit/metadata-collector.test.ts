@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { MetadataCollector } from '@/modules/download/metadata-collector';
-import type { CollectInput } from '@/modules/download/metadata-collector';
+import { MetadataCollector } from '@/lib/download/metadata-collector';
+import type { CollectInput } from '@/lib/download/metadata-collector';
 import type { DownloadMetadata } from '@/shared/types';
 
 // ─── Mock Chrome APIs ───────────────────────────────────

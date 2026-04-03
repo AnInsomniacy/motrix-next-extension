@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ConnectionService, ConnectionStatus } from '@/modules/services/connection';
+import { ConnectionService, ConnectionStatus } from '@/lib/services/connection';
 
 describe('ConnectionService', () => {
   describe('checkConnection', () => {

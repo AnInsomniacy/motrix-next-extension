@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Aria2Client } from '@/modules/rpc/aria2-client';
+import { Aria2Client } from '@/lib/rpc/aria2-client';
 import type { RpcConfig, Aria2Version, Aria2GlobalStat, Aria2Task } from '@/shared/types';
 import { RpcUnreachableError, RpcAuthError, RpcTimeoutError } from '@/shared/errors';
 

@@ -1,19 +1,19 @@
-import { Aria2Client } from '@/modules/rpc';
-import { DownloadOrchestrator } from '@/modules/download';
+import { Aria2Client } from '@/lib/rpc';
+import { DownloadOrchestrator } from '@/lib/download';
 import {
   DownloadBarService,
   CompletionTracker,
   ContextMenuService,
   NotificationService,
-} from '@/modules/services';
+} from '@/lib/services';
 import {
   DiagnosticLog,
   StorageService,
   parseRpcConfig,
   parseDownloadSettings,
   parseSiteRules,
-} from '@/modules/storage';
-import { buildProtocolUrl } from '@/modules/protocol';
+} from '@/lib/storage';
+import { buildProtocolUrl } from '@/lib/protocol';
 import { decodeThunderLink } from '@/shared/thunder';
 import { extractFilenameFromUrl } from '@/shared/url';
 import { usePolling } from '@/shared/use-polling';

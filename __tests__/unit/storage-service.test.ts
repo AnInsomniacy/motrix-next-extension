@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { StorageService } from '@/modules/storage/storage-service';
+import { StorageService } from '@/lib/storage/storage-service';
 
 // ─── Mock Storage API ───────────────────────────────────
 

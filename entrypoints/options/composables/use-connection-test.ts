@@ -5,8 +5,8 @@
  * and the testConnection flow with minimum visual delay.
  */
 import { ref, type Ref, type ComputedRef } from 'vue';
-import { Aria2Client } from '@/modules/rpc';
-import { ConnectionService, ConnectionStatus } from '@/modules/services';
+import { Aria2Client } from '@/lib/rpc';
+import { ConnectionService, ConnectionStatus } from '@/lib/services';
 import type { RpcConfig } from '@/shared/types';
 
 export function useConnectionTest(rpcConfig: Ref<RpcConfig> | ComputedRef<RpcConfig>) {

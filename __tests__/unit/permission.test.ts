@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { PermissionService } from '@/modules/services/permission';
+import { PermissionService } from '@/lib/services/permission';
 
 describe('PermissionService', () => {
   describe('hasEnhanced', () => {

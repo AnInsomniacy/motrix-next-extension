@@ -16,12 +16,12 @@ import {
   RocketOutline,
   AlertCircleOutline,
 } from '@vicons/ionicons5';
-import { Aria2Client } from '@/modules/rpc';
-import { ConnectionService, ConnectionStatus } from '@/modules/services';
-import { buildProtocolUrl, ProtocolAction } from '@/modules/protocol';
-import { resolveThemeClass } from '@/modules/services';
-import type { ThemePreference } from '@/modules/services';
-import { StorageService } from '@/modules/storage';
+import { Aria2Client } from '@/lib/rpc';
+import { ConnectionService, ConnectionStatus } from '@/lib/services';
+import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
+import { resolveThemeClass } from '@/lib/services';
+import type { ThemePreference } from '@/lib/services';
+import { StorageService } from '@/lib/storage';
 import type { Aria2Task, Aria2GlobalStat } from '@/shared/types';
 import { DEFAULT_RPC_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';

@@ -6,7 +6,7 @@
  * Accepts a StorageService for DI-friendly persistence.
  */
 import { ref } from 'vue';
-import type { StorageService } from '@/modules/storage';
+import type { StorageService } from '@/lib/storage';
 import type { SiteRule } from '@/shared/types';
 
 export function useSiteRules(storageService: StorageService) {

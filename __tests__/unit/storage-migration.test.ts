@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { migrateStorage, STORAGE_VERSION, type MigrationStorageApi } from '@/modules/storage/migration';
+import { migrateStorage, STORAGE_VERSION, type MigrationStorageApi } from '@/lib/storage/migration';
 
 // ─── Mock Storage API ───────────────────────────────────
 

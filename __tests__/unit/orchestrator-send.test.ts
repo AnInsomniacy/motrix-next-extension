@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { DownloadOrchestrator } from '@/modules/download/orchestrator';
-import type { OrchestratorDeps } from '@/modules/download/orchestrator';
+import { DownloadOrchestrator } from '@/lib/download/orchestrator';
+import type { OrchestratorDeps } from '@/lib/download/orchestrator';
 import type { SiteRule } from '@/shared/types';
 import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 

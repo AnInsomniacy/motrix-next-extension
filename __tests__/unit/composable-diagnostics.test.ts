@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { useDiagnostics } from '@/entrypoints/options/composables/use-diagnostics';
-import type { StorageService } from '@/modules/storage/storage-service';
+import type { StorageService } from '@/lib/storage/storage-service';
 import type { DiagnosticEvent } from '@/shared/types';
 
 // ─── Mock StorageService ────────────────────────────────

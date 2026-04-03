@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { DownloadBarService } from '@/modules/services/download-bar';
+import { DownloadBarService } from '@/lib/services/download-bar';
 
 // ─── Tests ──────────────────────────────────────────────
 

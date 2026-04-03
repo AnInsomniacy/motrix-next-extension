@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildProtocolUrl, ProtocolAction } from '@/modules/protocol/launcher';
+import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol/launcher';
 
 describe('buildProtocolUrl', () => {
   it('builds a bare launch URL with no action', () => {

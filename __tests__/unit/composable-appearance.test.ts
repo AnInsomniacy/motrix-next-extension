@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { useAppearance } from '@/entrypoints/options/composables/use-appearance';
-import type { StorageService } from '@/modules/storage/storage-service';
+import type { StorageService } from '@/lib/storage/storage-service';
 
 // ─── Mock StorageService ────────────────────────────────
 

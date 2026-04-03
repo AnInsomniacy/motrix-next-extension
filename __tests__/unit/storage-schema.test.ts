@@ -6,7 +6,7 @@ import {
   parseUiPrefs,
   parseDiagnosticEvents,
   parseStorage,
-} from '@/modules/storage/schema';
+} from '@/lib/storage/schema';
 
 // ─── RpcConfig Schema ───────────────────────────────────
 

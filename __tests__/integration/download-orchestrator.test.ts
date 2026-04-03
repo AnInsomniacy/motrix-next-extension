@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { DownloadOrchestrator } from '@/modules/download/orchestrator';
+import { DownloadOrchestrator } from '@/lib/download/orchestrator';
 import type { DownloadSettings, SiteRule } from '@/shared/types';
 import { RpcUnreachableError } from '@/shared/errors';
 

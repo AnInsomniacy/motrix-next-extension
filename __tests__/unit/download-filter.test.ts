@@ -7,7 +7,7 @@ import {
   SchemeStage,
   FileSizeStage,
   SiteRuleStage,
-} from '@/modules/download/filter';
+} from '@/lib/download/filter';
 import type { FilterContext, DownloadSettings, SiteRule } from '@/shared/types';
 
 // ─── Fixtures ───────────────────────────────────────────

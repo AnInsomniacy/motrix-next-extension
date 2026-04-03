@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { NotificationService } from '@/modules/services/notification';
+import { NotificationService } from '@/lib/services/notification';
 
 describe('NotificationService', () => {
   describe('buildSentNotification', () => {

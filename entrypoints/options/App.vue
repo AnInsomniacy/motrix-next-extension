@@ -15,7 +15,7 @@
  */
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { NConfigProvider, createDiscreteApi } from 'naive-ui';
-import { StorageService } from '@/modules/storage';
+import { StorageService } from '@/lib/storage';
 import type { RpcConfig } from '@/shared/types';
 import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';

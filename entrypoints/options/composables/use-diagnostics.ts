@@ -5,7 +5,7 @@
  * clipboard copy, and clear with immediate persistence via StorageService.
  */
 import { ref } from 'vue';
-import type { StorageService } from '@/modules/storage';
+import type { StorageService } from '@/lib/storage';
 import type { DiagnosticEvent } from '@/shared/types';
 
 export function useDiagnostics(storageService: StorageService) {

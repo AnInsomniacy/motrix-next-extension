@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { DiagnosticLog } from '@/modules/storage/diagnostic-log';
+import { DiagnosticLog } from '@/lib/storage/diagnostic-log';
 import type { DiagnosticEvent } from '@/shared/types';
 
 // ─── Tests ──────────────────────────────────────────────

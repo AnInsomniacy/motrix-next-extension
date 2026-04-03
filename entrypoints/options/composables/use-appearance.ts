@@ -5,8 +5,8 @@
  * StorageService, and DOM class application for light/dark mode.
  */
 import { ref } from 'vue';
-import type { StorageService } from '@/modules/storage';
-import { resolveThemeClass } from '@/modules/services';
+import type { StorageService } from '@/lib/storage';
+import { resolveThemeClass } from '@/lib/services';
 import type { UiPrefs } from '@/shared/types';
 import { DEFAULT_UI_PREFS } from '@/shared/constants';
 

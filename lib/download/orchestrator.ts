@@ -1,8 +1,8 @@
 import type { DownloadSettings, SiteRule, FilterContext } from '@/shared/types';
-import type { DiagnosticInput } from '@/modules/storage/diagnostic-log';
+import type { DiagnosticInput } from '@/lib/storage/diagnostic-log';
 import { evaluateFilterPipeline, createFilterPipeline } from './filter';
 import { MetadataCollector } from './metadata-collector';
-import { NotificationService } from '@/modules/services/notification';
+import { NotificationService } from '@/lib/services/notification';
 import { extractFilenameFromUrl } from '@/shared/url';
 
 // ─── Dependency Interface ───────────────────────────────

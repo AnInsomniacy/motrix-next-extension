@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ContextMenuService } from '@/modules/services/context-menu';
+import { ContextMenuService } from '@/lib/services/context-menu';
 
 describe('ContextMenuService', () => {
   describe('buildMenuItems', () => {
