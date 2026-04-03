@@ -161,7 +161,7 @@ onUnmounted(() => {
     </div>
 
     <template v-else>
-      <!-- Header -->
+      <!-- Header (always visible) -->
       <div class="flex items-center justify-between px-4 pt-4 pb-2">
         <div class="flex items-center gap-2">
           <h1 class="text-base font-semibold">{{ i18n('popup_title', 'Motrix Next') }}</h1>
@@ -204,7 +204,37 @@ onUnmounted(() => {
         </button>
       </div>
 
-      <!-- Connected State -->
+      <!-- Disconnected Banner (compact warning, not full-page takeover) -->
+      <div
+        v-if="status !== 'connected'"
+        class="mx-4 mb-3 rounded-lg bg-error/5 border border-error/20 px-3 py-3"
+      >
+        <div class="flex items-start gap-2.5">
+          <svg
+            class="w-4 h-4 text-error shrink-0 mt-0.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+            />
+          </svg>
+          <div>
+            <p class="text-xs font-medium text-error">
+              {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
+            </p>
+            <p class="text-[11px] text-on-surface-variant mt-0.5">
+              {{ i18n('popup_error_hint', 'Make sure Motrix Next is running and RPC is enabled.') }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connected Content: Speed Bar + Task List -->
       <template v-if="status === 'connected'">
         <!-- Speed Bar -->
         <div
@@ -259,70 +289,37 @@ onUnmounted(() => {
             </div>
           </div>
         </div>
-
-        <!-- Actions -->
-        <div class="flex items-center gap-2 px-4 pb-4">
-          <button
-            @click="pauseAll"
-            class="flex-1 rounded-md bg-surface-container px-3 py-1.5 text-xs font-medium hover:bg-surface-dim transition-colors"
-          >
-            {{ i18n('popup_action_pause_all', 'Pause All') }}
-          </button>
-          <button
-            @click="resumeAll"
-            class="flex-1 rounded-md bg-surface-container px-3 py-1.5 text-xs font-medium hover:bg-surface-dim transition-colors"
-          >
-            {{ i18n('popup_action_resume_all', 'Resume All') }}
-          </button>
-          <button
-            @click="launchApp"
-            class="flex-1 rounded-md bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 transition-colors"
-          >
-            {{ i18n('popup_action_launch', 'Launch Motrix Next') }}
-          </button>
-        </div>
       </template>
 
-      <!-- Disconnected State -->
-      <template v-else>
-        <div class="flex flex-col items-center justify-center py-10 px-6">
-          <div class="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mb-4">
-            <svg
-              class="w-6 h-6 text-error"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-              />
-            </svg>
-          </div>
-          <p class="text-sm font-medium text-error mb-1">
-            {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
-          </p>
-          <p class="text-xs text-on-surface-variant text-center mb-4">
-            {{ i18n('popup_error_hint', 'Make sure Motrix Next is running and RPC is enabled.') }}
-          </p>
-          <div class="flex gap-2">
-            <button
-              @click="openSettings"
-              class="rounded-md bg-surface-container border border-outline-variant px-4 py-2 text-xs font-medium hover:bg-surface-dim transition-colors"
-            >
-              {{ i18n('popup_error_check_settings', 'Check Settings') }}
-            </button>
-            <button
-              @click="launchApp"
-              class="rounded-md bg-brand-500 px-4 py-2 text-xs font-medium text-white hover:bg-brand-600 transition-colors"
-            >
-              {{ i18n('popup_action_launch', 'Launch Motrix Next') }}
-            </button>
-          </div>
-        </div>
-      </template>
+      <!-- Actions (always visible) -->
+      <div class="flex items-center gap-2 px-4 pb-4">
+        <button
+          v-if="status === 'connected'"
+          @click="pauseAll"
+          class="flex-1 rounded-md bg-surface-container px-3 py-1.5 text-xs font-medium hover:bg-surface-dim transition-colors"
+        >
+          {{ i18n('popup_action_pause_all', 'Pause All') }}
+        </button>
+        <button
+          v-if="status === 'connected'"
+          @click="resumeAll"
+          class="flex-1 rounded-md bg-surface-container px-3 py-1.5 text-xs font-medium hover:bg-surface-dim transition-colors"
+        >
+          {{ i18n('popup_action_resume_all', 'Resume All') }}
+        </button>
+        <button
+          @click="openSettings"
+          class="flex-1 rounded-md bg-surface-container border border-outline-variant px-3 py-1.5 text-xs font-medium hover:bg-surface-dim transition-colors"
+        >
+          {{ i18n('popup_error_check_settings', 'Check Settings') }}
+        </button>
+        <button
+          @click="launchApp"
+          class="flex-1 rounded-md bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 transition-colors"
+        >
+          {{ i18n('popup_action_launch', 'Launch Motrix Next') }}
+        </button>
+      </div>
     </template>
   </div>
 </template>

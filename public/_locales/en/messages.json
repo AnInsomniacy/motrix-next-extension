@@ -90,13 +90,25 @@
     "message": "Enable Download Interception",
     "description": "Toggle label for enabling/disabling download interception"
   },
+  "options_enabled_desc": {
+    "message": "Automatically intercept browser downloads",
+    "description": "Description text for the interception toggle"
+  },
   "options_min_size_label": {
     "message": "Minimum File Size (MB)",
     "description": "Label for minimum file size filter"
   },
+  "options_min_size_desc": {
+    "message": "Skip files smaller than this threshold",
+    "description": "Description text for minimum file size input"
+  },
   "options_fallback_label": {
     "message": "Fallback to Browser on Failure",
     "description": "Toggle label for browser fallback"
+  },
+  "options_fallback_desc": {
+    "message": "Resume download in browser if aria2 fails",
+    "description": "Description text for the fallback toggle"
   },
   "options_notify_label": {
     "message": "Notifications",

@@ -90,13 +90,25 @@
     "message": "启用下载拦截",
     "description": "启用/禁用下载拦截的开关"
   },
+  "options_enabled_desc": {
+    "message": "自动拦截浏览器下载任务",
+    "description": "拦截开关的说明文本"
+  },
   "options_min_size_label": {
     "message": "最小文件大小 (MB)",
     "description": "最小文件大小过滤器标签"
   },
+  "options_min_size_desc": {
+    "message": "跳过小于此阈值的文件",
+    "description": "最小文件大小输入的说明文本"
+  },
   "options_fallback_label": {
     "message": "失败时回退到浏览器下载",
     "description": "浏览器回退开关"
+  },
+  "options_fallback_desc": {
+    "message": "aria2 失败时自动恢复浏览器下载",
+    "description": "回退开关的说明文本"
   },
   "options_notify_label": {
     "message": "通知",
