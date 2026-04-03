@@ -356,5 +356,37 @@
   "options_color_scheme_sakura": {
     "message": "樱花粉",
     "description": "樱花粉配色方案"
+  },
+  "error_rpc_unreachable": {
+    "message": "无法连接到 Motrix Next RPC",
+    "description": "RPC 端点不可达时的错误信息"
+  },
+  "error_rpc_auth": {
+    "message": "RPC 密钥不正确",
+    "description": "RPC 密钥不匹配时的错误信息"
+  },
+  "error_rpc_timeout": {
+    "message": "连接超时",
+    "description": "RPC 连接超时时的错误信息"
+  },
+  "error_unknown": {
+    "message": "发生未知错误",
+    "description": "兜底错误信息"
+  },
+  "options_rule_always_intercept": {
+    "message": "始终拦截",
+    "description": "站点规则操作：始终拦截下载"
+  },
+  "options_rule_always_skip": {
+    "message": "始终跳过",
+    "description": "站点规则操作：始终不拦截下载"
+  },
+  "options_rule_use_global": {
+    "message": "使用全局设置",
+    "description": "站点规则操作：遵循全局设置"
+  },
+  "task_name_unknown": {
+    "message": "未知",
+    "description": "无法解析任务文件名时的兜底名称"
   }
 }

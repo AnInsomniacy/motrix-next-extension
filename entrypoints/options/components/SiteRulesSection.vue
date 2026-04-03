@@ -7,7 +7,7 @@
  * for animated list operations (matching desktop TaskItemActions.vue
  * list animation pattern).
  */
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import {
   NInput,
   NSelect,
@@ -35,11 +35,11 @@ function i18n(key: string, fallback: string): string {
 const newPattern = ref('');
 const newAction = ref<SiteRule['action']>('always-intercept');
 
-const actionOptions = [
-  { label: 'Always Intercept', value: 'always-intercept' },
-  { label: 'Always Skip', value: 'always-skip' },
-  { label: 'Use Global', value: 'use-global' },
-];
+const actionOptions = computed(() => [
+  { label: i18n('options_rule_always_intercept', 'Always Intercept'), value: 'always-intercept' },
+  { label: i18n('options_rule_always_skip', 'Always Skip'), value: 'always-skip' },
+  { label: i18n('options_rule_use_global', 'Use Global'), value: 'use-global' },
+]);
 
 const ACTION_TYPE_MAP: Record<SiteRule['action'], 'success' | 'error' | 'default'> = {
   'always-intercept': 'success',

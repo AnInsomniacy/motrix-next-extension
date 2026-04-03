@@ -38,6 +38,20 @@ function i18n(key: string, fallback: string): string {
 }
 
 const isConnected = computed(() => props.status === ConnectionStatus.Connected);
+
+/** Map error class names from ConnectionService to i18n keys. */
+const ERROR_I18N: Record<string, [key: string, fallback: string]> = {
+  RpcUnreachableError: ['error_rpc_unreachable', 'Cannot connect to Motrix Next RPC'],
+  RpcAuthError: ['error_rpc_auth', 'RPC secret is incorrect'],
+  RpcTimeoutError: ['error_rpc_timeout', 'Connection timed out'],
+  UnknownError: ['error_unknown', 'An unknown error occurred'],
+};
+
+const errorMessage = computed(() => {
+  if (!props.error) return null;
+  const entry = ERROR_I18N[props.error] ?? ERROR_I18N.UnknownError!;
+  return i18n(entry[0], entry[1]);
+});
 </script>
 
 <template>
@@ -88,7 +102,7 @@ const isConnected = computed(() => props.status === ConnectionStatus.Connected);
         </span>
         <span v-else-if="error" key="err" class="section__feedback section__feedback--err">
           <NIcon :size="16"><CloseCircleOutline /></NIcon>
-          {{ error }}
+          {{ errorMessage }}
         </span>
       </Transition>
     </div>

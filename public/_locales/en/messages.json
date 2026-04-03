@@ -356,5 +356,37 @@
   "options_color_scheme_sakura": {
     "message": "Sakura Pink",
     "description": "Sakura Pink color scheme"
+  },
+  "error_rpc_unreachable": {
+    "message": "Cannot connect to Motrix Next RPC",
+    "description": "Error when the RPC endpoint is unreachable"
+  },
+  "error_rpc_auth": {
+    "message": "RPC secret is incorrect",
+    "description": "Error when the RPC secret does not match"
+  },
+  "error_rpc_timeout": {
+    "message": "Connection timed out",
+    "description": "Error when the RPC connection times out"
+  },
+  "error_unknown": {
+    "message": "An unknown error occurred",
+    "description": "Fallback error message"
+  },
+  "options_rule_always_intercept": {
+    "message": "Always Intercept",
+    "description": "Site rule action: always intercept downloads"
+  },
+  "options_rule_always_skip": {
+    "message": "Always Skip",
+    "description": "Site rule action: never intercept downloads"
+  },
+  "options_rule_use_global": {
+    "message": "Use Global",
+    "description": "Site rule action: follow the global setting"
+  },
+  "task_name_unknown": {
+    "message": "Unknown",
+    "description": "Fallback name when a task filename cannot be resolved"
   }
 }

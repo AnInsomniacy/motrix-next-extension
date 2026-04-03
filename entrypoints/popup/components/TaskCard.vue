@@ -12,6 +12,10 @@ import { NProgress, NIcon } from 'naive-ui';
 import { ArrowDownOutline } from '@vicons/ionicons5';
 import type { Aria2Task } from '@/shared/types';
 
+function i18n(key: string, fallback: string): string {
+  return chrome.i18n.getMessage(key) || fallback;
+}
+
 const props = defineProps<{
   task: Aria2Task;
 }>();
@@ -30,11 +34,11 @@ const taskName = computed(() => {
   const file = props.task.files[0];
   if (file?.path) {
     const parts = file.path.split('/');
-    return parts[parts.length - 1] || 'Unknown';
+    return parts[parts.length - 1] || i18n('task_name_unknown', 'Unknown');
   }
   if (file?.uris?.[0]?.uri) {
     try {
-      return new URL(file.uris[0].uri).pathname.split('/').pop() || 'Unknown';
+      return new URL(file.uris[0].uri).pathname.split('/').pop() || i18n('task_name_unknown', 'Unknown');
     } catch {
       /* fallthrough */
     }
