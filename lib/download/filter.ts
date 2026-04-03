@@ -77,10 +77,7 @@ export class SiteRuleStage implements FilterStage {
 
   constructor(private readonly getRules: () => SiteRule[]) {}
 
-  evaluate(
-    ctx: FilterContext,
-    _config: DownloadSettings,
-  ): FilterVerdict | null {
+  evaluate(ctx: FilterContext, _config: DownloadSettings): FilterVerdict | null {
     const rules = this.getRules();
     if (!rules.length) return null;
 
@@ -158,4 +155,3 @@ export function evaluateFilterPipeline(
   }
   return 'intercept';
 }
-

@@ -13,11 +13,7 @@
  * @see /motrix-next/src/composables/useColorScheme.ts
  */
 import { computed, watchEffect, type Ref } from 'vue';
-import {
-  argbFromHex,
-  hexFromArgb,
-  themeFromSourceColor,
-} from '@material/material-color-utilities';
+import { argbFromHex, hexFromArgb, themeFromSourceColor } from '@material/material-color-utilities';
 import type { GlobalThemeOverrides } from 'naive-ui';
 
 // ── MCU Property → CSS Variable Mapping ─────────────────────────────
@@ -84,9 +80,7 @@ const SURFACE_CSS_MAP: Record<string, string> = {
  */
 export function useColorScheme(seedHex: Ref<string>, isDark: Ref<boolean>) {
   /** Full MCU theme — cached by Vue's computed until seed changes. */
-  const m3Theme = computed(() =>
-    themeFromSourceColor(argbFromHex(seedHex.value)),
-  );
+  const m3Theme = computed(() => themeFromSourceColor(argbFromHex(seedHex.value)));
 
   /** Active M3 scheme (light or dark) based on current theme mode. */
   const activeScheme = computed(() =>
@@ -133,37 +127,19 @@ export function useColorScheme(seedHex: Ref<string>, isDark: Ref<boolean>) {
     // Success (green) — keep fixed for semantic clarity
     // Light: #386a20, Dark: #8edb6a (from Amber Gold MCU output)
     root.setProperty('--color-success', isDark.value ? '#8edb6a' : '#386a20');
-    root.setProperty(
-      '--color-on-success',
-      isDark.value ? '#0a3900' : '#ffffff',
-    );
+    root.setProperty('--color-on-success', isDark.value ? '#0a3900' : '#ffffff');
 
     // Error container
-    root.setProperty(
-      '--color-error-container',
-      hexFromArgb(scheme.errorContainer),
-    );
+    root.setProperty('--color-error-container', hexFromArgb(scheme.errorContainer));
 
     // Inverse (toasts / snackbars)
-    root.setProperty(
-      '--color-inverse-surface',
-      hexFromArgb(scheme.inverseSurface),
-    );
-    root.setProperty(
-      '--color-on-inverse-surface',
-      hexFromArgb(scheme.inverseOnSurface),
-    );
+    root.setProperty('--color-inverse-surface', hexFromArgb(scheme.inverseSurface));
+    root.setProperty('--color-on-inverse-surface', hexFromArgb(scheme.inverseOnSurface));
 
     // Primary tonal shades for tinted surfaces
     const palette = m3Theme.value.palettes.primary;
-    root.setProperty(
-      '--color-primary-light-5',
-      hexFromArgb(palette.tone(isDark.value ? 30 : 80)),
-    );
-    root.setProperty(
-      '--color-primary-light-9',
-      hexFromArgb(palette.tone(isDark.value ? 10 : 95)),
-    );
+    root.setProperty('--color-primary-light-5', hexFromArgb(palette.tone(isDark.value ? 30 : 80)));
+    root.setProperty('--color-primary-light-9', hexFromArgb(palette.tone(isDark.value ? 10 : 95)));
 
     // Scrollbar
     const sr = (scheme.onSurface >> 16) & 0xff;
@@ -191,18 +167,10 @@ export function useColorScheme(seedHex: Ref<string>, isDark: Ref<boolean>) {
     const primaryPalette = m3Theme.value.palettes.primary;
     const tertiaryPalette = m3Theme.value.palettes.tertiary;
 
-    const primaryHover = hexFromArgb(
-      primaryPalette.tone(isDark.value ? 70 : 50),
-    );
-    const primaryPressed = hexFromArgb(
-      primaryPalette.tone(isDark.value ? 90 : 30),
-    );
-    const tertiaryHover = hexFromArgb(
-      tertiaryPalette.tone(isDark.value ? 70 : 50),
-    );
-    const tertiaryPressed = hexFromArgb(
-      tertiaryPalette.tone(isDark.value ? 90 : 30),
-    );
+    const primaryHover = hexFromArgb(primaryPalette.tone(isDark.value ? 70 : 50));
+    const primaryPressed = hexFromArgb(primaryPalette.tone(isDark.value ? 90 : 30));
+    const tertiaryHover = hexFromArgb(tertiaryPalette.tone(isDark.value ? 70 : 50));
+    const tertiaryPressed = hexFromArgb(tertiaryPalette.tone(isDark.value ? 90 : 30));
 
     return {
       common: {

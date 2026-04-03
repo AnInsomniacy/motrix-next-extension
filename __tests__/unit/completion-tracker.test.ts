@@ -1,8 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  CompletionTracker,
-  type CompletionTrackerDeps,
-} from '@/lib/services/completion-tracker';
+import { CompletionTracker, type CompletionTrackerDeps } from '@/lib/services/completion-tracker';
 
 describe('CompletionTracker', () => {
   let tracker: CompletionTracker;

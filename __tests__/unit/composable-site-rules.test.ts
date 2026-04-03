@@ -28,9 +28,7 @@ describe('useSiteRules', () => {
     const storage = mockStorageService();
     const { siteRules, hydrate } = useSiteRules(storage);
 
-    hydrate([
-      { id: 'r1', pattern: '*.example.com', action: 'always-intercept' },
-    ]);
+    hydrate([{ id: 'r1', pattern: '*.example.com', action: 'always-intercept' }]);
 
     expect(siteRules.value).toHaveLength(1);
     expect(siteRules.value[0]!.pattern).toBe('*.example.com');

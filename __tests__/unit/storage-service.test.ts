@@ -41,8 +41,14 @@ describe('StorageService.load', () => {
     const api = createMockApi({
       _version: 1,
       rpc: { host: '192.168.1.1', port: 6800, secret: 'test' },
-      settings: { enabled: false, minFileSize: 5, fallbackToBrowser: false,
-        hideDownloadBar: true, notifyOnStart: false, notifyOnComplete: true },
+      settings: {
+        enabled: false,
+        minFileSize: 5,
+        fallbackToBrowser: false,
+        hideDownloadBar: true,
+        notifyOnStart: false,
+        notifyOnComplete: true,
+      },
     });
     const service = new StorageService(api);
 
@@ -113,9 +119,7 @@ describe('StorageService.saveSiteRules', () => {
     const api = createMockApi({});
     const service = new StorageService(api);
 
-    const rules = [
-      { id: 'r1', pattern: '*.github.com', action: 'always-intercept' as const },
-    ];
+    const rules = [{ id: 'r1', pattern: '*.github.com', action: 'always-intercept' as const }];
 
     await service.saveSiteRules(rules);
 

@@ -38,11 +38,11 @@
   --color-on-inverse-surface: #ebe4db;
 
   /* ── Typography ────────────────────────────────────────────────── */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
-    'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', Menlo,
-    Monaco, 'Courier New', monospace;
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'SF Mono', 'Cascadia Code', Menlo, Monaco, 'Courier New', monospace;
 
   /* ── Spacing ───────────────────────────────────────────────────── */
   --spacing-xs: 0.25rem;
@@ -59,10 +59,8 @@
   --radius-full: 9999px;
 
   /* ── Shadows ───────────────────────────────────────────────────── */
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06),
-    0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.08),
-    0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
 }
 
 /*
@@ -111,10 +109,8 @@ html.dark {
   --color-inverse-surface: #e8e2d9;
   --color-on-inverse-surface: #32302b;
 
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.25),
-    0 1px 2px -1px rgb(0 0 0 / 0.2);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.35),
-    0 2px 4px -2px rgb(0 0 0 / 0.25);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.25);
 }
 
 /* ── Global Reset ────────────────────────────────────────────────── */
@@ -154,7 +150,8 @@ body {
   color: var(--color-on-surface);
   font-size: 0.875rem;
   line-height: 1.5;
-  transition: border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+  transition:
+    border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
     box-shadow 0.15s cubic-bezier(0.2, 0, 0, 1);
 }
 

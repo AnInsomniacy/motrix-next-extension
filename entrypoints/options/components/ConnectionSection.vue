@@ -7,14 +7,7 @@
  * NTag, and NSpin for visual consistency with the desktop Basic.vue.
  */
 import { computed } from 'vue';
-import {
-  NFormItem,
-  NInput,
-  NInputNumber,
-  NButton,
-  NTag,
-  NIcon,
-} from 'naive-ui';
+import { NFormItem, NInput, NInputNumber, NButton, NTag, NIcon } from 'naive-ui';
 import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
 import { ConnectionStatus } from '@/lib/services';
 
@@ -79,11 +72,7 @@ const errorMessage = computed(() => {
     </div>
 
     <div class="section__row">
-      <NButton
-        type="primary"
-        :loading="testing"
-        @click="emit('test')"
-      >
+      <NButton type="primary" :loading="testing" @click="emit('test')">
         <Transition name="text-swap" mode="out-in">
           <span v-if="testing" key="testing">
             {{ i18n('options_testing_connection', 'Testing...') }}
@@ -95,7 +84,11 @@ const errorMessage = computed(() => {
       </NButton>
 
       <Transition name="fade" mode="out-in">
-        <span v-if="isConnected && version" key="ok" class="section__feedback section__feedback--ok">
+        <span
+          v-if="isConnected && version"
+          key="ok"
+          class="section__feedback section__feedback--ok"
+        >
           <NIcon :size="16"><CheckmarkCircleOutline /></NIcon>
           {{ i18n('options_connection_success_prefix', 'Connected · aria2') }}
           <NTag size="small" round>v{{ version }}</NTag>

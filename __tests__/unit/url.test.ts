@@ -3,18 +3,21 @@ import { extractFilenameFromUrl } from '../../shared/url';
 
 describe('extractFilenameFromUrl', () => {
   it('extracts filename from a standard URL', () => {
-    expect(extractFilenameFromUrl('https://cdn.example.com/files/app-v2.0.zip'))
-      .toBe('app-v2.0.zip');
+    expect(extractFilenameFromUrl('https://cdn.example.com/files/app-v2.0.zip')).toBe(
+      'app-v2.0.zip',
+    );
   });
 
   it('extracts filename ignoring query parameters', () => {
-    expect(extractFilenameFromUrl('https://cdn.apple.com/ipsw/iPhone_Restore.ipsw?accessKey=abc'))
-      .toBe('iPhone_Restore.ipsw');
+    expect(
+      extractFilenameFromUrl('https://cdn.apple.com/ipsw/iPhone_Restore.ipsw?accessKey=abc'),
+    ).toBe('iPhone_Restore.ipsw');
   });
 
   it('decodes percent-encoded characters', () => {
-    expect(extractFilenameFromUrl('https://example.com/files/%E6%96%87%E4%BB%B6.zip'))
-      .toBe('文件.zip');
+    expect(extractFilenameFromUrl('https://example.com/files/%E6%96%87%E4%BB%B6.zip')).toBe(
+      '文件.zip',
+    );
   });
 
   it('returns null for URLs without file extension', () => {
@@ -33,8 +36,9 @@ describe('extractFilenameFromUrl', () => {
   });
 
   it('handles URLs with multiple path segments', () => {
-    expect(extractFilenameFromUrl('https://cdn.example.com/a/b/c/release-notes.pdf'))
-      .toBe('release-notes.pdf');
+    expect(extractFilenameFromUrl('https://cdn.example.com/a/b/c/release-notes.pdf')).toBe(
+      'release-notes.pdf',
+    );
   });
 
   it('handles magnet URIs (returns null — no path)', () => {

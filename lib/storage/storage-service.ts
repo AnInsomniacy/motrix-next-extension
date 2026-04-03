@@ -13,7 +13,13 @@
  */
 import { parseStorage, type ParsedStorage } from './schema';
 import { migrateStorage, type MigrationStorageApi } from './migration';
-import type { RpcConfig, DownloadSettings, SiteRule, UiPrefs, DiagnosticEvent } from '@/shared/types';
+import type {
+  RpcConfig,
+  DownloadSettings,
+  SiteRule,
+  UiPrefs,
+  DiagnosticEvent,
+} from '@/shared/types';
 
 // ─── Storage API Interface ──────────────────────────────
 

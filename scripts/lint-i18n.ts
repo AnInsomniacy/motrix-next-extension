@@ -24,7 +24,7 @@ function findDuplicateKeys(filePath: string): string[] {
   const content = readFileSync(filePath, 'utf-8');
   // Match only top-level message keys (2-space indent, value is an object).
   // This avoids matching nested keys like "placeholders" inside a message.
-  const keyRegex = /^  "([^"]+)"\s*:\s*\{/gm;
+  const keyRegex = /^ {2}"([^"]+)"\s*:\s*\{/gm;
   const seen = new Map<string, number>();
   const duplicates: string[] = [];
 
@@ -53,7 +53,9 @@ function findEmptyMessages(filePath: string): string[] {
   const content = readFileSync(filePath, 'utf-8');
   const data = JSON.parse(content) as Record<string, { message?: string }>;
   return Object.entries(data)
-    .filter(([, v]) => typeof v === 'object' && v !== null && (!v.message || v.message.trim() === ''))
+    .filter(
+      ([, v]) => typeof v === 'object' && v !== null && (!v.message || v.message.trim() === ''),
+    )
     .map(([k]) => k);
 }
 
@@ -99,11 +101,15 @@ for (const locale of LOCALES) {
   const extraInLoc = [...locKeys].filter((k) => !refKeys.has(k));
 
   if (missingInLoc.length > 0) {
-    console.error(`❌ [${locale}] Missing keys (present in ${REFERENCE_LOCALE}): ${missingInLoc.join(', ')}`);
+    console.error(
+      `❌ [${locale}] Missing keys (present in ${REFERENCE_LOCALE}): ${missingInLoc.join(', ')}`,
+    );
     hasErrors = true;
   }
   if (extraInLoc.length > 0) {
-    console.error(`⚠️  [${locale}] Extra keys (not in ${REFERENCE_LOCALE}): ${extraInLoc.join(', ')}`);
+    console.error(
+      `⚠️  [${locale}] Extra keys (not in ${REFERENCE_LOCALE}): ${extraInLoc.join(', ')}`,
+    );
     // Extra keys are a warning, not an error
   }
 }

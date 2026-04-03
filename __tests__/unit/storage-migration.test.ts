@@ -25,9 +25,7 @@ describe('migrateStorage', () => {
 
     await migrateStorage(api);
 
-    expect(api.set).toHaveBeenCalledWith(
-      expect.objectContaining({ _version: STORAGE_VERSION }),
-    );
+    expect(api.set).toHaveBeenCalledWith(expect.objectContaining({ _version: STORAGE_VERSION }));
   });
 
   it('does not write when data is already at current version', async () => {
@@ -46,7 +44,10 @@ describe('migrateStorage', () => {
 
     await migrateStorage(api);
 
-    const setCall = (api.set as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as Record<string, unknown>;
+    const setCall = (api.set as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as Record<
+      string,
+      unknown
+    >;
     expect(setCall.rpc).toEqual({ host: '127.0.0.1', port: 6800, secret: 'test' });
     expect(setCall.settings).toEqual({ enabled: false });
   });
@@ -56,9 +57,7 @@ describe('migrateStorage', () => {
 
     await migrateStorage(api);
 
-    expect(api.set).toHaveBeenCalledWith(
-      expect.objectContaining({ _version: STORAGE_VERSION }),
-    );
+    expect(api.set).toHaveBeenCalledWith(expect.objectContaining({ _version: STORAGE_VERSION }));
   });
 
   it('handles corrupt _version (non-number) as version 0', async () => {
@@ -66,9 +65,7 @@ describe('migrateStorage', () => {
 
     await migrateStorage(api);
 
-    expect(api.set).toHaveBeenCalledWith(
-      expect.objectContaining({ _version: STORAGE_VERSION }),
-    );
+    expect(api.set).toHaveBeenCalledWith(expect.objectContaining({ _version: STORAGE_VERSION }));
   });
 
   it('handles future versions gracefully (does not downgrade)', async () => {

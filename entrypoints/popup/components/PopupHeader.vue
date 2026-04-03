@@ -33,15 +33,25 @@ function i18n(key: string, fallback: string): string {
         class="popup-header__logo"
       >
         <rect
-          x="0.5" y="0.5" width="39" height="17" rx="4"
-          fill="none" stroke="currentColor" stroke-width="1"
+          x="0.5"
+          y="0.5"
+          width="39"
+          height="17"
+          rx="4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
           opacity="0.5"
         />
         <text
-          x="20" y="13" fill="currentColor"
+          x="20"
+          y="13"
+          fill="currentColor"
           font-family="Arial, Helvetica, sans-serif"
-          font-weight="900" font-size="10"
-          text-anchor="middle" letter-spacing="1"
+          font-weight="900"
+          font-size="10"
+          text-anchor="middle"
+          letter-spacing="1"
         >
           NEXT
         </text>
@@ -50,9 +60,11 @@ function i18n(key: string, fallback: string): string {
         class="popup-header__badge"
         :class="status === 'connected' ? 'popup-header__badge--ok' : 'popup-header__badge--err'"
       >
-        {{ status === 'connected'
+        {{
+          status === 'connected'
             ? i18n('popup_status_connected', 'Connected')
-            : i18n('popup_status_disconnected', 'Disconnected') }}
+            : i18n('popup_status_disconnected', 'Disconnected')
+        }}
       </span>
       <span v-if="version" class="popup-header__version">v{{ version }}</span>
     </div>

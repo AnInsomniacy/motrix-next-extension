@@ -60,9 +60,7 @@ describe('useAppearance', () => {
     handleThemeChange('dark');
 
     expect(setTheme).toHaveBeenCalledWith('dark');
-    expect(storage.saveUiPrefs).toHaveBeenCalledWith(
-      expect.objectContaining({ theme: 'dark' }),
-    );
+    expect(storage.saveUiPrefs).toHaveBeenCalledWith(expect.objectContaining({ theme: 'dark' }));
   });
 
   it('handleColorSchemeChange() updates color scheme and persists via StorageService', () => {

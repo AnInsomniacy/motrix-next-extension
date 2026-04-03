@@ -16,7 +16,7 @@ import {
   BugOutline,
 } from '@vicons/ionicons5';
 
-const props = defineProps<{
+defineProps<{
   active: string;
 }>();
 const emit = defineEmits<{ select: [id: string] }>();
@@ -26,12 +26,32 @@ function i18n(key: string, fallback: string): string {
 }
 
 const sections = [
-  { id: 'connection',  icon: LinkOutline,             label: () => i18n('options_section_connection', 'Connection') },
-  { id: 'behavior',    icon: SettingsOutline,         label: () => i18n('options_section_behavior', 'Behavior') },
-  { id: 'rules',       icon: ListOutline,             label: () => i18n('options_section_rules', 'Site Rules') },
-  { id: 'enhanced',    icon: ShieldCheckmarkOutline,  label: () => i18n('options_section_enhanced', 'Enhanced') },
-  { id: 'appearance',  icon: ColorPaletteOutline,     label: () => i18n('options_section_appearance', 'Appearance') },
-  { id: 'diagnostics', icon: BugOutline,              label: () => i18n('options_section_diagnostics', 'Diagnostics') },
+  {
+    id: 'connection',
+    icon: LinkOutline,
+    label: () => i18n('options_section_connection', 'Connection'),
+  },
+  {
+    id: 'behavior',
+    icon: SettingsOutline,
+    label: () => i18n('options_section_behavior', 'Behavior'),
+  },
+  { id: 'rules', icon: ListOutline, label: () => i18n('options_section_rules', 'Site Rules') },
+  {
+    id: 'enhanced',
+    icon: ShieldCheckmarkOutline,
+    label: () => i18n('options_section_enhanced', 'Enhanced'),
+  },
+  {
+    id: 'appearance',
+    icon: ColorPaletteOutline,
+    label: () => i18n('options_section_appearance', 'Appearance'),
+  },
+  {
+    id: 'diagnostics',
+    icon: BugOutline,
+    label: () => i18n('options_section_diagnostics', 'Diagnostics'),
+  },
 ];
 </script>
 
@@ -73,7 +93,8 @@ const sections = [
   font-weight: 500;
   cursor: pointer;
   text-align: left;
-  transition: background-color 0.15s cubic-bezier(0.2, 0, 0, 1),
+  transition:
+    background-color 0.15s cubic-bezier(0.2, 0, 0, 1),
     color 0.15s cubic-bezier(0.2, 0, 0, 1);
 }
 

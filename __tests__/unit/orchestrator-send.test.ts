@@ -9,7 +9,9 @@ import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): OrchestratorDeps {
   return {
     aria2: {
-      addUri: vi.fn<(uris: string[], opts?: unknown) => Promise<string>>().mockResolvedValue('gid-ctx-1'),
+      addUri: vi
+        .fn<(uris: string[], opts?: unknown) => Promise<string>>()
+        .mockResolvedValue('gid-ctx-1'),
     },
     downloads: {
       pause: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
@@ -104,7 +106,9 @@ describe('DownloadOrchestrator.sendUrl', () => {
     });
     const orch = new DownloadOrchestrator(deps);
 
-    await expect(orch.sendUrl('https://example.com/file.zip', '')).rejects.toThrow('connection refused');
+    await expect(orch.sendUrl('https://example.com/file.zip', '')).rejects.toThrow(
+      'connection refused',
+    );
 
     expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -8,18 +8,11 @@
  * list animation pattern).
  */
 import { ref, computed } from 'vue';
-import {
-  NInput,
-  NSelect,
-  NButton,
-  NTag,
-  NIcon,
-  NEmpty,
-} from 'naive-ui';
+import { NInput, NSelect, NButton, NTag, NIcon, NEmpty } from 'naive-ui';
 import { CloseOutline, AddOutline } from '@vicons/ionicons5';
 import type { SiteRule } from '@/shared/types';
 
-const props = defineProps<{
+defineProps<{
   rules: SiteRule[];
 }>();
 
@@ -60,21 +53,13 @@ function handleAdd(): void {
     <Transition name="fade" mode="out-in">
       <div v-if="rules.length" key="list" class="rule-list">
         <TransitionGroup name="list-item" tag="div" class="rule-list__inner">
-          <div
-            v-for="rule in rules"
-            :key="rule.id"
-            class="rule-item"
-          >
+          <div v-for="rule in rules" :key="rule.id" class="rule-item">
             <code class="rule-item__pattern">{{ rule.pattern }}</code>
             <div class="rule-item__actions">
               <NTag :type="ACTION_TYPE_MAP[rule.action]" size="small" round>
                 {{ rule.action }}
               </NTag>
-              <button
-                type="button"
-                class="rule-item__remove"
-                @click="emit('remove', rule.id)"
-              >
+              <button type="button" class="rule-item__remove" @click="emit('remove', rule.id)">
                 <NIcon :size="14"><CloseOutline /></NIcon>
               </button>
             </div>
@@ -98,11 +83,7 @@ function handleAdd(): void {
         style="flex: 1; font-family: var(--font-mono)"
         @keydown.enter="handleAdd"
       />
-      <NSelect
-        v-model:value="newAction"
-        :options="actionOptions"
-        style="width: 170px"
-      />
+      <NSelect v-model:value="newAction" :options="actionOptions" style="width: 170px" />
       <NButton type="primary" @click="handleAdd">
         <template #icon>
           <NIcon :size="16"><AddOutline /></NIcon>

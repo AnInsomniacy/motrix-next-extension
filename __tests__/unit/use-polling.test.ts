@@ -14,7 +14,12 @@ describe('usePolling', () => {
 
   it('calls the poll function at the base interval', async () => {
     const fn = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
-    const { start, stop } = usePolling({ fn, baseIntervalMs: 2000, maxIntervalMs: 30000, backoffMultiplier: 2 });
+    const { start, stop } = usePolling({
+      fn,
+      baseIntervalMs: 2000,
+      maxIntervalMs: 30000,
+      backoffMultiplier: 2,
+    });
 
     start();
     await vi.advanceTimersByTimeAsync(0); // flush initial tick
@@ -31,7 +36,12 @@ describe('usePolling', () => {
 
   it('backs off exponentially on consecutive errors', async () => {
     const fn = vi.fn<() => Promise<void>>().mockRejectedValue(new Error('fail'));
-    const { start, stop } = usePolling({ fn, baseIntervalMs: 1000, maxIntervalMs: 8000, backoffMultiplier: 2 });
+    const { start, stop } = usePolling({
+      fn,
+      baseIntervalMs: 1000,
+      maxIntervalMs: 8000,
+      backoffMultiplier: 2,
+    });
 
     start();
     await vi.advanceTimersByTimeAsync(0); // error 1
@@ -54,7 +64,12 @@ describe('usePolling', () => {
 
   it('caps backoff at maxIntervalMs', async () => {
     const fn = vi.fn<() => Promise<void>>().mockRejectedValue(new Error('fail'));
-    const { start, stop } = usePolling({ fn, baseIntervalMs: 1000, maxIntervalMs: 4000, backoffMultiplier: 2 });
+    const { start, stop } = usePolling({
+      fn,
+      baseIntervalMs: 1000,
+      maxIntervalMs: 4000,
+      backoffMultiplier: 2,
+    });
 
     start();
     await vi.advanceTimersByTimeAsync(0); // error 1 → next: 2000
@@ -75,7 +90,12 @@ describe('usePolling', () => {
     const fn = vi.fn<() => Promise<void>>().mockImplementation(async () => {
       if (shouldFail) throw new Error('fail');
     });
-    const { start, stop } = usePolling({ fn, baseIntervalMs: 1000, maxIntervalMs: 30000, backoffMultiplier: 2 });
+    const { start, stop } = usePolling({
+      fn,
+      baseIntervalMs: 1000,
+      maxIntervalMs: 30000,
+      backoffMultiplier: 2,
+    });
 
     start();
     await vi.advanceTimersByTimeAsync(0); // error 1 → delay = 2000
@@ -92,7 +112,12 @@ describe('usePolling', () => {
 
   it('stop() prevents further polling', async () => {
     const fn = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
-    const { start, stop } = usePolling({ fn, baseIntervalMs: 1000, maxIntervalMs: 30000, backoffMultiplier: 2 });
+    const { start, stop } = usePolling({
+      fn,
+      baseIntervalMs: 1000,
+      maxIntervalMs: 30000,
+      backoffMultiplier: 2,
+    });
 
     start();
     await vi.advanceTimersByTimeAsync(0);
@@ -106,7 +131,12 @@ describe('usePolling', () => {
 
   it('can be restarted after stop', async () => {
     const fn = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
-    const { start, stop } = usePolling({ fn, baseIntervalMs: 1000, maxIntervalMs: 30000, backoffMultiplier: 2 });
+    const { start, stop } = usePolling({
+      fn,
+      baseIntervalMs: 1000,
+      maxIntervalMs: 30000,
+      backoffMultiplier: 2,
+    });
 
     start();
     await vi.advanceTimersByTimeAsync(0);
@@ -130,10 +160,19 @@ describe('usePolling', () => {
     let visibilityCallback: (() => void) | null = null;
     const visibilityApi = {
       isHidden: () => false,
-      onVisibilityChange: (cb: () => void) => { visibilityCallback = cb; return () => { visibilityCallback = null; }; },
+      onVisibilityChange: (cb: () => void) => {
+        visibilityCallback = cb;
+        return () => {
+          visibilityCallback = null;
+        };
+      },
     };
     const { start, stop } = usePolling({
-      fn, baseIntervalMs: 1000, maxIntervalMs: 30000, backoffMultiplier: 2, visibilityApi,
+      fn,
+      baseIntervalMs: 1000,
+      maxIntervalMs: 30000,
+      backoffMultiplier: 2,
+      visibilityApi,
     });
 
     start();
@@ -156,10 +195,19 @@ describe('usePolling', () => {
     let visibilityCallback: (() => void) | null = null;
     const visibilityApi = {
       isHidden: () => false,
-      onVisibilityChange: (cb: () => void) => { visibilityCallback = cb; return () => { visibilityCallback = null; }; },
+      onVisibilityChange: (cb: () => void) => {
+        visibilityCallback = cb;
+        return () => {
+          visibilityCallback = null;
+        };
+      },
     };
     const { start, stop } = usePolling({
-      fn, baseIntervalMs: 1000, maxIntervalMs: 30000, backoffMultiplier: 2, visibilityApi,
+      fn,
+      baseIntervalMs: 1000,
+      maxIntervalMs: 30000,
+      backoffMultiplier: 2,
+      visibilityApi,
     });
 
     start();
@@ -193,11 +241,17 @@ describe('usePolling', () => {
       isHidden: () => false,
       onVisibilityChange: (_cb: () => void) => {
         registered = true;
-        return () => { registered = false; };
+        return () => {
+          registered = false;
+        };
       },
     };
     const { start, stop } = usePolling({
-      fn, baseIntervalMs: 1000, maxIntervalMs: 30000, backoffMultiplier: 2, visibilityApi,
+      fn,
+      baseIntervalMs: 1000,
+      maxIntervalMs: 30000,
+      backoffMultiplier: 2,
+      visibilityApi,
     });
 
     start();

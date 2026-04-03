@@ -33,20 +33,13 @@ function i18n(key: string, fallback: string): string {
         </div>
 
         <div class="action-bar__buttons">
-          <NButton
-            class="save-btn"
-            type="primary"
-            @click="$emit('save')"
-          >
+          <NButton class="save-btn" type="primary" @click="$emit('save')">
             <template #icon>
               <NIcon :size="16"><SaveOutline /></NIcon>
             </template>
             {{ i18n('options_save', 'Save') }}
           </NButton>
-          <NButton
-            class="discard-btn"
-            @click="$emit('discard')"
-          >
+          <NButton class="discard-btn" @click="$emit('discard')">
             <template #icon>
               <NIcon :size="14"><ArrowUndoOutline /></NIcon>
             </template>
@@ -123,8 +116,15 @@ function i18n(key: string, fallback: string): string {
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

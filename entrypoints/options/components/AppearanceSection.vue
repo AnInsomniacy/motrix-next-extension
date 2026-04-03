@@ -13,7 +13,7 @@ import { NRadioGroup, NRadioButton, NFormItem, NIcon, NTooltip } from 'naive-ui'
 import { SunnyOutline, MoonOutline, DesktopOutline } from '@vicons/ionicons5';
 import { COLOR_SCHEMES } from '@/shared/color-schemes';
 
-const props = defineProps<{
+defineProps<{
   theme: string;
   colorScheme: string;
 }>();

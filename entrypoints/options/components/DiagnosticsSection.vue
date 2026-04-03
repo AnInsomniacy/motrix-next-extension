@@ -56,11 +56,7 @@ const LEVEL_TYPE: Record<string, 'success' | 'warning' | 'error'> = {
 
     <Transition name="fade" mode="out-in">
       <div v-if="events.length" key="log" class="diag-log">
-        <div
-          v-for="event in reversed"
-          :key="event.id"
-          class="diag-entry"
-        >
+        <div v-for="event in reversed" :key="event.id" class="diag-entry">
           <span class="diag-entry__time">{{ formatTime(event.ts) }}</span>
           <NTag :type="LEVEL_TYPE[event.level] ?? 'default'" size="tiny" round>
             {{ event.level }}

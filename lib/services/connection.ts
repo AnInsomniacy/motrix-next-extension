@@ -33,8 +33,7 @@ export class ConnectionService {
     } catch (error) {
       // Pass the error constructor name so the UI layer can map it to an
       // i18n key instead of displaying English-only error.message text.
-      const errorType =
-        error instanceof Error ? error.constructor.name : 'UnknownError';
+      const errorType = error instanceof Error ? error.constructor.name : 'UnknownError';
       return {
         status: ConnectionStatus.Disconnected,
         version: null,

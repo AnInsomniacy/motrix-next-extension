@@ -17,7 +17,11 @@ import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { NConfigProvider, createDiscreteApi } from 'naive-ui';
 import { StorageService } from '@/lib/storage';
 import type { RpcConfig } from '@/shared/types';
-import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS, DEFAULT_UI_PREFS } from '@/shared/constants';
+import {
+  DEFAULT_RPC_CONFIG,
+  DEFAULT_DOWNLOAD_SETTINGS,
+  DEFAULT_UI_PREFS,
+} from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
 import { usePreferenceForm } from '@/shared/use-preference-form';
 
@@ -62,9 +66,17 @@ const storageService = new StorageService(chrome.storage.local);
 // ─── Composables ────────────────────────────────────────────────────
 
 const { siteRules, hydrate: hydrateSiteRules, addRule, removeRule } = useSiteRules(storageService);
-const { enhancedGranted, checkPermissions, grantEnhanced, revokeEnhanced } = useEnhancedPermissions();
-const { diagnosticEvents, hydrate: hydrateDiagnostics, copyDiagnosticLog, clearDiagnosticLog } = useDiagnostics(storageService);
-const appearance = useAppearance(storageService, setTheme, (id) => { colorSchemeId.value = id; });
+const { enhancedGranted, checkPermissions, grantEnhanced, revokeEnhanced } =
+  useEnhancedPermissions();
+const {
+  diagnosticEvents,
+  hydrate: hydrateDiagnostics,
+  copyDiagnosticLog,
+  clearDiagnosticLog,
+} = useDiagnostics(storageService);
+const appearance = useAppearance(storageService, setTheme, (id) => {
+  colorSchemeId.value = id;
+});
 
 // ─── Preference Form (dirty-tracked settings) ──────────────────────
 
@@ -94,28 +106,33 @@ function buildForm(): SettingsForm {
 
 const { message: toast } = createDiscreteApi(['message']);
 
-const { form, isDirty, handleSave: rawSave, handleReset: rawReset, resetSnapshot } =
-  usePreferenceForm<SettingsForm>({
-    buildForm,
-    persist: async (f) => {
-      await storageService.saveRpcConfig({
-        host: DEFAULT_RPC_CONFIG.host,
-        port: f.port,
-        secret: f.secret,
-      });
-      await storageService.saveSettings({
-        enabled: f.enabled,
-        minFileSize: f.minFileSize,
-        fallbackToBrowser: f.fallbackToBrowser,
-        hideDownloadBar: f.hideDownloadBar,
-        notifyOnStart: f.notifyOnStart,
-        notifyOnComplete: f.notifyOnComplete,
-      });
-    },
-    afterSave: () => {
-      toast.success(i18n('options_save_success', 'Settings saved'));
-    },
-  });
+const {
+  form,
+  isDirty,
+  handleSave: rawSave,
+  handleReset: rawReset,
+  resetSnapshot,
+} = usePreferenceForm<SettingsForm>({
+  buildForm,
+  persist: async (f) => {
+    await storageService.saveRpcConfig({
+      host: DEFAULT_RPC_CONFIG.host,
+      port: f.port,
+      secret: f.secret,
+    });
+    await storageService.saveSettings({
+      enabled: f.enabled,
+      minFileSize: f.minFileSize,
+      fallbackToBrowser: f.fallbackToBrowser,
+      hideDownloadBar: f.hideDownloadBar,
+      notifyOnStart: f.notifyOnStart,
+      notifyOnComplete: f.notifyOnComplete,
+    });
+  },
+  afterSave: () => {
+    toast.success(i18n('options_save_success', 'Settings saved'));
+  },
+});
 
 async function handleSave(): Promise<void> {
   try {
@@ -138,18 +155,12 @@ const rpcForTest = computed<RpcConfig>(() => ({
   secret: form.value.secret,
 }));
 
-const {
-  connectionStatus,
-  connectionVersion,
-  connectionError,
-  testingConnection,
-  testConnection,
-} = useConnectionTest(rpcForTest);
+const { connectionStatus, connectionVersion, connectionError, testingConnection, testConnection } =
+  useConnectionTest(rpcForTest);
 
 // ─── Extension Version ─────────────────────────────────────────────
 
 const extensionVersion = chrome.runtime.getManifest().version;
-
 
 // ─── Load from Storage ──────────────────────────────────────────────
 
@@ -177,7 +188,7 @@ async function loadFromStorage(): Promise<void> {
 
 // ─── Lifecycle ──────────────────────────────────────────────────────
 
-function onBeforeUnload(e: BeforeUnloadEvent): void {
+function onBeforeUnload(e: globalThis.BeforeUnloadEvent): void {
   if (isDirty.value) {
     e.preventDefault();
   }
@@ -204,32 +215,36 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <NConfigProvider
-    :theme="naiveTheme"
-    :theme-overrides="themeOverrides"
-    inline-theme-disabled
-  >
+  <NConfigProvider :theme="naiveTheme" :theme-overrides="themeOverrides" inline-theme-disabled>
     <div class="options-root">
       <!-- ── Header ──────────────────────────────────────────── -->
       <header class="options-header">
         <div class="options-header__brand">
           <div class="options-header__icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="40"
-              height="18"
-              viewBox="0 0 40 18"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="18" viewBox="0 0 40 18">
               <rect
-                x="0.5" y="0.5" width="39" height="17" rx="4"
-                fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"
+                x="0.5"
+                y="0.5"
+                width="39"
+                height="17"
+                rx="4"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1"
+                opacity="0.6"
               />
               <text
-                x="20" y="13" fill="currentColor"
+                x="20"
+                y="13"
+                fill="currentColor"
                 font-family="Arial, Helvetica, sans-serif"
-                font-weight="900" font-size="10"
-                text-anchor="middle" letter-spacing="1"
-              >NEXT</text>
+                font-weight="900"
+                font-size="10"
+                text-anchor="middle"
+                letter-spacing="1"
+              >
+                NEXT
+              </text>
             </svg>
           </div>
           <div>
@@ -270,7 +285,9 @@ onUnmounted(() => {
 
             <!-- Behavior -->
             <div v-else-if="activeSection === 'behavior'" key="behavior" class="section-wrapper">
-              <h2 class="section-title">{{ i18n('options_section_behavior', 'Download Behavior') }}</h2>
+              <h2 class="section-title">
+                {{ i18n('options_section_behavior', 'Download Behavior') }}
+              </h2>
               <div class="card">
                 <BehaviorSection
                   :enabled="form.enabled"
@@ -292,11 +309,7 @@ onUnmounted(() => {
             <div v-else-if="activeSection === 'rules'" key="rules" class="section-wrapper">
               <h2 class="section-title">{{ i18n('options_section_rules', 'Site Rules') }}</h2>
               <div class="card">
-                <SiteRulesSection
-                  :rules="siteRules"
-                  @add="addRule"
-                  @remove="removeRule"
-                />
+                <SiteRulesSection :rules="siteRules" @add="addRule" @remove="removeRule" />
               </div>
             </div>
 
@@ -316,7 +329,11 @@ onUnmounted(() => {
             </div>
 
             <!-- Appearance -->
-            <div v-else-if="activeSection === 'appearance'" key="appearance" class="section-wrapper">
+            <div
+              v-else-if="activeSection === 'appearance'"
+              key="appearance"
+              class="section-wrapper"
+            >
               <h2 class="section-title">{{ i18n('options_section_appearance', 'Appearance') }}</h2>
               <div class="card">
                 <AppearanceSection
@@ -329,8 +346,14 @@ onUnmounted(() => {
             </div>
 
             <!-- Diagnostics -->
-            <div v-else-if="activeSection === 'diagnostics'" key="diagnostics" class="section-wrapper">
-              <h2 class="section-title">{{ i18n('options_section_diagnostics', 'Diagnostics') }}</h2>
+            <div
+              v-else-if="activeSection === 'diagnostics'"
+              key="diagnostics"
+              class="section-wrapper"
+            >
+              <h2 class="section-title">
+                {{ i18n('options_section_diagnostics', 'Diagnostics') }}
+              </h2>
               <div class="card">
                 <DiagnosticsSection
                   :events="diagnosticEvents"
@@ -345,7 +368,13 @@ onUnmounted(() => {
 
       <!-- ── Footer ──────────────────────────────────────────── -->
       <footer class="options-footer">
-        {{ i18nSub('options_footer', [extensionVersion], `Motrix Next Extension v${extensionVersion}`) }}
+        {{
+          i18nSub(
+            'options_footer',
+            [extensionVersion],
+            `Motrix Next Extension v${extensionVersion}`,
+          )
+        }}
       </footer>
     </div>
   </NConfigProvider>

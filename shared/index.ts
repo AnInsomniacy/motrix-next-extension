@@ -9,11 +9,7 @@
  */
 
 // ─── Constants ──────────────────────────────────────────
-export {
-  DEFAULT_RPC_CONFIG,
-  DEFAULT_DOWNLOAD_SETTINGS,
-  DEFAULT_UI_PREFS,
-} from './constants';
+export { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS, DEFAULT_UI_PREFS } from './constants';
 
 // ─── Utilities ──────────────────────────────────────────
 export { extractFilenameFromUrl } from './url';

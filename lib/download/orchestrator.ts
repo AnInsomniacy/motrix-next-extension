@@ -98,9 +98,8 @@ export class DownloadOrchestrator {
     // We intentionally do NOT pass `out` to aria2 — aria2 has superior
     // filename resolution via Content-Disposition, redirected URLs, and
     // URL path segments (see aria2 HttpResponse.cc:determineFilename()).
-    const displayName = item.filename
-      || extractFilenameFromUrl(item.finalUrl || item.url)
-      || 'download';
+    const displayName =
+      item.filename || extractFilenameFromUrl(item.finalUrl || item.url) || 'download';
 
     const aria2Options = await this.buildAria2Options(item.url, tabUrl);
 
@@ -204,10 +203,7 @@ export class DownloadOrchestrator {
    * Build aria2 options (headers, cookies) for a URL.
    * Shared by handleCreated and sendUrl to eliminate duplication.
    */
-  private async buildAria2Options(
-    url: string,
-    tabUrl: string,
-  ): Promise<Record<string, unknown>> {
+  private async buildAria2Options(url: string, tabUrl: string): Promise<Record<string, unknown>> {
     const enhanced = this.deps.hasEnhancedPermissions();
 
     const metadata = await this.metadataCollector.collectMetadata({

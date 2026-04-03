@@ -32,10 +32,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
     const keysB = Object.keys(b as Record<string, unknown>);
     if (keysA.length !== keysB.length) return false;
     return keysA.every((k) =>
-      deepEqual(
-        (a as Record<string, unknown>)[k],
-        (b as Record<string, unknown>)[k],
-      ),
+      deepEqual((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]),
     );
   }
 
@@ -130,9 +127,7 @@ export function usePreferenceForm<T extends object>(
   const savedSnapshot: Ref<T> = ref(snapshot(options.buildForm())) as Ref<T>;
 
   // Ref: desktop usePreferenceForm.ts L65
-  const isDirty = computed(
-    () => !deepEqual(snapshot(form.value), savedSnapshot.value),
-  );
+  const isDirty = computed(() => !deepEqual(snapshot(form.value), savedSnapshot.value));
 
   // ── Save ────────────────────────────────────────────────────────
 
@@ -155,10 +150,7 @@ export function usePreferenceForm<T extends object>(
   function handleReset(): void {
     // Revert form to the saved baseline.
     // Ref: desktop usePreferenceForm.ts L123-126
-    Object.assign(
-      form.value as object,
-      snapshot(savedSnapshot.value),
-    );
+    Object.assign(form.value as object, snapshot(savedSnapshot.value));
   }
 
   // ── Snapshot Management ─────────────────────────────────────────

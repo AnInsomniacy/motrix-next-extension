@@ -7,16 +7,10 @@
  * and NCollapseTransition for the conditional sub-settings reveal
  * (matching desktop Basic.vue collapse pattern).
  */
-import {
-  NButton,
-  NSwitch,
-  NFormItem,
-  NIcon,
-  NCollapseTransition,
-} from 'naive-ui';
+import { NButton, NSwitch, NFormItem, NIcon, NCollapseTransition } from 'naive-ui';
 import { CheckmarkCircleOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5';
 
-const props = defineProps<{
+defineProps<{
   granted: boolean;
   hideDownloadBar: boolean;
 }>();
@@ -35,9 +29,19 @@ function i18n(key: string, fallback: string): string {
 <template>
   <div class="section">
     <p class="enhanced-desc">
-      {{ i18n('options_enhanced_description', 'Grant additional permissions for cookie forwarding and hiding the browser download bar.') }}
+      {{
+        i18n(
+          'options_enhanced_description',
+          'Grant additional permissions for cookie forwarding and hiding the browser download bar.',
+        )
+      }}
       <span class="enhanced-note">
-        {{ i18n('options_enhanced_cookie_note', 'Cookie forwarding is best-effort — it may not work for all sites due to browser privacy policies.') }}
+        {{
+          i18n(
+            'options_enhanced_cookie_note',
+            'Cookie forwarding is best-effort — it may not work for all sites due to browser privacy policies.',
+          )
+        }}
       </span>
     </p>
 
@@ -52,7 +56,10 @@ function i18n(key: string, fallback: string): string {
         </div>
 
         <NCollapseTransition :show="granted">
-          <NFormItem :label="i18n('options_enhanced_hide_bar_label', 'Hide Browser Download Bar')" class="enhanced-toggle">
+          <NFormItem
+            :label="i18n('options_enhanced_hide_bar_label', 'Hide Browser Download Bar')"
+            class="enhanced-toggle"
+          >
             <NSwitch
               :value="hideDownloadBar"
               @update:value="emit('update:hideDownloadBar', $event)"
@@ -60,12 +67,7 @@ function i18n(key: string, fallback: string): string {
           </NFormItem>
         </NCollapseTransition>
 
-        <NButton
-          size="small"
-          type="error"
-          quaternary
-          @click="emit('revoke')"
-        >
+        <NButton size="small" type="error" quaternary @click="emit('revoke')">
           {{ i18n('options_enhanced_revoke', 'Revoke Permissions') }}
         </NButton>
       </div>

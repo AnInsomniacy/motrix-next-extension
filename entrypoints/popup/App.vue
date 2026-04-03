@@ -10,12 +10,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { usePolling } from '@/shared/use-polling';
 import { NConfigProvider, NSpin, NIcon, NButton } from 'naive-ui';
-import {
-  PauseOutline,
-  PlayOutline,
-  RocketOutline,
-  AlertCircleOutline,
-} from '@vicons/ionicons5';
+import { PauseOutline, PlayOutline, RocketOutline, AlertCircleOutline } from '@vicons/ionicons5';
 import { Aria2Client } from '@/lib/rpc';
 import { ConnectionService, ConnectionStatus } from '@/lib/services';
 import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
@@ -69,10 +64,7 @@ async function fetchData(): Promise<void> {
     errorType.value = result.error ?? null;
 
     if (result.status === ConnectionStatus.Connected) {
-      const [activeTasks, stat] = await Promise.all([
-        client.tellActive(),
-        client.getGlobalStat(),
-      ]);
+      const [activeTasks, stat] = await Promise.all([client.tellActive(), client.getGlobalStat()]);
       tasks.value = activeTasks;
       globalStat.value = stat;
     }
@@ -109,9 +101,10 @@ function openSettings(): void {
 
 function launchApp(): void {
   // Connected: focus the existing window. Disconnected: wake the app via OS.
-  const url = status.value === ConnectionStatus.Connected
-    ? buildProtocolUrl(ProtocolAction.Tasks)
-    : buildProtocolUrl();
+  const url =
+    status.value === ConnectionStatus.Connected
+      ? buildProtocolUrl(ProtocolAction.Tasks)
+      : buildProtocolUrl();
   // Let Chrome handle the protocol tab lifecycle naturally —
   // the OS will process the custom scheme and Chrome manages the tab.
   void chrome.tabs.create({ url, active: true });
@@ -153,11 +146,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <NConfigProvider
-    :theme="naiveTheme"
-    :theme-overrides="themeOverrides"
-    inline-theme-disabled
-  >
+  <NConfigProvider :theme="naiveTheme" :theme-overrides="themeOverrides" inline-theme-disabled>
     <div class="popup-root">
       <!-- ── Loading State ─────────────────────────────────────── -->
       <div v-if="loading" class="popup-loading">
@@ -166,18 +155,11 @@ onUnmounted(() => {
 
       <template v-else>
         <!-- ── Header ──────────────────────────────────────────── -->
-        <PopupHeader
-          :status="status"
-          :version="version"
-          @settings="openSettings"
-        />
+        <PopupHeader :status="status" :version="version" @settings="openSettings" />
 
         <!-- ── Disconnected Banner (error-type-specific) ──────── -->
         <Transition name="fade-scale">
-          <div
-            v-if="status !== 'connected'"
-            class="popup-banner popup-banner--error"
-          >
+          <div v-if="status !== 'connected'" class="popup-banner popup-banner--error">
             <NIcon :size="16" class="popup-banner__icon">
               <AlertCircleOutline />
             </NIcon>
@@ -189,7 +171,12 @@ onUnmounted(() => {
                     {{ i18n('popup_error_auth', 'RPC secret mismatch') }}
                   </p>
                   <p class="popup-banner__hint">
-                    {{ i18n('popup_error_auth_hint', 'Check that the RPC secret in Settings matches your Motrix Next configuration.') }}
+                    {{
+                      i18n(
+                        'popup_error_auth_hint',
+                        'Check that the RPC secret in Settings matches your Motrix Next configuration.',
+                      )
+                    }}
                   </p>
                 </div>
                 <!-- Timeout Error -->
@@ -198,7 +185,13 @@ onUnmounted(() => {
                     {{ i18n('popup_error_timeout', 'Connection timed out') }}
                   </p>
                   <p class="popup-banner__hint">
-                    {{ i18nSub('popup_error_timeout_hint', [String(rpcPort)], `Check your network or firewall settings. RPC port: ${rpcPort}`) }}
+                    {{
+                      i18nSub(
+                        'popup_error_timeout_hint',
+                        [String(rpcPort)],
+                        `Check your network or firewall settings. RPC port: ${rpcPort}`,
+                      )
+                    }}
                   </p>
                 </div>
                 <!-- Unreachable / Unknown (default) -->
@@ -207,7 +200,13 @@ onUnmounted(() => {
                     {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
                   </p>
                   <p class="popup-banner__hint">
-                    {{ i18nSub('popup_error_unreachable_hint', [String(rpcPort)], `Make sure Motrix Next is running. RPC port: ${rpcPort}`) }}
+                    {{
+                      i18nSub(
+                        'popup_error_unreachable_hint',
+                        [String(rpcPort)],
+                        `Make sure Motrix Next is running. RPC port: ${rpcPort}`,
+                      )
+                    }}
                   </p>
                 </div>
               </Transition>
@@ -224,11 +223,7 @@ onUnmounted(() => {
               {{ i18n('popup_no_active_tasks', 'No active downloads') }}
             </div>
             <TransitionGroup v-else name="list-item" tag="div" class="popup-task-list">
-              <TaskCard
-                v-for="task in tasks"
-                :key="task.gid"
-                :task="task"
-              />
+              <TaskCard v-for="task in tasks" :key="task.gid" :task="task" />
             </TransitionGroup>
           </div>
         </template>
@@ -236,21 +231,13 @@ onUnmounted(() => {
         <!-- ── Actions ─────────────────────────────────────────── -->
         <div class="popup-actions">
           <div v-if="status === 'connected'" class="popup-actions__left">
-            <NButton
-              size="tiny"
-              quaternary
-              @click="pauseAll"
-            >
+            <NButton size="tiny" quaternary @click="pauseAll">
               <template #icon>
                 <NIcon :size="12"><PauseOutline /></NIcon>
               </template>
               {{ i18n('popup_action_pause_all', 'Pause All') }}
             </NButton>
-            <NButton
-              size="tiny"
-              quaternary
-              @click="resumeAll"
-            >
+            <NButton size="tiny" quaternary @click="resumeAll">
               <template #icon>
                 <NIcon :size="12"><PlayOutline /></NIcon>
               </template>
@@ -258,11 +245,7 @@ onUnmounted(() => {
             </NButton>
           </div>
           <div v-else class="popup-actions__left" />
-          <NButton
-            size="tiny"
-            type="primary"
-            @click="launchApp"
-          >
+          <NButton size="tiny" type="primary" @click="launchApp">
             <template #icon>
               <NIcon :size="12"><RocketOutline /></NIcon>
             </template>

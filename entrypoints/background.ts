@@ -166,7 +166,7 @@ export default defineBackground(() => {
 
       try {
         await orchestrator.sendUrl(url, tabUrl);
-      } catch (error) {
+      } catch {
         // Error already logged by orchestrator — show error notification
         const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
         await chrome.notifications.create(`failed-ctx-${Date.now()}`, {

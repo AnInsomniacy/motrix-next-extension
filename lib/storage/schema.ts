@@ -29,12 +29,7 @@ import {
 const RpcConfigSchema = z
   .object({
     host: z.string().default(DEFAULT_RPC_CONFIG.host),
-    port: z
-      .number()
-      .int()
-      .min(1)
-      .max(65535)
-      .default(DEFAULT_RPC_CONFIG.port),
+    port: z.number().int().min(1).max(65535).default(DEFAULT_RPC_CONFIG.port),
     secret: z.string().default(DEFAULT_RPC_CONFIG.secret),
   })
   .strict();
@@ -42,10 +37,7 @@ const RpcConfigSchema = z
 const DownloadSettingsSchema = z
   .object({
     enabled: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.enabled),
-    minFileSize: z
-      .number()
-      .min(0)
-      .default(DEFAULT_DOWNLOAD_SETTINGS.minFileSize),
+    minFileSize: z.number().min(0).default(DEFAULT_DOWNLOAD_SETTINGS.minFileSize),
     fallbackToBrowser: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.fallbackToBrowser),
     hideDownloadBar: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar),
     notifyOnStart: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.notifyOnStart),

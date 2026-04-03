@@ -38,7 +38,9 @@ const taskName = computed(() => {
   }
   if (file?.uris?.[0]?.uri) {
     try {
-      return new URL(file.uris[0].uri).pathname.split('/').pop() || i18n('task_name_unknown', 'Unknown');
+      return (
+        new URL(file.uris[0].uri).pathname.split('/').pop() || i18n('task_name_unknown', 'Unknown')
+      );
     } catch {
       /* fallthrough */
     }
@@ -78,10 +80,7 @@ function formatSize(bytes: string): string {
 <template>
   <div class="task-card">
     <!-- Status color bar (desktop TaskItem.vue style) -->
-    <div
-      class="task-card__status-bar"
-      :style="{ backgroundColor: statusColor }"
-    />
+    <div class="task-card__status-bar" :style="{ backgroundColor: statusColor }" />
     <div class="task-card__body">
       <div class="task-card__row">
         <span class="task-card__name" :title="taskName">{{ taskName }}</span>

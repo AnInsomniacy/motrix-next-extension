@@ -4,7 +4,9 @@ import { decodeThunderLink } from '../../shared/thunder';
 describe('decodeThunderLink', () => {
   it('returns non-thunder URLs unchanged', () => {
     expect(decodeThunderLink('http://example.com/file.zip')).toBe('http://example.com/file.zip');
-    expect(decodeThunderLink('https://cdn.example.com/app.dmg')).toBe('https://cdn.example.com/app.dmg');
+    expect(decodeThunderLink('https://cdn.example.com/app.dmg')).toBe(
+      'https://cdn.example.com/app.dmg',
+    );
     expect(decodeThunderLink('magnet:?xt=urn:btih:abc')).toBe('magnet:?xt=urn:btih:abc');
   });
 

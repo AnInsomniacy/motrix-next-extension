@@ -270,4 +270,3 @@ describe('evaluateFilterPipeline', () => {
     expect(result).toBe('skip');
   });
 });
-
