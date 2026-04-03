@@ -91,11 +91,17 @@ export class DownloadOrchestrator {
     // ─── Pause ────────────────────────────────────
     await this.deps.downloads.pause(item.id);
 
-    // ─── Collect Metadata ─────────────────────────
+    // chrome.downloads.onCreated fires before the browser resolves the
+    // filename from Content-Disposition, so item.filename is usually empty.
+    // Fallback chain: item.filename → URL path basename → 'download'
     const enhanced = this.deps.hasEnhancedPermissions();
+    const filename = item.filename
+      || this.extractFilenameFromUrl(item.finalUrl || item.url)
+      || 'download';
+
     const metadata = await this.metadataCollector.collectMetadata({
       url: item.url,
-      filename: item.filename || 'download',
+      filename,
       tabUrl,
       cookiesApi: enhanced ? this.deps.cookies : null,
       hasEnhancedPermissions: enhanced,
@@ -156,6 +162,30 @@ export class DownloadOrchestrator {
           context: { url: item.url, error: String(error) },
         });
       }
+    }
+  }
+
+  /**
+   * Extract a filename from a URL's pathname.
+   *
+   * Example: "https://cdn.example.com/files/app-v2.0.zip?token=abc"
+   *       → "app-v2.0.zip"
+   *
+   * Returns null if the URL is invalid or the path has no usable basename.
+   */
+  private extractFilenameFromUrl(url: string): string | null {
+    try {
+      const { pathname } = new URL(url);
+      // Decode percent-encoded characters (e.g. %20 → space)
+      const decoded = decodeURIComponent(pathname);
+      const basename = decoded.split('/').pop();
+      // Filter out empty segments and bare directory paths
+      if (!basename || basename === '/' || !basename.includes('.')) {
+        return null;
+      }
+      return basename;
+    } catch {
+      return null;
     }
   }
 }
