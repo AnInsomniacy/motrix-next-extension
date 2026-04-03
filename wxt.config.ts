@@ -2,14 +2,26 @@ import { defineConfig } from 'wxt';
 import tailwindcss from '@tailwindcss/vite';
 import Components from 'unplugin-vue-components/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
+import { resolve } from 'node:path';
+import { mkdirSync } from 'node:fs';
+
+// Ensure persistent browser profile directories exist before chrome-launcher
+// attempts to write chrome-out.log. mkdirSync is idempotent with recursive.
+const CHROMIUM_PROFILE = resolve('.wxt/chrome-data');
+const FIREFOX_PROFILE = resolve('.wxt/firefox-data');
+mkdirSync(CHROMIUM_PROFILE, { recursive: true });
+mkdirSync(FIREFOX_PROFILE, { recursive: true });
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
-  runner: {
+  webExt: {
     // Reuse a persistent browser profile across dev restarts so that
     // chrome.storage.local data (RPC secret, theme, etc.) is preserved.
-    dataPersistence: 'project',
+    // Works for both Chromium (Chrome/Edge) and Firefox.
+    chromiumProfile: CHROMIUM_PROFILE,
+    firefoxProfile: FIREFOX_PROFILE,
+    keepProfileChanges: true,
   },
   manifest: {
     name: '__MSG_ext_name__',
