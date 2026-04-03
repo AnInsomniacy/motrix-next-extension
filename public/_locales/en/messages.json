@@ -284,5 +284,33 @@
   "notification_complete_title": {
     "message": "Download Complete",
     "description": "Title for download completion notification"
+  },
+  "options_save": {
+    "message": "Save",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "Discard",
+    "description": "Discard button in action bar"
+  },
+  "options_save_success": {
+    "message": "Settings saved",
+    "description": "Toast after saving settings successfully"
+  },
+  "options_save_error": {
+    "message": "Failed to save settings",
+    "description": "Toast when saving settings fails"
+  },
+  "options_unsaved_title": {
+    "message": "Unsaved Changes",
+    "description": "Dialog title when leaving with unsaved changes"
+  },
+  "options_unsaved_message": {
+    "message": "You have unsaved changes. Save before leaving?",
+    "description": "Dialog body when leaving with unsaved changes"
+  },
+  "options_changes_indicator": {
+    "message": "Unsaved changes",
+    "description": "Indicator text showing there are unsaved modifications"
   }
 }

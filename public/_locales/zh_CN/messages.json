@@ -284,5 +284,33 @@
   "notification_complete_title": {
     "message": "下载完成",
     "description": "下载完成通知标题"
+  },
+  "options_save": {
+    "message": "保存",
+    "description": "操作栏保存按钮"
+  },
+  "options_discard": {
+    "message": "放弃",
+    "description": "操作栏放弃按钮"
+  },
+  "options_save_success": {
+    "message": "设置已保存",
+    "description": "保存成功的提示"
+  },
+  "options_save_error": {
+    "message": "保存设置失败",
+    "description": "保存失败的提示"
+  },
+  "options_unsaved_title": {
+    "message": "未保存的更改",
+    "description": "离开带有未保存更改时的对话框标题"
+  },
+  "options_unsaved_message": {
+    "message": "你有未保存的更改。要在离开前保存吗？",
+    "description": "离开带有未保存更改时的对话框内容"
+  },
+  "options_changes_indicator": {
+    "message": "有未保存的更改",
+    "description": "显示有未保存修改的指示文字"
   }
 }
