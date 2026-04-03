@@ -110,9 +110,9 @@ function launchApp(): void {
   const url = status.value === ConnectionStatus.Connected
     ? buildProtocolUrl(ProtocolAction.Tasks)
     : buildProtocolUrl();
-  void chrome.tabs.create({ url, active: false }).then((tab) => {
-    if (tab.id) setTimeout(() => chrome.tabs.remove(tab.id!), 500);
-  });
+  // Let Chrome handle the protocol tab lifecycle naturally —
+  // the OS will process the custom scheme and Chrome manages the tab.
+  void chrome.tabs.create({ url, active: true });
 }
 
 // ─── Lifecycle ──────────────────────────────────────────────────────
@@ -227,35 +227,36 @@ onUnmounted(() => {
 
         <!-- ── Actions ─────────────────────────────────────────── -->
         <div class="popup-actions">
+          <div v-if="status === 'connected'" class="popup-actions__left">
+            <NButton
+              size="tiny"
+              quaternary
+              @click="pauseAll"
+            >
+              <template #icon>
+                <NIcon :size="12"><PauseOutline /></NIcon>
+              </template>
+              {{ i18n('popup_action_pause_all', 'Pause All') }}
+            </NButton>
+            <NButton
+              size="tiny"
+              quaternary
+              @click="resumeAll"
+            >
+              <template #icon>
+                <NIcon :size="12"><PlayOutline /></NIcon>
+              </template>
+              {{ i18n('popup_action_resume_all', 'Resume All') }}
+            </NButton>
+          </div>
+          <div v-else class="popup-actions__left" />
           <NButton
-            v-if="status === 'connected'"
-            size="small"
-            quaternary
-            @click="pauseAll"
-          >
-            <template #icon>
-              <NIcon :size="14"><PauseOutline /></NIcon>
-            </template>
-            {{ i18n('popup_action_pause_all', 'Pause All') }}
-          </NButton>
-          <NButton
-            v-if="status === 'connected'"
-            size="small"
-            quaternary
-            @click="resumeAll"
-          >
-            <template #icon>
-              <NIcon :size="14"><PlayOutline /></NIcon>
-            </template>
-            {{ i18n('popup_action_resume_all', 'Resume All') }}
-          </NButton>
-          <NButton
-            size="small"
+            size="tiny"
             type="primary"
             @click="launchApp"
           >
             <template #icon>
-              <NIcon :size="14"><RocketOutline /></NIcon>
+              <NIcon :size="12"><RocketOutline /></NIcon>
             </template>
             <Transition name="text-swap" mode="out-in">
               <span v-if="status === 'connected'" key="open">
@@ -275,7 +276,6 @@ onUnmounted(() => {
 <style scoped>
 .popup-root {
   width: 380px;
-  min-height: 240px;
   background: var(--color-surface);
   color: var(--color-on-surface);
   font-family: var(--font-sans);
@@ -286,7 +286,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 240px;
+  min-height: 240px;
 }
 
 /* ── Disconnected Banner ─────────────────────────────────────── */
@@ -348,8 +348,13 @@ onUnmounted(() => {
 .popup-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 8px 16px 14px;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+.popup-actions__left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 </style>
