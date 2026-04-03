@@ -1,7 +1,7 @@
 <div align="center">
   <img src="public/icon/icon.svg" alt="Motrix Next Extension" width="96" height="96" />
   <h1>Motrix Next Extension</h1>
-  <p>Browser extension for <a href="https://github.com/AInsomniacy/motrix-next">Motrix Next</a> — intercepts browser downloads and sends them to the Motrix Next desktop app via aria2 JSON-RPC.</p>
+  <p>Browser extension for <a href="https://github.com/AInsomniacy/motrix-next">Motrix Next</a> — seamless download interception &amp; acceleration.</p>
 </div>
 
 ## Features
