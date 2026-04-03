@@ -21,7 +21,7 @@ import { buildProtocolUrl } from '@/modules/protocol/launcher';
 import { resolveThemeClass } from '@/modules/services/theme';
 import type { ThemePreference } from '@/modules/services/theme';
 import type { Aria2Task, Aria2GlobalStat, RpcConfig } from '@/shared/types';
-import { DEFAULT_RPC_CONFIG } from '@/shared/constants';
+import { DEFAULT_RPC_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
 
 import PopupHeader from './components/PopupHeader.vue';
@@ -34,9 +34,10 @@ function i18n(key: string, fallback: string): string {
   return chrome.i18n.getMessage(key) || fallback;
 }
 
-// ─── Theme ──────────────────────────────────────────────────────────
+// ─── Theme + Color Scheme ───────────────────────────────────────────
 
-const { naiveTheme, themeOverrides } = useTheme();
+const colorSchemeId = ref(DEFAULT_UI_PREFS.colorScheme);
+const { naiveTheme, themeOverrides } = useTheme(colorSchemeId);
 
 // ─── State ──────────────────────────────────────────────────────────
 
@@ -108,8 +109,9 @@ function launchApp(): void {
 onMounted(async () => {
   // Apply theme class to <html> for Tailwind `.dark` utilities
   const uiStored = await chrome.storage.local.get(['uiPrefs']);
-  const theme = ((uiStored.uiPrefs as Record<string, string> | undefined)?.theme ??
-    'system') as ThemePreference;
+  const uiPrefs = uiStored.uiPrefs as Record<string, string> | undefined;
+  const theme = (uiPrefs?.theme ?? 'system') as ThemePreference;
+  colorSchemeId.value = uiPrefs?.colorScheme ?? DEFAULT_UI_PREFS.colorScheme;
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   document.documentElement.className = resolveThemeClass(theme, mediaQuery.matches);
   mediaQuery.addEventListener('change', (e) => {

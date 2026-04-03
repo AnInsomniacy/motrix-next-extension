@@ -41,9 +41,10 @@ import AppearanceSection from './components/AppearanceSection.vue';
 import DiagnosticsSection from './components/DiagnosticsSection.vue';
 import SettingsActionBar from './components/SettingsActionBar.vue';
 
-// ─── Theme ──────────────────────────────────────────────────────────
+// ─── Theme + Color Scheme ───────────────────────────────────────────
 
-const { naiveTheme, themeOverrides } = useTheme();
+const colorSchemeId = ref(DEFAULT_UI_PREFS.colorScheme);
+const { naiveTheme, themeOverrides, setTheme } = useTheme(colorSchemeId);
 
 // ─── i18n ───────────────────────────────────────────────────────────
 
@@ -141,6 +142,7 @@ function handleReset(): void {
 // ─── Non-dirty-tracked State ────────────────────────────────────────
 
 const uiTheme = ref<UiPrefs['theme']>(DEFAULT_UI_PREFS.theme);
+const uiColorScheme = ref(DEFAULT_UI_PREFS.colorScheme);
 const siteRules = ref<SiteRule[]>([]);
 const diagnosticEvents = ref<DiagnosticEvent[]>([]);
 const connectionStatus = ref<ConnectionStatus>(ConnectionStatus.Disconnected);
@@ -191,7 +193,13 @@ async function loadFromStorage(): Promise<void> {
 
   // Hydrate non-dirty-tracked state
   const uiData = stored.uiPrefs as Record<string, unknown> | undefined;
-  if (uiData) uiTheme.value = (uiData.theme as UiPrefs['theme']) ?? uiTheme.value;
+  if (uiData) {
+    uiTheme.value = (uiData.theme as UiPrefs['theme']) ?? uiTheme.value;
+    uiColorScheme.value = (uiData.colorScheme as string) ?? uiColorScheme.value;
+    colorSchemeId.value = uiColorScheme.value;
+    // Sync composable's isDark state with persisted theme preference
+    setTheme(uiTheme.value);
+  }
   if (stored.siteRules) siteRules.value = stored.siteRules as SiteRule[];
   if (stored.diagnosticLog) diagnosticEvents.value = stored.diagnosticLog as DiagnosticEvent[];
 
@@ -212,7 +220,9 @@ async function testConnection(): Promise<void> {
   connectionError.value = null;
   const client = new Aria2Client(rpcForTest.value, { timeoutMs: 5000 });
   const svc = new ConnectionService(client);
-  const result = await svc.checkConnection();
+  // Minimum 600ms so the loading animation doesn't flash on fast local connections
+  const minDelay = new Promise((r) => setTimeout(r, 600));
+  const [result] = await Promise.all([svc.checkConnection(), minDelay]);
   connectionStatus.value = result.status;
   connectionVersion.value = result.version;
   connectionError.value = result.error ?? null;
@@ -265,14 +275,25 @@ async function revokeEnhanced(): Promise<void> {
   }
 }
 
-// ─── Theme (immediate persist + patchSnapshot) ──────────────────────
+// ─── Theme + Color Scheme (immediate persist) ──────────────────────
 
 function handleThemeChange(value: string): void {
   const theme = value as UiPrefs['theme'];
   uiTheme.value = theme;
-  // Persist immediately — don't contribute to dirty state
-  void chrome.storage.local.set({ uiPrefs: { theme } });
+  // Update the composable's internal mode → recalculates isDark → MCU re-injects
+  setTheme(theme);
+  void chrome.storage.local.set({
+    uiPrefs: { theme, colorScheme: uiColorScheme.value },
+  });
   applyTheme();
+}
+
+function handleColorSchemeChange(value: string): void {
+  uiColorScheme.value = value;
+  colorSchemeId.value = value;
+  void chrome.storage.local.set({
+    uiPrefs: { theme: uiTheme.value, colorScheme: value },
+  });
 }
 
 // ─── Diagnostics ────────────────────────────────────────────────────
@@ -442,7 +463,9 @@ onUnmounted(() => {
               <div class="card">
                 <AppearanceSection
                   :theme="uiTheme"
+                  :color-scheme="uiColorScheme"
                   @update:theme="handleThemeChange"
+                  @update:color-scheme="handleColorSchemeChange"
                 />
               </div>
             </div>

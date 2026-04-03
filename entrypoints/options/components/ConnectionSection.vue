@@ -70,9 +70,14 @@ const isConnected = computed(() => props.status === ConnectionStatus.Connected);
         :loading="testing"
         @click="emit('test')"
       >
-        {{ testing
-            ? i18n('options_testing_connection', 'Testing...')
-            : i18n('options_test_connection', 'Test Connection') }}
+        <Transition name="text-swap" mode="out-in">
+          <span v-if="testing" key="testing">
+            {{ i18n('options_testing_connection', 'Testing...') }}
+          </span>
+          <span v-else key="idle">
+            {{ i18n('options_test_connection', 'Test Connection') }}
+          </span>
+        </Transition>
       </NButton>
 
       <Transition name="fade" mode="out-in">

@@ -292,6 +292,32 @@ body {
   transform: scale(0.98);
 }
 
+/* ── text-swap: vertical roll for in-button text changes ─────────── */
+/* Old text rolls up + fades out, new text enters from below + fades in.
+ * No scale — avoids parent (button) size jitter.
+ * Fast durations (120ms/150ms) for snappy button feel. */
+.text-swap-enter-active {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.text-swap-leave-active {
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+.text-swap-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.text-swap-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
 /* ── fade-scale: stronger entrance for dialogs / panels ──────────── */
 /* Ref: desktop variables.css L384-404                                */
 .fade-scale-enter-active {

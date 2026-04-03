@@ -1,24 +1,30 @@
 /**
  * @fileoverview Theme resolution composable for the extension's Vue UI.
  *
- * Detects the active system/user theme preference and provides reactive
- * state for use with Naive UI's NConfigProvider. Mirrors the desktop
- * Motrix Next `useTheme.ts` composable.
+ * Combines dark/light mode detection with MCU-generated color scheme
+ * to produce reactive Naive UI NConfigProvider props.
+ *
+ * Architecture:
+ *   ThemeMode (system/light/dark) → isDark
+ *   isDark + seedHex → useColorScheme → CSS vars + themeOverrides
+ *
+ * @see /motrix-next/src/composables/useTheme.ts
+ * @see /motrix-next/src/composables/useColorScheme.ts
  */
 import { ref, computed, onMounted, onBeforeUnmount, type Ref } from 'vue';
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui';
-import { createThemeOverrides } from './naive-theme';
+import { useColorScheme } from './use-color-scheme';
+import { resolveScheme } from './color-schemes';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
 /**
- * Composable that manages theme state and produces matching Naive UI
- * theme / overrides.
+ * Composable that manages theme state (dark/light) and color scheme
+ * (MCU seed), producing matching Naive UI theme/overrides.
  *
- * @returns Reactive refs for NConfigProvider props and a setter for
- *          manually switching themes.
+ * @param colorSchemeId - Reactive ref to the active color scheme ID
  */
-export function useTheme(): {
+export function useTheme(colorSchemeId?: Ref<string>): {
   isDark: Ref<boolean>;
   naiveTheme: Ref<typeof darkTheme | null>;
   themeOverrides: Ref<GlobalThemeOverrides>;
@@ -39,8 +45,14 @@ export function useTheme(): {
   /** Naive UI theme object (null = light token set). */
   const naiveTheme = computed(() => (isDark.value ? darkTheme : null));
 
-  /** M3 Amber Gold overrides keyed to current dark state. */
-  const themeOverrides = computed(() => createThemeOverrides(isDark.value));
+  /** Reactive seed hex derived from the color scheme ID. */
+  const seedHex = computed(() => {
+    const id = colorSchemeId?.value ?? 'amber';
+    return resolveScheme(id).seed;
+  });
+
+  /** MCU-generated theme overrides + CSS variable injection. */
+  const { themeOverrides } = useColorScheme(seedHex, isDark);
 
   function onMediaChange(e: MediaQueryListEvent) {
     systemDark.value = e.matches;

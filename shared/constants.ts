@@ -17,6 +17,7 @@ export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = {
 
 export const DEFAULT_UI_PREFS: Readonly<UiPrefs> = {
   theme: 'system',
+  colorScheme: 'amber',
 } as const;
 
 /** Maximum number of diagnostic events to retain in storage. */

@@ -312,5 +312,49 @@
   "options_changes_indicator": {
     "message": "有未保存的更改",
     "description": "显示有未保存修改的指示文字"
+  },
+  "options_color_scheme": {
+    "message": "配色方案",
+    "description": "配色方案选择器标签"
+  },
+  "options_color_scheme_amber": {
+    "message": "琥珀金",
+    "description": "琥珀金配色方案"
+  },
+  "options_color_scheme_space": {
+    "message": "太空蓝",
+    "description": "太空蓝配色方案"
+  },
+  "options_color_scheme_mint": {
+    "message": "薄荷绿",
+    "description": "薄荷绿配色方案"
+  },
+  "options_color_scheme_rose": {
+    "message": "玫瑰红",
+    "description": "玫瑰红配色方案"
+  },
+  "options_color_scheme_aurora": {
+    "message": "极光紫",
+    "description": "极光紫配色方案"
+  },
+  "options_color_scheme_coral": {
+    "message": "珊瑚橙",
+    "description": "珊瑚橙配色方案"
+  },
+  "options_color_scheme_glacier": {
+    "message": "冰川蓝",
+    "description": "冰川蓝配色方案"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "常青绿",
+    "description": "常青绿配色方案"
+  },
+  "options_color_scheme_graphite": {
+    "message": "石墨灰",
+    "description": "石墨灰配色方案"
+  },
+  "options_color_scheme_sakura": {
+    "message": "樱花粉",
+    "description": "樱花粉配色方案"
   }
 }

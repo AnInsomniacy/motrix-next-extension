@@ -54,25 +54,28 @@ const LEVEL_TYPE: Record<string, 'success' | 'warning' | 'error'> = {
       </NButton>
     </div>
 
-    <div v-if="events.length" class="diag-log">
-      <div
-        v-for="event in reversed"
-        :key="event.id"
-        class="diag-entry"
-      >
-        <span class="diag-entry__time">{{ formatTime(event.ts) }}</span>
-        <NTag :type="LEVEL_TYPE[event.level] ?? 'default'" size="tiny" round>
-          {{ event.level }}
-        </NTag>
-        <code class="diag-entry__code">{{ event.code }}</code>
-        <span class="diag-entry__msg">{{ event.message }}</span>
+    <Transition name="fade" mode="out-in">
+      <div v-if="events.length" key="log" class="diag-log">
+        <div
+          v-for="event in reversed"
+          :key="event.id"
+          class="diag-entry"
+        >
+          <span class="diag-entry__time">{{ formatTime(event.ts) }}</span>
+          <NTag :type="LEVEL_TYPE[event.level] ?? 'default'" size="tiny" round>
+            {{ event.level }}
+          </NTag>
+          <code class="diag-entry__code">{{ event.code }}</code>
+          <span class="diag-entry__msg">{{ event.message }}</span>
+        </div>
       </div>
-    </div>
-    <NEmpty
-      v-else
-      size="small"
-      :description="i18n('options_diagnostics_empty', 'No diagnostic events.')"
-    />
+      <NEmpty
+        v-else
+        key="empty"
+        size="small"
+        :description="i18n('options_diagnostics_empty', 'No diagnostic events.')"
+      />
+    </Transition>
   </div>
 </template>
 

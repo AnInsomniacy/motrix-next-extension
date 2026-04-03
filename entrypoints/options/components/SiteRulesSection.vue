@@ -57,35 +57,38 @@ function handleAdd(): void {
 <template>
   <div class="section">
     <!-- Rule List -->
-    <div v-if="rules.length" class="rule-list">
-      <TransitionGroup name="list-item" tag="div" class="rule-list__inner">
-        <div
-          v-for="rule in rules"
-          :key="rule.id"
-          class="rule-item"
-        >
-          <code class="rule-item__pattern">{{ rule.pattern }}</code>
-          <div class="rule-item__actions">
-            <NTag :type="ACTION_TYPE_MAP[rule.action]" size="small" round>
-              {{ rule.action }}
-            </NTag>
-            <button
-              type="button"
-              class="rule-item__remove"
-              @click="emit('remove', rule.id)"
-            >
-              <NIcon :size="14"><CloseOutline /></NIcon>
-            </button>
+    <Transition name="fade" mode="out-in">
+      <div v-if="rules.length" key="list" class="rule-list">
+        <TransitionGroup name="list-item" tag="div" class="rule-list__inner">
+          <div
+            v-for="rule in rules"
+            :key="rule.id"
+            class="rule-item"
+          >
+            <code class="rule-item__pattern">{{ rule.pattern }}</code>
+            <div class="rule-item__actions">
+              <NTag :type="ACTION_TYPE_MAP[rule.action]" size="small" round>
+                {{ rule.action }}
+              </NTag>
+              <button
+                type="button"
+                class="rule-item__remove"
+                @click="emit('remove', rule.id)"
+              >
+                <NIcon :size="14"><CloseOutline /></NIcon>
+              </button>
+            </div>
           </div>
-        </div>
-      </TransitionGroup>
-    </div>
-    <NEmpty
-      v-else
-      size="small"
-      :description="i18n('options_rules_empty', 'No rules configured.')"
-      style="margin-bottom: 16px"
-    />
+        </TransitionGroup>
+      </div>
+      <NEmpty
+        v-else
+        key="empty"
+        size="small"
+        :description="i18n('options_rules_empty', 'No rules configured.')"
+        style="margin-bottom: 16px"
+      />
+    </Transition>
 
     <!-- Add Rule Form -->
     <div class="rule-add">

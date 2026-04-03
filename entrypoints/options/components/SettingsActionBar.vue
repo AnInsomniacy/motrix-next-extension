@@ -2,15 +2,12 @@
 /**
  * @fileoverview Sticky save/discard action bar for the Options page.
  *
- * Mirrors desktop PreferenceActionBar.vue behavior:
- * - Save button turns success-green when isDirty (0.35s M3 emphasized)
- * - Discard button turns error-container red when isDirty
- * - Entire bar slides in from below (phase-switch-enter) visibility transition
- * - "Unsaved changes" indicator dot pulses when dirty
- * - Buttons are ALWAYS clickable (desktop pattern), but visually muted when clean
+ * Uses CSS Grid `grid-template-rows: 0fr → 1fr` for smooth expand/collapse.
+ * This is the industry-standard approach that avoids the jank of `height`
+ * or `max-height` animations — grid track sizing is handled efficiently
+ * by the browser's layout engine without per-frame reflow.
  *
- * i18n keys: options_save, options_discard, options_changes_indicator
- *
+ * @see https://css-tricks.com/css-grid-can-do-auto-height-transitions/
  * @see /motrix-next/src/components/preference/PreferenceActionBar.vue
  */
 import { NButton, NIcon } from 'naive-ui';
@@ -25,48 +22,70 @@ function i18n(key: string, fallback: string): string {
 </script>
 
 <template>
-  <!--
-    Wrap in Transition so the bar slides in when isDirty becomes true.
-    Matches desktop behavior where the action bar visually activates on dirty.
-  -->
-  <Transition name="action-bar">
-    <div v-if="isDirty" class="action-bar">
-      <div class="action-bar__indicator">
-        <span class="action-bar__dot" />
-        <span class="action-bar__label">
-          {{ i18n('options_changes_indicator', 'Unsaved changes') }}
-        </span>
-      </div>
+  <div class="action-bar-wrapper" :class="{ 'action-bar-wrapper--open': isDirty }">
+    <div class="action-bar-inner">
+      <div class="action-bar">
+        <div class="action-bar__indicator">
+          <span class="action-bar__dot" />
+          <span class="action-bar__label">
+            {{ i18n('options_changes_indicator', 'Unsaved changes') }}
+          </span>
+        </div>
 
-      <div class="action-bar__buttons">
-        <NButton
-          class="save-btn"
-          type="primary"
-          @click="$emit('save')"
-        >
-          <template #icon>
-            <NIcon :size="16"><SaveOutline /></NIcon>
-          </template>
-          {{ i18n('options_save', 'Save') }}
-        </NButton>
-        <NButton
-          class="discard-btn"
-          @click="$emit('discard')"
-        >
-          <template #icon>
-            <NIcon :size="14"><ArrowUndoOutline /></NIcon>
-          </template>
-          {{ i18n('options_discard', 'Discard') }}
-        </NButton>
+        <div class="action-bar__buttons">
+          <NButton
+            class="save-btn"
+            type="primary"
+            @click="$emit('save')"
+          >
+            <template #icon>
+              <NIcon :size="16"><SaveOutline /></NIcon>
+            </template>
+            {{ i18n('options_save', 'Save') }}
+          </NButton>
+          <NButton
+            class="discard-btn"
+            @click="$emit('discard')"
+          >
+            <template #icon>
+              <NIcon :size="14"><ArrowUndoOutline /></NIcon>
+            </template>
+            {{ i18n('options_discard', 'Discard') }}
+          </NButton>
+        </div>
       </div>
     </div>
-  </Transition>
+  </div>
 </template>
 
 <style scoped>
 /* ═══════════════════════════════════════════════════════════════════
- * ── Bar Layout ──────────────────────────────────────────────────
+ * ── CSS Grid Expand/Collapse ────────────────────────────────────
+ * grid-template-rows: 0fr → 1fr is smooth because the browser
+ * interpolates the grid track size natively. The inner wrapper
+ * with min-height:0 + overflow:hidden clips the content.
+ * Opacity fades in/out simultaneously.
  * ═══════════════════════════════════════════════════════════════════ */
+.action-bar-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.25s ease,
+    opacity 0.2s ease;
+}
+
+.action-bar-wrapper--open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.action-bar-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Bar Layout ──────────────────────────────────────────────────── */
 .action-bar {
   display: flex;
   align-items: center;
@@ -94,7 +113,7 @@ function i18n(key: string, fallback: string): string {
   height: 8px;
   border-radius: 50%;
   background: var(--color-warning);
-  animation: pulse-dot 2s cubic-bezier(0.2, 0, 0, 1) infinite;
+  animation: pulse-dot 2s ease infinite;
 }
 
 .action-bar__label {
@@ -109,8 +128,7 @@ function i18n(key: string, fallback: string): string {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * ── Save Button — M3 success fill ───────────────────────────────
- * Ref: desktop PreferenceActionBar.vue L69-83
+ * ── Save Button — success fill ──────────────────────────────────
  * ═══════════════════════════════════════════════════════════════════ */
 .save-btn {
   background-color: var(--color-success) !important;
@@ -140,8 +158,7 @@ function i18n(key: string, fallback: string): string {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * ── Discard Button — M3 error-container tonal fill ──────────────
- * Ref: desktop PreferenceActionBar.vue L85-101
+ * ── Discard Button — error-container tonal fill ─────────────────
  * ═══════════════════════════════════════════════════════════════════ */
 .discard-btn {
   background-color: var(--color-error-container) !important;
@@ -170,37 +187,5 @@ function i18n(key: string, fallback: string): string {
     color 0.35s cubic-bezier(0.2, 0, 0, 1),
     border-color 0.35s cubic-bezier(0.2, 0, 0, 1),
     transform 0.15s cubic-bezier(0.2, 0, 0, 1);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
- * ── Bar Enter/Leave Transition ──────────────────────────────────
- * Simple expand/collapse — no directional movement.
- * Uses max-height for the height animation + opacity for the fade.
- * ═══════════════════════════════════════════════════════════════════ */
-.action-bar-enter-active {
-  transition:
-    opacity 0.25s ease,
-    max-height 0.3s ease;
-  overflow: hidden;
-}
-
-.action-bar-leave-active {
-  transition:
-    opacity 0.15s ease,
-    max-height 0.2s ease;
-  overflow: hidden;
-}
-
-.action-bar-enter-from,
-.action-bar-leave-to {
-  opacity: 0;
-  max-height: 0;
-  padding-top: 0;
-  margin-top: 0;
-}
-
-.action-bar-enter-to,
-.action-bar-leave-from {
-  max-height: 80px;
 }
 </style>
