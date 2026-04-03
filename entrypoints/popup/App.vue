@@ -34,6 +34,10 @@ function i18n(key: string, fallback: string): string {
   return chrome.i18n.getMessage(key) || fallback;
 }
 
+function i18nSub(key: string, subs: string[], fallback: string): string {
+  return chrome.i18n.getMessage(key, subs) || fallback;
+}
+
 // ─── Theme + Color Scheme ───────────────────────────────────────────
 
 const colorSchemeId = ref(DEFAULT_UI_PREFS.colorScheme);
@@ -43,6 +47,8 @@ const { naiveTheme, themeOverrides } = useTheme(colorSchemeId);
 
 const status = ref<ConnectionStatus>(ConnectionStatus.Disconnected);
 const version = ref<string | null>(null);
+const errorType = ref<string | null>(null);
+const rpcPort = ref(DEFAULT_RPC_CONFIG.port);
 const tasks = ref<Aria2Task[]>([]);
 const globalStat = ref<Aria2GlobalStat | null>(null);
 const loading = ref(true);
@@ -58,6 +64,7 @@ async function fetchData(): Promise<void> {
     const result = await connectionSvc.checkConnection();
     status.value = result.status;
     version.value = result.version;
+    errorType.value = result.error ?? null;
 
     if (result.status === ConnectionStatus.Connected) {
       const [activeTasks, stat] = await Promise.all([
@@ -121,6 +128,7 @@ onMounted(async () => {
   // Initialize RPC client
   const stored = await chrome.storage.local.get(['rpc']);
   const rpcConfig: RpcConfig = (stored.rpc as RpcConfig) ?? { ...DEFAULT_RPC_CONFIG };
+  rpcPort.value = rpcConfig.port;
   client = new Aria2Client(rpcConfig, { timeoutMs: 3000 });
 
   await fetchData();
@@ -152,7 +160,7 @@ onUnmounted(() => {
           @settings="openSettings"
         />
 
-        <!-- ── Disconnected Banner ─────────────────────────────── -->
+        <!-- ── Disconnected Banner (error-type-specific) ──────── -->
         <Transition name="fade-scale">
           <div
             v-if="status !== 'connected'"
@@ -162,12 +170,35 @@ onUnmounted(() => {
               <AlertCircleOutline />
             </NIcon>
             <div>
-              <p class="popup-banner__title">
-                {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
-              </p>
-              <p class="popup-banner__hint">
-                {{ i18n('popup_error_hint', 'Make sure Motrix Next is running and RPC is enabled.') }}
-              </p>
+              <Transition name="text-swap" mode="out-in">
+                <!-- Auth Error -->
+                <div v-if="errorType === 'RpcAuthError'" key="auth">
+                  <p class="popup-banner__title">
+                    {{ i18n('popup_error_auth', 'RPC secret mismatch') }}
+                  </p>
+                  <p class="popup-banner__hint">
+                    {{ i18n('popup_error_auth_hint', 'Check that the RPC secret in Settings matches your Motrix Next configuration.') }}
+                  </p>
+                </div>
+                <!-- Timeout Error -->
+                <div v-else-if="errorType === 'RpcTimeoutError'" key="timeout">
+                  <p class="popup-banner__title">
+                    {{ i18n('popup_error_timeout', 'Connection timed out') }}
+                  </p>
+                  <p class="popup-banner__hint">
+                    {{ i18nSub('popup_error_timeout_hint', [String(rpcPort)], `Check your network or firewall settings. RPC port: ${rpcPort}`) }}
+                  </p>
+                </div>
+                <!-- Unreachable / Unknown (default) -->
+                <div v-else key="unreachable">
+                  <p class="popup-banner__title">
+                    {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
+                  </p>
+                  <p class="popup-banner__hint">
+                    {{ i18nSub('popup_error_unreachable_hint', [String(rpcPort)], `Make sure Motrix Next is running. RPC port: ${rpcPort}`) }}
+                  </p>
+                </div>
+              </Transition>
             </div>
           </div>
         </Transition>

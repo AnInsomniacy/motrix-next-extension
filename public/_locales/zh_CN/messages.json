@@ -388,5 +388,31 @@
   "task_name_unknown": {
     "message": "未知",
     "description": "无法解析任务文件名时的兜底名称"
+  },
+  "popup_error_auth": {
+    "message": "RPC 密钥不匹配",
+    "description": "RPC 密钥错误时的弹窗标题"
+  },
+  "popup_error_auth_hint": {
+    "message": "请在设置中确认 RPC 密钥与 Motrix Next 配置一致。",
+    "description": "RPC 认证错误的提示信息"
+  },
+  "popup_error_timeout": {
+    "message": "连接超时",
+    "description": "RPC 连接超时时的弹窗标题"
+  },
+  "popup_error_timeout_hint": {
+    "message": "请检查网络或防火墙设置。RPC 端口：$1",
+    "description": "连接超时的提示信息，$1 = 端口号",
+    "placeholders": {
+      "1": { "content": "$1", "example": "16800" }
+    }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "请确保 Motrix Next 正在运行。RPC 端口：$1",
+    "description": "无法连接时的提示信息，$1 = 端口号",
+    "placeholders": {
+      "1": { "content": "$1", "example": "16800" }
+    }
   }
 }

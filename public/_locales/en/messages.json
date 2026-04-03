@@ -388,5 +388,31 @@
   "task_name_unknown": {
     "message": "Unknown",
     "description": "Fallback name when a task filename cannot be resolved"
+  },
+  "popup_error_auth": {
+    "message": "RPC secret mismatch",
+    "description": "Popup banner title when RPC secret is incorrect"
+  },
+  "popup_error_auth_hint": {
+    "message": "Check that the RPC secret in Settings matches your Motrix Next configuration.",
+    "description": "Popup banner hint for RPC auth error"
+  },
+  "popup_error_timeout": {
+    "message": "Connection timed out",
+    "description": "Popup banner title when RPC connection times out"
+  },
+  "popup_error_timeout_hint": {
+    "message": "Check your network or firewall settings. RPC port: $1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
+    "placeholders": {
+      "1": { "content": "$1", "example": "16800" }
+    }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "Make sure Motrix Next is running. RPC port: $1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
+    "placeholders": {
+      "1": { "content": "$1", "example": "16800" }
+    }
   }
 }
