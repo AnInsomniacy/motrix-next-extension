@@ -1,0 +1,276 @@
+{
+  "ext_name": {
+    "message": "Motrix Next",
+    "description": "Extension display name"
+  },
+  "ext_description": {
+    "message": "Send browser downloads to Motrix Next — a modern download manager powered by aria2",
+    "description": "Extension description shown in browser and web store"
+  },
+  "popup_status_connected": {
+    "message": "Connected",
+    "description": "Connection status badge when aria2 RPC is reachable"
+  },
+  "popup_status_disconnected": {
+    "message": "Disconnected",
+    "description": "Connection status badge when aria2 RPC is unreachable"
+  },
+  "popup_status_not_configured": {
+    "message": "Not Configured",
+    "description": "Connection status badge when RPC secret is empty"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "Download speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "Upload speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "No active downloads",
+    "description": "Message when there are no active aria2 tasks"
+  },
+  "popup_action_pause_all": {
+    "message": "Pause All",
+    "description": "Button to pause all active downloads"
+  },
+  "popup_action_resume_all": {
+    "message": "Resume All",
+    "description": "Button to resume all paused downloads"
+  },
+  "popup_action_settings": {
+    "message": "Settings",
+    "description": "Button to open the options page"
+  },
+  "popup_action_launch": {
+    "message": "Launch Motrix Next",
+    "description": "Button to launch the desktop application"
+  },
+  "popup_error_unreachable": {
+    "message": "Cannot connect to Motrix Next",
+    "description": "Error message when RPC is unreachable"
+  },
+  "popup_error_check_settings": {
+    "message": "Check Settings",
+    "description": "Button to navigate to settings when connection fails"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · Settings",
+    "description": "Options page title"
+  },
+  "options_section_connection": {
+    "message": "Connection",
+    "description": "Settings section for RPC connection"
+  },
+  "options_rpc_port_label": {
+    "message": "RPC Port",
+    "description": "Label for the RPC port input"
+  },
+  "options_rpc_secret_label": {
+    "message": "RPC Secret",
+    "description": "Label for the RPC secret input"
+  },
+  "options_test_connection": {
+    "message": "Test Connection",
+    "description": "Button to test the RPC connection"
+  },
+  "options_connection_success": {
+    "message": "Connected · aria2 $version$",
+    "description": "Success message after testing connection",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "Download Behavior",
+    "description": "Settings section for download interception behavior"
+  },
+  "options_enabled_label": {
+    "message": "Enable Download Interception",
+    "description": "Toggle label for enabling/disabling download interception"
+  },
+  "options_min_size_label": {
+    "message": "Minimum File Size (MB)",
+    "description": "Label for minimum file size filter"
+  },
+  "options_fallback_label": {
+    "message": "Fallback to Browser on Failure",
+    "description": "Toggle label for browser fallback"
+  },
+  "options_notify_label": {
+    "message": "Notifications",
+    "description": "Toggle label for enabling notifications"
+  },
+  "options_section_rules": {
+    "message": "Site Rules",
+    "description": "Settings section for per-site download rules"
+  },
+  "options_add_rule": {
+    "message": "Add Rule",
+    "description": "Button to add a new site rule"
+  },
+  "options_rule_always_intercept": {
+    "message": "Always Intercept",
+    "description": "Site rule action: always send to Motrix Next"
+  },
+  "options_rule_always_skip": {
+    "message": "Always Skip",
+    "description": "Site rule action: never intercept"
+  },
+  "options_rule_use_global": {
+    "message": "Use Global Setting",
+    "description": "Site rule action: follow global enabled/disabled"
+  },
+  "options_section_enhanced": {
+    "message": "Enhanced Mode",
+    "description": "Settings section for optional enhanced permissions"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "Cookie Forwarding (Best-Effort)",
+    "description": "Toggle label for cookie forwarding to aria2"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "Hide Browser Download Bar",
+    "description": "Toggle label for hiding the browser download UI"
+  },
+  "options_enhanced_grant": {
+    "message": "Grant Enhanced Permissions",
+    "description": "Button to request optional permissions"
+  },
+  "options_enhanced_granted": {
+    "message": "Permissions Granted",
+    "description": "Status when enhanced permissions are active"
+  },
+  "options_section_appearance": {
+    "message": "Appearance",
+    "description": "Settings section for theme"
+  },
+  "options_theme_system": {
+    "message": "System",
+    "description": "Theme option: follow system preference"
+  },
+  "options_theme_light": {
+    "message": "Light",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "Dark",
+    "description": "Theme option: dark mode"
+  },
+  "options_section_diagnostics": {
+    "message": "Diagnostics",
+    "description": "Settings section for diagnostic event log"
+  },
+  "options_diagnostics_copy": {
+    "message": "Copy Diagnostic Log",
+    "description": "Button to copy diagnostic events as JSON"
+  },
+  "notification_sent_title": {
+    "message": "Sent to Motrix Next",
+    "description": "Notification title when download is sent"
+  },
+  "notification_sent_body": {
+    "message": "$filename$ is now downloading",
+    "description": "Notification body when download is sent",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "Download Failed",
+    "description": "Notification title when download send fails"
+  },
+  "notification_fallback_title": {
+    "message": "Fallback to Browser",
+    "description": "Notification title when falling back to browser download"
+  },
+  "context_menu_download": {
+    "message": "Download with Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
+  },
+  "error_rpc_unreachable": {
+    "message": "Cannot connect to Motrix Next",
+    "description": "Error: RPC endpoint unreachable"
+  },
+  "error_rpc_auth": {
+    "message": "RPC secret is incorrect",
+    "description": "Error: RPC authentication failed"
+  },
+  "error_rpc_timeout": {
+    "message": "Connection timed out",
+    "description": "Error: RPC call timed out"
+  },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
+  "popup_speed_active_count": {
+    "message": "$count$ active",
+    "description": "Number of active downloads in speed bar",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "Make sure Motrix Next is running and RPC is enabled.",
+    "description": "Hint shown when connection fails"
+  },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
+  "options_header_subtitle": {
+    "message": "Extension Settings",
+    "description": "Options page header subtitle"
+  },
+  "options_testing_connection": {
+    "message": "Testing...",
+    "description": "Button text while testing connection"
+  },
+  "options_connection_success_prefix": {
+    "message": "Connected · aria2",
+    "description": "Prefix for successful connection status"
+  },
+  "options_notify_start_label": {
+    "message": "Notify on Download Start",
+    "description": "Toggle label for start notifications"
+  },
+  "options_notify_complete_label": {
+    "message": "Notify on Download Complete",
+    "description": "Toggle label for completion notifications"
+  },
+  "options_rules_empty": {
+    "message": "No rules configured.",
+    "description": "Placeholder when no site rules exist"
+  },
+  "options_enhanced_description": {
+    "message": "Grant additional permissions for cookie forwarding and hiding the browser download bar.",
+    "description": "Description of enhanced permissions section"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "Cookie forwarding is best-effort — it may not work for all sites due to browser privacy policies.",
+    "description": "Disclaimer about cookie forwarding reliability"
+  },
+  "options_enhanced_status_granted": {
+    "message": "Enhanced permissions granted",
+    "description": "Status text when enhanced permissions are active"
+  },
+  "options_enhanced_revoke": {
+    "message": "Revoke Permissions",
+    "description": "Button to revoke enhanced permissions"
+  },
+  "options_diagnostics_clear": {
+    "message": "Clear Log",
+    "description": "Button to clear diagnostic log"
+  },
+  "options_diagnostics_empty": {
+    "message": "No diagnostic events.",
+    "description": "Placeholder when diagnostic log is empty"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "Footer text with version number",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "Download Complete",
+    "description": "Title for download completion notification"
+  }
+}

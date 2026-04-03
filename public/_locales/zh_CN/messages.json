@@ -1,0 +1,276 @@
+{
+  "ext_name": {
+    "message": "Motrix Next",
+    "description": "扩展显示名称"
+  },
+  "ext_description": {
+    "message": "将浏览器下载发送到 Motrix Next — 基于 aria2 的现代下载管理器",
+    "description": "在浏览器和应用商店中显示的扩展描述"
+  },
+  "popup_status_connected": {
+    "message": "已连接",
+    "description": "aria2 RPC 可达时的连接状态"
+  },
+  "popup_status_disconnected": {
+    "message": "未连接",
+    "description": "aria2 RPC 不可达时的连接状态"
+  },
+  "popup_status_not_configured": {
+    "message": "未配置",
+    "description": "RPC 密钥为空时的连接状态"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "下载速度指示器",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "上传速度指示器",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "没有活跃的下载任务",
+    "description": "无活跃 aria2 任务时的提示"
+  },
+  "popup_action_pause_all": {
+    "message": "全部暂停",
+    "description": "暂停所有活跃下载的按钮"
+  },
+  "popup_action_resume_all": {
+    "message": "全部继续",
+    "description": "恢复所有暂停下载的按钮"
+  },
+  "popup_action_settings": {
+    "message": "设置",
+    "description": "打开设置页的按钮"
+  },
+  "popup_action_launch": {
+    "message": "启动 Motrix Next",
+    "description": "启动桌面应用的按钮"
+  },
+  "popup_error_unreachable": {
+    "message": "无法连接到 Motrix Next",
+    "description": "RPC 不可达时的错误信息"
+  },
+  "popup_error_check_settings": {
+    "message": "检查设置",
+    "description": "连接失败时跳转设置的按钮"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · 设置",
+    "description": "设置页标题"
+  },
+  "options_section_connection": {
+    "message": "连接",
+    "description": "RPC 连接设置区域"
+  },
+  "options_rpc_port_label": {
+    "message": "RPC 端口",
+    "description": "RPC 端口输入标签"
+  },
+  "options_rpc_secret_label": {
+    "message": "RPC 密钥",
+    "description": "RPC 密钥输入标签"
+  },
+  "options_test_connection": {
+    "message": "测试连接",
+    "description": "测试 RPC 连接的按钮"
+  },
+  "options_connection_success": {
+    "message": "已连接 · aria2 $version$",
+    "description": "测试连接成功后的提示",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "下载行为",
+    "description": "下载拦截行为设置区域"
+  },
+  "options_enabled_label": {
+    "message": "启用下载拦截",
+    "description": "启用/禁用下载拦截的开关"
+  },
+  "options_min_size_label": {
+    "message": "最小文件大小 (MB)",
+    "description": "最小文件大小过滤器标签"
+  },
+  "options_fallback_label": {
+    "message": "失败时回退到浏览器下载",
+    "description": "浏览器回退开关"
+  },
+  "options_notify_label": {
+    "message": "通知",
+    "description": "启用通知的开关"
+  },
+  "options_section_rules": {
+    "message": "站点规则",
+    "description": "按站点下载规则设置区域"
+  },
+  "options_add_rule": {
+    "message": "添加规则",
+    "description": "添加新站点规则的按钮"
+  },
+  "options_rule_always_intercept": {
+    "message": "始终拦截",
+    "description": "站点规则操作：始终发送到 Motrix Next"
+  },
+  "options_rule_always_skip": {
+    "message": "始终忽略",
+    "description": "站点规则操作：从不拦截"
+  },
+  "options_rule_use_global": {
+    "message": "跟随全局设置",
+    "description": "站点规则操作：跟随全局启用/禁用"
+  },
+  "options_section_enhanced": {
+    "message": "增强模式",
+    "description": "可选增强权限设置区域"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "Cookie 透传（尽力而为）",
+    "description": "Cookie 转发到 aria2 的开关"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "隐藏浏览器下载栏",
+    "description": "隐藏浏览器下载 UI 的开关"
+  },
+  "options_enhanced_grant": {
+    "message": "授权增强权限",
+    "description": "请求可选权限的按钮"
+  },
+  "options_enhanced_granted": {
+    "message": "权限已授权",
+    "description": "增强权限已激活的状态"
+  },
+  "options_section_appearance": {
+    "message": "外观",
+    "description": "主题设置区域"
+  },
+  "options_theme_system": {
+    "message": "跟随系统",
+    "description": "主题选项：跟随系统偏好"
+  },
+  "options_theme_light": {
+    "message": "浅色",
+    "description": "主题选项：浅色模式"
+  },
+  "options_theme_dark": {
+    "message": "深色",
+    "description": "主题选项：深色模式"
+  },
+  "options_section_diagnostics": {
+    "message": "诊断",
+    "description": "诊断事件日志区域"
+  },
+  "options_diagnostics_copy": {
+    "message": "复制诊断日志",
+    "description": "以 JSON 复制诊断事件的按钮"
+  },
+  "notification_sent_title": {
+    "message": "已发送到 Motrix Next",
+    "description": "下载发送成功的通知标题"
+  },
+  "notification_sent_body": {
+    "message": "$filename$ 正在下载",
+    "description": "下载发送成功的通知内容",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "下载失败",
+    "description": "下载发送失败的通知标题"
+  },
+  "notification_fallback_title": {
+    "message": "已回退到浏览器下载",
+    "description": "回退到浏览器下载的通知标题"
+  },
+  "context_menu_download": {
+    "message": "使用 Motrix Next 下载",
+    "description": "使用 Motrix Next 下载链接的右键菜单项"
+  },
+  "error_rpc_unreachable": {
+    "message": "无法连接到 Motrix Next",
+    "description": "错误：RPC 端点不可达"
+  },
+  "error_rpc_auth": {
+    "message": "RPC 密钥不正确",
+    "description": "错误：RPC 认证失败"
+  },
+  "error_rpc_timeout": {
+    "message": "连接超时",
+    "description": "错误：RPC 调用超时"
+  },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "弹窗标题"
+  },
+  "popup_speed_active_count": {
+    "message": "$count$ 个活跃",
+    "description": "速度栏中活跃下载数量",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "请确保 Motrix Next 正在运行且 RPC 已启用。",
+    "description": "连接失败时的提示"
+  },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "设置页标题"
+  },
+  "options_header_subtitle": {
+    "message": "扩展设置",
+    "description": "设置页副标题"
+  },
+  "options_testing_connection": {
+    "message": "测试中...",
+    "description": "测试连接时的按钮文字"
+  },
+  "options_connection_success_prefix": {
+    "message": "已连接 · aria2",
+    "description": "连接成功状态前缀"
+  },
+  "options_notify_start_label": {
+    "message": "下载开始时通知",
+    "description": "开始通知的开关标签"
+  },
+  "options_notify_complete_label": {
+    "message": "下载完成时通知",
+    "description": "完成通知的开关标签"
+  },
+  "options_rules_empty": {
+    "message": "未配置规则。",
+    "description": "无站点规则时的占位提示"
+  },
+  "options_enhanced_description": {
+    "message": "授权额外权限以启用 Cookie 透传和隐藏浏览器下载栏。",
+    "description": "增强权限区域描述"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "Cookie 透传为尽力而为模式 — 由于浏览器隐私策略，部分网站可能无法正常工作。",
+    "description": "Cookie 透传可靠性说明"
+  },
+  "options_enhanced_status_granted": {
+    "message": "增强权限已授权",
+    "description": "增强权限已激活的状态文字"
+  },
+  "options_enhanced_revoke": {
+    "message": "撤销权限",
+    "description": "撤销增强权限的按钮"
+  },
+  "options_diagnostics_clear": {
+    "message": "清除日志",
+    "description": "清除诊断日志的按钮"
+  },
+  "options_diagnostics_empty": {
+    "message": "暂无诊断事件。",
+    "description": "诊断日志为空时的占位提示"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "页脚版本文字",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "下载完成",
+    "description": "下载完成通知标题"
+  }
+}
