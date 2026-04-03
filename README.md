@@ -1,6 +1,8 @@
-# Motrix Next Extension
-
-Browser extension for [Motrix Next](https://github.com/AInsomniacy/motrix-next) — intercepts browser downloads and sends them to the Motrix Next desktop app via aria2 JSON-RPC.
+<div align="center">
+  <img src="public/icon/icon.svg" alt="Motrix Next Extension" width="96" height="96" />
+  <h1>Motrix Next Extension</h1>
+  <p>Browser extension for <a href="https://github.com/AInsomniacy/motrix-next">Motrix Next</a> — intercepts browser downloads and sends them to the Motrix Next desktop app via aria2 JSON-RPC.</p>
+</div>
 
 ## Features
 
@@ -26,7 +28,7 @@ entrypoints/
 ├── popup/App.vue              # Browser action popup — status, tasks, actions
 └── options/App.vue            # Full-page settings — connection, behavior, rules, permissions
 
-modules/
+lib/
 ├── download/
 │   ├── orchestrator.ts        # Core interception flow: filter → pause → metadata → addUri → cancel
 │   ├── filter.ts              # 6-stage filter pipeline (enabled, self-trigger, scheme, site-rule, size, final)
@@ -44,12 +46,17 @@ modules/
 ├── protocol/
 │   └── launcher.ts            # motrixnext:// URL builder
 └── storage/
+    ├── schema.ts              # Zod schemas with runtime validation and safe parsers
+    ├── migration.ts           # Versioned storage migration framework
+    ├── storage-service.ts     # DI-friendly typed storage facade
     └── diagnostic-log.ts      # Ring-buffer diagnostic event store
 
 shared/
 ├── types.ts                   # All TypeScript interfaces (RPC, download, filter, UI)
 ├── constants.ts               # Default configs, timing constants, scheme lists
-└── errors.ts                  # Structured error types
+├── errors.ts                  # Structured error types
+├── use-polling.ts             # Visibility-aware smart polling with exponential backoff
+└── use-preference-form.ts     # Generic form state tracking with dirty detection
 ```
 
 ### Design Principles
@@ -101,7 +108,7 @@ Load the extension in Chrome:
 The project uses [Vitest](https://vitest.dev/) with a strict TDD workflow. All services are tested through their dependency injection interfaces — no browser API mocking required.
 
 ```bash
-# Run all 122 tests
+# Run all 240 tests
 pnpm test
 
 # Watch mode for development
@@ -112,21 +119,33 @@ pnpm test:watch
 
 ```
 __tests__/
-├── unit/                          # Isolated service tests
-│   ├── aria2-client.test.ts       # RPC client: call, retry, auth, timeout (18 tests)
-│   ├── completion-tracker.test.ts # GID tracking, polling, mixed statuses (11 tests)
-│   ├── download-filter.test.ts    # All 6 filter stages + pipeline (28 tests)
-│   ├── diagnostic-log.test.ts     # Ring buffer, severity, overflow (12 tests)
-│   ├── metadata-collector.test.ts # Filename extraction, cookies, headers (9 tests)
-│   ├── notification.test.ts       # Payload builders, click routing (6 tests)
-│   ├── protocol-launcher.test.ts  # URL construction, encoding (6 tests)
-│   ├── permission.test.ts         # Grant, revoke, check (5 tests)
-│   ├── theme.test.ts              # System/light/dark resolution (5 tests)
-│   ├── download-bar.test.ts       # UI options, graceful degradation (4 tests)
-│   ├── context-menu.test.ts       # Menu creation, click handling (4 tests)
-│   └── connection.test.ts         # Health check, version parsing (2 tests)
+├── unit/                              # Isolated service tests
+│   ├── storage-schema.test.ts         # Zod schema validation, safe parsers (36 tests)
+│   ├── download-filter.test.ts        # All 6 filter stages + pipeline (29 tests)
+│   ├── aria2-client.test.ts           # RPC client: call, retry, auth, timeout (18 tests)
+│   ├── use-preference-form.test.ts    # Form state, dirty tracking, reset (17 tests)
+│   ├── diagnostic-log.test.ts         # Ring buffer, severity, overflow (12 tests)
+│   ├── completion-tracker.test.ts     # GID tracking, polling, mixed statuses (11 tests)
+│   ├── use-polling.test.ts            # Visibility-aware polling, DI (9 tests)
+│   ├── metadata-collector.test.ts     # Filename extraction, cookies, headers (9 tests)
+│   ├── storage-service.test.ts        # StorageService load/save operations (8 tests)
+│   ├── orchestrator-send.test.ts      # sendUrl flow, error handling (8 tests)
+│   ├── url.test.ts                    # URL filename extraction edge cases (8 tests)
+│   ├── storage-migration.test.ts      # Versioned migration framework (7 tests)
+│   ├── composable-permissions.test.ts # Enhanced permissions lifecycle (6 tests)
+│   ├── notification.test.ts           # Payload builders, click routing (6 tests)
+│   ├── protocol-launcher.test.ts      # URL construction, encoding (6 tests)
+│   ├── composable-site-rules.test.ts  # Site rules CRUD + persistence (5 tests)
+│   ├── permission.test.ts             # Grant, revoke, check (5 tests)
+│   ├── theme.test.ts                  # System/light/dark resolution (5 tests)
+│   ├── thunder.test.ts                # Thunder link decoding (5 tests)
+│   ├── composable-appearance.test.ts  # Theme/color scheme switching (4 tests)
+│   ├── composable-diagnostics.test.ts # Diagnostic log clear/copy (4 tests)
+│   ├── download-bar.test.ts           # UI options, graceful degradation (4 tests)
+│   ├── context-menu.test.ts           # Menu creation, click handling (4 tests)
+│   └── connection.test.ts             # Health check, version parsing (2 tests)
 └── integration/
-    └── download-orchestrator.test.ts  # End-to-end interception flow (12 tests)
+    └── download-orchestrator.test.ts   # End-to-end interception flow (12 tests)
 ```
 
 ## Permissions

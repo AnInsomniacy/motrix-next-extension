@@ -1,11 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <defs>
-    <linearGradient id="g" x1="20" y1="20" x2="108" y2="108" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#34d399"/>
-      <stop offset="1" stop-color="#059669"/>
+    <!-- Gold/brass gradient from Motrix Next brand palette -->
+    <linearGradient id="gold" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d4c48c"/>
+      <stop offset="1" stop-color="#8a7a52"/>
+    </linearGradient>
+    <!-- Arrow accent: warm gold from Motrix Next "NEXT" text -->
+    <linearGradient id="arrow" x1="64" y1="24" x2="64" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f4de72"/>
+      <stop offset="0.7" stop-color="#c4a84e"/>
+      <stop offset="1" stop-color="#ac9250"/>
     </linearGradient>
   </defs>
-  <rect width="128" height="128" rx="28" fill="url(#g)"/>
-  <path d="M64 32v40m0 0l-16-16m16 16l16-16" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M40 88h48" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Layer 1: Outer rounded rect — gold border (Motrix Next brand) -->
+  <rect width="128" height="128" rx="28" fill="url(#gold)"/>
+
+  <!-- Layer 2: Inner dark panel — Motrix Next's signature dark surface -->
+  <rect x="6" y="6" width="116" height="116" rx="22" fill="#1a1a1f"/>
+
+  <!-- Layer 3: Download arrow — bold, centered, gold accent -->
+  <!-- Vertical shaft -->
+  <path d="M64 26v48" stroke="url(#arrow)" stroke-width="10" stroke-linecap="round" fill="none"/>
+  <!-- Chevron head -->
+  <path d="M42 60l22 22 22-22" stroke="url(#arrow)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Layer 4: Base tray line — light gray from Motrix Next screen color -->
+  <path d="M36 98h56" stroke="#c8c8c8" stroke-width="8" stroke-linecap="round" fill="none"/>
 </svg>
