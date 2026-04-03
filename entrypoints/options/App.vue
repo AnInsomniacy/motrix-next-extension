@@ -3,34 +3,28 @@
  * @fileoverview Options page root component.
  *
  * Dual-pane layout (sidebar nav + content area) wrapped in Naive UI
- * NConfigProvider for M3 Amber Gold theming. Uses the `usePreferenceForm`
- * composable for snapshot-based dirty tracking with explicit Save/Discard,
- * matching the desktop Motrix Next preference page lifecycle.
+ * NConfigProvider for M3 Amber Gold theming. Business logic is delegated
+ * to focused composables; this file handles only layout, lifecycle,
+ * and composable wiring.
  *
  * Persistence model:
  *   - Connection / Behavior settings: explicit Save via usePreferenceForm
- *   - Site Rules: immediate persist on add/remove (CRUD intent is clear)
- *   - Theme: immediate persist + patchSnapshot (no dirty contribution)
- *   - Diagnostics: read-only / immediate persist on clear
+ *   - Site Rules: immediate persist on add/remove (useSiteRules)
+ *   - Theme: immediate persist + patchSnapshot (useAppearance)
+ *   - Diagnostics: read-only / immediate persist on clear (useDiagnostics)
  */
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { NConfigProvider, createDiscreteApi } from 'naive-ui';
-import { Aria2Client } from '@/modules/rpc/aria2-client';
-import { ConnectionService, ConnectionStatus } from '@/modules/services/connection';
-import { resolveThemeClass } from '@/modules/services/theme';
-import type {
-  RpcConfig,
-  SiteRule,
-  DiagnosticEvent,
-  UiPrefs,
-} from '@/shared/types';
-import {
-  DEFAULT_RPC_CONFIG,
-  DEFAULT_DOWNLOAD_SETTINGS,
-  DEFAULT_UI_PREFS,
-} from '@/shared/constants';
+import type { RpcConfig, UiPrefs, SiteRule, DiagnosticEvent } from '@/shared/types';
+import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
 import { usePreferenceForm } from '@/shared/use-preference-form';
+
+import { useSiteRules } from './composables/use-site-rules';
+import { useConnectionTest } from './composables/use-connection-test';
+import { useEnhancedPermissions } from './composables/use-enhanced-permissions';
+import { useDiagnostics } from './composables/use-diagnostics';
+import { useAppearance } from './composables/use-appearance';
 
 import OptionsNav from './components/OptionsNav.vue';
 import ConnectionSection from './components/ConnectionSection.vue';
@@ -60,21 +54,18 @@ function i18nSub(key: string, subs: string[], fallback: string): string {
 
 const activeSection = ref('connection');
 
-// ═══════════════════════════════════════════════════════════════════
-// ── Preference Form (dirty-tracked settings) ────────────────────
-//
-// Settings that participate in dirty tracking: RPC config + download
-// behavior. Theme, site rules, and diagnostics are NOT dirty-tracked
-// (they persist immediately).
-//
-// Ref: desktop usePreferenceForm.ts
-// ═══════════════════════════════════════════════════════════════════
+// ─── Composables ────────────────────────────────────────────────────
+
+const { siteRules, hydrate: hydrateSiteRules, addRule, removeRule } = useSiteRules();
+const { enhancedGranted, checkPermissions, grantEnhanced, revokeEnhanced } = useEnhancedPermissions();
+const { diagnosticEvents, hydrate: hydrateDiagnostics, copyDiagnosticLog, clearDiagnosticLog } = useDiagnostics();
+const appearance = useAppearance(setTheme, (id) => { colorSchemeId.value = id; });
+
+// ─── Preference Form (dirty-tracked settings) ──────────────────────
 
 interface SettingsForm {
-  // RPC
   port: number;
   secret: string;
-  // Behavior
   enabled: boolean;
   minFileSize: number;
   fallbackToBrowser: boolean;
@@ -96,7 +87,6 @@ function buildForm(): SettingsForm {
   };
 }
 
-// ── Discrete API (toast messages without NMessageProvider wrapper) ──
 const { message: toast } = createDiscreteApi(['message']);
 
 const { form, isDirty, handleSave: rawSave, handleReset: rawReset, resetSnapshot } =
@@ -124,7 +114,6 @@ const { form, isDirty, handleSave: rawSave, handleReset: rawReset, resetSnapshot
     },
   });
 
-/** Wrapped save with error handling + toast */
 async function handleSave(): Promise<void> {
   try {
     await rawSave();
@@ -133,32 +122,30 @@ async function handleSave(): Promise<void> {
   }
 }
 
-/** Wrapped reset with toast feedback */
 function handleReset(): void {
   rawReset();
   toast.info(i18n('options_discard', 'Discard'));
 }
 
-// ─── Non-dirty-tracked State ────────────────────────────────────────
-
-const uiTheme = ref<UiPrefs['theme']>(DEFAULT_UI_PREFS.theme);
-const uiColorScheme = ref(DEFAULT_UI_PREFS.colorScheme);
-const siteRules = ref<SiteRule[]>([]);
-const diagnosticEvents = ref<DiagnosticEvent[]>([]);
-const connectionStatus = ref<ConnectionStatus>(ConnectionStatus.Disconnected);
-const connectionVersion = ref<string | null>(null);
-const connectionError = ref<string | null>(null);
-const testingConnection = ref(false);
-const enhancedGranted = ref(false);
-const extensionVersion = chrome.runtime.getManifest().version;
-
-// ─── RPC Config (computed from form for ConnectionSection) ──────────
+// ─── Connection Test ────────────────────────────────────────────────
 
 const rpcForTest = computed<RpcConfig>(() => ({
   host: DEFAULT_RPC_CONFIG.host,
   port: form.value.port,
   secret: form.value.secret,
 }));
+
+const {
+  connectionStatus,
+  connectionVersion,
+  connectionError,
+  testingConnection,
+  testConnection,
+} = useConnectionTest(rpcForTest);
+
+// ─── Extension Version ─────────────────────────────────────────────
+
+const extensionVersion = chrome.runtime.getManifest().version;
 
 // ─── Load from Storage ──────────────────────────────────────────────
 
@@ -171,7 +158,7 @@ async function loadFromStorage(): Promise<void> {
     'diagnosticLog',
   ]) as Record<string, Record<string, unknown> | SiteRule[] | DiagnosticEvent[] | undefined>;
 
-  // Hydrate the dirty-tracked form
+  // Hydrate dirty-tracked form
   const loaded = buildForm();
   const rpcData = stored.rpc as Record<string, unknown> | undefined;
   if (rpcData) {
@@ -188,137 +175,22 @@ async function loadFromStorage(): Promise<void> {
     loaded.notifyOnComplete = (settingsData.notifyOnComplete as boolean) ?? loaded.notifyOnComplete;
   }
   Object.assign(form.value, loaded);
-  // Mark as the saved baseline (so isDirty starts false)
   resetSnapshot();
 
-  // Hydrate non-dirty-tracked state
+  // Hydrate composables
   const uiData = stored.uiPrefs as Record<string, unknown> | undefined;
-  if (uiData) {
-    uiTheme.value = (uiData.theme as UiPrefs['theme']) ?? uiTheme.value;
-    uiColorScheme.value = (uiData.colorScheme as string) ?? uiColorScheme.value;
-    colorSchemeId.value = uiColorScheme.value;
-    // Sync composable's isDark state with persisted theme preference
-    setTheme(uiTheme.value);
-  }
-  if (stored.siteRules) siteRules.value = stored.siteRules as SiteRule[];
-  if (stored.diagnosticLog) diagnosticEvents.value = stored.diagnosticLog as DiagnosticEvent[];
-
-  try {
-    enhancedGranted.value = await chrome.permissions.contains({
-      permissions: ['cookies', 'downloads.ui'],
-      origins: ['https://*/*', 'http://*/*'],
-    });
-  } catch {
-    enhancedGranted.value = false;
-  }
-}
-
-// ─── Connection ─────────────────────────────────────────────────────
-
-async function testConnection(): Promise<void> {
-  testingConnection.value = true;
-  connectionError.value = null;
-  const client = new Aria2Client(rpcForTest.value, { timeoutMs: 5000 });
-  const svc = new ConnectionService(client);
-  // Minimum 600ms so the loading animation doesn't flash on fast local connections
-  const minDelay = new Promise((r) => setTimeout(r, 600));
-  const [result] = await Promise.all([svc.checkConnection(), minDelay]);
-  connectionStatus.value = result.status;
-  connectionVersion.value = result.version;
-  connectionError.value = result.error ?? null;
-  testingConnection.value = false;
-}
-
-// ─── Site Rules (immediate persist) ─────────────────────────────────
-
-function persistSiteRules(): void {
-  void chrome.storage.local.set({ siteRules: siteRules.value });
-}
-
-function addRule(rule: Omit<SiteRule, 'id'>): void {
-  siteRules.value.push({
-    id: `rule-${Date.now()}`,
-    pattern: rule.pattern,
-    action: rule.action,
+  appearance.hydrate({
+    theme: uiData?.theme as UiPrefs['theme'] | undefined,
+    colorScheme: uiData?.colorScheme as string | undefined,
   });
-  persistSiteRules();
-}
+  if (stored.siteRules) hydrateSiteRules(stored.siteRules as SiteRule[]);
+  if (stored.diagnosticLog) hydrateDiagnostics(stored.diagnosticLog as DiagnosticEvent[]);
 
-function removeRule(id: string): void {
-  siteRules.value = siteRules.value.filter((r) => r.id !== id);
-  persistSiteRules();
-}
-
-// ─── Enhanced Permissions ───────────────────────────────────────────
-
-async function grantEnhanced(): Promise<void> {
-  try {
-    const granted = await chrome.permissions.request({
-      permissions: ['cookies', 'downloads.ui'],
-      origins: ['https://*/*', 'http://*/*'],
-    });
-    enhancedGranted.value = granted;
-  } catch {
-    enhancedGranted.value = false;
-  }
-}
-
-async function revokeEnhanced(): Promise<void> {
-  try {
-    await chrome.permissions.remove({
-      permissions: ['cookies', 'downloads.ui'],
-      origins: ['https://*/*', 'http://*/*'],
-    });
-    enhancedGranted.value = false;
-  } catch {
-    // silent
-  }
-}
-
-// ─── Theme + Color Scheme (immediate persist) ──────────────────────
-
-function handleThemeChange(value: string): void {
-  const theme = value as UiPrefs['theme'];
-  uiTheme.value = theme;
-  // Update the composable's internal mode → recalculates isDark → MCU re-injects
-  setTheme(theme);
-  void chrome.storage.local.set({
-    uiPrefs: { theme, colorScheme: uiColorScheme.value },
-  });
-  applyTheme();
-}
-
-function handleColorSchemeChange(value: string): void {
-  uiColorScheme.value = value;
-  colorSchemeId.value = value;
-  void chrome.storage.local.set({
-    uiPrefs: { theme: uiTheme.value, colorScheme: value },
-  });
-}
-
-// ─── Diagnostics ────────────────────────────────────────────────────
-
-function copyDiagnosticLog(): void {
-  const json = JSON.stringify(diagnosticEvents.value, null, 2);
-  void navigator.clipboard.writeText(json);
-}
-
-function clearDiagnosticLog(): void {
-  diagnosticEvents.value = [];
-  void chrome.storage.local.set({ diagnosticLog: [] });
-}
-
-// ─── Theme Application ─────────────────────────────────────────────
-
-function applyTheme(): void {
-  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  document.documentElement.className = resolveThemeClass(uiTheme.value, systemDark);
+  await checkPermissions();
 }
 
 // ─── Lifecycle ──────────────────────────────────────────────────────
 
-// beforeunload guard — browser native "Leave this page?" dialog
-// Ref: desktop useAppEvents.ts L191 (router.beforeEach with pendingChanges)
 function onBeforeUnload(e: BeforeUnloadEvent): void {
   if (isDirty.value) {
     e.preventDefault();
@@ -334,9 +206,9 @@ watch(isDirty, (dirty) => {
 });
 
 onMounted(() => {
-  void loadFromStorage().then(() => applyTheme());
+  void loadFromStorage().then(() => appearance.applyTheme());
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    applyTheme();
+    appearance.applyTheme();
   });
 });
 
@@ -430,7 +302,7 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <!-- Site Rules (immediate persist — no action bar) -->
+            <!-- Site Rules -->
             <div v-else-if="activeSection === 'rules'" key="rules" class="section-wrapper">
               <h2 class="section-title">{{ i18n('options_section_rules', 'Site Rules') }}</h2>
               <div class="card">
@@ -457,15 +329,15 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <!-- Appearance (immediate persist — no action bar) -->
+            <!-- Appearance -->
             <div v-else-if="activeSection === 'appearance'" key="appearance" class="section-wrapper">
               <h2 class="section-title">{{ i18n('options_section_appearance', 'Appearance') }}</h2>
               <div class="card">
                 <AppearanceSection
-                  :theme="uiTheme"
-                  :color-scheme="uiColorScheme"
-                  @update:theme="handleThemeChange"
-                  @update:color-scheme="handleColorSchemeChange"
+                  :theme="appearance.uiTheme.value"
+                  :color-scheme="appearance.uiColorScheme.value"
+                  @update:theme="appearance.handleThemeChange"
+                  @update:color-scheme="appearance.handleColorSchemeChange"
                 />
               </div>
             </div>

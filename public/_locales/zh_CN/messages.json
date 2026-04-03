@@ -126,18 +126,6 @@
     "message": "添加规则",
     "description": "添加新站点规则的按钮"
   },
-  "options_rule_always_intercept": {
-    "message": "始终拦截",
-    "description": "站点规则操作：始终发送到 Motrix Next"
-  },
-  "options_rule_always_skip": {
-    "message": "始终忽略",
-    "description": "站点规则操作：从不拦截"
-  },
-  "options_rule_use_global": {
-    "message": "跟随全局设置",
-    "description": "站点规则操作：跟随全局启用/禁用"
-  },
   "options_section_enhanced": {
     "message": "增强模式",
     "description": "可选增强权限设置区域"
@@ -202,18 +190,6 @@
   "context_menu_download": {
     "message": "使用 Motrix Next 下载",
     "description": "使用 Motrix Next 下载链接的右键菜单项"
-  },
-  "error_rpc_unreachable": {
-    "message": "无法连接到 Motrix Next",
-    "description": "错误：RPC 端点不可达"
-  },
-  "error_rpc_auth": {
-    "message": "RPC 密钥不正确",
-    "description": "错误：RPC 认证失败"
-  },
-  "error_rpc_timeout": {
-    "message": "连接超时",
-    "description": "错误：RPC 调用超时"
   },
   "popup_title": {
     "message": "Motrix Next",

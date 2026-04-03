@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   evaluateFilterPipeline,
+  createFilterPipeline,
   EnabledStage,
   SelfTriggerStage,
   SchemeStage,
@@ -140,48 +141,60 @@ describe('FileSizeStage', () => {
 // ─── Site Rule Stage ────────────────────────────────────
 
 describe('SiteRuleStage', () => {
-  const stage = new SiteRuleStage();
-
   it('returns null when no rules match', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'other.com', action: 'always-skip' }];
+    const stage = new SiteRuleStage(() => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
-    const result = stage.evaluate(ctx, DEFAULT_SETTINGS, rules);
+    const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBeNull();
   });
 
   it('returns intercept when matching rule says always-intercept', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-intercept' }];
+    const stage = new SiteRuleStage(() => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
-    const result = stage.evaluate(ctx, DEFAULT_SETTINGS, rules);
+    const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBe('intercept');
   });
 
   it('returns skip when matching rule says always-skip', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-skip' }];
+    const stage = new SiteRuleStage(() => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
-    const result = stage.evaluate(ctx, DEFAULT_SETTINGS, rules);
+    const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBe('skip');
   });
 
   it('returns null when matching rule says use-global', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'use-global' }];
+    const stage = new SiteRuleStage(() => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
-    const result = stage.evaluate(ctx, DEFAULT_SETTINGS, rules);
+    const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBeNull();
   });
 
   it('matches subdomain patterns', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '*.github.com', action: 'always-intercept' }];
+    const stage = new SiteRuleStage(() => rules);
     const ctx = createContext({ tabUrl: 'https://objects.github.com/download' });
-    const result = stage.evaluate(ctx, DEFAULT_SETTINGS, rules);
+    const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBe('intercept');
   });
 
   it('does not match unrelated domains for wildcard pattern', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '*.github.com', action: 'always-intercept' }];
+    const stage = new SiteRuleStage(() => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
-    const result = stage.evaluate(ctx, DEFAULT_SETTINGS, rules);
+    const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBeNull();
+  });
+
+  it('implements FilterStage interface', () => {
+    const stage = new SiteRuleStage(() => []);
+    // Should conform to FilterStage — has name and evaluate(ctx, config)
+    expect(stage.name).toBe('site-rule');
+    expect(typeof stage.evaluate).toBe('function');
+    expect(stage.evaluate.length).toBe(2); // Only 2 params now
   });
 });
 
@@ -189,64 +202,72 @@ describe('SiteRuleStage', () => {
 
 describe('evaluateFilterPipeline', () => {
   it('returns intercept for a normal download with default settings', () => {
-    const result = evaluateFilterPipeline(createContext(), DEFAULT_SETTINGS, []);
+    const stages = createFilterPipeline(() => []);
+    const result = evaluateFilterPipeline(createContext(), DEFAULT_SETTINGS, stages);
     expect(result).toBe('intercept');
   });
 
   it('returns skip when disabled', () => {
+    const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
       createContext(),
       { ...DEFAULT_SETTINGS, enabled: false },
-      [],
+      stages,
     );
     expect(result).toBe('skip');
   });
 
   it('returns skip for blob URL even when enabled', () => {
+    const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
       createContext({ url: 'blob:https://example.com/abc' }),
       DEFAULT_SETTINGS,
-      [],
+      stages,
     );
     expect(result).toBe('skip');
   });
 
   it('returns skip when file is too small', () => {
+    const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
       createContext({ fileSize: 512 }), // 512 bytes
       { ...DEFAULT_SETTINGS, minFileSize: 1 }, // min 1 MB
-      [],
+      stages,
     );
     expect(result).toBe('skip');
   });
 
   it('returns skip when site rule says always-skip', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-skip' }];
+    const stages = createFilterPipeline(() => rules);
     const result = evaluateFilterPipeline(
       createContext({ tabUrl: 'https://example.com/page' }),
       DEFAULT_SETTINGS,
-      rules,
+      stages,
     );
     expect(result).toBe('skip');
   });
 
   it('returns intercept when site rule says always-intercept even with small file', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-intercept' }];
+    const stages = createFilterPipeline(() => rules);
     const result = evaluateFilterPipeline(
       createContext({ tabUrl: 'https://example.com/page', fileSize: 100 }),
       { ...DEFAULT_SETTINGS, minFileSize: 10 },
-      rules,
+      stages,
     );
     // Site rule (always-intercept) should override file size filter
     expect(result).toBe('intercept');
   });
 
   it('returns skip when extension triggered the download', () => {
+    const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
       createContext({ byExtensionId: 'my-extension' }),
       DEFAULT_SETTINGS,
-      [],
+      stages,
     );
     expect(result).toBe('skip');
   });
 });
+

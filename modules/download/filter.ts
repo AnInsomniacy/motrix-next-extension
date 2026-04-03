@@ -72,15 +72,17 @@ export class FileSizeStage implements FilterStage {
  * external state (the rule list) that isn't part of `DownloadSettings`.
  * The pipeline orchestrator passes this separately.
  */
-export class SiteRuleStage {
+export class SiteRuleStage implements FilterStage {
   readonly name = 'site-rule';
+
+  constructor(private readonly getRules: () => SiteRule[]) {}
 
   evaluate(
     ctx: FilterContext,
     _config: DownloadSettings,
-    rules?: SiteRule[],
   ): FilterVerdict | null {
-    if (!rules?.length) return null;
+    const rules = this.getRules();
+    if (!rules.length) return null;
 
     const hostname = this.extractHostname(ctx.tabUrl);
     if (!hostname) return null;
@@ -118,15 +120,10 @@ export class SiteRuleStage {
   }
 }
 
-// ─── Pipeline ───────────────────────────────────────────
-
-const BASIC_STAGES: FilterStage[] = [new EnabledStage(), new SelfTriggerStage(), new SchemeStage()];
-
-const SITE_RULE_STAGE = new SiteRuleStage();
-const FILE_SIZE_STAGE = new FileSizeStage();
+// ─── Pipeline Factory ───────────────────────────────────
 
 /**
- * Evaluate the full filter pipeline against a download context.
+ * Create the complete filter pipeline with all stages.
  *
  * Pipeline order:
  * 1. Enabled → 2. SelfTrigger → 3. Scheme → 4. SiteRule → 5. FileSize
@@ -134,27 +131,31 @@ const FILE_SIZE_STAGE = new FileSizeStage();
  * Site rules are evaluated BEFORE file size so that "always-intercept"
  * can override the minimum size filter.
  *
+ * @param getRules - Getter for current site rules (lazy evaluation)
+ */
+export function createFilterPipeline(getRules: () => SiteRule[]): FilterStage[] {
+  return [
+    new EnabledStage(),
+    new SelfTriggerStage(),
+    new SchemeStage(),
+    new SiteRuleStage(getRules),
+    new FileSizeStage(),
+  ];
+}
+
+/**
+ * Evaluate a filter pipeline against a download context.
  * Returns 'intercept' or 'skip'. Default (all stages pass) = 'intercept'.
  */
 export function evaluateFilterPipeline(
   ctx: FilterContext,
   config: DownloadSettings,
-  rules: SiteRule[],
+  stages: FilterStage[],
 ): FilterVerdict {
-  // Stages 1-3: basic checks
-  for (const stage of BASIC_STAGES) {
+  for (const stage of stages) {
     const verdict = stage.evaluate(ctx, config);
     if (verdict !== null) return verdict;
   }
-
-  // Stage 4: site rules can override file size
-  const siteVerdict = SITE_RULE_STAGE.evaluate(ctx, config, rules);
-  if (siteVerdict !== null) return siteVerdict;
-
-  // Stage 5: file size (only checked if site rule didn't decide)
-  const sizeVerdict = FILE_SIZE_STAGE.evaluate(ctx, config);
-  if (sizeVerdict !== null) return sizeVerdict;
-
-  // Default: intercept
   return 'intercept';
 }
+

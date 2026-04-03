@@ -15,13 +15,15 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
+    "lint:i18n": "npx tsx scripts/lint-i18n.ts",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
     "@material/material-color-utilities": "^0.4.0",
     "@vicons/ionicons5": "^0.13.0",
     "naive-ui": "^2.44.1",
-    "vue": "^3.5.29"
+    "vue": "^3.5.29",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

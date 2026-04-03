@@ -1,6 +1,6 @@
 import type { DownloadSettings, SiteRule, FilterContext } from '@/shared/types';
 import type { DiagnosticInput } from '@/modules/storage/diagnostic-log';
-import { evaluateFilterPipeline } from './filter';
+import { evaluateFilterPipeline, createFilterPipeline } from './filter';
 import { MetadataCollector } from './metadata-collector';
 import { NotificationService } from '@/modules/services/notification';
 import { extractFilenameFromUrl } from '@/shared/url';
@@ -56,14 +56,15 @@ interface DownloadItem {
 export class DownloadOrchestrator {
   private readonly deps: OrchestratorDeps;
   private readonly metadataCollector = new MetadataCollector();
+  private readonly filterStages;
 
   constructor(deps: OrchestratorDeps) {
     this.deps = deps;
+    this.filterStages = createFilterPipeline(() => deps.getSiteRules());
   }
 
   async handleCreated(item: DownloadItem): Promise<void> {
     const settings = this.deps.getSettings();
-    const rules = this.deps.getSiteRules();
     const tabUrl = await this.deps.getTabUrl();
 
     // ─── Filter ───────────────────────────────────
@@ -77,7 +78,7 @@ export class DownloadOrchestrator {
       byExtensionId: item.byExtensionId,
     };
 
-    const verdict = evaluateFilterPipeline(ctx, settings, rules);
+    const verdict = evaluateFilterPipeline(ctx, settings, this.filterStages);
 
     if (verdict === 'skip') {
       this.deps.diagnosticLog.append({
@@ -164,6 +165,73 @@ export class DownloadOrchestrator {
           context: { url: item.url, error: String(error) },
         });
       }
+    }
+  }
+
+  /**
+   * Send a URL directly to aria2 (e.g. from context menu).
+   *
+   * Handles: metadata collection → header building → addUri → diagnostics → notification.
+   * Throws on aria2 failure (caller decides how to handle).
+   *
+   * @returns The aria2 GID for the submitted download
+   */
+  async sendUrl(url: string, tabUrl: string): Promise<string> {
+    const settings = this.deps.getSettings();
+    const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
+
+    // ─── Build Headers ────────────────────────────
+    const headers: string[] = [];
+    if (tabUrl) headers.push(`Referer: ${tabUrl}`);
+
+    // Cookie forwarding (best-effort)
+    if (this.deps.hasEnhancedPermissions()) {
+      try {
+        const cookies = await this.deps.cookies.getAll({ url });
+        if (cookies.length > 0) {
+          const cookieStr = cookies.map((c: { name: string; value: string }) => `${c.name}=${c.value}`).join('; ');
+          headers.push(`Cookie: ${cookieStr}`);
+        }
+      } catch {
+        // Graceful degradation
+      }
+    }
+
+    const aria2Options: Record<string, unknown> = {};
+    if (headers.length > 0) {
+      aria2Options.header = headers;
+    }
+
+    // ─── Send to aria2 ────────────────────────────
+    try {
+      const gid = await this.deps.aria2.addUri([url], aria2Options);
+
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_sent',
+        message: `Sent: ${displayName}`,
+        context: { url, filename: displayName, gid },
+      });
+
+      this.deps.onSent?.(gid, displayName);
+
+      if (settings.notifyOnStart) {
+        const notification = NotificationService.buildSentNotification(displayName, Date.now());
+        await this.deps.notifications.create(
+          notification.id,
+          notification.options as Record<string, unknown>,
+        );
+      }
+
+      return gid;
+    } catch (error) {
+      this.deps.diagnosticLog.append({
+        level: 'error',
+        code: 'download_failed',
+        message: `Failed: ${url}`,
+        context: { url, error: String(error) },
+      });
+      throw error;
     }
   }
 }

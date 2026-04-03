@@ -163,71 +163,14 @@ export default defineBackground(() => {
     if (!rawUrl) return;
 
     void loadConfig().then(async () => {
-      // ─── URL Classification ────────────────────
-      // Decode thunder:// links to their original HTTP/FTP URL.
-      // Magnet URIs pass through unchanged — aria2 handles them natively.
       const url = decodeThunderLink(rawUrl);
       const tabUrl = info.pageUrl ?? '';
 
-      // ─── Collect Metadata (parity with interception path) ─
-      const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
-
-      const headers: string[] = [];
-      if (tabUrl) headers.push(`Referer: ${tabUrl}`);
-
-      // Collect cookies when enhanced permissions are available
-      if (enhancedPermissions) {
-        try {
-          const cookies = await chrome.cookies.getAll({ url });
-          if (cookies.length > 0) {
-            const cookieStr = cookies.map((c) => `${c.name}=${c.value}`).join('; ');
-            headers.push(`Cookie: ${cookieStr}`);
-          }
-        } catch {
-          // Cookie collection is best-effort — graceful degradation
-        }
-      }
-
-      // ─── Send to aria2 ────────────────────────
-      // Do NOT set `out` — let aria2 resolve filename natively
-      // (Content-Disposition > URL path, see HttpResponse.cc:determineFilename)
-      const aria2Options: Record<string, unknown> = {};
-      if (headers.length > 0) {
-        aria2Options.header = headers;
-      }
-
       try {
-        const gid = await client.addUri([url], aria2Options);
-
-        diagnosticLog.append({
-          level: 'info',
-          code: 'download_sent',
-          message: `Context menu: ${displayName}`,
-          context: { url, filename: displayName },
-        });
-        void persistDiagnosticLog();
-
-        // ─── Completion tracking (parity with interception) ─
-        completionTracker.track(gid, displayName);
-
-        if (settings.notifyOnStart) {
-          await chrome.notifications.create(`sent-ctx-${Date.now()}`, {
-            type: 'basic',
-            title: chrome.i18n.getMessage('notification_sent_title') || 'Sent to Motrix Next',
-            message: displayName,
-            iconUrl: 'icon/128.png',
-          });
-        }
+        await orchestrator.sendUrl(url, tabUrl);
       } catch (error) {
-        diagnosticLog.append({
-          level: 'error',
-          code: 'download_failed',
-          message: `Context menu failed: ${url}`,
-          context: { url, error: String(error) },
-        });
-        void persistDiagnosticLog();
-
-        // ─── Error notification (not silent anymore) ─
+        // Error already logged by orchestrator — show error notification
+        const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
         await chrome.notifications.create(`failed-ctx-${Date.now()}`, {
           type: 'basic',
           title: chrome.i18n.getMessage('notification_failed_title') || 'Download Failed',

@@ -126,18 +126,6 @@
     "message": "Add Rule",
     "description": "Button to add a new site rule"
   },
-  "options_rule_always_intercept": {
-    "message": "Always Intercept",
-    "description": "Site rule action: always send to Motrix Next"
-  },
-  "options_rule_always_skip": {
-    "message": "Always Skip",
-    "description": "Site rule action: never intercept"
-  },
-  "options_rule_use_global": {
-    "message": "Use Global Setting",
-    "description": "Site rule action: follow global enabled/disabled"
-  },
   "options_section_enhanced": {
     "message": "Enhanced Mode",
     "description": "Settings section for optional enhanced permissions"
@@ -202,18 +190,6 @@
   "context_menu_download": {
     "message": "Download with Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
-  },
-  "error_rpc_unreachable": {
-    "message": "Cannot connect to Motrix Next",
-    "description": "Error: RPC endpoint unreachable"
-  },
-  "error_rpc_auth": {
-    "message": "RPC secret is incorrect",
-    "description": "Error: RPC authentication failed"
-  },
-  "error_rpc_timeout": {
-    "message": "Connection timed out",
-    "description": "Error: RPC call timed out"
   },
   "popup_title": {
     "message": "Motrix Next",
