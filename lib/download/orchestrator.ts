@@ -81,10 +81,12 @@ export class DownloadOrchestrator {
   private readonly deps: OrchestratorDeps;
   private readonly metadataCollector = new MetadataCollector();
   private readonly filterStages;
+  private readonly fetchFn: typeof fetch;
 
   constructor(deps: OrchestratorDeps) {
     this.deps = deps;
     this.filterStages = createFilterPipeline(() => deps.getSiteRules());
+    this.fetchFn = deps.fetchFn ?? globalThis.fetch.bind(globalThis);
   }
 
   async handleCreated(item: DownloadItem): Promise<void> {
@@ -129,7 +131,11 @@ export class DownloadOrchestrator {
     const effectiveUrl = item.finalUrl || item.url;
     const isTorrent = this.isTorrentDownload(item.mime, effectiveUrl);
 
-    // ─── Torrent: route to desktop app for file selection ───
+    // ─── Torrent / Magnet: route to desktop app for file selection ───
+    // The desktop app's handleDeepLinkUrls now correctly detects remote
+    // .torrent URLs (via detectKind) and fetches them through Rust IPC,
+    // shows the Add Task dialog with file selection, then submits via
+    // addTorrent — identical UX to dragging a local .torrent into Motrix.
     if (isTorrent && this.deps.openProtocolNewTask) {
       await this.deps.downloads.cancel(item.id);
       await this.deps.downloads.erase({ id: item.id });
@@ -141,6 +147,26 @@ export class DownloadOrchestrator {
         context: { url: item.url, filename: displayName, torrent: true },
       });
       return;
+    }
+
+    // ─── Torrent fallback: fetch → base64 → addTorrent ──────
+    // When deep link is unavailable, submit directly via aria2 RPC.
+    // No file selection UI, but the torrent is correctly parsed as BT.
+    if (isTorrent) {
+      try {
+        const gid = await this.submitTorrent(effectiveUrl, aria2Options);
+        await this.deps.downloads.cancel(item.id);
+        await this.deps.downloads.erase({ id: item.id });
+        this.onSendSuccess(gid, displayName, item.url, settings);
+        return;
+      } catch (torrentError) {
+        this.deps.diagnosticLog.append({
+          level: 'warn',
+          code: 'download_fallback',
+          message: `Torrent submit failed, trying addUri: ${displayName}`,
+          context: { url: item.url, error: String(torrentError) },
+        });
+      }
     }
 
     try {
@@ -226,7 +252,7 @@ export class DownloadOrchestrator {
     const settings = this.deps.getSettings();
     const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
     const isTorrent = this.isTorrentDownload('', url);
-    const isMagnet = this.isMagnetUri(url);
+    const isMagnet = url.startsWith('magnet:');
 
     // ─── Torrent / Magnet: route to desktop app for file selection ───
     if ((isTorrent || isMagnet) && this.deps.openProtocolNewTask) {
@@ -239,6 +265,38 @@ export class DownloadOrchestrator {
       });
       return 'routed-to-desktop';
     }
+
+    // ─── Torrent fallback: fetch → base64 → addTorrent ──────
+    if (isTorrent) {
+      const aria2Options = await this.buildAria2Options(url, tabUrl);
+      try {
+        const gid = await this.submitTorrent(url, aria2Options);
+        this.onSendSuccess(gid, displayName, url, settings);
+        return gid;
+      } catch (error) {
+        const retryGid = await this.tryWakeAndRetry(
+          error,
+          settings,
+          async () => this.submitTorrent(url, aria2Options),
+          displayName,
+          url,
+        );
+        if (retryGid !== null) {
+          this.onSendSuccess(retryGid, displayName, url, settings);
+          return retryGid;
+        }
+        this.deps.diagnosticLog.append({
+          level: 'error',
+          code: 'download_failed',
+          message: `Failed: ${url}`,
+          context: { url, error: String(error) },
+        });
+        throw error;
+      }
+    }
+
+    // ─── Magnet / HTTP / FTP: addUri directly ────────────────
+    // aria2 handles magnet URIs natively — no pre-processing needed.
 
     const aria2Options = await this.buildAria2Options(url, tabUrl);
 
@@ -361,13 +419,6 @@ export class DownloadOrchestrator {
   }
 
   /**
-   * Detect whether a URL is a magnet URI.
-   */
-  private isMagnetUri(url: string): boolean {
-    return url.startsWith('magnet:');
-  }
-
-  /**
    * Build aria2 options (headers, cookies) for a URL.
    * Shared by handleCreated and sendUrl to eliminate duplication.
    */
@@ -388,5 +439,39 @@ export class DownloadOrchestrator {
       options.header = headers;
     }
     return options;
+  }
+
+  /**
+   * Fetch a remote .torrent file, base64-encode it, and submit via addTorrent.
+   *
+   * This ensures aria2 parses the torrent metadata and creates a proper BT
+   * download task — unlike addUri which would download the .torrent file itself
+   * as a regular file.
+   *
+   * The fetch uses the same credentials (cookies, referer) that would be sent
+   * by the browser, ensuring authenticated torrent downloads work correctly.
+   */
+  private async submitTorrent(url: string, aria2Options: Record<string, unknown>): Promise<string> {
+    const response = await this.fetchFn(url);
+    if (!response.ok) {
+      throw new Error(`Torrent fetch failed: ${response.status} ${response.statusText}`);
+    }
+    const buffer = await response.arrayBuffer();
+    const base64 = this.arrayBufferToBase64(buffer);
+    return this.deps.aria2.addTorrent(base64, aria2Options);
+  }
+
+  /**
+   * Convert an ArrayBuffer to a base64-encoded string.
+   * Uses chunked btoa to avoid call-stack overflow on large buffers.
+   */
+  private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    const bytes = new Uint8Array(buffer);
+    const CHUNK = 0x8000; // 32 KiB — safe for String.fromCharCode.apply
+    const chunks: string[] = [];
+    for (let i = 0; i < bytes.length; i += CHUNK) {
+      chunks.push(String.fromCharCode.apply(null, [...bytes.subarray(i, i + CHUNK)]));
+    }
+    return btoa(chunks.join(''));
   }
 }

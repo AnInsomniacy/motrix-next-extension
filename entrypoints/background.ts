@@ -153,7 +153,8 @@ export default defineBackground(() => {
     },
     openProtocolNewTask: async (url: string, referer: string) => {
       const protocolUrl = buildProtocolUrl(ProtocolAction.NewTask, { url, referer });
-      const tab = await chrome.tabs.create({ url: protocolUrl, active: true });
+      // Use active:false to minimize browser tab flash during deep link handoff
+      const tab = await chrome.tabs.create({ url: protocolUrl, active: false });
       // Auto-close the protocol tab after OS handles the deep link
       if (tab.id) setTimeout(() => chrome.tabs.remove(tab.id!).catch(() => {}), 2000);
     },
