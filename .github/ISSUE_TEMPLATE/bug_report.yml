@@ -1,0 +1,113 @@
+name: 🐛 Bug Report
+description: Report a bug in Motrix Next Extension
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this issue!
+        Please check [existing issues](https://github.com/AnInsomniacy/motrix-next-extension/issues) before creating a new one.
+
+        > **Note:** If your issue is about the Motrix Next **desktop app** (not the browser extension), please report it at [AnInsomniacy/motrix-next](https://github.com/AnInsomniacy/motrix-next/issues) instead.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is and what you expected to happen.
+    validations:
+      required: true
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension Version
+      description: "Shown in the popup footer or chrome://extensions (e.g. 1.0.0)"
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome
+        - Edge
+        - Brave
+        - Arc
+        - Vivaldi
+        - Opera
+        - Other Chromium-based
+    validations:
+      required: true
+
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser Version
+      description: "Check chrome://version or edge://version (e.g. Chrome 136.0.6854.0)"
+      placeholder: "Chrome 136.0.6854.0"
+    validations:
+      required: true
+
+  - type: input
+    id: motrix-version
+    attributes:
+      label: Motrix Next Desktop Version
+      description: "The version shown in About panel of the desktop app (e.g. 3.6.0). Leave empty if not installed."
+      placeholder: "3.6.0"
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS Version
+      description: "e.g. macOS 15.3, Windows 11 24H2, Ubuntu 24.04"
+      placeholder: "macOS 15.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide detailed steps to reproduce the behavior.
+      placeholder: |
+        1. Open the extension popup
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Diagnostic Logs
+      description: |
+        Open the extension **Settings → Diagnostics** tab, then click **Copy Log** and paste the content here.
+        For background service worker errors, also check `chrome://extensions` → Motrix Next Extension → **Inspect views: service worker** → Console tab.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: |
+        **Required.** Attach screenshots showing the issue. Screen recordings are especially helpful for UI and interception bugs.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: validations
+    attributes:
+      label: Validations
+      options:
+        - label: I have searched the [existing issues](https://github.com/AnInsomniacy/motrix-next-extension/issues) and this bug has not been reported before.
+          required: true
+        - label: I have confirmed this is an **extension** issue, not a [desktop app](https://github.com/AnInsomniacy/motrix-next/issues) issue.
+          required: true
+        - label: This is a reproducible bug, not a question. For questions, please use [GitHub Issues](https://github.com/AnInsomniacy/motrix-next-extension/issues) with the `question` label.
+          required: true

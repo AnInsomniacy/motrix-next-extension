@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🖥️ Desktop App Issues
+    url: https://github.com/AnInsomniacy/motrix-next/issues
+    about: If your issue is about the Motrix Next desktop app (not the browser extension), please report it here.
+  - name: 💬 Questions & Help
+    url: https://github.com/AnInsomniacy/motrix-next-extension/issues?q=label%3Aquestion
+    about: For general questions, open an issue with the "question" label.
