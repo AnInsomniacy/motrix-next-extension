@@ -7,11 +7,16 @@ import { NotificationService } from '@/lib/services/notification';
 import { extractFilenameFromUrl } from '@/shared/url';
 import { RpcUnreachableError, RpcTimeoutError } from '@/shared/errors';
 
+// ─── Constants ──────────────────────────────────────────
+
+const TORRENT_MIME = 'application/x-bittorrent';
+
 // ─── Dependency Interface ───────────────────────────────
 
 export interface OrchestratorDeps {
   aria2: {
     addUri: (uris: string[], options?: Record<string, unknown>) => Promise<string>;
+    addTorrent: (base64: string, options?: Record<string, unknown>) => Promise<string>;
   };
   downloads: {
     pause: (id: number) => Promise<void>;
@@ -42,6 +47,14 @@ export interface OrchestratorDeps {
   openProtocol?: () => Promise<() => void>;
   /** Return true if aria2 RPC is currently reachable (heartbeat check). */
   checkRpc?: () => Promise<boolean>;
+  /**
+   * Route a URL to the desktop app via `motrixnext://new?url=...` deep link.
+   * The desktop app shows its native "Add Task" dialog with file selection.
+   * Used for torrent/magnet URLs that need user interaction before download.
+   */
+  openProtocolNewTask?: (url: string, referer: string) => Promise<void>;
+  /** Custom fetch for DI in tests. Defaults to globalThis.fetch. */
+  fetchFn?: typeof fetch;
 }
 
 /** Shape of a browser DownloadItem as received from chrome.downloads.onCreated */
@@ -61,8 +74,8 @@ interface DownloadItem {
 /**
  * Central download interception orchestrator.
  *
- * Flow: filter → pause → collect metadata → addUri → cancel/erase
- * On failure: resume (fallback) or cancel (no fallback)
+ * Flow: filter → pause → collect metadata → addUri/addTorrent → cancel/erase
+ * On failure: wake-and-retry → resume (fallback) or cancel (no fallback)
  */
 export class DownloadOrchestrator {
   private readonly deps: OrchestratorDeps;
@@ -113,6 +126,22 @@ export class DownloadOrchestrator {
       item.filename || extractFilenameFromUrl(item.finalUrl || item.url) || 'download';
 
     const aria2Options = await this.buildAria2Options(item.url, tabUrl);
+    const effectiveUrl = item.finalUrl || item.url;
+    const isTorrent = this.isTorrentDownload(item.mime, effectiveUrl);
+
+    // ─── Torrent: route to desktop app for file selection ───
+    if (isTorrent && this.deps.openProtocolNewTask) {
+      await this.deps.downloads.cancel(item.id);
+      await this.deps.downloads.erase({ id: item.id });
+      await this.deps.openProtocolNewTask(effectiveUrl, tabUrl);
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_routed',
+        message: `Routed to desktop: ${displayName}`,
+        context: { url: item.url, filename: displayName, torrent: true },
+      });
+      return;
+    }
 
     try {
       const gid = await this.deps.aria2.addUri([item.url], aria2Options);
@@ -140,57 +169,28 @@ export class DownloadOrchestrator {
         );
       }
     } catch (error) {
-      // ─── Wake + Retry: attempt to launch app if unreachable ──
-      const isUnreachable =
-        error instanceof RpcUnreachableError || error instanceof RpcTimeoutError;
+      // ─── Wake + Retry ──────────────────────────
+      const retryGid = await this.tryWakeAndRetry(
+        error,
+        settings,
+        () => this.deps.aria2.addUri([item.url], aria2Options),
+        displayName,
+        item.url,
+      );
 
-      if (
-        isUnreachable &&
-        settings.autoLaunchApp &&
-        this.deps.wakeService &&
-        this.deps.openProtocol &&
-        this.deps.checkRpc
-      ) {
-        this.deps.diagnosticLog.append({
-          level: 'info',
-          code: 'download_wake_attempt',
-          message: `Waking app for: ${displayName}`,
-          context: { url: item.url },
-        });
+      if (retryGid !== null) {
+        await this.deps.downloads.cancel(item.id);
+        await this.deps.downloads.erase({ id: item.id });
+        this.deps.onSent?.(retryGid, displayName);
 
-        const woke = await this.deps.wakeService.wakeAndWaitForRpc({
-          openProtocol: this.deps.openProtocol,
-          checkRpc: this.deps.checkRpc,
-        });
-
-        if (woke) {
-          try {
-            const gid = await this.deps.aria2.addUri([item.url], aria2Options);
-
-            await this.deps.downloads.cancel(item.id);
-            await this.deps.downloads.erase({ id: item.id });
-
-            this.deps.diagnosticLog.append({
-              level: 'info',
-              code: 'download_sent',
-              message: `Sent after wake: ${displayName}`,
-              context: { url: item.url, filename: displayName, gid },
-            });
-
-            this.deps.onSent?.(gid, displayName);
-
-            if (settings.notifyOnStart) {
-              const notification = NotificationService.buildSentNotification(displayName, item.id);
-              await this.deps.notifications.create(
-                notification.id,
-                notification.options as Record<string, unknown>,
-              );
-            }
-            return;
-          } catch {
-            // Retry also failed — fall through to fallback below.
-          }
+        if (settings.notifyOnStart) {
+          const notification = NotificationService.buildSentNotification(displayName, item.id);
+          await this.deps.notifications.create(
+            notification.id,
+            notification.options as Record<string, unknown>,
+          );
         }
+        return;
       }
 
       // ─── Fallback / Cancel ─────────────────────────
@@ -215,42 +215,53 @@ export class DownloadOrchestrator {
   }
 
   /**
-   * Send a URL directly to aria2 (e.g. from context menu).
+   * Send a URL directly to aria2 (e.g. from context menu or magnet interception).
    *
-   * Handles: metadata collection → header building → addUri → diagnostics → notification.
-   * Throws on aria2 failure (caller decides how to handle).
+   * Handles: metadata collection → header building → addUri → wake-retry → diagnostics → notification.
+   * Throws on aria2 failure only after wake-retry is exhausted.
    *
    * @returns The aria2 GID for the submitted download
    */
   async sendUrl(url: string, tabUrl: string): Promise<string> {
     const settings = this.deps.getSettings();
     const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
+    const isTorrent = this.isTorrentDownload('', url);
+    const isMagnet = this.isMagnetUri(url);
+
+    // ─── Torrent / Magnet: route to desktop app for file selection ───
+    if ((isTorrent || isMagnet) && this.deps.openProtocolNewTask) {
+      await this.deps.openProtocolNewTask(url, tabUrl);
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_routed',
+        message: `Routed to desktop: ${displayName}`,
+        context: { url, torrent: isTorrent, magnet: isMagnet },
+      });
+      return 'routed-to-desktop';
+    }
 
     const aria2Options = await this.buildAria2Options(url, tabUrl);
 
     // ─── Send to aria2 ────────────────────────────
     try {
       const gid = await this.deps.aria2.addUri([url], aria2Options);
-
-      this.deps.diagnosticLog.append({
-        level: 'info',
-        code: 'download_sent',
-        message: `Sent: ${displayName}`,
-        context: { url, filename: displayName, gid },
-      });
-
-      this.deps.onSent?.(gid, displayName);
-
-      if (settings.notifyOnStart) {
-        const notification = NotificationService.buildSentNotification(displayName, Date.now());
-        await this.deps.notifications.create(
-          notification.id,
-          notification.options as Record<string, unknown>,
-        );
-      }
-
+      this.onSendSuccess(gid, displayName, url, settings);
       return gid;
     } catch (error) {
+      // ─── Wake + Retry ──────────────────────────
+      const retryGid = await this.tryWakeAndRetry(
+        error,
+        settings,
+        () => this.deps.aria2.addUri([url], aria2Options),
+        displayName,
+        url,
+      );
+
+      if (retryGid !== null) {
+        this.onSendSuccess(retryGid, displayName, url, settings);
+        return retryGid;
+      }
+
       this.deps.diagnosticLog.append({
         level: 'error',
         code: 'download_failed',
@@ -262,6 +273,99 @@ export class DownloadOrchestrator {
   }
 
   // ─── Private Helpers ────────────────────────────────
+
+  /**
+   * Shared success handler for both handleCreated and sendUrl.
+   */
+  private onSendSuccess(
+    gid: string,
+    displayName: string,
+    url: string,
+    settings: DownloadSettings,
+  ): void {
+    this.deps.diagnosticLog.append({
+      level: 'info',
+      code: 'download_sent',
+      message: `Sent: ${displayName}`,
+      context: { url, filename: displayName, gid },
+    });
+
+    this.deps.onSent?.(gid, displayName);
+
+    if (settings.notifyOnStart) {
+      const notification = NotificationService.buildSentNotification(displayName, Date.now());
+      void this.deps.notifications.create(
+        notification.id,
+        notification.options as Record<string, unknown>,
+      );
+    }
+  }
+
+  /**
+   * Attempt to wake the desktop app and retry the RPC call.
+   *
+   * Shared by handleCreated() and sendUrl() to avoid code duplication.
+   * Returns the GID on success, null if wake is unavailable or failed.
+   */
+  private async tryWakeAndRetry(
+    error: unknown,
+    settings: DownloadSettings,
+    retryFn: () => Promise<string>,
+    displayName: string,
+    url: string,
+  ): Promise<string | null> {
+    const isUnreachable = error instanceof RpcUnreachableError || error instanceof RpcTimeoutError;
+
+    if (
+      !isUnreachable ||
+      !settings.autoLaunchApp ||
+      !this.deps.wakeService ||
+      !this.deps.openProtocol ||
+      !this.deps.checkRpc
+    ) {
+      return null;
+    }
+
+    this.deps.diagnosticLog.append({
+      level: 'info',
+      code: 'download_wake_attempt',
+      message: `Waking app for: ${displayName}`,
+      context: { url },
+    });
+
+    const woke = await this.deps.wakeService.wakeAndWaitForRpc({
+      openProtocol: this.deps.openProtocol,
+      checkRpc: this.deps.checkRpc,
+    });
+
+    if (!woke) return null;
+
+    try {
+      return await retryFn();
+    } catch {
+      return null; // Retry also failed — caller handles fallback.
+    }
+  }
+
+  /**
+   * Detect whether a download is a `.torrent` file by MIME type or URL extension.
+   */
+  private isTorrentDownload(mime: string, url: string): boolean {
+    if (mime === TORRENT_MIME) return true;
+    try {
+      const pathname = new URL(url).pathname;
+      return pathname.endsWith('.torrent');
+    } catch {
+      return url.endsWith('.torrent');
+    }
+  }
+
+  /**
+   * Detect whether a URL is a magnet URI.
+   */
+  private isMagnetUri(url: string): boolean {
+    return url.startsWith('magnet:');
+  }
 
   /**
    * Build aria2 options (headers, cookies) for a URL.

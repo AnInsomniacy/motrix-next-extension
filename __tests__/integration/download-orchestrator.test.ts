@@ -35,6 +35,7 @@ function createMockDeps() {
   return {
     aria2: {
       addUri: vi.fn().mockResolvedValue('gid-abc123'),
+      addTorrent: vi.fn().mockResolvedValue('gid-torrent-1'),
     },
     downloads: {
       pause: vi.fn().mockResolvedValue(undefined),

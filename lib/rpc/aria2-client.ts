@@ -66,6 +66,23 @@ export class Aria2Client {
     return this.call<string>('aria2.addUri', ...params);
   }
 
+  /**
+   * Add a BitTorrent download from a base64-encoded `.torrent` file.
+   *
+   * Unlike `addUri`, this submits the torrent content directly so aria2
+   * parses the metadata and begins the BT download — equivalent to
+   * dragging a `.torrent` file into the desktop app.
+   *
+   * @param base64 - Base64-encoded `.torrent` file content
+   * @param options - Optional aria2 input options (dir, headers, etc.)
+   * @returns The aria2 GID for the new download
+   */
+  async addTorrent(base64: string, options?: Aria2InputOptions): Promise<string> {
+    const params: unknown[] = [base64, []]; // empty array = no web seeds
+    if (options) params.push(options);
+    return this.call<string>('aria2.addTorrent', ...params);
+  }
+
   async tellActive(): Promise<Aria2Task[]> {
     return this.call<Aria2Task[]>('aria2.tellActive');
   }

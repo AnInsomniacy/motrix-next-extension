@@ -14,7 +14,7 @@ import {
   parseDownloadSettings,
   parseSiteRules,
 } from '@/lib/storage';
-import { buildProtocolUrl } from '@/lib/protocol';
+import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
 import { decodeThunderLink } from '@/shared/thunder';
 import { extractFilenameFromUrl } from '@/shared/url';
 import { usePolling } from '@/shared/use-polling';
@@ -151,6 +151,12 @@ export default defineBackground(() => {
         return false;
       }
     },
+    openProtocolNewTask: async (url: string, referer: string) => {
+      const protocolUrl = buildProtocolUrl(ProtocolAction.NewTask, { url, referer });
+      const tab = await chrome.tabs.create({ url: protocolUrl, active: true });
+      // Auto-close the protocol tab after OS handles the deep link
+      if (tab.id) setTimeout(() => chrome.tabs.remove(tab.id!).catch(() => {}), 2000);
+    },
   });
 
   // ─── Register Listeners (must be synchronous top-level) ────
@@ -171,17 +177,34 @@ export default defineBackground(() => {
     );
   });
 
-  // Context menu
-  const menuItems = ContextMenuService.buildMenuItems();
-  for (const menuItem of menuItems) {
-    chrome.contextMenus.create({
-      id: menuItem.id,
-      title: bgI18n.t('context_menu_download', menuItem.title),
-      contexts: menuItem.contexts as [
-        chrome.contextMenus.ContextType,
-        ...chrome.contextMenus.ContextType[],
-      ],
-    });
+  // Context menu — registration deferred (see loadConfig().then() below)
+  // so that bgI18n has the user's locale loaded before reading the title.
+  function registerContextMenus(): void {
+    const menuItems = ContextMenuService.buildMenuItems();
+    for (const menuItem of menuItems) {
+      chrome.contextMenus.create(
+        {
+          id: menuItem.id,
+          title: bgI18n.t('context_menu_download', menuItem.title),
+          contexts: menuItem.contexts as [
+            chrome.contextMenus.ContextType,
+            ...chrome.contextMenus.ContextType[],
+          ],
+        },
+        // Ignore "duplicate id" error on re-registration
+        () => void chrome.runtime.lastError,
+      );
+    }
+  }
+
+  /** Update existing context menu titles when locale changes. */
+  function updateContextMenuLocale(): void {
+    const menuItems = ContextMenuService.buildMenuItems();
+    for (const menuItem of menuItems) {
+      chrome.contextMenus.update(menuItem.id, {
+        title: bgI18n.t('context_menu_download', menuItem.title),
+      });
+    }
   }
 
   chrome.contextMenus.onClicked.addListener((info) => {
@@ -226,6 +249,26 @@ export default defineBackground(() => {
     }
   });
 
+  // Magnet link interception from content script
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg?.type === 'HANDLE_MAGNET' && typeof msg.url === 'string') {
+      void loadConfig().then(async () => {
+        const url = decodeThunderLink(msg.url as string);
+        try {
+          await orchestrator.sendUrl(url, '');
+        } catch {
+          const displayName = 'magnet download';
+          await chrome.notifications.create(`failed-magnet-${Date.now()}`, {
+            type: 'basic',
+            title: bgI18n.t('notification_failed_title', 'Download Failed'),
+            message: displayName,
+            iconUrl: 'icon/128.png',
+          });
+        }
+      });
+    }
+  });
+
   // Storage change listener — update config with schema validation
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
@@ -243,10 +286,22 @@ export default defineBackground(() => {
     if (changes.siteRules?.newValue) {
       siteRules = parseSiteRules(changes.siteRules.newValue);
     }
+    if (changes.uiPrefs?.newValue) {
+      const prefs = changes.uiPrefs.newValue as { locale?: string };
+      if (prefs.locale) {
+        const effectiveLocale =
+          prefs.locale === 'auto' ? resolveLocaleId(chrome.i18n.getUILanguage()) : prefs.locale;
+        bgI18n.setLocale(effectiveLocale);
+        updateContextMenuLocale();
+      }
+    }
   });
 
-  // Initial load + apply download bar + start completion polling
+  // Initial load + context menu registration + download bar + polling
   void loadConfig().then(() => {
+    // Register context menu after locale is loaded — fixes i18n timing
+    registerContextMenus();
+
     downloadBarService.apply({
       hideDownloadBar: settings.hideDownloadBar,
       hasEnhancedPermissions: enhancedPermissions,

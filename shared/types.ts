@@ -132,6 +132,7 @@ export type DiagnosticCode =
   | 'download_fallback'
   | 'download_failed'
   | 'download_wake_attempt'
+  | 'download_routed'
   | 'cookie_permission_missing'
   | 'cookie_collect_failed'
   | 'permission_granted'

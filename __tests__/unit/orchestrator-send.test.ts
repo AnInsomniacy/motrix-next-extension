@@ -12,6 +12,9 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
       addUri: vi
         .fn<(uris: string[], opts?: unknown) => Promise<string>>()
         .mockResolvedValue('gid-ctx-1'),
+      addTorrent: vi
+        .fn<(base64: string, opts?: unknown) => Promise<string>>()
+        .mockResolvedValue('gid-torrent-1'),
     },
     downloads: {
       pause: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
@@ -102,6 +105,7 @@ describe('DownloadOrchestrator.sendUrl', () => {
     const deps = createMockDeps({
       aria2: {
         addUri: vi.fn().mockRejectedValue(new Error('connection refused')),
+        addTorrent: vi.fn().mockRejectedValue(new Error('connection refused')),
       },
     });
     const orch = new DownloadOrchestrator(deps);
