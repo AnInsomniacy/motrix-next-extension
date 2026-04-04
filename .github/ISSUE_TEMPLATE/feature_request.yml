@@ -1,7 +1,7 @@
 name: ✨ Feature Request
 description: Suggest an idea for Motrix Next Extension
-title: "[feat]: "
-labels: ["enhancement"]
+title: '[feat]: '
+labels: ['enhancement']
 body:
   - type: markdown
     attributes:
@@ -25,7 +25,7 @@ body:
     attributes:
       label: Proposed solution
       description: Describe what you'd like to happen. Be as specific as possible.
-      placeholder: "I would like to..."
+      placeholder: 'I would like to...'
     validations:
       required: true
 

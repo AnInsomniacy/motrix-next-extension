@@ -65,11 +65,11 @@ The extension uses Chrome's native i18n system with `messages.json` files under 
 
 ### Supported Locales
 
-| Locale | Directory |
-|--------|-----------|
-| English | `public/_locales/en/messages.json` |
+| Locale               | Directory                             |
+| -------------------- | ------------------------------------- |
+| English              | `public/_locales/en/messages.json`    |
 | Chinese (Simplified) | `public/_locales/zh_CN/messages.json` |
-| Japanese | `public/_locales/ja/messages.json` |
+| Japanese             | `public/_locales/ja/messages.json`    |
 
 ### Adding or Modifying Keys
 
@@ -119,11 +119,11 @@ Hard limits — PRs that exceed these will be closed without review:
 
 How to split a large change:
 
-| Instead of | Split into |
-|-----------|-----------|
+| Instead of                               | Split into                                                                          |
+| ---------------------------------------- | ----------------------------------------------------------------------------------- |
 | "Add download history feature" (800 LOC) | PR 1: storage schema + tests → PR 2: history service + tests → PR 3: UI integration |
-| "Add feature + fix lint + update config" | PR 1: lint/config fixes → PR 2: the feature |
-| "Update i18n for 3 features" | One PR per feature, each updating all 3 locales |
+| "Add feature + fix lint + update config" | PR 1: lint/config fixes → PR 2: the feature                                         |
+| "Update i18n for 3 features"             | One PR per feature, each updating all 3 locales                                     |
 
 ### Before you start
 

@@ -1,7 +1,7 @@
 name: 🐛 Bug Report
 description: Report a bug in Motrix Next Extension
-title: "[BUG]: "
-labels: ["bug"]
+title: '[BUG]: '
+labels: ['bug']
 body:
   - type: markdown
     attributes:
@@ -23,8 +23,8 @@ body:
     id: extension-version
     attributes:
       label: Extension Version
-      description: "Shown in the popup footer or chrome://extensions (e.g. 1.0.0)"
-      placeholder: "1.0.0"
+      description: 'Shown in the popup footer or chrome://extensions (e.g. 1.0.0)'
+      placeholder: '1.0.0'
     validations:
       required: true
 
@@ -47,8 +47,8 @@ body:
     id: browser-version
     attributes:
       label: Browser Version
-      description: "Check chrome://version or edge://version (e.g. Chrome 136.0.6854.0)"
-      placeholder: "Chrome 136.0.6854.0"
+      description: 'Check chrome://version or edge://version (e.g. Chrome 136.0.6854.0)'
+      placeholder: 'Chrome 136.0.6854.0'
     validations:
       required: true
 
@@ -56,15 +56,15 @@ body:
     id: motrix-version
     attributes:
       label: Motrix Next Desktop Version
-      description: "The version shown in About panel of the desktop app (e.g. 3.6.0). Leave empty if not installed."
-      placeholder: "3.6.0"
+      description: 'The version shown in About panel of the desktop app (e.g. 3.6.0). Leave empty if not installed.'
+      placeholder: '3.6.0'
 
   - type: input
     id: os-version
     attributes:
       label: OS Version
-      description: "e.g. macOS 15.3, Windows 11 24H2, Ubuntu 24.04"
-      placeholder: "macOS 15.3"
+      description: 'e.g. macOS 15.3, Windows 11 24H2, Ubuntu 24.04'
+      placeholder: 'macOS 15.3'
     validations:
       required: true
 

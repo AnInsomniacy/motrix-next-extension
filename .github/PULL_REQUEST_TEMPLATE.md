@@ -73,4 +73,4 @@ If AI was used, specify the tool: <!-- e.g., GitHub Copilot, Claude, ChatGPT -->
 
 <!-- One-line description for end users, or "none" if not user-facing. -->
 
-Notes: 
+Notes:
