@@ -65,16 +65,16 @@ Where `{port}` is the user-configured RPC port (default: 16800).
 
 ## Permissions Explained
 
-| Permission | Why It's Needed |
-|---|---|
-| `downloads` | Intercept, pause, cancel, and erase browser downloads that are delegated to aria2 |
-| `storage` | Save user settings, site rules, and diagnostic logs locally |
-| `contextMenus` | Add "Download with Motrix Next" to the right-click menu |
-| `notifications` | Show desktop notifications for download events |
-| `cookies` *(optional)* | Forward cookies to local aria2 for authenticated downloads |
-| `downloads.ui` *(optional)* | Hide the browser download bar after interception |
-| `http://127.0.0.1/*`, `http://localhost/*` | Communicate with the local aria2 RPC service |
-| `https://*/*`, `http://*/*` *(optional)* | Read cookies from any origin (required for cookie forwarding) |
+| Permission                                 | Why It's Needed                                                                   |
+| ------------------------------------------ | --------------------------------------------------------------------------------- |
+| `downloads`                                | Intercept, pause, cancel, and erase browser downloads that are delegated to aria2 |
+| `storage`                                  | Save user settings, site rules, and diagnostic logs locally                       |
+| `contextMenus`                             | Add "Download with Motrix Next" to the right-click menu                           |
+| `notifications`                            | Show desktop notifications for download events                                    |
+| `cookies` _(optional)_                     | Forward cookies to local aria2 for authenticated downloads                        |
+| `downloads.ui` _(optional)_                | Hide the browser download bar after interception                                  |
+| `http://127.0.0.1/*`, `http://localhost/*` | Communicate with the local aria2 RPC service                                      |
+| `https://*/*`, `http://*/*` _(optional)_   | Read cookies from any origin (required for cookie forwarding)                     |
 
 ## Third-Party Services
 

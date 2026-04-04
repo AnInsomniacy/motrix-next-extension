@@ -121,6 +121,7 @@ Use the existing screenshots from the `docs/` directory. The Chrome Web Store re
 2. **Settings — Connection**: `docs/settings.png` — Shows the options page with RPC configuration
 
 > **Note:** You should take additional screenshots yourself and add them here. Recommended:
+>
 > - Settings page with site rules configured
 > - Settings page with appearance/theme options
 > - Context menu showing "Download with Motrix Next"
@@ -130,6 +131,7 @@ Use the existing screenshots from the `docs/` directory. The Chrome Web Store re
 ### Small Promotional Tile (440×280) — Required
 
 > **Note:** You need to create this image. It should feature:
+>
 > - The Motrix Next extension icon
 > - The text "Motrix Next"
 > - A brief tagline like "Accelerated Downloads"
