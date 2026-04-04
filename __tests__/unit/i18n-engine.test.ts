@@ -13,7 +13,7 @@ describe('I18nEngine.t', () => {
     const { I18nEngine } = await import('@/shared/i18n/engine');
     const engine = new I18nEngine('zh_CN');
     // If a key exists only in en, it should fall back
-    expect(engine.t('ext_name')).toBe('Motrix Next'); // Same in both, but tests the chain
+    expect(engine.t('ext_name')).toBe('Motrix Next Extension'); // Same in both, but tests the chain
   });
 
   it('falls back to provided fallback string when key is missing everywhere', async () => {
@@ -130,7 +130,7 @@ describe('I18nEngine fallback chain', () => {
     expect(engine.t('popup_status_connected')).toBe('已连接');
 
     // 2. Found in en (ext_name is same in both, so use a definitive test)
-    expect(engine.t('ext_name')).toBe('Motrix Next');
+    expect(engine.t('ext_name')).toBe('Motrix Next Extension');
 
     // 3. Fallback string provided
     expect(engine.t('totally_missing', 'Fallback')).toBe('Fallback');

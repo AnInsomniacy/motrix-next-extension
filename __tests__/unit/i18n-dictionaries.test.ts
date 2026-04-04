@@ -40,7 +40,7 @@ describe('flatten', () => {
     // Verify key count matches source
     expect(Object.keys(enDict).length).toBeGreaterThanOrEqual(76);
     // Spot-check a few keys across different sections
-    expect(enDict['ext_name']).toBe('Motrix Next');
+    expect(enDict['ext_name']).toBe('Motrix Next Extension');
     expect(enDict['options_section_connection']).toBe('Connection');
     expect(enDict['context_menu_download']).toBe('Download with Motrix Next');
   });
