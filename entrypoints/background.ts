@@ -160,7 +160,7 @@ export default defineBackground(() => {
         const tabId = tab.id;
         // Clean up the tab once the protocol handoff completes.
         // After the user clicks "Open", Chrome navigates to about:blank.
-        const onUpdated = (id: number, info: chrome.tabs.TabChangeInfo) => {
+        const onUpdated = (id: number, info: { url?: string }) => {
           if (id === tabId && info.url === 'about:blank') {
             chrome.tabs.onUpdated.removeListener(onUpdated);
             chrome.tabs.remove(tabId).catch(() => {});
