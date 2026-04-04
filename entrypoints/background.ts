@@ -153,10 +153,26 @@ export default defineBackground(() => {
     },
     openProtocolNewTask: async (url: string, referer: string) => {
       const protocolUrl = buildProtocolUrl(ProtocolAction.NewTask, { url, referer });
-      // Use active:false to minimize browser tab flash during deep link handoff
-      const tab = await chrome.tabs.create({ url: protocolUrl, active: false });
-      // Auto-close the protocol tab after OS handles the deep link
-      if (tab.id) setTimeout(() => chrome.tabs.remove(tab.id!).catch(() => {}), 2000);
+      // Create tab for the protocol URL — active:true so the "Open MotrixNext?"
+      // confirmation dialog gets focus and is visible to the user.
+      const tab = await chrome.tabs.create({ url: protocolUrl, active: true });
+      if (tab.id) {
+        const tabId = tab.id;
+        // Clean up the tab once the protocol handoff completes.
+        // After the user clicks "Open", Chrome navigates to about:blank.
+        const onUpdated = (id: number, info: chrome.tabs.TabChangeInfo) => {
+          if (id === tabId && info.url === 'about:blank') {
+            chrome.tabs.onUpdated.removeListener(onUpdated);
+            chrome.tabs.remove(tabId).catch(() => {});
+          }
+        };
+        chrome.tabs.onUpdated.addListener(onUpdated);
+        // Safety fallback: clean up after 30s regardless
+        setTimeout(() => {
+          chrome.tabs.onUpdated.removeListener(onUpdated);
+          chrome.tabs.remove(tabId).catch(() => {});
+        }, 30000);
+      }
     },
   });
 
