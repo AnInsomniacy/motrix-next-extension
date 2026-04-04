@@ -76,7 +76,7 @@ Productivity
 ## Privacy Policy URL
 
 ```
-https://github.com/AnInsomniacy/motrix-next-extension/blob/main/docs/PRIVACY_POLICY.md
+https://github.com/AnInsomniacy/motrix-next-extension/blob/main/PRIVACY_POLICY.md
 ```
 
 ## Website URL
@@ -97,8 +97,8 @@ https://github.com/AnInsomniacy/motrix-next-extension/issues
 
 Same screenshots as Chrome Web Store submission:
 
-1. **Popup view**: `docs/popup.png`
-2. **Settings page**: `docs/settings.png`
+1. **Popup view**: `docs/store/assets/screenshot-popup.png` (1280×800)
+2. **Settings page**: `docs/store/assets/screenshot-settings.png` (1280×800)
 
 > **Note:** Edge accepts the same image dimensions as Chrome (1280×800 or 640×400).
 

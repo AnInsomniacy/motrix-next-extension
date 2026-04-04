@@ -74,7 +74,7 @@ Motrix Next Extension seamlessly bridges your browser with the Motrix Next deskt
 
 ⸻ PRIVACY ⸻
 
-This extension does NOT collect, store, or transmit any personal data. All communication occurs exclusively between your browser and the Motrix Next app running on your local machine (127.0.0.1). No data is ever sent to any external server. Full privacy policy: https://github.com/AnInsomniacy/motrix-next-extension/blob/main/docs/PRIVACY_POLICY.md
+This extension does NOT collect, store, or transmit any personal data. All communication occurs exclusively between your browser and the Motrix Next app running on your local machine (127.0.0.1). No data is ever sent to any external server. Full privacy policy: https://github.com/AnInsomniacy/motrix-next-extension/blob/main/PRIVACY_POLICY.md
 
 ⸻ REQUIREMENTS ⸻
 
@@ -102,7 +102,7 @@ English, Chinese (Simplified), Japanese
 ## Privacy Policy URL
 
 ```
-https://github.com/AnInsomniacy/motrix-next-extension/blob/main/docs/PRIVACY_POLICY.md
+https://github.com/AnInsomniacy/motrix-next-extension/blob/main/PRIVACY_POLICY.md
 ```
 
 ## Website URL (optional)
@@ -115,10 +115,10 @@ https://github.com/AnInsomniacy/motrix-next
 
 ## Screenshots
 
-Use the existing screenshots from the `docs/` directory. The Chrome Web Store requires 1280×800 or 640×400 pixel images.
+Use the resized screenshots from `docs/store/assets/`. The Chrome Web Store requires 1280×800 or 640×400 pixel images.
 
-1. **Popup — Connected State**: `docs/popup.png` — Shows the live speed dashboard with active download stats
-2. **Settings — Connection**: `docs/settings.png` — Shows the options page with RPC configuration
+1. **Popup — Connected State**: `docs/store/assets/screenshot-popup.png` (1280×800)
+2. **Settings — Connection**: `docs/store/assets/screenshot-settings.png` (1280×800)
 
 > **Note:** You should take additional screenshots yourself and add them here. Recommended:
 >

@@ -8,8 +8,8 @@
 
 <table>
   <tr>
-    <td><img src="docs/popup.png" alt="Extension Popup" width="420" /></td>
-    <td><img src="docs/settings.png" alt="Extension Settings" width="420" /></td>
+    <td><img src="docs/images/popup.png" alt="Extension Popup" width="420" /></td>
+    <td><img src="docs/images/settings.png" alt="Extension Settings" width="420" /></td>
   </tr>
 </table>
 
