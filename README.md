@@ -1,245 +1,209 @@
 <div align="center">
-  <img src="public/icon/icon.svg" alt="Motrix Next Extension" width="96" height="96" />
+  <img src="public/icon/icon.svg" alt="Motrix Next Extension" width="128" height="128" />
   <h1>Motrix Next Extension</h1>
   <p>Browser extension for <a href="https://github.com/AnInsomniacy/motrix-next">Motrix Next</a> — seamless download interception &amp; delegation.</p>
+
+![Build](https://img.shields.io/github/actions/workflow/status/AnInsomniacy/motrix-next-extension/ci.yml?branch=main&label=Build)
+![Manifest](https://img.shields.io/badge/manifest-v3-blue)
+
+  <p>
+    <a href="https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl"><img src="docs/badges/chrome-web-store.png" alt="Available in the Chrome Web Store" height="58" /></a>
+    &nbsp;&nbsp;
+    <a href="https://microsoftedge.microsoft.com/addons/detail/0RDCKF9JVSHK"><img src="docs/badges/edge-add-ons.png" alt="Get it from Microsoft Edge" height="58" /></a>
+  </p>
+
+</div>
+
+---
+
+<div align="center">
+  <table><tr>
+    <td><img src="docs/images/popup.png" alt="Popup" width="400" /></td>
+    <td><img src="docs/images/settings.png" alt="Settings" width="400" /></td>
+  </tr><tr>
+    <td align="center"><sub>Popup — Live speed &amp; task dashboard</sub></td>
+    <td align="center"><sub>Settings — Connection, behavior, rules, appearance</sub></td>
+  </tr></table>
 </div>
 
 ## Features
 
-<table>
-  <tr>
-    <td><img src="docs/images/popup.png" alt="Extension Popup" width="420" /></td>
-    <td><img src="docs/images/settings.png" alt="Extension Settings" width="420" /></td>
-  </tr>
-</table>
+- **Download interception** — Automatically captures browser downloads and routes them through aria2 for multi-threaded acceleration
+- **Smart filtering** — 6-stage pipeline: global toggle → self-trigger guard → URL scheme → per-site rules → minimum file size → final verdict
+- **Per-site rules** — Glob-pattern rules (e.g. `*.github.com`) to always intercept, always skip, or defer to global settings
+- **Context menu** — Right-click any link, image, audio, or video → "Download with Motrix Next"
+- **Magnet & torrent** — `magnet:` URIs and `.torrent` files are automatically captured and routed to aria2
+- **Cookie forwarding** — Best-effort cookie forwarding via optional enhanced permissions for authenticated downloads
+- **Real-time dashboard** — Popup shows live download/upload speeds, active/waiting/completed task counts
+- **Auto-launch** — Launches Motrix Next via `motrixnext://` protocol when not running, waits for RPC, then retries
+- **Completion notifications** — Desktop notifications when downloads are sent and when they finish
+- **Download bar control** — Optionally hides Chrome's native download shelf (Chrome 115+)
+- **Dark mode** — System / Light / Dark with 10 Material You color schemes
+- **i18n** — Full English, Chinese (Simplified), and Japanese localization
+- **Diagnostics** — Built-in event log with severity levels and copy-to-clipboard
 
-- **Download Interception** — Automatically captures browser downloads and routes them through aria2 for accelerated multi-threaded downloading
-- **Smart Filtering** — Multi-stage filter pipeline: global toggle → self-trigger guard → scheme validation → site rules → minimum file size
-- **Site Rules** — Per-domain rules to always intercept, always skip, or defer to global settings using glob patterns
-- **Cookie Forwarding** — Best-effort cookie forwarding via optional enhanced permissions for authenticated downloads
-- **Connection Status** — Real-time connection indicator with aria2 version display and one-click connection testing
-- **Live Download Monitor** — Popup shows active downloads with progress bars, speed indicators, and global transfer stats
-- **Completion Tracking** — Polls aria2 for task status and fires desktop notifications when downloads complete
-- **Download Bar Control** — Optionally hides Chrome's native download shelf (Chrome 115+, requires enhanced permissions)
-- **Context Menu** — Right-click "Send link to Motrix Next" on any `<a>` element
-- **Protocol Launcher** — Launches the Motrix Next desktop app via `motrixnext://` custom protocol
-- **Theme System** — System / Light / Dark with class-based switching and real-time OS theme tracking
-- **i18n** — Full English and Chinese (Simplified) localization for all UI surfaces
-- **Diagnostics** — Built-in event log with severity levels, copy-to-clipboard, and structured context data
+## Installation
 
-## Architecture
+### From Store (recommended)
 
-```
-entrypoints/
-├── background.ts              # Service worker — orchestrator, listeners, polling
-├── popup/App.vue              # Browser action popup — status, tasks, actions
-└── options/App.vue            # Full-page settings — connection, behavior, rules, permissions
+| Browser | Link                                                                                          |
+| ------- | --------------------------------------------------------------------------------------------- |
+| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl) |
+| Edge    | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/0RDCKF9JVSHK)                |
 
-lib/
-├── download/
-│   ├── orchestrator.ts        # Core interception flow: filter → pause → metadata → addUri → cancel
-│   ├── filter.ts              # 6-stage filter pipeline (enabled, self-trigger, scheme, site-rule, size, final)
-│   └── metadata-collector.ts  # Extracts filename, referrer, cookies from browser context
-├── rpc/
-│   └── aria2-client.ts        # JSON-RPC 2.0 client with retry logic and secret token auth
-├── services/
-│   ├── completion-tracker.ts  # Polls aria2 tellStatus for tracked GIDs, fires completion callbacks
-│   ├── connection.ts          # Connection health check via aria2 getVersion
-│   ├── context-menu.ts        # Right-click context menu registration
-│   ├── download-bar.ts        # chrome.downloads.setUiOptions wrapper with graceful degradation
-│   ├── notification.ts        # Notification payload builders and click action resolver
-│   ├── permission.ts          # Optional permissions grant/revoke/check
-│   └── theme.ts               # Theme preference → CSS class resolution
-├── protocol/
-│   └── launcher.ts            # motrixnext:// URL builder
-└── storage/
-    ├── schema.ts              # Zod schemas with runtime validation and safe parsers
-    ├── migration.ts           # Versioned storage migration framework
-    ├── storage-service.ts     # DI-friendly typed storage facade
-    └── diagnostic-log.ts      # Ring-buffer diagnostic event store
+### From Source
 
-shared/
-├── types.ts                   # All TypeScript interfaces (RPC, download, filter, UI)
-├── constants.ts               # Default configs, timing constants, scheme lists
-├── errors.ts                  # Structured error types
-├── use-polling.ts             # Visibility-aware smart polling with exponential backoff
-└── use-preference-form.ts     # Generic form state tracking with dirty detection
+```bash
+git clone https://github.com/AnInsomniacy/motrix-next-extension.git
+cd motrix-next-extension
+pnpm install
+pnpm build
 ```
 
-### Design Principles
+Then load the unpacked extension:
 
-- **Dependency Injection** — All services accept API adapters via constructor, never import `chrome.*` directly. This enables comprehensive unit testing without browser environment mocks.
-- **Graceful Degradation** — Services silently catch API errors for features that may not exist on older browser versions (e.g., `setUiOptions` on Chrome < 115).
-- **Pipeline Architecture** — Download filtering uses a chain-of-responsibility pattern with 6 composable stages, each independently testable.
-- **Pure Functions** — Theme resolution, notification building, and filter evaluation are stateless pure functions.
+1. Navigate to `chrome://extensions` (or `edge://extensions`)
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the `.output/chrome-mv3` directory
 
-## Prerequisites
+## FAQ
+
+<details>
+<summary><strong>What is Motrix Next?</strong></summary>
+
+<br>
+
+[Motrix Next](https://github.com/AnInsomniacy/motrix-next) is a full-featured download manager powered by aria2 — a ground-up rewrite of the original [Motrix](https://github.com/agalwood/Motrix) with Tauri 2, Vue 3, and Rust. This extension bridges your browser to the Motrix Next desktop app running on your local machine.
+
+</details>
+
+<details>
+<summary><strong>Do I need the desktop app?</strong></summary>
+
+<br>
+
+Yes. This extension sends downloads to the Motrix Next desktop app via aria2 JSON-RPC on `127.0.0.1:16800`. Without the desktop app running, the extension will show a "Disconnected" status and cannot process downloads.
+
+</details>
+
+<details>
+<summary><strong>Why does the extension request broad host permissions?</strong></summary>
+
+<br>
+
+The broad host permissions (`*://*/*`) are **optional** — only requested when you explicitly enable "Cookie Forwarding" in Settings. The `chrome.cookies.getAll()` API requires matching host permissions for the target domain, and since downloads can come from any site, the extension needs wildcard access to read cookies. These permissions are never used for any other purpose, and all data is sent only to `127.0.0.1`.
+
+</details>
+
+<details>
+<summary><strong>Does this extension collect any data?</strong></summary>
+
+<br>
+
+No. This extension does **not** collect, store, or transmit any personal data. All communication occurs exclusively between your browser and the Motrix Next app on your local machine (`127.0.0.1`). No analytics, no telemetry, no external requests. See the [full Privacy Policy](PRIVACY_POLICY.md).
+
+</details>
+
+## Development
+
+### Prerequisites
 
 - [Node.js](https://nodejs.org/) ≥ 18
 - [pnpm](https://pnpm.io/) ≥ 9
 - [Motrix Next](https://github.com/AnInsomniacy/motrix-next) desktop app running with RPC enabled
 
-## Getting Started
+### Setup
 
 ```bash
 # Install dependencies
 pnpm install
 
-# Start development server with hot reload
+# Start development server (launches WXT + Vite with hot reload)
 pnpm dev
+
+# Build for production
+pnpm build
+
+# Package as .zip for store submission
+pnpm zip
 ```
 
-Load the extension in Chrome:
+### Project Structure
 
-1. Navigate to `chrome://extensions`
-2. Enable **Developer mode**
-3. Click **Load unpacked**
-4. Select the `.output/chrome-mv3` directory
+```
+motrix-next-extension/
+├── entrypoints/                # Extension entry points
+│   ├── background.ts           #   Service worker — orchestrator, listeners, polling
+│   ├── popup/App.vue           #   Browser action popup — status, tasks, actions
+│   └── options/App.vue         #   Full-page settings — connection, behavior, rules
+├── lib/                        # Core logic (dependency-injected, fully testable)
+│   ├── download/               #   Interception orchestrator, 6-stage filter, metadata collector
+│   ├── rpc/                    #   aria2 JSON-RPC 2.0 client with retry and auth
+│   ├── services/               #   Completion tracker, notifications, permissions, theme
+│   ├── protocol/               #   motrixnext:// launcher and wake logic
+│   └── storage/                #   Zod-validated schemas, migration framework, diagnostic log
+├── shared/                     # Shared utilities
+│   ├── i18n/                   #   Compile-time i18n engine with positional placeholders
+│   ├── types.ts                #   TypeScript interfaces
+│   └── constants.ts            #   Default configs, timing constants
+├── __tests__/                  # 288 tests across 28 files
+│   ├── unit/                   #   27 isolated service test files
+│   └── integration/            #   End-to-end interception flow
+├── public/_locales/            # Chrome i18n message bundles (en, zh_CN, ja)
+└── .github/workflows/ci.yml   # CI: compile → test → lint → i18n → format → build
+```
 
-## Scripts
+### Scripts
 
-| Command             | Description                                   |
-| ------------------- | --------------------------------------------- |
-| `pnpm dev`          | Start WXT dev server with hot reload          |
-| `pnpm build`        | Production build → `.output/chrome-mv3/`      |
-| `pnpm zip`          | Build and package as `.zip` for distribution  |
-| `pnpm test`         | Run all unit and integration tests            |
-| `pnpm test:watch`   | Run tests in watch mode                       |
-| `pnpm compile`      | TypeScript type checking (`vue-tsc --noEmit`) |
-| `pnpm lint`         | ESLint (flat config, Vue 3 + TypeScript)      |
-| `pnpm format`       | Auto-format all files with Prettier           |
-| `pnpm format:check` | Verify formatting without writing             |
+| Command             | Description                                      |
+| ------------------- | ------------------------------------------------ |
+| `pnpm dev`          | Start WXT dev server with hot reload             |
+| `pnpm build`        | Production build → `.output/chrome-mv3/`         |
+| `pnpm zip`          | Build and package as `.zip` for store submission |
+| `pnpm test`         | Run all 288 unit and integration tests           |
+| `pnpm test:watch`   | Run tests in watch mode                          |
+| `pnpm compile`      | TypeScript type checking (`vue-tsc --noEmit`)    |
+| `pnpm lint`         | ESLint (flat config, Vue 3 + TypeScript)         |
+| `pnpm lint:i18n`    | Validate i18n key consistency across all locales |
+| `pnpm format`       | Auto-format all files with Prettier              |
+| `pnpm format:check` | Verify formatting without writing                |
 
-## Testing
+### Testing
 
-The project uses [Vitest](https://vitest.dev/) with a strict TDD workflow. All services are tested through their dependency injection interfaces — no browser API mocking required.
+All services are tested through dependency injection interfaces — no browser API mocking required. Run the full suite before committing:
 
 ```bash
-# Run all 240 tests
-pnpm test
-
-# Watch mode for development
-pnpm test:watch
+pnpm format:check && pnpm lint && pnpm compile && pnpm test && pnpm build
 ```
 
-### Test Structure
+### Test Site
 
-```
-__tests__/
-├── unit/                              # Isolated service tests
-│   ├── storage-schema.test.ts         # Zod schema validation, safe parsers (36 tests)
-│   ├── download-filter.test.ts        # All 6 filter stages + pipeline (29 tests)
-│   ├── aria2-client.test.ts           # RPC client: call, retry, auth, timeout (18 tests)
-│   ├── use-preference-form.test.ts    # Form state, dirty tracking, reset (17 tests)
-│   ├── diagnostic-log.test.ts         # Ring buffer, severity, overflow (12 tests)
-│   ├── completion-tracker.test.ts     # GID tracking, polling, mixed statuses (11 tests)
-│   ├── use-polling.test.ts            # Visibility-aware polling, DI (9 tests)
-│   ├── metadata-collector.test.ts     # Filename extraction, cookies, headers (9 tests)
-│   ├── storage-service.test.ts        # StorageService load/save operations (8 tests)
-│   ├── orchestrator-send.test.ts      # sendUrl flow, error handling (8 tests)
-│   ├── url.test.ts                    # URL filename extraction edge cases (8 tests)
-│   ├── storage-migration.test.ts      # Versioned migration framework (7 tests)
-│   ├── composable-permissions.test.ts # Enhanced permissions lifecycle (6 tests)
-│   ├── notification.test.ts           # Payload builders, click routing (6 tests)
-│   ├── protocol-launcher.test.ts      # URL construction, encoding (6 tests)
-│   ├── composable-site-rules.test.ts  # Site rules CRUD + persistence (5 tests)
-│   ├── permission.test.ts             # Grant, revoke, check (5 tests)
-│   ├── theme.test.ts                  # System/light/dark resolution (5 tests)
-│   ├── thunder.test.ts                # Thunder link decoding (5 tests)
-│   ├── composable-appearance.test.ts  # Theme/color scheme switching (4 tests)
-│   ├── composable-diagnostics.test.ts # Diagnostic log clear/copy (4 tests)
-│   ├── download-bar.test.ts           # UI options, graceful degradation (4 tests)
-│   ├── context-menu.test.ts           # Menu creation, click handling (4 tests)
-│   └── connection.test.ts             # Health check, version parsing (2 tests)
-└── integration/
-    └── download-orchestrator.test.ts   # End-to-end interception flow (12 tests)
-```
-
-## Permissions
-
-### Required
-
-| Permission      | Purpose                                           |
-| --------------- | ------------------------------------------------- |
-| `downloads`     | Intercept, cancel, and erase browser downloads    |
-| `storage`       | Persist settings, site rules, and diagnostic logs |
-| `contextMenus`  | Right-click "Send to Motrix Next"                 |
-| `notifications` | Download sent/complete notifications              |
-
-### Host Permissions
-
-| Host                 | Purpose                      |
-| -------------------- | ---------------------------- |
-| `http://127.0.0.1/*` | aria2 JSON-RPC communication |
-| `http://localhost/*` | aria2 JSON-RPC communication |
-
-### Optional (Enhanced Mode)
-
-| Permission                  | Purpose                                             |
-| --------------------------- | --------------------------------------------------- |
-| `cookies`                   | Forward session cookies for authenticated downloads |
-| `downloads.ui`              | Hide Chrome's native download bar                   |
-| `https://*/*`, `http://*/*` | Read cookies from any origin                        |
-
-## Configuration
-
-Default settings (configurable via Options page):
-
-| Setting            | Default    | Description                                |
-| ------------------ | ---------- | ------------------------------------------ |
-| RPC Port           | `16800`    | aria2 JSON-RPC port                        |
-| RPC Secret         | _(empty)_  | aria2 `--rpc-secret` token                 |
-| Interception       | `enabled`  | Global download interception toggle        |
-| Min File Size      | `0` MB     | Skip files smaller than this               |
-| Fallback           | `enabled`  | Resume browser download on aria2 failure   |
-| Notify on Start    | `enabled`  | Desktop notification when download is sent |
-| Notify on Complete | `disabled` | Desktop notification when aria2 finishes   |
-| Hide Download Bar  | `disabled` | Hide Chrome's native download shelf        |
-| Theme              | `system`   | System / Light / Dark appearance           |
-
-## Tech Stack
-
-| Layer       | Technology                                                                |
-| ----------- | ------------------------------------------------------------------------- |
-| Framework   | [WXT](https://wxt.dev/) 0.20 (Manifest V3)                                |
-| UI          | [Vue 3](https://vuejs.org/) Composition API                               |
-| Styling     | [Tailwind CSS](https://tailwindcss.com/) 4 with M3-inspired design tokens |
-| Type System | TypeScript 5 (strict mode, `noUncheckedIndexedAccess`)                    |
-| Testing     | Vitest 4                                                                  |
-| Linting     | ESLint 10 (flat config) + Prettier                                        |
-| Build       | Vite 8                                                                    |
-
-## Verification
-
-Before committing, ensure all gates pass:
-
-```bash
-pnpm format:check   # Formatting
-pnpm lint            # Linting
-pnpm compile         # Type checking
-pnpm test            # Unit + integration tests
-pnpm build           # Production bundle
-```
-
-## Test Site
-
-A self-contained static page for manually verifying download interception across all supported scenarios.
+A self-contained static page for manually verifying download interception:
 
 ```bash
 npx serve test-site -p 3001
 ```
 
-Open `http://localhost:3001` in Chrome with the extension loaded. The page covers:
+Covers: Apple IPSW direct links, `.torrent` files, `magnet:` URIs, Linux ISOs, speed test binaries, and edge cases (`blob:`, `data:`, small files).
 
-| Category      | What it tests                                   |
-| ------------- | ----------------------------------------------- |
-| Apple IPSW    | Large HTTP direct links (~6.5 GB, ~243 MB)      |
-| Torrent Files | `.torrent` file interception via embedded links |
-| Magnet Links  | `magnet:` URI scheme handling                   |
-| Linux & OSS   | Ubuntu ISO, Node.js archive                     |
-| Speed Test    | Hetzner 100 MB / 1 GB binary files              |
-| Edge Cases    | Small files, `blob:`, `data:` (expect: skip)    |
+## Contributing
+
+PRs and issues are welcome! Before submitting:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Ensure all quality gates pass (`pnpm format:check && pnpm lint && pnpm compile && pnpm test`)
+4. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+## Sponsor
+
+If this extension made your downloads faster, you can make my day faster too.
+
+[Consider sponsoring the project ❤️](https://github.com/AnInsomniacy/AnInsomniacy/blob/main/SPONSOR.md) — every bit of support helps keep the code open, maintained, and free.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://opensource.org/licenses/MIT) — Copyright (c) 2025-present AnInsomniacy
