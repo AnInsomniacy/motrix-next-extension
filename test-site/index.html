@@ -26,9 +26,9 @@
         --warning: #f0bf48;
         --error: #ffb4ab;
         --info: #7dcfff;
-        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-          Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
-          sans-serif;
+        --font-sans:
+          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
+          'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
         --radius: 12px;
         --radius-sm: 8px;
         --ease: cubic-bezier(0.2, 0, 0, 1);
@@ -139,7 +139,7 @@
 
       .card {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         background: var(--surface-container);
         border-radius: var(--radius-sm);
         overflow: hidden;
@@ -179,7 +179,7 @@
       .card__body {
         flex: 1;
         min-width: 0;
-        padding: 10px 14px;
+        padding: 11px 14px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -219,7 +219,7 @@
       }
 
       .card__actions {
-        padding: 12px 14px 12px 0;
+        padding: 11px 14px 11px 0;
         flex-shrink: 0;
         display: flex;
         align-items: center;
@@ -323,8 +323,7 @@
           <span class="header__title">Download Test Suite</span>
         </div>
         <p class="header__subtitle">
-          Manual verification page for Motrix Next extension download
-          interception
+          Manual verification page for Motrix Next extension download interception
         </p>
       </header>
 
@@ -340,14 +339,10 @@
             <div class="card__bar card__bar--primary"></div>
             <div class="card__body">
               <div class="card__row">
-                <span class="card__name"
-                  >iPhone18,1_26.4_23E246_Restore.ipsw</span
-                >
+                <span class="card__name">iPhone18,1_26.4_23E246_Restore.ipsw</span>
                 <span class="card__meta">~6.5 GB</span>
               </div>
-              <div class="card__desc">
-                iPhone 16 · iOS 26.4 · Apple CDN (updates.cdn-apple.com)
-              </div>
+              <div class="card__desc">iPhone 16 · iOS 26.4 · Apple CDN (updates.cdn-apple.com)</div>
             </div>
             <div class="card__actions">
               <a
@@ -361,14 +356,11 @@
             <div class="card__bar card__bar--primary"></div>
             <div class="card__body">
               <div class="card__row">
-                <span class="card__name"
-                  >iPhone1,1_3.1.3_7E18_Restore.ipsw</span
-                >
+                <span class="card__name">iPhone1,1_3.1.3_7E18_Restore.ipsw</span>
                 <span class="card__meta">~243 MB</span>
               </div>
               <div class="card__desc">
-                iPhone 2G · iPhone OS 3.1.3 · Apple CDN
-                (secure-appldnld.apple.com)
+                iPhone 2G · iPhone OS 3.1.3 · Apple CDN (secure-appldnld.apple.com)
               </div>
             </div>
             <div class="card__actions">
@@ -402,11 +394,7 @@
               </div>
             </div>
             <div class="card__actions">
-              <a
-                class="btn btn--primary"
-                href="torrents/knoppix-v9.1-cd-en.torrent"
-                >↓ Torrent</a
-              >
+              <a class="btn btn--primary" href="torrents/knoppix-v9.1-cd-en.torrent">↓ Torrent</a>
             </div>
           </div>
           <div class="card">
@@ -421,11 +409,7 @@
               </div>
             </div>
             <div class="card__actions">
-              <a
-                class="btn btn--primary"
-                href="torrents/knoppix-v9.1-dvd-en.torrent"
-                >↓ Torrent</a
-              >
+              <a class="btn btn--primary" href="torrents/knoppix-v9.1-dvd-en.torrent">↓ Torrent</a>
             </div>
           </div>
         </div>
@@ -447,8 +431,7 @@
                 <span class="card__meta">magnet · 700 MB</span>
               </div>
               <div class="card__desc">
-                KNOPPIX_V9.1CD-2021-01-25-DE · info hash:
-                c03c53e2…fa0ca9f4
+                KNOPPIX_V9.1CD-2021-01-25-DE · info hash: c03c53e2…fa0ca9f4
               </div>
             </div>
             <div class="card__actions">
@@ -467,8 +450,7 @@
                 <span class="card__meta">magnet · 4.5 GB</span>
               </div>
               <div class="card__desc">
-                KNOPPIX_V9.1DVD-2021-01-25-DE · info hash:
-                cefda258…f02b2c5e
+                KNOPPIX_V9.1DVD-2021-01-25-DE · info hash: cefda258…f02b2c5e
               </div>
             </div>
             <div class="card__actions">
@@ -494,14 +476,10 @@
             <div class="card__bar card__bar--success"></div>
             <div class="card__body">
               <div class="card__row">
-                <span class="card__name"
-                  >ubuntu-24.04.4-desktop-amd64.iso</span
-                >
+                <span class="card__name">ubuntu-24.04.4-desktop-amd64.iso</span>
                 <span class="card__meta">~6.2 GB</span>
               </div>
-              <div class="card__desc">
-                Ubuntu 24.04 LTS Noble Numbat · releases.ubuntu.com
-              </div>
+              <div class="card__desc">Ubuntu 24.04 LTS Noble Numbat · releases.ubuntu.com</div>
             </div>
             <div class="card__actions">
               <a
@@ -515,14 +493,10 @@
             <div class="card__bar card__bar--success"></div>
             <div class="card__body">
               <div class="card__row">
-                <span class="card__name"
-                  >node-v22.22.2-darwin-arm64.tar.gz</span
-                >
+                <span class="card__name">node-v22.22.2-darwin-arm64.tar.gz</span>
                 <span class="card__meta">~45 MB</span>
               </div>
-              <div class="card__desc">
-                Node.js v22 LTS · macOS ARM64 · nodejs.org
-              </div>
+              <div class="card__desc">Node.js v22 LTS · macOS ARM64 · nodejs.org</div>
             </div>
             <div class="card__actions">
               <a
@@ -550,14 +524,10 @@
                 <span class="card__name">100MB.bin</span>
                 <span class="card__meta">100 MB</span>
               </div>
-              <div class="card__desc">
-                Hetzner Speed Test · Ashburn, VA (ash-speed.hetzner.com)
-              </div>
+              <div class="card__desc">Hetzner Speed Test · Ashburn, VA (ash-speed.hetzner.com)</div>
             </div>
             <div class="card__actions">
-              <a
-                class="btn btn--primary"
-                href="https://ash-speed.hetzner.com/100MB.bin"
+              <a class="btn btn--primary" href="https://ash-speed.hetzner.com/100MB.bin"
                 >↓ Download</a
               >
             </div>
@@ -569,14 +539,10 @@
                 <span class="card__name">1GB.bin</span>
                 <span class="card__meta">1 GB</span>
               </div>
-              <div class="card__desc">
-                Hetzner Speed Test · Ashburn, VA (ash-speed.hetzner.com)
-              </div>
+              <div class="card__desc">Hetzner Speed Test · Ashburn, VA (ash-speed.hetzner.com)</div>
             </div>
             <div class="card__actions">
-              <a
-                class="btn btn--primary"
-                href="https://ash-speed.hetzner.com/1GB.bin"
+              <a class="btn btn--primary" href="https://ash-speed.hetzner.com/1GB.bin"
                 >↓ Download</a
               >
             </div>
@@ -604,9 +570,7 @@
               </div>
             </div>
             <div class="card__actions">
-              <button class="btn btn--ghost" id="btn-small-file">
-                ↓ Download
-              </button>
+              <button class="btn btn--ghost" id="btn-small-file">↓ Download</button>
             </div>
           </div>
           <div class="card">
@@ -616,9 +580,7 @@
                 <span class="card__name">Blob URL</span>
                 <span class="badge-skip">SHOULD SKIP</span>
               </div>
-              <div class="card__desc">
-                blob: scheme — cannot be intercepted by extension
-              </div>
+              <div class="card__desc">blob: scheme — cannot be intercepted by extension</div>
             </div>
             <div class="card__actions">
               <button class="btn btn--ghost" id="btn-blob">↓ Download</button>
@@ -631,9 +593,7 @@
                 <span class="card__name">Data URL</span>
                 <span class="badge-skip">SHOULD SKIP</span>
               </div>
-              <div class="card__desc">
-                data: scheme — inline content, extension should ignore
-              </div>
+              <div class="card__desc">data: scheme — inline content, extension should ignore</div>
             </div>
             <div class="card__actions">
               <a
@@ -656,25 +616,22 @@
     <!-- ── Edge Case Scripts ───────────────────────────────────── -->
     <script>
       // Small file: generate a tiny text file via JS download
-      document
-        .getElementById('btn-small-file')
-        .addEventListener('click', () => {
-          const a = document.createElement('a');
-          const blob = new Blob(['Hello Motrix Next!'], {
-            type: 'text/plain',
-          });
-          a.href = URL.createObjectURL(blob);
-          a.download = 'small-test.txt';
-          a.click();
-          URL.revokeObjectURL(a.href);
+      document.getElementById('btn-small-file').addEventListener('click', () => {
+        const a = document.createElement('a');
+        const blob = new Blob(['Hello Motrix Next!'], {
+          type: 'text/plain',
         });
+        a.href = URL.createObjectURL(blob);
+        a.download = 'small-test.txt';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
 
       // Blob URL: create blob and open it
       document.getElementById('btn-blob').addEventListener('click', () => {
-        const blob = new Blob(
-          [new Uint8Array(1024).fill(0x42)],
-          { type: 'application/octet-stream' },
-        );
+        const blob = new Blob([new Uint8Array(1024).fill(0x42)], {
+          type: 'application/octet-stream',
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
