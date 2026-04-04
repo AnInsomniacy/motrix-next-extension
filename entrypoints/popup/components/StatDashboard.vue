@@ -6,12 +6,9 @@
  *   - Hero speed display (download left, upload right)
  *   - Task count strip (active / waiting / stopped)
  *
- * Animations:
- *   - Speed values use keyed <Transition> for silky fade+slide on change
- *   - Count values pulse-scale when they change via CSS animation
  *   - Idle state dims with a smooth opacity transition
  */
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import { NIcon } from 'naive-ui';
 import {
   ArrowDownOutline,
@@ -47,26 +44,6 @@ const numActive = computed(() => parseInt(props.stat.numActive, 10) || 0);
 const numWaiting = computed(() => parseInt(props.stat.numWaiting, 10) || 0);
 const numStopped = computed(() => parseInt(props.stat.numStopped, 10) || 0);
 const isIdle = computed(() => numActive.value === 0);
-
-const dlSpeed = computed(() => formatSpeed(props.stat.downloadSpeed));
-const ulSpeed = computed(() => formatSpeed(props.stat.uploadSpeed));
-
-/* ── Pulse animation triggers ───────────────────────────────────── */
-
-const activePulse = ref(false);
-const waitingPulse = ref(false);
-const stoppedPulse = ref(false);
-
-function triggerPulse(pulseRef: typeof activePulse) {
-  pulseRef.value = false;
-  // Force reflow so re-adding the class restarts the animation
-  void document.body.offsetHeight;
-  pulseRef.value = true;
-}
-
-watch(numActive, () => triggerPulse(activePulse));
-watch(numWaiting, () => triggerPulse(waitingPulse));
-watch(numStopped, () => triggerPulse(stoppedPulse));
 </script>
 
 <template>
@@ -77,18 +54,14 @@ watch(numStopped, () => triggerPulse(stoppedPulse));
         <NIcon :size="16" class="stat-dash__speed-icon">
           <ArrowDownOutline />
         </NIcon>
-        <Transition name="speed-swap" mode="out-in">
-          <span class="stat-dash__speed-value" :key="dlSpeed">{{ dlSpeed }}</span>
-        </Transition>
+        <span class="stat-dash__speed-value">{{ formatSpeed(stat.downloadSpeed) }}</span>
       </div>
       <div class="stat-dash__speed-divider" />
       <div class="stat-dash__speed-col stat-dash__speed-col--ul">
         <NIcon :size="13" class="stat-dash__speed-icon">
           <ArrowUpOutline />
         </NIcon>
-        <Transition name="speed-swap" mode="out-in">
-          <span class="stat-dash__speed-value" :key="ulSpeed">{{ ulSpeed }}</span>
-        </Transition>
+        <span class="stat-dash__speed-value">{{ formatSpeed(stat.uploadSpeed) }}</span>
       </div>
     </div>
 
@@ -97,29 +70,17 @@ watch(numStopped, () => triggerPulse(stoppedPulse));
       <div class="stat-dash__count stat-dash__count--active">
         <NIcon :size="13"><FlashOutline /></NIcon>
         <span class="stat-dash__count-label">{{ i18n('popup_stat_active', 'Active') }}</span>
-        <span
-          :class="['stat-dash__count-value', { pulse: activePulse }]"
-          @animationend="activePulse = false"
-          >{{ numActive }}</span
-        >
+        <span class="stat-dash__count-value">{{ numActive }}</span>
       </div>
       <div class="stat-dash__count stat-dash__count--waiting">
         <NIcon :size="13"><TimeOutline /></NIcon>
         <span class="stat-dash__count-label">{{ i18n('popup_stat_waiting', 'Waiting') }}</span>
-        <span
-          :class="['stat-dash__count-value', { pulse: waitingPulse }]"
-          @animationend="waitingPulse = false"
-          >{{ numWaiting }}</span
-        >
+        <span class="stat-dash__count-value">{{ numWaiting }}</span>
       </div>
       <div class="stat-dash__count stat-dash__count--stopped">
         <NIcon :size="13"><CheckmarkDoneOutline /></NIcon>
         <span class="stat-dash__count-label">{{ i18n('popup_stat_stopped', 'Done') }}</span>
-        <span
-          :class="['stat-dash__count-value', { pulse: stoppedPulse }]"
-          @animationend="stoppedPulse = false"
-          >{{ numStopped }}</span
-        >
+        <span class="stat-dash__count-value">{{ numStopped }}</span>
       </div>
     </div>
   </div>
@@ -184,30 +145,6 @@ watch(numStopped, () => triggerPulse(stoppedPulse));
   flex-shrink: 0;
 }
 
-/* ── Speed swap transition ────────────────────────────────────── */
-
-.speed-swap-enter-active {
-  transition:
-    opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
-    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.speed-swap-leave-active {
-  transition:
-    opacity 0.12s cubic-bezier(0.2, 0, 0, 1),
-    transform 0.12s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.speed-swap-enter-from {
-  opacity: 0;
-  transform: translateY(6px);
-}
-
-.speed-swap-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-
 /* ── Task Counts ──────────────────────────────────────────────── */
 
 .stat-dash__counts {
@@ -247,25 +184,5 @@ watch(numStopped, () => triggerPulse(stoppedPulse));
   font-size: 14px;
   min-width: 16px;
   text-align: center;
-  transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
-  display: inline-block;
-}
-
-/* ── Count pulse animation ────────────────────────────────────── */
-
-@keyframes count-pulse {
-  0% {
-    transform: scale(1);
-  }
-  40% {
-    transform: scale(1.35);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.pulse {
-  animation: count-pulse 0.35s cubic-bezier(0.2, 0, 0, 1);
 }
 </style>

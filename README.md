@@ -214,6 +214,25 @@ pnpm test            # Unit + integration tests
 pnpm build           # Production bundle
 ```
 
+## Test Site
+
+A self-contained static page for manually verifying download interception across all supported scenarios.
+
+```bash
+npx serve test-site -p 3001
+```
+
+Open `http://localhost:3001` in Chrome with the extension loaded. The page covers:
+
+| Category         | What it tests                                |
+| ---------------- | -------------------------------------------- |
+| Apple IPSW       | Large HTTP direct links (~6.5 GB, ~243 MB)   |
+| Torrent Files    | `.torrent` file interception via embedded links |
+| Magnet Links     | `magnet:` URI scheme handling                |
+| Linux & OSS      | Ubuntu ISO, Node.js archive                  |
+| Speed Test       | Hetzner 100 MB / 1 GB binary files           |
+| Edge Cases       | Small files, `blob:`, `data:` (expect: skip) |
+
 ## License
 
 [MIT](LICENSE)

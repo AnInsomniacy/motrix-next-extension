@@ -128,8 +128,8 @@ onMounted(async () => {
   // Smart polling with exponential backoff + visibility awareness
   const poller = usePolling({
     fn: fetchData,
-    baseIntervalMs: 2000,
-    maxIntervalMs: 30000,
+    baseIntervalMs: 500,
+    maxIntervalMs: 5000,
     backoffMultiplier: 2,
   });
   poller.start();
