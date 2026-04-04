@@ -30,7 +30,12 @@ entrypoints/
 │   └── components/              # PopupHeader, SpeedBar, StatDashboard
 └── options/
     ├── App.vue                  # Full-page settings — connection, behavior, rules, appearance
-    └── composables/             # use-site-rules.ts
+    └── composables/
+        ├── use-appearance.ts     # Theme and color scheme switching
+        ├── use-connection-test.ts # RPC connection testing
+        ├── use-diagnostics.ts    # Diagnostic log viewer
+        ├── use-enhanced-permissions.ts # Optional permissions toggle
+        └── use-site-rules.ts     # Per-site interception rules CRUD
 
 lib/                             # Core logic — all services use dependency injection
 ├── download/
@@ -62,8 +67,14 @@ shared/
 │   └── dictionaries.ts          # Locale module registry
 ├── types.ts                     # TypeScript interfaces (RpcConfig, DownloadSettings, etc.)
 ├── constants.ts                 # Default configs, timing constants, URL schemes
+├── color-schemes.ts             # Material You color scheme definitions
 ├── url.ts                       # URL validation and scheme classification
-└── errors.ts                    # Typed error constructors
+├── thunder.ts                   # Thunder (迅雷) link decoder
+├── errors.ts                    # Typed error constructors
+├── use-color-scheme.ts          # Color scheme composable with dynamic CSS injection
+├── use-polling.ts               # Generic polling composable with lifecycle management
+├── use-preference-form.ts       # Two-way preference form binding composable
+└── use-theme.ts                 # System/light/dark theme detection composable
 
 __tests__/
 ├── unit/                        # 27 isolated service test files
