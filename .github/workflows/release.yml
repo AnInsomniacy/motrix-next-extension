@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript compile check
+        run: pnpm compile
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: i18n lint
+        run: npx tsx scripts/lint-i18n.ts
+
+      - name: Format check
+        run: pnpm format:check
+
+  package:
+    name: Package & Publish
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and package
+        run: pnpm zip
+
+      - name: Identify artifact
+        id: artifact
+        run: |
+          ZIP=$(ls .output/*.zip)
+          echo "path=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "name=$(basename $ZIP)" >> "$GITHUB_OUTPUT"
+          echo "Packaged: $ZIP ($(du -h $ZIP | cut -f1))"
+
+      - name: Upload to GitHub Release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "${{ steps.artifact.outputs.path }}" \
+            --clobber \
+            -R "${{ github.repository }}"
+
+      - name: Upload workflow artifact
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: ${{ steps.artifact.outputs.path }}
+          retention-days: 30
