@@ -1,0 +1,271 @@
+<script lang="ts" setup>
+/**
+ * @fileoverview Global stat dashboard for the popup.
+ *
+ * Replaces the per-task card list with a high-level summary:
+ *   - Hero speed display (download left, upload right)
+ *   - Task count strip (active / waiting / stopped)
+ *
+ * Animations:
+ *   - Speed values use keyed <Transition> for silky fade+slide on change
+ *   - Count values pulse-scale when they change via CSS animation
+ *   - Idle state dims with a smooth opacity transition
+ */
+import { computed, ref, watch } from 'vue';
+import { NIcon } from 'naive-ui';
+import {
+  ArrowDownOutline,
+  ArrowUpOutline,
+  FlashOutline,
+  TimeOutline,
+  CheckmarkDoneOutline,
+} from '@vicons/ionicons5';
+import type { Aria2GlobalStat } from '@/shared/types';
+
+import { useI18n } from '@/shared/i18n/engine';
+
+const { t: i18n } = useI18n();
+
+const props = defineProps<{
+  stat: Aria2GlobalStat;
+}>();
+
+/* ── Speed Formatting ───────────────────────────────────────────── */
+
+function formatSpeed(bytesPerSec: string): string {
+  const n = parseInt(bytesPerSec, 10);
+  if (isNaN(n) || n === 0) return '0 B/s';
+  if (n < 1024) return `${n} B/s`;
+  if (n < 1048576) return `${(n / 1024).toFixed(1)} KB/s`;
+  if (n < 1073741824) return `${(n / 1048576).toFixed(1)} MB/s`;
+  return `${(n / 1073741824).toFixed(2)} GB/s`;
+}
+
+/* ── Derived State ──────────────────────────────────────────────── */
+
+const numActive = computed(() => parseInt(props.stat.numActive, 10) || 0);
+const numWaiting = computed(() => parseInt(props.stat.numWaiting, 10) || 0);
+const numStopped = computed(() => parseInt(props.stat.numStopped, 10) || 0);
+const isIdle = computed(() => numActive.value === 0);
+
+const dlSpeed = computed(() => formatSpeed(props.stat.downloadSpeed));
+const ulSpeed = computed(() => formatSpeed(props.stat.uploadSpeed));
+
+/* ── Pulse animation triggers ───────────────────────────────────── */
+
+const activePulse = ref(false);
+const waitingPulse = ref(false);
+const stoppedPulse = ref(false);
+
+function triggerPulse(pulseRef: typeof activePulse) {
+  pulseRef.value = false;
+  // Force reflow so re-adding the class restarts the animation
+  void document.body.offsetHeight;
+  pulseRef.value = true;
+}
+
+watch(numActive, () => triggerPulse(activePulse));
+watch(numWaiting, () => triggerPulse(waitingPulse));
+watch(numStopped, () => triggerPulse(stoppedPulse));
+</script>
+
+<template>
+  <div class="stat-dash">
+    <!-- ── Speed Row (side-by-side) ───────────────────────── -->
+    <div :class="['stat-dash__speed', { 'stat-dash__speed--idle': isIdle }]">
+      <div class="stat-dash__speed-col stat-dash__speed-col--dl">
+        <NIcon :size="16" class="stat-dash__speed-icon">
+          <ArrowDownOutline />
+        </NIcon>
+        <Transition name="speed-swap" mode="out-in">
+          <span class="stat-dash__speed-value" :key="dlSpeed">{{ dlSpeed }}</span>
+        </Transition>
+      </div>
+      <div class="stat-dash__speed-divider" />
+      <div class="stat-dash__speed-col stat-dash__speed-col--ul">
+        <NIcon :size="13" class="stat-dash__speed-icon">
+          <ArrowUpOutline />
+        </NIcon>
+        <Transition name="speed-swap" mode="out-in">
+          <span class="stat-dash__speed-value" :key="ulSpeed">{{ ulSpeed }}</span>
+        </Transition>
+      </div>
+    </div>
+
+    <!-- ── Task Counts ─────────────────────────────────────── -->
+    <div class="stat-dash__counts">
+      <div class="stat-dash__count stat-dash__count--active">
+        <NIcon :size="13"><FlashOutline /></NIcon>
+        <span class="stat-dash__count-label">{{ i18n('popup_stat_active', 'Active') }}</span>
+        <span
+          :class="['stat-dash__count-value', { pulse: activePulse }]"
+          @animationend="activePulse = false"
+          >{{ numActive }}</span
+        >
+      </div>
+      <div class="stat-dash__count stat-dash__count--waiting">
+        <NIcon :size="13"><TimeOutline /></NIcon>
+        <span class="stat-dash__count-label">{{ i18n('popup_stat_waiting', 'Waiting') }}</span>
+        <span
+          :class="['stat-dash__count-value', { pulse: waitingPulse }]"
+          @animationend="waitingPulse = false"
+          >{{ numWaiting }}</span
+        >
+      </div>
+      <div class="stat-dash__count stat-dash__count--stopped">
+        <NIcon :size="13"><CheckmarkDoneOutline /></NIcon>
+        <span class="stat-dash__count-label">{{ i18n('popup_stat_stopped', 'Done') }}</span>
+        <span
+          :class="['stat-dash__count-value', { pulse: stoppedPulse }]"
+          @animationend="stoppedPulse = false"
+          >{{ numStopped }}</span
+        >
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.stat-dash {
+  padding: 0 16px;
+}
+
+/* ── Speed Row ────────────────────────────────────────────────── */
+
+.stat-dash__speed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 18px 0 14px;
+  transition: opacity 0.4s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.stat-dash__speed--idle {
+  opacity: 0.4;
+}
+
+.stat-dash__speed-col {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-dash__speed-col--dl {
+  color: var(--color-primary);
+}
+
+.stat-dash__speed-col--dl .stat-dash__speed-value {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.stat-dash__speed-col--ul {
+  color: var(--color-on-surface-variant);
+}
+
+.stat-dash__speed-col--ul .stat-dash__speed-value {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stat-dash__speed-icon {
+  flex-shrink: 0;
+}
+
+.stat-dash__speed-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--color-outline-variant);
+  flex-shrink: 0;
+}
+
+/* ── Speed swap transition ────────────────────────────────────── */
+
+.speed-swap-enter-active {
+  transition:
+    opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.speed-swap-leave-active {
+  transition:
+    opacity 0.12s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.12s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.speed-swap-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.speed-swap-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* ── Task Counts ──────────────────────────────────────────────── */
+
+.stat-dash__counts {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.stat-dash__count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-dash__count--active {
+  color: var(--color-primary);
+}
+
+.stat-dash__count--waiting {
+  color: var(--color-warning);
+}
+
+.stat-dash__count--stopped {
+  color: var(--color-success);
+}
+
+.stat-dash__count-label {
+  font-weight: 500;
+}
+
+.stat-dash__count-value {
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 16px;
+  text-align: center;
+  transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+  display: inline-block;
+}
+
+/* ── Count pulse animation ────────────────────────────────────── */
+
+@keyframes count-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulse {
+  animation: count-pulse 0.35s cubic-bezier(0.2, 0, 0, 1);
+}
+</style>

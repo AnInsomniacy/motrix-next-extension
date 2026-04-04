@@ -5,6 +5,7 @@ import {
   CompletionTracker,
   ContextMenuService,
   NotificationService,
+  WakeService,
 } from '@/lib/services';
 import {
   DiagnosticLog,
@@ -130,6 +131,26 @@ export default defineBackground(() => {
     getTabUrl,
     hasEnhancedPermissions: () => enhancedPermissions,
     onSent: (gid, filename) => completionTracker.track(gid, filename),
+
+    // Wake + retry: launch app via protocol when RPC is unreachable
+    wakeService: new WakeService(),
+    openProtocol: async () => {
+      // Open protocol tab and keep it open — user needs to click
+      // "Open MotrixNext.app" in the browser's confirmation dialog.
+      // Returns a cleanup fn that closes the tab after app launched.
+      const tab = await chrome.tabs.create({ url: buildProtocolUrl(), active: true });
+      return () => {
+        if (tab.id) chrome.tabs.remove(tab.id).catch(() => {});
+      };
+    },
+    checkRpc: async () => {
+      try {
+        await client.getVersion();
+        return true;
+      } catch {
+        return false;
+      }
+    },
   });
 
   // ─── Register Listeners (must be synchronous top-level) ────

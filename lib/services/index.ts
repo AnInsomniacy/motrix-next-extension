@@ -11,3 +11,5 @@ export type { NotificationPayload, ClickAction } from './notification';
 export { PermissionService } from './permission';
 export { resolveThemeClass } from './theme';
 export type { ThemePreference } from './theme';
+export { WakeService } from './wake';
+export type { WakeDeps } from './wake';

@@ -95,6 +95,7 @@ interface SettingsForm {
   hideDownloadBar: boolean;
   notifyOnStart: boolean;
   notifyOnComplete: boolean;
+  autoLaunchApp: boolean;
 }
 
 function buildForm(): SettingsForm {
@@ -107,6 +108,7 @@ function buildForm(): SettingsForm {
     hideDownloadBar: DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar,
     notifyOnStart: DEFAULT_DOWNLOAD_SETTINGS.notifyOnStart,
     notifyOnComplete: DEFAULT_DOWNLOAD_SETTINGS.notifyOnComplete,
+    autoLaunchApp: DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp,
   };
 }
 
@@ -133,6 +135,7 @@ const {
       hideDownloadBar: f.hideDownloadBar,
       notifyOnStart: f.notifyOnStart,
       notifyOnComplete: f.notifyOnComplete,
+      autoLaunchApp: f.autoLaunchApp,
     });
   },
   afterSave: () => {
@@ -182,6 +185,7 @@ async function loadFromStorage(): Promise<void> {
   form.value.hideDownloadBar = data.settings.hideDownloadBar;
   form.value.notifyOnStart = data.settings.notifyOnStart;
   form.value.notifyOnComplete = data.settings.notifyOnComplete;
+  form.value.autoLaunchApp = data.settings.autoLaunchApp;
   resetSnapshot();
 
   // Hydrate composables (already type-safe from Zod)
@@ -308,11 +312,13 @@ onUnmounted(() => {
                   :fallback-to-browser="form.fallbackToBrowser"
                   :notify-on-start="form.notifyOnStart"
                   :notify-on-complete="form.notifyOnComplete"
+                  :auto-launch-app="form.autoLaunchApp"
                   @update:enabled="form.enabled = $event"
                   @update:min-file-size="form.minFileSize = $event"
                   @update:fallback-to-browser="form.fallbackToBrowser = $event"
                   @update:notify-on-start="form.notifyOnStart = $event"
                   @update:notify-on-complete="form.notifyOnComplete = $event"
+                  @update:auto-launch-app="form.autoLaunchApp = $event"
                 />
                 <SettingsActionBar :is-dirty="isDirty" @save="handleSave" @discard="handleReset" />
               </div>

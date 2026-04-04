@@ -17,15 +17,14 @@ import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
 import { resolveThemeClass } from '@/lib/services';
 import type { ThemePreference } from '@/lib/services';
 import { StorageService } from '@/lib/storage';
-import type { Aria2Task, Aria2GlobalStat } from '@/shared/types';
+import type { Aria2GlobalStat } from '@/shared/types';
 import { DEFAULT_RPC_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
 
 import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
 
 import PopupHeader from './components/PopupHeader.vue';
-import SpeedBar from './components/SpeedBar.vue';
-import TaskCard from './components/TaskCard.vue';
+import StatDashboard from './components/StatDashboard.vue';
 
 // ─── i18n ───────────────────────────────────────────────────────────
 
@@ -45,7 +44,6 @@ const status = ref<ConnectionStatus>(ConnectionStatus.Disconnected);
 const version = ref<string | null>(null);
 const errorType = ref<string | null>(null);
 const rpcPort = ref(DEFAULT_RPC_CONFIG.port);
-const tasks = ref<Aria2Task[]>([]);
 const globalStat = ref<Aria2GlobalStat | null>(null);
 const loading = ref(true);
 
@@ -63,9 +61,7 @@ async function fetchData(): Promise<void> {
     errorType.value = result.error ?? null;
 
     if (result.status === ConnectionStatus.Connected) {
-      const [activeTasks, stat] = await Promise.all([client.tellActive(), client.getGlobalStat()]);
-      tasks.value = activeTasks;
-      globalStat.value = stat;
+      globalStat.value = await client.getGlobalStat();
     }
   } catch {
     status.value = ConnectionStatus.Disconnected;
@@ -220,18 +216,9 @@ onUnmounted(() => {
           </div>
         </Transition>
 
-        <!-- ── Connected: Speed + Tasks ────────────────────────── -->
+        <!-- ── Connected: Stat Dashboard ────────────────────────── -->
         <template v-if="status === 'connected'">
-          <SpeedBar v-if="globalStat" :stat="globalStat" />
-
-          <div class="popup-tasks">
-            <div v-if="tasks.length === 0" class="popup-empty">
-              {{ i18n('popup_no_active_tasks', 'No active downloads') }}
-            </div>
-            <TransitionGroup v-else name="list-item" tag="div" class="popup-task-list">
-              <TaskCard v-for="task in tasks" :key="task.gid" :task="task" />
-            </TransitionGroup>
-          </div>
+          <StatDashboard v-if="globalStat" :stat="globalStat" />
         </template>
 
         <!-- ── Actions ─────────────────────────────────────────── -->
@@ -317,28 +304,6 @@ onUnmounted(() => {
   font-size: 11px;
   color: var(--color-on-surface-variant);
   margin-top: 2px;
-}
-
-/* ── Task List ───────────────────────────────────────────────── */
-.popup-tasks {
-  padding: 8px 16px 4px;
-}
-
-.popup-task-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.popup-empty {
-  text-align: center;
-  font-size: 13px;
-  color: var(--color-on-surface-variant);
-  padding: 28px 0;
-  border: 1px dashed var(--color-outline-variant);
-  border-radius: 10px;
 }
 
 /* ── Actions ─────────────────────────────────────────────────── */

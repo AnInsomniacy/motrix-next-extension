@@ -13,6 +13,7 @@ export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = {
   hideDownloadBar: false,
   notifyOnStart: true,
   notifyOnComplete: false,
+  autoLaunchApp: true,
 } as const;
 
 export const DEFAULT_UI_PREFS: Readonly<UiPrefs> = {

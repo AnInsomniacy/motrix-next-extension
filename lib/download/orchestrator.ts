@@ -1,9 +1,11 @@
 import type { DownloadSettings, SiteRule, FilterContext } from '@/shared/types';
 import type { DiagnosticInput } from '@/lib/storage/diagnostic-log';
+import type { WakeDeps } from '@/lib/services/wake';
 import { evaluateFilterPipeline, createFilterPipeline } from './filter';
 import { MetadataCollector } from './metadata-collector';
 import { NotificationService } from '@/lib/services/notification';
 import { extractFilenameFromUrl } from '@/shared/url';
+import { RpcUnreachableError, RpcTimeoutError } from '@/shared/errors';
 
 // ─── Dependency Interface ───────────────────────────────
 
@@ -31,6 +33,15 @@ export interface OrchestratorDeps {
   getTabUrl: (id?: number) => Promise<string>;
   hasEnhancedPermissions: () => boolean;
   onSent?: (gid: string, filename: string) => void;
+
+  /** Wake service for auto-launching the app. Optional — degrades gracefully. */
+  wakeService?: {
+    wakeAndWaitForRpc: (deps: WakeDeps) => Promise<boolean>;
+  };
+  /** Open the motrixnext:// protocol URL. Returns cleanup fn to close tab. */
+  openProtocol?: () => Promise<() => void>;
+  /** Return true if aria2 RPC is currently reachable (heartbeat check). */
+  checkRpc?: () => Promise<boolean>;
 }
 
 /** Shape of a browser DownloadItem as received from chrome.downloads.onCreated */
@@ -129,7 +140,60 @@ export class DownloadOrchestrator {
         );
       }
     } catch (error) {
-      // ─── Failure ──────────────────────────────
+      // ─── Wake + Retry: attempt to launch app if unreachable ──
+      const isUnreachable =
+        error instanceof RpcUnreachableError || error instanceof RpcTimeoutError;
+
+      if (
+        isUnreachable &&
+        settings.autoLaunchApp &&
+        this.deps.wakeService &&
+        this.deps.openProtocol &&
+        this.deps.checkRpc
+      ) {
+        this.deps.diagnosticLog.append({
+          level: 'info',
+          code: 'download_wake_attempt',
+          message: `Waking app for: ${displayName}`,
+          context: { url: item.url },
+        });
+
+        const woke = await this.deps.wakeService.wakeAndWaitForRpc({
+          openProtocol: this.deps.openProtocol,
+          checkRpc: this.deps.checkRpc,
+        });
+
+        if (woke) {
+          try {
+            const gid = await this.deps.aria2.addUri([item.url], aria2Options);
+
+            await this.deps.downloads.cancel(item.id);
+            await this.deps.downloads.erase({ id: item.id });
+
+            this.deps.diagnosticLog.append({
+              level: 'info',
+              code: 'download_sent',
+              message: `Sent after wake: ${displayName}`,
+              context: { url: item.url, filename: displayName, gid },
+            });
+
+            this.deps.onSent?.(gid, displayName);
+
+            if (settings.notifyOnStart) {
+              const notification = NotificationService.buildSentNotification(displayName, item.id);
+              await this.deps.notifications.create(
+                notification.id,
+                notification.options as Record<string, unknown>,
+              );
+            }
+            return;
+          } catch {
+            // Retry also failed — fall through to fallback below.
+          }
+        }
+      }
+
+      // ─── Fallback / Cancel ─────────────────────────
       if (settings.fallbackToBrowser) {
         await this.deps.downloads.resume(item.id);
         this.deps.diagnosticLog.append({

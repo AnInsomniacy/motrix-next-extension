@@ -19,6 +19,7 @@ const DEFAULT_SETTINGS: DownloadSettings = {
   hideDownloadBar: false,
   notifyOnStart: true,
   notifyOnComplete: false,
+  autoLaunchApp: true,
 };
 
 function createContext(overrides?: Partial<FilterContext>): FilterContext {

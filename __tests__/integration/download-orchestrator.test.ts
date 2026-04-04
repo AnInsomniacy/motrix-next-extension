@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DownloadOrchestrator } from '@/lib/download/orchestrator';
 import type { DownloadSettings, SiteRule } from '@/shared/types';
-import { RpcUnreachableError } from '@/shared/errors';
+import { RpcUnreachableError, RpcTimeoutError, RpcAuthError } from '@/shared/errors';
 
 // ─── Mock Types ─────────────────────────────────────────
 
@@ -58,6 +58,7 @@ function createMockDeps() {
       hideDownloadBar: false,
       notifyOnStart: true,
       notifyOnComplete: false,
+      autoLaunchApp: true,
     } satisfies DownloadSettings),
     getSiteRules: vi.fn().mockReturnValue([] as SiteRule[]),
     getTabUrl: vi.fn().mockResolvedValue('https://example.com/page'),
@@ -214,6 +215,118 @@ describe('DownloadOrchestrator', () => {
       const options = addUriCall?.[1] as Record<string, unknown> | undefined;
       const headers = options?.header as string[] | undefined;
       expect(headers).toContainEqual(expect.stringContaining('Cookie: session=abc123'));
+    });
+  });
+
+  // ─── Wake + Retry ───────────────────────────────────────
+
+  describe('handleCreated — wake + retry on unreachable', () => {
+    function createWakeDeps() {
+      const base = createMockDeps();
+      return {
+        ...base,
+        wakeService: {
+          wakeAndWaitForRpc: vi.fn().mockResolvedValue(true),
+        },
+        openProtocol: vi.fn().mockResolvedValue(() => {}),
+        checkRpc: vi.fn().mockResolvedValue(true),
+      };
+    }
+
+    it('wakes app and retries addUri on RpcUnreachableError', async () => {
+      const wakeDeps = createWakeDeps();
+      // First addUri fails (unreachable), second succeeds.
+      wakeDeps.aria2.addUri
+        .mockRejectedValueOnce(new RpcUnreachableError())
+        .mockResolvedValueOnce('gid-retry');
+
+      const orch = new DownloadOrchestrator(wakeDeps);
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(wakeDeps.wakeService.wakeAndWaitForRpc).toHaveBeenCalledTimes(1);
+      expect(wakeDeps.aria2.addUri).toHaveBeenCalledTimes(2);
+      expect(wakeDeps.downloads.cancel).toHaveBeenCalledWith(1);
+      expect(wakeDeps.downloads.erase).toHaveBeenCalledWith({ id: 1 });
+    });
+
+    it('wakes app and retries on RpcTimeoutError', async () => {
+      const wakeDeps = createWakeDeps();
+      wakeDeps.aria2.addUri
+        .mockRejectedValueOnce(new RpcTimeoutError(5000))
+        .mockResolvedValueOnce('gid-timeout-retry');
+
+      const orch = new DownloadOrchestrator(wakeDeps);
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(wakeDeps.wakeService.wakeAndWaitForRpc).toHaveBeenCalledTimes(1);
+      expect(wakeDeps.downloads.cancel).toHaveBeenCalledWith(1);
+    });
+
+    it('falls back to browser when wake times out', async () => {
+      const wakeDeps = createWakeDeps();
+      wakeDeps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
+      wakeDeps.wakeService.wakeAndWaitForRpc.mockResolvedValue(false);
+
+      const orch = new DownloadOrchestrator(wakeDeps);
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(wakeDeps.downloads.resume).toHaveBeenCalledWith(1);
+      expect(wakeDeps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'download_fallback' }),
+      );
+    });
+
+    it('does not attempt wake on RpcAuthError', async () => {
+      const wakeDeps = createWakeDeps();
+      wakeDeps.aria2.addUri.mockRejectedValue(new RpcAuthError());
+
+      const orch = new DownloadOrchestrator(wakeDeps);
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(wakeDeps.wakeService.wakeAndWaitForRpc).not.toHaveBeenCalled();
+      expect(wakeDeps.downloads.resume).toHaveBeenCalledWith(1);
+    });
+
+    it('does not attempt wake when autoLaunchApp is disabled', async () => {
+      const wakeDeps = createWakeDeps();
+      wakeDeps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
+      wakeDeps.getSettings.mockReturnValue({
+        ...wakeDeps.getSettings(),
+        autoLaunchApp: false,
+      });
+
+      const orch = new DownloadOrchestrator(wakeDeps);
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(wakeDeps.wakeService.wakeAndWaitForRpc).not.toHaveBeenCalled();
+      expect(wakeDeps.downloads.resume).toHaveBeenCalledWith(1);
+    });
+
+    it('falls back when retry after wake also fails', async () => {
+      const wakeDeps = createWakeDeps();
+      // Both addUri calls fail
+      wakeDeps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
+      wakeDeps.wakeService.wakeAndWaitForRpc.mockResolvedValue(true);
+
+      const orch = new DownloadOrchestrator(wakeDeps);
+      await orch.handleCreated(createMockDownloadItem());
+
+      // Should still fallback after retry failure
+      expect(wakeDeps.downloads.resume).toHaveBeenCalledWith(1);
+    });
+
+    it('logs wake attempt diagnostic', async () => {
+      const wakeDeps = createWakeDeps();
+      wakeDeps.aria2.addUri
+        .mockRejectedValueOnce(new RpcUnreachableError())
+        .mockResolvedValueOnce('gid-log-test');
+
+      const orch = new DownloadOrchestrator(wakeDeps);
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(wakeDeps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'download_wake_attempt' }),
+      );
     });
   });
 });

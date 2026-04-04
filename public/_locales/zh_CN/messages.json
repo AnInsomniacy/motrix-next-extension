@@ -406,5 +406,25 @@
   "options_locale_auto_desc": {
     "message": "跟随浏览器语言",
     "description": "自动语言选项的说明"
+  },
+  "options_auto_launch_label": {
+    "message": "自动启动 Motrix Next",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "拦截下载时如果 Motrix Next 未运行，自动尝试启动",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "活跃",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "等待",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "完成",
+    "description": "Task count label: completed or stopped"
   }
 }

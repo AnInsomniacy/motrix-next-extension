@@ -42,6 +42,7 @@ const DownloadSettingsSchema = z
     hideDownloadBar: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar),
     notifyOnStart: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.notifyOnStart),
     notifyOnComplete: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.notifyOnComplete),
+    autoLaunchApp: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp),
   })
   .strict();
 

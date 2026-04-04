@@ -104,6 +104,7 @@ describe('StorageService.saveSettings', () => {
       hideDownloadBar: true,
       notifyOnStart: false,
       notifyOnComplete: true,
+      autoLaunchApp: false,
     };
 
     await service.saveSettings(settings);

@@ -406,5 +406,25 @@
   "options_locale_auto_desc": {
     "message": "Follow browser language",
     "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "Auto-launch Motrix Next",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "Try to launch Motrix Next when it's not running",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "Active",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "Waiting",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "Done",
+    "description": "Task count label: completed or stopped"
   }
 }

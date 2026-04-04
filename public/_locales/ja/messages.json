@@ -406,5 +406,25 @@
   "options_locale_auto_desc": {
     "message": "ブラウザの言語に従う",
     "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "Motrix Nextを自動起動",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "ダウンロード横取り時にMotrix Nextが未起動の場合、自動的に起動を試みる",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "アクティブ",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "待機中",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "完了",
+    "description": "Task count label: completed or stopped"
   }
 }

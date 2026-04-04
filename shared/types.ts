@@ -101,6 +101,7 @@ export interface DownloadSettings {
   hideDownloadBar: boolean;
   notifyOnStart: boolean;
   notifyOnComplete: boolean;
+  autoLaunchApp: boolean;
 }
 
 export interface SiteRule {
@@ -130,6 +131,7 @@ export type DiagnosticCode =
   | 'download_skipped'
   | 'download_fallback'
   | 'download_failed'
+  | 'download_wake_attempt'
   | 'cookie_permission_missing'
   | 'cookie_collect_failed'
   | 'permission_granted'

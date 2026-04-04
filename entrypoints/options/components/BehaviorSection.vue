@@ -14,6 +14,7 @@ defineProps<{
   fallbackToBrowser: boolean;
   notifyOnStart: boolean;
   notifyOnComplete: boolean;
+  autoLaunchApp: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -22,6 +23,7 @@ const emit = defineEmits<{
   'update:fallbackToBrowser': [value: boolean];
   'update:notifyOnStart': [value: boolean];
   'update:notifyOnComplete': [value: boolean];
+  'update:autoLaunchApp': [value: boolean];
 }>();
 
 import { useI18n } from '@/shared/i18n/engine';
@@ -76,6 +78,18 @@ const { t: i18n } = useI18n();
         :value="fallbackToBrowser"
         @update:value="emit('update:fallbackToBrowser', $event)"
       />
+    </NFormItem>
+
+    <NFormItem :label="i18n('options_auto_launch_label', 'Auto-launch Motrix Next')">
+      <template #label>
+        <div class="label-group">
+          <span>{{ i18n('options_auto_launch_label', 'Auto-launch Motrix Next') }}</span>
+          <span class="label-hint">{{
+            i18n('options_auto_launch_desc', "Try to launch Motrix Next when it's not running")
+          }}</span>
+        </div>
+      </template>
+      <NSwitch :value="autoLaunchApp" @update:value="emit('update:autoLaunchApp', $event)" />
     </NFormItem>
 
     <NDivider />

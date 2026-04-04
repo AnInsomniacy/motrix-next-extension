@@ -64,6 +64,7 @@ describe('parseDownloadSettings', () => {
       hideDownloadBar: true,
       notifyOnStart: false,
       notifyOnComplete: true,
+      autoLaunchApp: false,
     };
     const result = parseDownloadSettings(input);
     expect(result).toEqual(input);
@@ -78,6 +79,7 @@ describe('parseDownloadSettings', () => {
       hideDownloadBar: false,
       notifyOnStart: true,
       notifyOnComplete: false,
+      autoLaunchApp: true,
     });
   });
 
@@ -90,6 +92,7 @@ describe('parseDownloadSettings', () => {
       hideDownloadBar: false,
       notifyOnStart: true,
       notifyOnComplete: false,
+      autoLaunchApp: true,
     });
   });
 
@@ -265,6 +268,7 @@ describe('parseStorage', () => {
       hideDownloadBar: false,
       notifyOnStart: true,
       notifyOnComplete: false,
+      autoLaunchApp: true,
     });
     expect(result.siteRules).toEqual([]);
     expect(result.uiPrefs).toEqual({ theme: 'system', colorScheme: 'amber', locale: 'auto' });
