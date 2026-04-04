@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motrix Next — Download Test Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── M3 Dark Tokens (Motrix Next) ───────────────────────── */
+      :root {
+        --surface: #141210;
+        --surface-container: #201e1b;
+        --surface-container-high: #2b2926;
+        --on-surface: #e8e2d9;
+        --on-surface-variant: #d0c8b9;
+        --outline: #998f80;
+        --outline-variant: #4d4639;
+        --primary: #f0bf48;
+        --on-primary: #412d00;
+        --success: #8edb6a;
+        --warning: #f0bf48;
+        --error: #ffb4ab;
+        --info: #7dcfff;
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+          sans-serif;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --ease: cubic-bezier(0.2, 0, 0, 1);
+      }
+
+      /* ── Reset ──────────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background: var(--surface);
+        color: var(--on-surface);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+      }
+
+      /* ── Layout ─────────────────────────────────────────────── */
+      .container {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+      }
+
+      /* ── Header ─────────────────────────────────────────────── */
+      .header {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+
+      .header__logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .header__badge {
+        display: inline-block;
+        border: 1.5px solid var(--on-surface);
+        border-radius: 5px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        opacity: 0.7;
+      }
+
+      .header__title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--primary);
+        letter-spacing: -0.02em;
+      }
+
+      .header__subtitle {
+        font-size: 13px;
+        color: var(--on-surface-variant);
+        margin-top: 4px;
+      }
+
+      /* ── Section ────────────────────────────────────────────── */
+      .section {
+        margin-bottom: 36px;
+      }
+
+      .section__header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--outline-variant);
+      }
+
+      .section__icon {
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      .section__title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--on-surface);
+      }
+
+      .section__count {
+        font-size: 11px;
+        color: var(--on-surface-variant);
+        background: var(--surface-container-high);
+        padding: 1px 8px;
+        border-radius: 99px;
+        font-weight: 500;
+      }
+
+      /* ── Card ───────────────────────────────────────────────── */
+      .card-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .card {
+        display: flex;
+        align-items: center;
+        background: var(--surface-container);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        transition:
+          background 0.2s var(--ease),
+          transform 0.2s var(--ease);
+      }
+
+      .card:hover {
+        background: var(--surface-container-high);
+        transform: translateY(-1px);
+      }
+
+      .card__bar {
+        width: 4px;
+        align-self: stretch;
+        flex-shrink: 0;
+        border-radius: 2px 0 0 2px;
+      }
+
+      .card__bar--primary {
+        background: var(--primary);
+      }
+      .card__bar--success {
+        background: var(--success);
+      }
+      .card__bar--info {
+        background: var(--info);
+      }
+      .card__bar--warning {
+        background: var(--warning);
+      }
+      .card__bar--error {
+        background: var(--error);
+      }
+
+      .card__body {
+        flex: 1;
+        min-width: 0;
+        padding: 10px 14px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .card__row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .card__name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--on-surface);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.3;
+      }
+
+      .card__meta {
+        font-size: 11px;
+        color: var(--on-surface-variant);
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.3;
+      }
+
+      .card__desc {
+        font-size: 11px;
+        color: var(--on-surface-variant);
+        margin-top: 2px;
+        opacity: 0.8;
+        line-height: 1.3;
+      }
+
+      .card__actions {
+        padding: 12px 14px 12px 0;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      /* ── Button ─────────────────────────────────────────────── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border: none;
+        border-radius: 99px;
+        font-family: var(--font-sans);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+          background 0.15s var(--ease),
+          transform 0.15s var(--ease),
+          box-shadow 0.15s var(--ease);
+        white-space: nowrap;
+      }
+
+      .btn:active {
+        transform: scale(0.96);
+      }
+
+      .btn--primary {
+        background: var(--primary);
+        color: var(--on-primary);
+      }
+
+      .btn--primary:hover {
+        box-shadow: 0 2px 8px rgba(240, 191, 72, 0.3);
+      }
+
+      .btn--outline {
+        background: transparent;
+        color: var(--primary);
+        border: 1px solid var(--outline-variant);
+      }
+
+      .btn--outline:hover {
+        background: rgba(240, 191, 72, 0.08);
+      }
+
+      .btn--ghost {
+        background: transparent;
+        color: var(--on-surface-variant);
+      }
+
+      .btn--ghost:hover {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      /* ── Skip badge ─────────────────────────────────────────── */
+      .badge-skip {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 99px;
+        background: rgba(255, 180, 171, 0.12);
+        color: var(--error);
+        letter-spacing: 0.03em;
+        display: inline-flex;
+        align-items: center;
+        line-height: 1;
+      }
+
+      /* ── Footer ─────────────────────────────────────────────── */
+      .footer {
+        text-align: center;
+        font-size: 11px;
+        color: var(--on-surface-variant);
+        opacity: 0.5;
+        margin-top: 48px;
+        padding-top: 16px;
+        border-top: 1px solid var(--outline-variant);
+      }
+
+      /* ── Responsive ─────────────────────────────────────────── */
+      @media (max-width: 600px) {
+        .container {
+          padding: 24px 16px 40px;
+        }
+        .card__row {
+          flex-direction: column;
+          gap: 2px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- ── Header ───────────────────────────────────────────── -->
+      <header class="header">
+        <div class="header__logo">
+          <span class="header__badge">NEXT</span>
+          <span class="header__title">Download Test Suite</span>
+        </div>
+        <p class="header__subtitle">
+          Manual verification page for Motrix Next extension download
+          interception
+        </p>
+      </header>
+
+      <!-- ── 1. Apple Firmware (IPSW) ─────────────────────────── -->
+      <section class="section">
+        <div class="section__header">
+          <span class="section__icon">🍎</span>
+          <h2 class="section__title">Apple Firmware (IPSW)</h2>
+          <span class="section__count">2 files</span>
+        </div>
+        <div class="card-list">
+          <div class="card">
+            <div class="card__bar card__bar--primary"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name"
+                  >iPhone18,1_26.4_23E246_Restore.ipsw</span
+                >
+                <span class="card__meta">~6.5 GB</span>
+              </div>
+              <div class="card__desc">
+                iPhone 16 · iOS 26.4 · Apple CDN (updates.cdn-apple.com)
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--primary"
+                href="https://updates.cdn-apple.com/2026SpringFCS/fullrestores/122-01483/985F1DAD-1F04-4D76-8D79-393E165867DD/iPhone18,1_26.4_23E246_Restore.ipsw"
+                >↓ Download</a
+              >
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__bar card__bar--primary"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name"
+                  >iPhone1,1_3.1.3_7E18_Restore.ipsw</span
+                >
+                <span class="card__meta">~243 MB</span>
+              </div>
+              <div class="card__desc">
+                iPhone 2G · iPhone OS 3.1.3 · Apple CDN
+                (secure-appldnld.apple.com)
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--primary"
+                href="https://secure-appldnld.apple.com/iPhone/061-7481.20100202.4orot/iPhone1,1_3.1.3_7E18_Restore.ipsw"
+                >↓ Download</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 2. Torrent Files ─────────────────────────────────── -->
+      <section class="section">
+        <div class="section__header">
+          <span class="section__icon">📦</span>
+          <h2 class="section__title">Torrent Files</h2>
+          <span class="section__count">2 files</span>
+        </div>
+        <div class="card-list">
+          <div class="card">
+            <div class="card__bar card__bar--success"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">KNOPPIX V9.1 CD (EN)</span>
+                <span class="card__meta">.torrent · 27 KB</span>
+              </div>
+              <div class="card__desc">
+                KNOPPIX_V9.1CD-2021-01-25-EN · Live Linux CD · 700 MB ISO
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--primary"
+                href="torrents/knoppix-v9.1-cd-en.torrent"
+                >↓ Torrent</a
+              >
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__bar card__bar--success"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">KNOPPIX V9.1 DVD (EN)</span>
+                <span class="card__meta">.torrent · 90 KB</span>
+              </div>
+              <div class="card__desc">
+                KNOPPIX_V9.1DVD-2021-01-25-EN · Live Linux DVD · 4.5 GB ISO
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--primary"
+                href="torrents/knoppix-v9.1-dvd-en.torrent"
+                >↓ Torrent</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 3. Magnet Links ──────────────────────────────────── -->
+      <section class="section">
+        <div class="section__header">
+          <span class="section__icon">🧲</span>
+          <h2 class="section__title">Magnet Links</h2>
+          <span class="section__count">2 links</span>
+        </div>
+        <div class="card-list">
+          <div class="card">
+            <div class="card__bar card__bar--info"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">KNOPPIX V9.1 CD (DE)</span>
+                <span class="card__meta">magnet · 700 MB</span>
+              </div>
+              <div class="card__desc">
+                KNOPPIX_V9.1CD-2021-01-25-DE · info hash:
+                c03c53e2…fa0ca9f4
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--outline"
+                href="magnet:?xt=urn:btih:c03c53e2303e1f5885aec99305f04d38fa0ca9f4&dn=KNOPPIX_V9.1CD-2021-01-25-DE&tr=http://torrent.unix-ag.uni-kl.de:16000/announce"
+                >🧲 Magnet</a
+              >
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__bar card__bar--info"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">KNOPPIX V9.1 DVD (DE)</span>
+                <span class="card__meta">magnet · 4.5 GB</span>
+              </div>
+              <div class="card__desc">
+                KNOPPIX_V9.1DVD-2021-01-25-DE · info hash:
+                cefda258…f02b2c5e
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--outline"
+                href="magnet:?xt=urn:btih:cefda25834af6bd868fad47458d0107bf02b2c5e&dn=KNOPPIX_V9.1DVD-2021-01-25-DE&tr=http://torrent.unix-ag.uni-kl.de:16000/announce"
+                >🧲 Magnet</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 4. Linux / Open Source ────────────────────────────── -->
+      <section class="section">
+        <div class="section__header">
+          <span class="section__icon">🐧</span>
+          <h2 class="section__title">Linux &amp; Open Source</h2>
+          <span class="section__count">2 files</span>
+        </div>
+        <div class="card-list">
+          <div class="card">
+            <div class="card__bar card__bar--success"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name"
+                  >ubuntu-24.04.4-desktop-amd64.iso</span
+                >
+                <span class="card__meta">~6.2 GB</span>
+              </div>
+              <div class="card__desc">
+                Ubuntu 24.04 LTS Noble Numbat · releases.ubuntu.com
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--primary"
+                href="https://releases.ubuntu.com/24.04/ubuntu-24.04.4-desktop-amd64.iso"
+                >↓ Download</a
+              >
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__bar card__bar--success"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name"
+                  >node-v22.22.2-darwin-arm64.tar.gz</span
+                >
+                <span class="card__meta">~45 MB</span>
+              </div>
+              <div class="card__desc">
+                Node.js v22 LTS · macOS ARM64 · nodejs.org
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--primary"
+                href="https://nodejs.org/dist/latest-v22.x/node-v22.22.2-darwin-arm64.tar.gz"
+                >↓ Download</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 5. Speed Test Files ──────────────────────────────── -->
+      <section class="section">
+        <div class="section__header">
+          <span class="section__icon">⚡</span>
+          <h2 class="section__title">Speed Test</h2>
+          <span class="section__count">2 files</span>
+        </div>
+        <div class="card-list">
+          <div class="card">
+            <div class="card__bar card__bar--warning"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">100MB.bin</span>
+                <span class="card__meta">100 MB</span>
+              </div>
+              <div class="card__desc">
+                Hetzner Speed Test · Ashburn, VA (ash-speed.hetzner.com)
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--primary"
+                href="https://ash-speed.hetzner.com/100MB.bin"
+                >↓ Download</a
+              >
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__bar card__bar--warning"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">1GB.bin</span>
+                <span class="card__meta">1 GB</span>
+              </div>
+              <div class="card__desc">
+                Hetzner Speed Test · Ashburn, VA (ash-speed.hetzner.com)
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--primary"
+                href="https://ash-speed.hetzner.com/1GB.bin"
+                >↓ Download</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 6. Edge Cases (Should Be Skipped) ────────────────── -->
+      <section class="section">
+        <div class="section__header">
+          <span class="section__icon">🧪</span>
+          <h2 class="section__title">Edge Cases</h2>
+          <span class="section__count">expect: skipped</span>
+        </div>
+        <div class="card-list">
+          <div class="card">
+            <div class="card__bar card__bar--error"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">Small file (&lt; 1 KB)</span>
+                <span class="badge-skip">SHOULD SKIP</span>
+              </div>
+              <div class="card__desc">
+                Below minFileSize threshold — browser should handle natively
+              </div>
+            </div>
+            <div class="card__actions">
+              <button class="btn btn--ghost" id="btn-small-file">
+                ↓ Download
+              </button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__bar card__bar--error"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">Blob URL</span>
+                <span class="badge-skip">SHOULD SKIP</span>
+              </div>
+              <div class="card__desc">
+                blob: scheme — cannot be intercepted by extension
+              </div>
+            </div>
+            <div class="card__actions">
+              <button class="btn btn--ghost" id="btn-blob">↓ Download</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__bar card__bar--error"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">Data URL</span>
+                <span class="badge-skip">SHOULD SKIP</span>
+              </div>
+              <div class="card__desc">
+                data: scheme — inline content, extension should ignore
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--ghost"
+                href="data:application/octet-stream;base64,SGVsbG8gTW90cml4IE5leHQh"
+                download="data-test.txt"
+                >↓ Download</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Footer ───────────────────────────────────────────── -->
+      <footer class="footer">
+        Motrix Next Extension · Download Test Suite · For development use only
+      </footer>
+    </div>
+
+    <!-- ── Edge Case Scripts ───────────────────────────────────── -->
+    <script>
+      // Small file: generate a tiny text file via JS download
+      document
+        .getElementById('btn-small-file')
+        .addEventListener('click', () => {
+          const a = document.createElement('a');
+          const blob = new Blob(['Hello Motrix Next!'], {
+            type: 'text/plain',
+          });
+          a.href = URL.createObjectURL(blob);
+          a.download = 'small-test.txt';
+          a.click();
+          URL.revokeObjectURL(a.href);
+        });
+
+      // Blob URL: create blob and open it
+      document.getElementById('btn-blob').addEventListener('click', () => {
+        const blob = new Blob(
+          [new Uint8Array(1024).fill(0x42)],
+          { type: 'application/octet-stream' },
+        );
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'blob-test.bin';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    </script>
+  </body>
+</html>
