@@ -15,6 +15,9 @@ mkdirSync(FIREFOX_PROFILE, { recursive: true });
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
+  zip: {
+    artifactTemplate: '{{name}}-{{version}}-chromium-mv3.zip',
+  },
   webExt: {
     // Reuse a persistent browser profile across dev restarts so that
     // chrome.storage.local data (RPC secret, theme, etc.) is preserved.

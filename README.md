@@ -3,6 +3,7 @@
   <h1>Motrix Next Extension</h1>
   <p>Browser extension for <a href="https://github.com/AnInsomniacy/motrix-next">Motrix Next</a> — seamless download interception &amp; delegation.</p>
 
+![Version](https://img.shields.io/github/v/release/AnInsomniacy/motrix-next-extension?label=Version)
 ![Build](https://img.shields.io/github/actions/workflow/status/AnInsomniacy/motrix-next-extension/ci.yml?branch=main&label=Build)
 ![Manifest](https://img.shields.io/badge/manifest-v3-blue)
 
