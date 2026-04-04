@@ -6,6 +6,14 @@
 
 ## Features
 
+<div align="center">
+  <img src="docs/popup.png" alt="Extension Popup — live download monitor" width="420" />
+  &nbsp;&nbsp;
+  <img src="docs/settings.png" alt="Extension Settings — connection, behavior, rules" width="420" />
+</div>
+
+<br />
+
 - **Download Interception** — Automatically captures browser downloads and routes them through aria2 for accelerated multi-threaded downloading
 - **Smart Filtering** — Multi-stage filter pipeline: global toggle → self-trigger guard → scheme validation → site rules → minimum file size
 - **Site Rules** — Per-domain rules to always intercept, always skip, or defer to global settings using glob patterns
