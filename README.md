@@ -203,7 +203,7 @@ PRs and issues are welcome! Before submitting:
 
 Downloads go faster. Thesis progress does not. If you'd like to help with at least one of those —
 
-[Consider sponsoring the project ❤️](https://github.com/AnInsomniacy/AnInsomniacy/blob/main/SPONSOR.md) — your support keeps the code open, the releases shipping, and my procrastination at least somewhat productive.
+[Consider sponsoring the project ❤️](https://github.com/AnInsomniacy/AnInsomniacy/blob/main/SPONSOR.md) — your support keeps the code open, the releases shipping, and proof that a PhD can ship more than just papers.
 
 ## License
 
