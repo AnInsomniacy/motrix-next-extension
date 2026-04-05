@@ -248,6 +248,10 @@
     "message": "撤销权限",
     "description": "撤销增强权限的按钮"
   },
+  "options_diagnostics_export": {
+    "message": "导出诊断报告",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
   "options_diagnostics_clear": {
     "message": "清除日志",
     "description": "清除诊断日志的按钮"

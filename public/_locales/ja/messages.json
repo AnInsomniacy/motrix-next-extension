@@ -248,6 +248,10 @@
     "message": "権限を取り消す",
     "description": "Button to revoke enhanced permissions"
   },
+  "options_diagnostics_export": {
+    "message": "診断レポートをエクスポート",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
   "options_diagnostics_clear": {
     "message": "ログを消去",
     "description": "Button to clear diagnostic log"

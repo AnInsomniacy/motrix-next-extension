@@ -119,6 +119,13 @@ export class DownloadOrchestrator {
     // ─── Pause ────────────────────────────────────
     await this.deps.downloads.pause(item.id);
 
+    this.deps.diagnosticLog.append({
+      level: 'info',
+      code: 'download_intercepted',
+      message: `Intercepted: ${item.url}`,
+      context: { url: item.url, fileSize: item.fileSize, mime: item.mime },
+    });
+
     // ─── Collect Metadata ─────────────────────────
     // Resolve a display filename for logging and notifications.
     // We intentionally do NOT pass `out` to aria2 — aria2 has superior

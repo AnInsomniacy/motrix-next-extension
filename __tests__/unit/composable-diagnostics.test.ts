@@ -76,4 +76,84 @@ describe('useDiagnostics', () => {
 
     vi.unstubAllGlobals();
   });
+
+  it('exportDiagnosticReport() triggers a file download with complete diagnostic data', async () => {
+    const storage = mockStorageService();
+    (storage.load as ReturnType<typeof vi.fn>).mockResolvedValue({
+      rpc: { host: '127.0.0.1', port: 16800, secret: 'my-secret' },
+      settings: {
+        enabled: true,
+        minFileSize: 0,
+        fallbackToBrowser: true,
+        hideDownloadBar: false,
+        notifyOnStart: true,
+        notifyOnComplete: false,
+        autoLaunchApp: true,
+      },
+      siteRules: [{ id: 'r1', pattern: '*.github.com', action: 'always-intercept' }],
+      uiPrefs: { theme: 'system', colorScheme: 'amber', locale: 'auto' },
+      diagnosticLog: [createEvent({ id: 'e1' })],
+      _version: 1,
+    });
+
+    // Mock browser APIs
+    const createObjectURL = vi.fn().mockReturnValue('blob:mock-url');
+    const revokeObjectURL = vi.fn();
+    vi.stubGlobal('URL', { createObjectURL, revokeObjectURL });
+
+    const clickFn = vi.fn();
+    vi.stubGlobal('document', {
+      createElement: vi.fn().mockReturnValue({
+        set href(_v: string) {
+          /* noop */
+        },
+        set download(_v: string) {
+          /* noop */
+        },
+        click: clickFn,
+      }),
+    });
+    vi.stubGlobal(
+      'Blob',
+      class MockBlob {
+        public parts: unknown[];
+        constructor(parts: unknown[]) {
+          this.parts = parts;
+        }
+      },
+    );
+    vi.stubGlobal('chrome', {
+      runtime: {
+        getManifest: () => ({ version: '1.0.1', manifest_version: 3 }),
+      },
+    });
+    vi.stubGlobal('navigator', { userAgent: 'TestAgent', language: 'en-US' });
+
+    const { hydrate, exportDiagnosticReport } = useDiagnostics(storage);
+    hydrate([createEvent({ id: 'e1' })]);
+
+    await exportDiagnosticReport();
+
+    // Verify Blob was created with JSON content
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
+    const blobArg = createObjectURL.mock.calls[0]![0] as { parts: string[] };
+    const report = JSON.parse(blobArg.parts[0]!);
+
+    // Verify report structure
+    expect(report.exportedAt).toBeDefined();
+    expect(report.extension.version).toBe('1.0.1');
+    expect(report.browser.userAgent).toBe('TestAgent');
+    expect(report.config.rpc.host).toBe('127.0.0.1');
+    expect(report.config.siteRules).toHaveLength(1);
+    expect(report.diagnosticLog).toHaveLength(1);
+
+    // Verify secret is NOT exported
+    expect(report.config.rpc.secret).toBeUndefined();
+
+    // Verify download triggered
+    expect(clickFn).toHaveBeenCalledTimes(1);
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+
+    vi.unstubAllGlobals();
+  });
 });

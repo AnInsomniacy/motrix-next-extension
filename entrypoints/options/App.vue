@@ -79,6 +79,7 @@ const {
   hydrate: hydrateDiagnostics,
   copyDiagnosticLog,
   clearDiagnosticLog,
+  exportDiagnosticReport,
 } = useDiagnostics(storageService);
 const appearance = useAppearance(storageService, setTheme, (id) => {
   colorSchemeId.value = id;
@@ -396,6 +397,7 @@ onUnmounted(() => {
                   :events="diagnosticEvents"
                   @copy="copyDiagnosticLog"
                   @clear="clearDiagnosticLog"
+                  @export="exportDiagnosticReport"
                 />
               </div>
             </div>

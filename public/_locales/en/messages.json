@@ -248,6 +248,10 @@
     "message": "Revoke Permissions",
     "description": "Button to revoke enhanced permissions"
   },
+  "options_diagnostics_export": {
+    "message": "Export Diagnostic Report",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
   "options_diagnostics_clear": {
     "message": "Clear Log",
     "description": "Button to clear diagnostic log"

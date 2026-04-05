@@ -253,6 +253,39 @@ describe('parseDiagnosticEvents', () => {
     const result = parseDiagnosticEvents(input);
     expect(result).toHaveLength(1);
   });
+
+  it('filters out events with unknown diagnostic code', () => {
+    const input = [
+      { id: 'e1', ts: 1, level: 'info', code: 'download_sent', message: 'ok' },
+      { id: 'e2', ts: 2, level: 'info', code: 'totally_made_up', message: 'bad code' },
+    ];
+    const result = parseDiagnosticEvents(input);
+    expect(result).toHaveLength(1);
+    expect(result[0]!.code).toBe('download_sent');
+  });
+
+  it.each([
+    'rpc_connected',
+    'rpc_unreachable',
+    'rpc_auth_failed',
+    'download_intercepted',
+    'download_sent',
+    'download_skipped',
+    'download_fallback',
+    'download_failed',
+    'download_wake_attempt',
+    'download_routed',
+    'download_browser_redirect',
+    'cookie_permission_missing',
+    'cookie_collect_failed',
+    'permission_granted',
+    'permission_revoked',
+  ] as const)('accepts diagnostic code: %s', (code) => {
+    const input = [{ id: 'e1', ts: 1, level: 'info', code, message: 'test' }];
+    const result = parseDiagnosticEvents(input);
+    expect(result).toHaveLength(1);
+    expect(result[0]!.code).toBe(code);
+  });
 });
 
 // ─── Full Storage Schema ────────────────────────────────

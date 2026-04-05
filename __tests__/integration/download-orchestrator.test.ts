@@ -115,6 +115,19 @@ describe('DownloadOrchestrator', () => {
         expect.objectContaining({ code: 'download_sent' }),
       );
     });
+
+    it('logs download_intercepted before download_sent (entry → exit instrumentation)', async () => {
+      const item = createMockDownloadItem();
+
+      await orchestrator.handleCreated(item);
+
+      const calls = (deps.diagnosticLog.append as ReturnType<typeof vi.fn>).mock.calls;
+      const codes = calls.map((c: unknown[]) => (c[0] as { code: string }).code);
+      const interceptedIdx = codes.indexOf('download_intercepted');
+      const sentIdx = codes.indexOf('download_sent');
+      expect(interceptedIdx).toBeGreaterThanOrEqual(0);
+      expect(sentIdx).toBeGreaterThan(interceptedIdx);
+    });
   });
 
   describe('handleCreated — skip conditions', () => {
