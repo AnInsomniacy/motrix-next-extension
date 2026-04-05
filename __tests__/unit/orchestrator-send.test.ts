@@ -3,6 +3,7 @@ import { DownloadOrchestrator } from '@/lib/download/orchestrator';
 import type { OrchestratorDeps } from '@/lib/download/orchestrator';
 import type { SiteRule } from '@/shared/types';
 import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
+import { DocumentUrlError } from '@/shared/errors';
 
 // ─── Mock Deps Factory ──────────────────────────────────
 
@@ -36,6 +37,14 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
     getTabUrl: vi.fn<() => Promise<string>>().mockResolvedValue(''),
     hasEnhancedPermissions: () => false,
     onSent: vi.fn(),
+    // Default fetchFn: no redirect, binary content-type (normal download)
+    fetchFn: vi.fn().mockImplementation((url: string) =>
+      Promise.resolve({
+        url,
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/octet-stream' }),
+      } as Response),
+    ),
     ...overrides,
   };
 }
@@ -156,5 +165,132 @@ describe('DownloadOrchestrator.sendUrl', () => {
     await orch.sendUrl('https://example.com/file.zip', '');
 
     expect(deps.notifications.create).not.toHaveBeenCalled();
+  });
+
+  // ─── Redirect Resolution (context menu) ───────────────
+
+  it('resolves redirects via HEAD before sending to aria2', async () => {
+    const deps = createMockDeps({
+      fetchFn: vi.fn().mockResolvedValue({
+        url: 'https://cdn.example.com/real-file.zip',
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/octet-stream' }),
+      } as Response),
+    });
+    const orch = new DownloadOrchestrator(deps);
+
+    await orch.sendUrl('https://landing.example.com/download', 'https://example.com');
+
+    // Should resolve to CDN URL, not the landing page
+    expect(deps.aria2.addUri).toHaveBeenCalledWith(
+      ['https://cdn.example.com/real-file.zip'],
+      expect.any(Object),
+    );
+    expect(deps.onSent).toHaveBeenCalledWith('gid-ctx-1', 'real-file.zip');
+  });
+
+  it('falls back to original URL when redirect resolution fails', async () => {
+    const deps = createMockDeps({
+      fetchFn: vi.fn().mockRejectedValue(new Error('network error')),
+    });
+    const orch = new DownloadOrchestrator(deps);
+
+    await orch.sendUrl('https://example.com/file.zip', '');
+
+    // Should degrade gracefully to the original URL
+    expect(deps.aria2.addUri).toHaveBeenCalledWith(
+      ['https://example.com/file.zip'],
+      expect.any(Object),
+    );
+  });
+
+  it('uses resolved URL for cookie collection', async () => {
+    const deps = createMockDeps({
+      hasEnhancedPermissions: () => true,
+      cookies: {
+        getAll: vi.fn().mockResolvedValue([{ name: 'cdn_token', value: 'secret' }]),
+      },
+      fetchFn: vi.fn().mockResolvedValue({
+        url: 'https://cdn.example.com/real-file.zip',
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/octet-stream' }),
+      } as Response),
+    });
+    const orch = new DownloadOrchestrator(deps);
+
+    await orch.sendUrl('https://landing.example.com/download', '');
+
+    // Cookie collection should use the resolved CDN URL's domain
+    expect(deps.cookies.getAll).toHaveBeenCalledWith({
+      url: 'https://cdn.example.com/real-file.zip',
+    });
+  });
+
+  it('does not resolve redirects for magnet URIs', async () => {
+    const deps = createMockDeps({
+      openProtocolNewTask: vi.fn().mockResolvedValue(undefined),
+    });
+    const orch = new DownloadOrchestrator(deps);
+
+    await orch.sendUrl('magnet:?xt=urn:btih:abc', '');
+
+    // fetchFn should NOT be called for magnet URIs
+    expect(deps.fetchFn).not.toHaveBeenCalled();
+  });
+
+  // ─── Document URL Detection (JS-based download pages) ───
+
+  it('throws DocumentUrlError for text/html responses (cloud storage landing page)', async () => {
+    const deps = createMockDeps({
+      fetchFn: vi.fn().mockResolvedValue({
+        url: 'https://lanzou.com/file/?xyz&toolsdown',
+        ok: true,
+        headers: new Headers({ 'content-type': 'text/html; charset=utf-8' }),
+      } as Response),
+    });
+    const orch = new DownloadOrchestrator(deps);
+
+    await expect(orch.sendUrl('https://lanzou.com/file/?xyz&toolsdown', '')).rejects.toThrow(
+      DocumentUrlError,
+    );
+
+    // Should NOT send to aria2
+    expect(deps.aria2.addUri).not.toHaveBeenCalled();
+  });
+
+  it('logs download_browser_redirect diagnostic for document URLs', async () => {
+    const deps = createMockDeps({
+      fetchFn: vi.fn().mockResolvedValue({
+        url: 'https://lanzou.com/page',
+        ok: true,
+        headers: new Headers({ 'content-type': 'text/html' }),
+      } as Response),
+    });
+    const orch = new DownloadOrchestrator(deps);
+
+    await expect(orch.sendUrl('https://lanzou.com/page', '')).rejects.toThrow(DocumentUrlError);
+
+    expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'download_browser_redirect' }),
+    );
+  });
+
+  it('allows text/html with Content-Disposition: attachment (downloadable HTML)', async () => {
+    const deps = createMockDeps({
+      fetchFn: vi.fn().mockResolvedValue({
+        url: 'https://example.com/report.html',
+        ok: true,
+        headers: new Headers({
+          'content-type': 'text/html',
+          'content-disposition': 'attachment; filename="report.html"',
+        }),
+      } as Response),
+    });
+    const orch = new DownloadOrchestrator(deps);
+
+    // Should NOT throw — this is a legitimate HTML file download
+    const gid = await orch.sendUrl('https://example.com/report.html', '');
+    expect(gid).toBe('gid-ctx-1');
+    expect(deps.aria2.addUri).toHaveBeenCalled();
   });
 });

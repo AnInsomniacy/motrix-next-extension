@@ -17,6 +17,7 @@ import {
 import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
 import { decodeThunderLink } from '@/shared/thunder';
 import { extractFilenameFromUrl } from '@/shared/url';
+import { DocumentUrlError } from '@/shared/errors';
 import { usePolling } from '@/shared/use-polling';
 import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 import type { DownloadSettings, RpcConfig, SiteRule } from '@/shared/types';
@@ -238,8 +239,16 @@ export default defineBackground(() => {
 
       try {
         await orchestrator.sendUrl(url, tabUrl);
-      } catch {
-        // Error already logged by orchestrator — show error notification
+      } catch (error) {
+        // Document URL: the link points to a webpage with JS-generated download.
+        // Open in the browser so the page's JS can execute and trigger the real
+        // download, which handleCreated() will intercept via finalUrl.
+        if (error instanceof DocumentUrlError) {
+          await chrome.tabs.create({ url, active: true });
+          return;
+        }
+
+        // Other errors — show failure notification
         const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
         await chrome.notifications.create(`failed-ctx-${Date.now()}`, {
           type: 'basic',

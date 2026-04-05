@@ -152,6 +152,86 @@ describe('DownloadOrchestrator', () => {
         expect.objectContaining({ code: 'download_skipped' }),
       );
     });
+
+    it('skips text/html downloads (cloud storage landing page defense)', async () => {
+      const item = createMockDownloadItem({
+        url: 'https://lanzou.com/file/?xyz&toolsdown',
+        mime: 'text/html',
+      });
+
+      await orchestrator.handleCreated(item);
+
+      expect(deps.downloads.pause).not.toHaveBeenCalled();
+      expect(deps.aria2.addUri).not.toHaveBeenCalled();
+      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'download_skipped' }),
+      );
+    });
+  });
+
+  describe('handleCreated — finalUrl preference (redirect resolution)', () => {
+    it('sends finalUrl to aria2 instead of pre-redirect url', async () => {
+      const item = createMockDownloadItem({
+        url: 'https://developer2.lanrar.com/file/?xyz&toolsdown',
+        finalUrl: 'https://cdn.example.com/913b9d40.zip',
+        filename: '913b9d40.zip',
+      });
+
+      await orchestrator.handleCreated(item);
+
+      // Must use finalUrl (the CDN URL), NOT url (the landing page)
+      expect(deps.aria2.addUri).toHaveBeenCalledWith(
+        ['https://cdn.example.com/913b9d40.zip'],
+        expect.any(Object),
+      );
+    });
+
+    it('falls back to url when finalUrl is empty', async () => {
+      const item = createMockDownloadItem({
+        url: 'https://example.com/file.zip',
+        finalUrl: '',
+      });
+
+      await orchestrator.handleCreated(item);
+
+      expect(deps.aria2.addUri).toHaveBeenCalledWith(
+        ['https://example.com/file.zip'],
+        expect.any(Object),
+      );
+    });
+
+    it('uses finalUrl for wake-retry as well', async () => {
+      const wakeDeps = {
+        ...createMockDeps(),
+        wakeService: { wakeAndWaitForRpc: vi.fn().mockResolvedValue(true) },
+        openProtocol: vi.fn().mockResolvedValue(() => {}),
+        checkRpc: vi.fn().mockResolvedValue(true),
+      };
+      // First addUri fails, second succeeds
+      wakeDeps.aria2.addUri
+        .mockRejectedValueOnce(new RpcUnreachableError())
+        .mockResolvedValueOnce('gid-retry');
+
+      const orch = new DownloadOrchestrator(wakeDeps);
+      await orch.handleCreated(
+        createMockDownloadItem({
+          url: 'https://landing.example.com/page',
+          finalUrl: 'https://cdn.example.com/real-file.zip',
+        }),
+      );
+
+      // Both initial and retry calls must use finalUrl
+      expect(wakeDeps.aria2.addUri).toHaveBeenNthCalledWith(
+        1,
+        ['https://cdn.example.com/real-file.zip'],
+        expect.any(Object),
+      );
+      expect(wakeDeps.aria2.addUri).toHaveBeenNthCalledWith(
+        2,
+        ['https://cdn.example.com/real-file.zip'],
+        expect.any(Object),
+      );
+    });
   });
 
   describe('handleCreated — RPC failure with fallback', () => {

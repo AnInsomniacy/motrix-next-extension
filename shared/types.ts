@@ -133,6 +133,7 @@ export type DiagnosticCode =
   | 'download_failed'
   | 'download_wake_attempt'
   | 'download_routed'
+  | 'download_browser_redirect'
   | 'cookie_permission_missing'
   | 'cookie_collect_failed'
   | 'permission_granted'

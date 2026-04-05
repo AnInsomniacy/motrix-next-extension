@@ -7,6 +7,7 @@ import {
   SchemeStage,
   FileSizeStage,
   SiteRuleStage,
+  MimeTypeStage,
 } from '@/lib/download/filter';
 import type { FilterContext, DownloadSettings, SiteRule } from '@/shared/types';
 
@@ -199,6 +200,67 @@ describe('SiteRuleStage', () => {
   });
 });
 
+// ─── MIME Type Stage ────────────────────────────────────
+
+describe('MimeTypeStage', () => {
+  const stage = new MimeTypeStage();
+
+  it('returns skip for text/html', () => {
+    const ctx = createContext({ mimeType: 'text/html' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  it('returns skip for text/html with charset parameter', () => {
+    const ctx = createContext({ mimeType: 'text/html; charset=utf-8' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  it('returns skip for text/xml', () => {
+    const ctx = createContext({ mimeType: 'text/xml' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  it('returns skip for application/xhtml+xml', () => {
+    const ctx = createContext({ mimeType: 'application/xhtml+xml' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  it('returns null for application/octet-stream', () => {
+    const ctx = createContext({ mimeType: 'application/octet-stream' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
+  });
+
+  it('returns null for application/zip', () => {
+    const ctx = createContext({ mimeType: 'application/zip' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
+  });
+
+  it('returns null for application/pdf', () => {
+    const ctx = createContext({ mimeType: 'application/pdf' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
+  });
+
+  it('returns null for application/x-bittorrent', () => {
+    const ctx = createContext({ mimeType: 'application/x-bittorrent' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
+  });
+
+  it('returns null when mime is empty string (unknown)', () => {
+    const ctx = createContext({ mimeType: '' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
+  });
+
+  it('handles case-insensitive MIME types', () => {
+    const ctx = createContext({ mimeType: 'Text/HTML' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  it('implements FilterStage interface', () => {
+    expect(stage.name).toBe('mime-type');
+    expect(typeof stage.evaluate).toBe('function');
+  });
+});
+
 // ─── Full Pipeline ──────────────────────────────────────
 
 describe('evaluateFilterPipeline', () => {
@@ -269,5 +331,33 @@ describe('evaluateFilterPipeline', () => {
       stages,
     );
     expect(result).toBe('skip');
+  });
+
+  it('returns skip for text/html MIME type (cloud storage landing page)', () => {
+    const stages = createFilterPipeline(() => []);
+    const result = evaluateFilterPipeline(
+      createContext({
+        url: 'https://lanzou.com/file/?xyz&toolsdown',
+        mimeType: 'text/html',
+      }),
+      DEFAULT_SETTINGS,
+      stages,
+    );
+    expect(result).toBe('skip');
+  });
+
+  it('site rule always-intercept overrides MIME type skip', () => {
+    const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-intercept' }];
+    const stages = createFilterPipeline(() => rules);
+    const result = evaluateFilterPipeline(
+      createContext({
+        tabUrl: 'https://example.com/page',
+        mimeType: 'text/html',
+      }),
+      DEFAULT_SETTINGS,
+      stages,
+    );
+    // Site rule (always-intercept) fires before MimeTypeStage → intercept wins
+    expect(result).toBe('intercept');
   });
 });

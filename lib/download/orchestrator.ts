@@ -5,7 +5,7 @@ import { evaluateFilterPipeline, createFilterPipeline } from './filter';
 import { MetadataCollector } from './metadata-collector';
 import { NotificationService } from '@/lib/services/notification';
 import { extractFilenameFromUrl } from '@/shared/url';
-import { RpcUnreachableError, RpcTimeoutError } from '@/shared/errors';
+import { RpcUnreachableError, RpcTimeoutError, DocumentUrlError } from '@/shared/errors';
 
 // ─── Constants ──────────────────────────────────────────
 
@@ -127,8 +127,12 @@ export class DownloadOrchestrator {
     const displayName =
       item.filename || extractFilenameFromUrl(item.finalUrl || item.url) || 'download';
 
-    const aria2Options = await this.buildAria2Options(item.url, tabUrl);
+    // Prefer finalUrl — the post-redirect URL that Chrome actually downloaded from.
+    // Many cloud storage services (Lanzou, MediaFire, etc.) return an HTML landing
+    // page at item.url, then redirect to a CDN URL. Without finalUrl, aria2 would
+    // re-request the landing page and download HTML instead of the actual file.
     const effectiveUrl = item.finalUrl || item.url;
+    const aria2Options = await this.buildAria2Options(effectiveUrl, tabUrl);
     const isTorrent = this.isTorrentDownload(item.mime, effectiveUrl);
 
     // ─── Torrent / Magnet: route to desktop app for file selection ───
@@ -170,7 +174,7 @@ export class DownloadOrchestrator {
     }
 
     try {
-      const gid = await this.deps.aria2.addUri([item.url], aria2Options);
+      const gid = await this.deps.aria2.addUri([effectiveUrl], aria2Options);
 
       // ─── Success: cancel browser download ─────
       await this.deps.downloads.cancel(item.id);
@@ -180,7 +184,7 @@ export class DownloadOrchestrator {
         level: 'info',
         code: 'download_sent',
         message: `Sent: ${displayName}`,
-        context: { url: item.url, filename: displayName, gid },
+        context: { url: effectiveUrl, filename: displayName, gid },
       });
 
       // ─── Track for completion ──────────────────
@@ -199,9 +203,9 @@ export class DownloadOrchestrator {
       const retryGid = await this.tryWakeAndRetry(
         error,
         settings,
-        () => this.deps.aria2.addUri([item.url], aria2Options),
+        () => this.deps.aria2.addUri([effectiveUrl], aria2Options),
         displayName,
-        item.url,
+        effectiveUrl,
       );
 
       if (retryGid !== null) {
@@ -225,16 +229,16 @@ export class DownloadOrchestrator {
         this.deps.diagnosticLog.append({
           level: 'warn',
           code: 'download_fallback',
-          message: `Fallback: ${item.url}`,
-          context: { url: item.url, error: String(error) },
+          message: `Fallback: ${effectiveUrl}`,
+          context: { url: effectiveUrl, error: String(error) },
         });
       } else {
         await this.deps.downloads.cancel(item.id);
         this.deps.diagnosticLog.append({
           level: 'error',
           code: 'download_failed',
-          message: `Failed: ${item.url}`,
-          context: { url: item.url, error: String(error) },
+          message: `Failed: ${effectiveUrl}`,
+          context: { url: effectiveUrl, error: String(error) },
         });
       }
     }
@@ -250,12 +254,12 @@ export class DownloadOrchestrator {
    */
   async sendUrl(url: string, tabUrl: string): Promise<string> {
     const settings = this.deps.getSettings();
-    const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
     const isTorrent = this.isTorrentDownload('', url);
     const isMagnet = url.startsWith('magnet:');
 
     // ─── Torrent / Magnet: route to desktop app for file selection ───
     if ((isTorrent || isMagnet) && this.deps.openProtocolNewTask) {
+      const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
       await this.deps.openProtocolNewTask(url, tabUrl);
       this.deps.diagnosticLog.append({
         level: 'info',
@@ -268,6 +272,7 @@ export class DownloadOrchestrator {
 
     // ─── Torrent fallback: fetch → base64 → addTorrent ──────
     if (isTorrent) {
+      const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
       const aria2Options = await this.buildAria2Options(url, tabUrl);
       try {
         const gid = await this.submitTorrent(url, aria2Options);
@@ -295,36 +300,58 @@ export class DownloadOrchestrator {
       }
     }
 
-    // ─── Magnet / HTTP / FTP: addUri directly ────────────────
-    // aria2 handles magnet URIs natively — no pre-processing needed.
+    // ─── HTTP / FTP: resolve redirects, then addUri ──────────
+    // Context menu provides the raw link href, which for cloud storage
+    // services is often a landing page URL that HTTP-redirects to the
+    // actual CDN download URL. Follow redirects via HEAD to discover
+    // the real URL before handing off to aria2.
+    const resolved = await this.resolveRedirects(url);
 
-    const aria2Options = await this.buildAria2Options(url, tabUrl);
+    // If the HEAD response reveals a document page (text/html without
+    // Content-Disposition: attachment), the URL is a landing page that
+    // uses JavaScript to generate the real download link. Throw so the
+    // caller can open it in the browser — the page’s JS will trigger
+    // the actual download, which handleCreated() will intercept.
+    if (resolved.isDocument) {
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_browser_redirect',
+        message: `Document URL detected, deferring to browser: ${url}`,
+        context: { url, resolvedUrl: resolved.url },
+      });
+      throw new DocumentUrlError(url);
+    }
+
+    const resolvedUrl = resolved.url;
+    const displayName =
+      extractFilenameFromUrl(resolvedUrl) || resolvedUrl.split('/').pop() || 'download';
+    const aria2Options = await this.buildAria2Options(resolvedUrl, tabUrl);
 
     // ─── Send to aria2 ────────────────────────────
     try {
-      const gid = await this.deps.aria2.addUri([url], aria2Options);
-      this.onSendSuccess(gid, displayName, url, settings);
+      const gid = await this.deps.aria2.addUri([resolvedUrl], aria2Options);
+      this.onSendSuccess(gid, displayName, resolvedUrl, settings);
       return gid;
     } catch (error) {
       // ─── Wake + Retry ──────────────────────────
       const retryGid = await this.tryWakeAndRetry(
         error,
         settings,
-        () => this.deps.aria2.addUri([url], aria2Options),
+        () => this.deps.aria2.addUri([resolvedUrl], aria2Options),
         displayName,
-        url,
+        resolvedUrl,
       );
 
       if (retryGid !== null) {
-        this.onSendSuccess(retryGid, displayName, url, settings);
+        this.onSendSuccess(retryGid, displayName, resolvedUrl, settings);
         return retryGid;
       }
 
       this.deps.diagnosticLog.append({
         level: 'error',
         code: 'download_failed',
-        message: `Failed: ${url}`,
-        context: { url, error: String(error) },
+        message: `Failed: ${resolvedUrl}`,
+        context: { url: resolvedUrl, error: String(error) },
       });
       throw error;
     }
@@ -415,6 +442,59 @@ export class DownloadOrchestrator {
       return pathname.endsWith('.torrent');
     } catch {
       return url.endsWith('.torrent');
+    }
+  }
+
+  /**
+   * Follow HTTP redirects via HEAD to discover the actual download URL.
+   *
+   * Context menus provide the raw link `href`, which for cloud storage
+   * services (Lanzou, MediaFire, etc.) is often a landing page URL that
+   * HTTP-redirects to the actual CDN download URL. By resolving redirects
+   * here, we send the final URL to aria2 — matching what the browser does
+   * when the user clicks the link normally.
+   *
+   * Additionally detects document responses (text/html without
+   * Content-Disposition: attachment) so the caller can fall back to
+   * browser navigation for JavaScript-based download pages.
+   *
+   * Design decisions:
+   * - HEAD (not GET) to avoid downloading the response body
+   * - 10-second timeout to avoid indefinite UI blocking
+   * - Graceful fallback: returns the original URL on any error
+   * - Redirect limit of 10 hops (browser default) to prevent loops
+   */
+  private async resolveRedirects(url: string): Promise<{ url: string; isDocument: boolean }> {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10_000);
+
+      const response = await this.fetchFn(url, {
+        method: 'HEAD',
+        redirect: 'follow',
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      const finalUrl = response.url || url;
+      const contentType = response.headers?.get?.('content-type') ?? '';
+      const contentDisposition = response.headers?.get?.('content-disposition') ?? '';
+
+      // Detect document pages: Content-Type is text/html (or similar) AND
+      // the server did NOT set Content-Disposition: attachment (which would
+      // indicate the HTML file itself IS the intended download).
+      const mimeBase = (contentType.split(';')[0] ?? '').trim().toLowerCase();
+      const isHtmlLike =
+        mimeBase === 'text/html' || mimeBase === 'application/xhtml+xml' || mimeBase === 'text/xml';
+      const isAttachment = /attachment/i.test(contentDisposition);
+      const isDocument = isHtmlLike && !isAttachment;
+
+      return { url: finalUrl, isDocument };
+    } catch {
+      // Network error, timeout, CORS — return original URL.
+      // This preserves existing behavior for direct download URLs.
+      return { url, isDocument: false };
     }
   }
 

@@ -117,6 +117,40 @@ export class SiteRuleStage implements FilterStage {
   }
 }
 
+/**
+ * Stage: Skip downloads whose MIME type indicates a document rather than a file.
+ *
+ * Many cloud storage services (Lanzou, MediaFire, etc.) serve JavaScript-heavy
+ * landing pages at intermediate URLs. If the browser treats a text/html response
+ * as a "download" (e.g. via Content-Disposition: attachment), intercepting it
+ * would cause aria2 to download the HTML page itself.
+ *
+ * By skipping document MIME types, the browser handles (renders) these pages
+ * normally, and the real binary download — triggered by the page's JavaScript —
+ * gets intercepted on the second pass with a proper file MIME type.
+ *
+ * Note: Chrome typically renders text/html responses as pages (no onCreated).
+ * This stage guards the uncommon case where a server forces download behavior
+ * on an HTML response.
+ */
+export class MimeTypeStage implements FilterStage {
+  readonly name = 'mime-type';
+
+  /** MIME types that represent documents, not downloadable files. */
+  private static readonly DOCUMENT_MIMES: ReadonlySet<string> = new Set([
+    'text/html',
+    'text/xml',
+    'application/xhtml+xml',
+  ]);
+
+  evaluate(ctx: FilterContext, _config: DownloadSettings): FilterVerdict | null {
+    if (!ctx.mimeType) return null; // Unknown MIME — pass through (safe default)
+    // Strip charset/boundary parameters: "text/html; charset=utf-8" → "text/html"
+    const normalized = (ctx.mimeType.split(';')[0] ?? '').trim().toLowerCase();
+    return MimeTypeStage.DOCUMENT_MIMES.has(normalized) ? 'skip' : null;
+  }
+}
+
 // ─── Pipeline Factory ───────────────────────────────────
 
 /**
@@ -136,6 +170,7 @@ export function createFilterPipeline(getRules: () => SiteRule[]): FilterStage[] 
     new SelfTriggerStage(),
     new SchemeStage(),
     new SiteRuleStage(getRules),
+    new MimeTypeStage(),
     new FileSizeStage(),
   ];
 }
