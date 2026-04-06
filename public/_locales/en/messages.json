@@ -430,5 +430,13 @@
   "popup_stat_stopped": {
     "message": "Done",
     "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "Interception On",
+    "description": "Tooltip when download interception is enabled"
+  },
+  "popup_toggle_disabled": {
+    "message": "Interception Off",
+    "description": "Tooltip when download interception is disabled"
   }
 }

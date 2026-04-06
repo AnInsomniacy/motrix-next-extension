@@ -46,8 +46,10 @@ const errorType = ref<string | null>(null);
 const rpcPort = ref(DEFAULT_RPC_CONFIG.port);
 const globalStat = ref<Aria2GlobalStat | null>(null);
 const loading = ref(true);
+const enabled = ref(true);
 
 let client: Aria2Client;
+let storageService: StorageService;
 let stopPolling: (() => void) | null = null;
 
 // ─── Data Fetching ──────────────────────────────────────────────────
@@ -105,11 +107,33 @@ function launchApp(): void {
   void chrome.tabs.create({ url, active: true });
 }
 
+/**
+ * Toggle download interception on/off. Performs a read-modify-write to
+ * preserve all other DownloadSettings fields. The background service
+ * worker picks up the change automatically via chrome.storage.onChanged.
+ */
+async function toggleEnabled(): Promise<void> {
+  enabled.value = !enabled.value;
+  try {
+    const data = await storageService.load();
+    await storageService.saveSettings({
+      ...data.settings,
+      enabled: enabled.value,
+    });
+  } catch {
+    // Revert on failure — keep UI in sync with actual storage state.
+    enabled.value = !enabled.value;
+  }
+}
+
 // ─── Lifecycle ──────────────────────────────────────────────────────
 
 onMounted(async () => {
-  const storageService = new StorageService(chrome.storage.local);
+  storageService = new StorageService(chrome.storage.local);
   const data = await storageService.load();
+
+  // Hydrate interception toggle state
+  enabled.value = data.settings.enabled;
 
   // Apply theme
   const theme = data.uiPrefs.theme as ThemePreference;
@@ -157,7 +181,13 @@ onUnmounted(() => {
 
       <template v-else>
         <!-- ── Header ──────────────────────────────────────────── -->
-        <PopupHeader :status="status" :version="version" @settings="openSettings" />
+        <PopupHeader
+          :status="status"
+          :version="version"
+          :enabled="enabled"
+          @settings="openSettings"
+          @toggle-enabled="toggleEnabled"
+        />
 
         <!-- ── Disconnected Banner (error-type-specific) ──────── -->
         <Transition name="fade-scale">
@@ -224,13 +254,13 @@ onUnmounted(() => {
         <!-- ── Actions ─────────────────────────────────────────── -->
         <div class="popup-actions">
           <div v-if="status === 'connected'" class="popup-actions__left">
-            <NButton size="tiny" quaternary @click="pauseAll">
+            <NButton size="tiny" quaternary :disabled="!enabled" @click="pauseAll">
               <template #icon>
                 <NIcon :size="12"><PauseOutline /></NIcon>
               </template>
               {{ i18n('popup_action_pause_all', 'Pause All') }}
             </NButton>
-            <NButton size="tiny" quaternary @click="resumeAll">
+            <NButton size="tiny" quaternary :disabled="!enabled" @click="resumeAll">
               <template #icon>
                 <NIcon :size="12"><PlayOutline /></NIcon>
               </template>

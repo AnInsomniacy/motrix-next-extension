@@ -3,21 +3,29 @@
  * @fileoverview Popup header component.
  *
  * Displays the "Motrix Next" branding with the desktop-style "NEXT" logo
- * badge, a connection status chip, and a settings gear button. Uses
- * @vicons/ionicons5 for icon consistency with the desktop app.
+ * badge, a connection status chip, a power toggle for enabling/disabling
+ * download interception, and a settings gear button. Uses @vicons/ionicons5
+ * for icon consistency with the desktop app.
+ *
+ * The power toggle writes to chrome.storage.local immediately, and the
+ * background service worker reacts via its onChanged listener — no
+ * message passing needed.
  */
 import { NIcon } from 'naive-ui';
-import { SettingsOutline } from '@vicons/ionicons5';
+import { SettingsOutline, PowerOutline } from '@vicons/ionicons5';
 import { ConnectionStatus } from '@/lib/services';
+import { useI18n } from '@/shared/i18n/engine';
 
-defineProps<{
+const props = defineProps<{
   status: ConnectionStatus;
   version: string | null;
+  enabled: boolean;
 }>();
 
-const emit = defineEmits<{ settings: [] }>();
-
-import { useI18n } from '@/shared/i18n/engine';
+const emit = defineEmits<{
+  settings: [];
+  'toggle-enabled': [];
+}>();
 
 const { t: i18n } = useI18n();
 </script>
@@ -68,14 +76,31 @@ const { t: i18n } = useI18n();
       </span>
       <span v-if="version" class="popup-header__version">v{{ version }}</span>
     </div>
-    <button
-      type="button"
-      class="popup-header__settings"
-      :title="i18n('popup_action_settings', 'Settings')"
-      @click="emit('settings')"
-    >
-      <NIcon :size="18"><SettingsOutline /></NIcon>
-    </button>
+    <div class="popup-header__controls">
+      <!-- Power toggle — enables/disables download interception -->
+      <button
+        type="button"
+        class="popup-header__power"
+        :class="props.enabled ? 'popup-header__power--on' : 'popup-header__power--off'"
+        :title="
+          props.enabled
+            ? i18n('popup_toggle_enabled', 'Interception On')
+            : i18n('popup_toggle_disabled', 'Interception Off')
+        "
+        @click="emit('toggle-enabled')"
+      >
+        <NIcon :size="18"><PowerOutline /></NIcon>
+      </button>
+      <!-- Settings gear -->
+      <button
+        type="button"
+        class="popup-header__settings"
+        :title="i18n('popup_action_settings', 'Settings')"
+        @click="emit('settings')"
+      >
+        <NIcon :size="18"><SettingsOutline /></NIcon>
+      </button>
+    </div>
   </header>
 </template>
 
@@ -124,6 +149,15 @@ const { t: i18n } = useI18n();
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Header Controls Group ────────────────────────────────── */
+.popup-header__controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ── Shared icon button base (power + settings) ───────────── */
+.popup-header__power,
 .popup-header__settings {
   display: flex;
   align-items: center;
@@ -132,7 +166,6 @@ const { t: i18n } = useI18n();
   height: 32px;
   border: none;
   background: transparent;
-  color: var(--color-on-surface-variant);
   border-radius: 50%;
   cursor: pointer;
   /* Release: spring-back (emphasized-decelerate) */
@@ -142,11 +175,7 @@ const { t: i18n } = useI18n();
     transform 0.35s cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
-.popup-header__settings:hover {
-  color: var(--color-on-surface);
-  background: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
-}
-
+.popup-header__power:active,
 .popup-header__settings:active {
   transform: scale(0.92);
   /* Press: fast compress (emphasized) */
@@ -154,5 +183,35 @@ const { t: i18n } = useI18n();
     color 0.15s cubic-bezier(0.2, 0, 0, 1),
     background-color 0.15s cubic-bezier(0.2, 0, 0, 1),
     transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ── Settings button ──────────────────────────────────────── */
+.popup-header__settings {
+  color: var(--color-on-surface-variant);
+}
+
+.popup-header__settings:hover {
+  color: var(--color-on-surface);
+  background: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+}
+
+/* ── Power button: ON state ───────────────────────────────── */
+.popup-header__power--on {
+  color: var(--color-success);
+}
+
+.popup-header__power--on:hover {
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+}
+
+/* ── Power button: OFF state ──────────────────────────────── */
+.popup-header__power--off {
+  color: var(--color-on-surface-variant);
+  opacity: 0.6;
+}
+
+.popup-header__power--off:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
 }
 </style>
