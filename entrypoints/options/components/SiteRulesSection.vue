@@ -40,6 +40,16 @@ const ACTION_TYPE_MAP: Record<SiteRule['action'], 'success' | 'error' | 'default
   'use-global': 'default',
 };
 
+function actionLabel(action: SiteRule['action']): string {
+  const map: Record<SiteRule['action'], [key: string, fallback: string]> = {
+    'always-intercept': ['options_rule_always_intercept', 'Always Intercept'],
+    'always-skip': ['options_rule_always_skip', 'Always Skip'],
+    'use-global': ['options_rule_use_global', 'Use Global'],
+  };
+  const [key, fallback] = map[action];
+  return i18n(key, fallback);
+}
+
 function handleAdd(): void {
   if (!newPattern.value.trim()) return;
   emit('add', { pattern: newPattern.value.trim(), action: newAction.value });
@@ -57,7 +67,7 @@ function handleAdd(): void {
             <code class="rule-item__pattern">{{ rule.pattern }}</code>
             <div class="rule-item__actions">
               <NTag :type="ACTION_TYPE_MAP[rule.action]" size="small" round>
-                {{ rule.action }}
+                {{ actionLabel(rule.action) }}
               </NTag>
               <button type="button" class="rule-item__remove" @click="emit('remove', rule.id)">
                 <NIcon :size="14"><CloseOutline /></NIcon>
