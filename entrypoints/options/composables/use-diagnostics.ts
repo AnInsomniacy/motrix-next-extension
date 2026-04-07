@@ -16,10 +16,6 @@ export function useDiagnostics(storageService: StorageService) {
     diagnosticEvents.value = events;
   }
 
-  function copyDiagnosticLog(): void {
-    const json = JSON.stringify(diagnosticEvents.value, null, 2);
-    void navigator.clipboard.writeText(json);
-  }
 
   function clearDiagnosticLog(): void {
     diagnosticEvents.value = [];
@@ -66,7 +62,6 @@ export function useDiagnostics(storageService: StorageService) {
   return {
     diagnosticEvents,
     hydrate,
-    copyDiagnosticLog,
     clearDiagnosticLog,
     exportDiagnosticReport,
   };

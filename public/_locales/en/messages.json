@@ -166,10 +166,6 @@
     "message": "Diagnostics",
     "description": "Settings section for diagnostic event log"
   },
-  "options_diagnostics_copy": {
-    "message": "Copy Diagnostic Log",
-    "description": "Button to copy diagnostic events as JSON"
-  },
   "notification_sent_title": {
     "message": "Sent to Motrix Next",
     "description": "Notification title when download is sent"

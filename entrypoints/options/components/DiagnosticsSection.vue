@@ -9,7 +9,7 @@
  */
 import { ref, computed } from 'vue';
 import { NButton, NIcon, NTag, NEmpty, NBadge } from 'naive-ui';
-import { CopyOutline, TrashOutline, DownloadOutline } from '@vicons/ionicons5';
+import { TrashOutline, DownloadOutline } from '@vicons/ionicons5';
 import type { DiagnosticEvent } from '@/shared/types';
 
 const props = defineProps<{
@@ -17,7 +17,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  copy: [];
   clear: [];
   export: [];
 }>();
@@ -58,12 +57,6 @@ const LEVEL_TYPE: Record<string, 'success' | 'warning' | 'error'> = {
           <NIcon :size="14"><DownloadOutline /></NIcon>
         </template>
         {{ i18n('options_diagnostics_export', 'Export Report') }}
-      </NButton>
-      <NButton size="small" quaternary @click="emit('copy')">
-        <template #icon>
-          <NIcon :size="14"><CopyOutline /></NIcon>
-        </template>
-        {{ i18n('options_diagnostics_copy', 'Copy Diagnostic Log') }}
       </NButton>
       <NButton size="small" quaternary type="error" @click="emit('clear')">
         <template #icon>
@@ -130,7 +123,7 @@ const LEVEL_TYPE: Record<string, 'success' | 'warning' | 'error'> = {
 }
 
 .diag-log {
-  max-height: 400px;
+  max-height: min(400px, 50vh);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -143,6 +136,7 @@ const LEVEL_TYPE: Record<string, 'success' | 'warning' | 'error'> = {
 .diag-entry-wrapper {
   border-radius: 6px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .diag-entry {

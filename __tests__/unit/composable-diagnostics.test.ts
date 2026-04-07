@@ -58,24 +58,6 @@ describe('useDiagnostics', () => {
     expect(storage.saveDiagnosticLog).toHaveBeenCalledWith([]);
   });
 
-  it('copyDiagnosticLog() writes JSON to clipboard', () => {
-    const storage = mockStorageService();
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal('navigator', { clipboard: { writeText } });
-
-    const { hydrate, copyDiagnosticLog } = useDiagnostics(storage);
-    const events = [createEvent({ id: 'e1', message: 'test' })];
-    hydrate(events);
-
-    copyDiagnosticLog();
-
-    expect(writeText).toHaveBeenCalledTimes(1);
-    const written = JSON.parse(writeText.mock.calls[0]![0] as string);
-    expect(written).toHaveLength(1);
-    expect(written[0].id).toBe('e1');
-
-    vi.unstubAllGlobals();
-  });
 
   it('exportDiagnosticReport() triggers a file download with complete diagnostic data', async () => {
     const storage = mockStorageService();

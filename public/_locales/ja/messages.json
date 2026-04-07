@@ -166,10 +166,6 @@
     "message": "診断",
     "description": "Settings section for diagnostic event log"
   },
-  "options_diagnostics_copy": {
-    "message": "診断ログをコピー",
-    "description": "Button to copy diagnostic events as JSON"
-  },
   "notification_sent_title": {
     "message": "Motrix Nextに送信済み",
     "description": "Notification title when download is sent"

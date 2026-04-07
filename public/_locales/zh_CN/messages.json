@@ -166,10 +166,6 @@
     "message": "诊断",
     "description": "诊断事件日志区域"
   },
-  "options_diagnostics_copy": {
-    "message": "复制诊断日志",
-    "description": "以 JSON 复制诊断事件的按钮"
-  },
   "notification_sent_title": {
     "message": "已发送到 Motrix Next",
     "description": "下载发送成功的通知标题"

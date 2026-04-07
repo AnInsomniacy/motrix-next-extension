@@ -77,7 +77,6 @@ const { enhancedGranted, checkPermissions, grantEnhanced, revokeEnhanced } =
 const {
   diagnosticEvents,
   hydrate: hydrateDiagnostics,
-  copyDiagnosticLog,
   clearDiagnosticLog,
   exportDiagnosticReport,
 } = useDiagnostics(storageService);
@@ -395,7 +394,6 @@ onUnmounted(() => {
               <div class="card">
                 <DiagnosticsSection
                   :events="diagnosticEvents"
-                  @copy="copyDiagnosticLog"
                   @clear="clearDiagnosticLog"
                   @export="exportDiagnosticReport"
                 />
