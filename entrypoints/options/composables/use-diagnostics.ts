@@ -16,7 +16,6 @@ export function useDiagnostics(storageService: StorageService) {
     diagnosticEvents.value = events;
   }
 
-
   function clearDiagnosticLog(): void {
     diagnosticEvents.value = [];
     void storageService.saveDiagnosticLog([]);

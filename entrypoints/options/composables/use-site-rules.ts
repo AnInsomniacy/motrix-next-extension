@@ -43,4 +43,3 @@ export function useSiteRules(storageService: StorageService) {
 
   return { siteRules, hydrate, addRule, removeRule };
 }
-

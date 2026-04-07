@@ -100,11 +100,7 @@ const { t: i18n } = useI18n();
             {{ i18n('popup_toggle_disabled', 'Paused') }}
           </span>
         </span>
-        <NSwitch
-          :value="props.enabled"
-          size="small"
-          @update:value="emit('toggle-enabled')"
-        />
+        <NSwitch :value="props.enabled" size="small" @update:value="emit('toggle-enabled')" />
       </div>
       <!-- Settings gear -->
       <button

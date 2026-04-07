@@ -58,7 +58,6 @@ describe('useDiagnostics', () => {
     expect(storage.saveDiagnosticLog).toHaveBeenCalledWith([]);
   });
 
-
   it('exportDiagnosticReport() triggers a file download with complete diagnostic data', async () => {
     const storage = mockStorageService();
     (storage.load as ReturnType<typeof vi.fn>).mockResolvedValue({

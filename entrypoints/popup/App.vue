@@ -272,7 +272,10 @@ onUnmounted(() => {
             <template #icon>
               <NIcon :size="12"><RocketOutline /></NIcon>
             </template>
-            <Transition :name="status === 'connected' ? 'text-swap' : 'text-swap-reverse'" mode="out-in">
+            <Transition
+              :name="status === 'connected' ? 'text-swap' : 'text-swap-reverse'"
+              mode="out-in"
+            >
               <span v-if="status === 'connected'" key="open">
                 {{ i18n('popup_action_open', 'Open Motrix Next') }}
               </span>
