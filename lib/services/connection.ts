@@ -31,9 +31,9 @@ export class ConnectionService {
       const info = await this.client.getVersion();
       return { status: ConnectionStatus.Connected, version: info.version };
     } catch (error) {
-      // Pass the error constructor name so the UI layer can map it to an
-      // i18n key instead of displaying English-only error.message text.
-      const errorType = error instanceof Error ? error.constructor.name : 'UnknownError';
+      // Use error.name (manually set in our error constructors) instead of
+      // error.constructor.name (which gets minified by esbuild/Vite).
+      const errorType = error instanceof Error ? error.name : 'UnknownError';
       return {
         status: ConnectionStatus.Disconnected,
         version: null,

@@ -73,7 +73,7 @@ const errorMessage = computed(() => {
 
     <div class="section__row">
       <NButton type="primary" :loading="testing" @click="emit('test')">
-        <Transition name="text-swap" mode="out-in">
+        <Transition :name="testing ? 'text-swap' : 'text-swap-reverse'" mode="out-in">
           <span v-if="testing" key="testing">
             {{ i18n('options_testing_connection', 'Testing...') }}
           </span>

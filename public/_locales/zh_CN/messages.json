@@ -432,11 +432,11 @@
     "description": "Task count label: completed or stopped"
   },
   "popup_toggle_enabled": {
-    "message": "拦截已开启",
-    "description": "Tooltip when download interception is enabled"
+    "message": "接管中",
+    "description": "Label next to the interception toggle when active"
   },
   "popup_toggle_disabled": {
-    "message": "拦截已关闭",
-    "description": "Tooltip when download interception is disabled"
+    "message": "已暂停",
+    "description": "Label next to the interception toggle when inactive"
   }
 }

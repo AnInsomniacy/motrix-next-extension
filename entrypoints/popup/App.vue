@@ -248,7 +248,7 @@ onUnmounted(() => {
 
         <!-- ── Connected: Stat Dashboard ────────────────────────── -->
         <template v-if="status === 'connected'">
-          <StatDashboard v-if="globalStat" :stat="globalStat" />
+          <StatDashboard v-if="globalStat" :stat="globalStat" :disabled="!enabled" />
         </template>
 
         <!-- ── Actions ─────────────────────────────────────────── -->
@@ -272,7 +272,7 @@ onUnmounted(() => {
             <template #icon>
               <NIcon :size="12"><RocketOutline /></NIcon>
             </template>
-            <Transition name="text-swap" mode="out-in">
+            <Transition :name="status === 'connected' ? 'text-swap' : 'text-swap-reverse'" mode="out-in">
               <span v-if="status === 'connected'" key="open">
                 {{ i18n('popup_action_open', 'Open Motrix Next') }}
               </span>

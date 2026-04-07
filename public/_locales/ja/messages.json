@@ -432,11 +432,11 @@
     "description": "Task count label: completed or stopped"
   },
   "popup_toggle_enabled": {
-    "message": "インターセプト有効",
-    "description": "Tooltip when download interception is enabled"
+    "message": "インターセプト中",
+    "description": "Label next to the interception toggle when active"
   },
   "popup_toggle_disabled": {
-    "message": "インターセプト無効",
-    "description": "Tooltip when download interception is disabled"
+    "message": "一時停止中",
+    "description": "Label next to the interception toggle when inactive"
   }
 }

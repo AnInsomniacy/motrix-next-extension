@@ -25,6 +25,7 @@ const { t: i18n } = useI18n();
 
 const props = defineProps<{
   stat: Aria2GlobalStat;
+  disabled: boolean;
 }>();
 
 /* ── Speed Formatting ───────────────────────────────────────────── */
@@ -66,7 +67,7 @@ const isIdle = computed(() => numActive.value === 0);
     </div>
 
     <!-- ── Task Counts ─────────────────────────────────────── -->
-    <div class="stat-dash__counts">
+    <div :class="['stat-dash__counts', { 'stat-dash__counts--disabled': props.disabled }]">
       <div class="stat-dash__count stat-dash__count--active">
         <NIcon :size="13"><FlashOutline /></NIcon>
         <span class="stat-dash__count-label">{{ i18n('popup_stat_active', 'Active') }}</span>
@@ -184,5 +185,11 @@ const isIdle = computed(() => numActive.value === 0);
   font-size: 14px;
   min-width: 16px;
   text-align: center;
+}
+
+.stat-dash__counts--disabled {
+  opacity: 0.35;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.2, 0, 0, 1);
 }
 </style>

@@ -24,6 +24,11 @@ export interface Aria2ClientOptions {
 
 const RPC_AUTH_ERROR_CODE = 7;
 
+/** Motrix Next's aria2 fork returns code 1 with message "Unauthorized". */
+function isAuthError(code: number, message: string): boolean {
+  return code === RPC_AUTH_ERROR_CODE || message === 'Unauthorized';
+}
+
 // ─── Client ─────────────────────────────────────────────
 
 /**
@@ -176,7 +181,7 @@ export class Aria2Client {
     const data = (await response.json()) as RpcResponse<T>;
 
     if (data.error) {
-      if (data.error.code === RPC_AUTH_ERROR_CODE) {
+      if (isAuthError(data.error.code, data.error.message)) {
         throw new RpcAuthError();
       }
       throw new RpcError(data.error.message, data.error.code);

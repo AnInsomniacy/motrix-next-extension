@@ -192,6 +192,12 @@ describe('Aria2Client', () => {
       await expect(client.getVersion()).rejects.toThrow(RpcAuthError);
     });
 
+    it('throws RpcAuthError for Motrix Next auth error (code 1 + Unauthorized)', async () => {
+      fetchSpy.mockResolvedValueOnce(createErrorResponse('1', 1, 'Unauthorized'));
+
+      await expect(client.getVersion()).rejects.toThrow(RpcAuthError);
+    });
+
     it('throws RpcTimeoutError when request exceeds timeout', async () => {
       const slowClient = new Aria2Client(DEFAULT_CONFIG, {
         fetchFn: fetchSpy,

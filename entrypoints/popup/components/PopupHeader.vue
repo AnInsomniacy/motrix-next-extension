@@ -2,17 +2,18 @@
 /**
  * @fileoverview Popup header component.
  *
- * Displays the "Motrix Next" branding with the desktop-style "NEXT" logo
- * badge, a connection status chip, a power toggle for enabling/disabling
- * download interception, and a settings gear button. Uses @vicons/ionicons5
- * for icon consistency with the desktop app.
+ * Layout: [NEXT badge] [connection chip] ... [status label + NSwitch] [gear]
  *
- * The power toggle writes to chrome.storage.local immediately, and the
- * background service worker reacts via its onChanged listener — no
+ * The NSwitch toggles download interception on/off. A reactive label next
+ * to it shows "Intercepting" or "Paused" so the user always knows the
+ * current state at a glance.
+ *
+ * The toggle writes to chrome.storage.local immediately (via parent), and
+ * the background service worker reacts via its onChanged listener — no
  * message passing needed.
  */
-import { NIcon } from 'naive-ui';
-import { SettingsOutline, PowerOutline } from '@vicons/ionicons5';
+import { NIcon, NSwitch } from 'naive-ui';
+import { SettingsOutline } from '@vicons/ionicons5';
 import { ConnectionStatus } from '@/lib/services';
 import { useI18n } from '@/shared/i18n/engine';
 
@@ -77,20 +78,34 @@ const { t: i18n } = useI18n();
       <span v-if="version" class="popup-header__version">v{{ version }}</span>
     </div>
     <div class="popup-header__controls">
-      <!-- Power toggle — enables/disables download interception -->
-      <button
-        type="button"
-        class="popup-header__power"
-        :class="props.enabled ? 'popup-header__power--on' : 'popup-header__power--off'"
-        :title="
-          props.enabled
-            ? i18n('popup_toggle_enabled', 'Interception On')
-            : i18n('popup_toggle_disabled', 'Interception Off')
-        "
-        @click="emit('toggle-enabled')"
-      >
-        <NIcon :size="18"><PowerOutline /></NIcon>
-      </button>
+      <!-- Interception toggle — NSwitch + contextual label -->
+      <div class="popup-header__toggle">
+        <span class="popup-header__toggle-crossfade">
+          <span
+            :class="[
+              'popup-header__toggle-label',
+              'popup-header__toggle-label--on',
+              { 'popup-header__toggle-label--active': props.enabled },
+            ]"
+          >
+            {{ i18n('popup_toggle_enabled', 'Intercepting') }}
+          </span>
+          <span
+            :class="[
+              'popup-header__toggle-label',
+              'popup-header__toggle-label--off',
+              { 'popup-header__toggle-label--active': !props.enabled },
+            ]"
+          >
+            {{ i18n('popup_toggle_disabled', 'Paused') }}
+          </span>
+        </span>
+        <NSwitch
+          :value="props.enabled"
+          size="small"
+          @update:value="emit('toggle-enabled')"
+        />
+      </div>
       <!-- Settings gear -->
       <button
         type="button"
@@ -153,11 +168,62 @@ const { t: i18n } = useI18n();
 .popup-header__controls {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
 }
 
-/* ── Shared icon button base (power + settings) ───────────── */
-.popup-header__power,
+/* ── Interception Toggle ──────────────────────────────────── */
+.popup-header__toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Cross-fade container: sized by the wider label, children overlap */
+.popup-header__toggle-crossfade {
+  position: relative;
+  display: inline-grid;
+}
+
+.popup-header__toggle-crossfade > .popup-header__toggle-label {
+  grid-area: 1 / 1;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    opacity 0.42s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.42s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Inactive labels: hidden + shifted */
+.popup-header__toggle-label--on:not(.popup-header__toggle-label--active) {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+}
+
+.popup-header__toggle-label--off:not(.popup-header__toggle-label--active) {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+/* Active labels: visible + centered */
+.popup-header__toggle-label--active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.popup-header__toggle-label--on {
+  color: var(--color-success);
+}
+
+.popup-header__toggle-label--off {
+  color: var(--color-on-surface-variant);
+}
+
+/* ── Settings button ──────────────────────────────────────── */
 .popup-header__settings {
   display: flex;
   align-items: center;
@@ -166,6 +232,7 @@ const { t: i18n } = useI18n();
   height: 32px;
   border: none;
   background: transparent;
+  color: var(--color-on-surface-variant);
   border-radius: 50%;
   cursor: pointer;
   /* Release: spring-back (emphasized-decelerate) */
@@ -175,7 +242,11 @@ const { t: i18n } = useI18n();
     transform 0.35s cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
-.popup-header__power:active,
+.popup-header__settings:hover {
+  color: var(--color-on-surface);
+  background: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
+}
+
 .popup-header__settings:active {
   transform: scale(0.92);
   /* Press: fast compress (emphasized) */
@@ -183,35 +254,5 @@ const { t: i18n } = useI18n();
     color 0.15s cubic-bezier(0.2, 0, 0, 1),
     background-color 0.15s cubic-bezier(0.2, 0, 0, 1),
     transform 0.15s cubic-bezier(0.2, 0, 0, 1);
-}
-
-/* ── Settings button ──────────────────────────────────────── */
-.popup-header__settings {
-  color: var(--color-on-surface-variant);
-}
-
-.popup-header__settings:hover {
-  color: var(--color-on-surface);
-  background: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
-}
-
-/* ── Power button: ON state ───────────────────────────────── */
-.popup-header__power--on {
-  color: var(--color-success);
-}
-
-.popup-header__power--on:hover {
-  background: color-mix(in srgb, var(--color-success) 12%, transparent);
-}
-
-/* ── Power button: OFF state ──────────────────────────────── */
-.popup-header__power--off {
-  color: var(--color-on-surface-variant);
-  opacity: 0.6;
-}
-
-.popup-header__power--off:hover {
-  opacity: 1;
-  background: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
 }
 </style>

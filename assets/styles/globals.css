@@ -292,19 +292,25 @@ body {
 /* ── text-swap: vertical roll for in-button text changes ─────────── */
 /* Old text rolls up + fades out, new text enters from below + fades in.
  * No scale — avoids parent (button) size jitter.
- * Fast durations (120ms/150ms) for snappy button feel. */
-.text-swap-enter-active {
+ * Fast durations (120ms/150ms) for snappy button feel.
+ *
+ * text-swap-reverse: opposite direction for bidirectional state toggles.
+ * Use `:name="forward ? 'text-swap' : 'text-swap-reverse'"` in Vue. */
+.text-swap-enter-active,
+.text-swap-reverse-enter-active {
   transition:
     opacity 0.15s ease,
     transform 0.15s ease;
 }
 
-.text-swap-leave-active {
+.text-swap-leave-active,
+.text-swap-reverse-leave-active {
   transition:
     opacity 0.12s ease,
     transform 0.12s ease;
 }
 
+/* Forward: leave ↑, enter from ↓ */
 .text-swap-enter-from {
   opacity: 0;
   transform: translateY(6px);
@@ -313,6 +319,17 @@ body {
 .text-swap-leave-to {
   opacity: 0;
   transform: translateY(-6px);
+}
+
+/* Reverse: leave ↓, enter from ↑ */
+.text-swap-reverse-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.text-swap-reverse-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 /* ── fade-scale: stronger entrance for dialogs / panels ──────────── */
