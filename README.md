@@ -8,7 +8,7 @@
 ![Manifest](https://img.shields.io/badge/manifest-v3-blue)
 
   <p>
-    <a href="https://microsoftedge.microsoft.com/addons/detail/0RDCKF9JVSHK"><img src="docs/badges/edge-add-ons.png" alt="Get it from Microsoft Edge" height="58" /></a>
+    <a href="https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb"><img src="docs/badges/edge-add-ons.png" alt="Get it from Microsoft Edge" height="58" /></a>
     &nbsp;&nbsp;
     <a href="https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl"><img src="docs/badges/chrome-web-store.png" alt="Available in the Chrome Web Store" height="58" /></a>
   </p>
@@ -41,7 +41,7 @@
 - **Download bar control** — Optionally hides Chrome's native download shelf (Chrome 115+)
 - **Dark mode** — System / Light / Dark with 10 Material You color schemes
 - **i18n** — Full English, Chinese (Simplified), and Japanese localization
-- **Diagnostics** — Built-in event log with severity levels and copy-to-clipboard
+- **Diagnostics** — Built-in event log with severity levels and one-click export
 
 ## Installation
 
@@ -50,7 +50,7 @@
 | Browser | Link                                                                                          |
 | ------- | --------------------------------------------------------------------------------------------- |
 | Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl) |
-| Edge    | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/0RDCKF9JVSHK)                |
+| Edge    | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb)                |
 
 ### From Source
 
@@ -148,7 +148,7 @@ motrix-next-extension/
 │   ├── i18n/                   #   Compile-time i18n engine with positional placeholders
 │   ├── types.ts                #   TypeScript interfaces
 │   └── constants.ts            #   Default configs, timing constants
-├── __tests__/                  # 288 tests across 28 files
+├── __tests__/                  # 330 tests across 28 files
 │   ├── unit/                   #   27 isolated service test files
 │   └── integration/            #   End-to-end interception flow
 ├── public/_locales/            # Chrome i18n message bundles (en, zh_CN, ja)
@@ -162,7 +162,7 @@ motrix-next-extension/
 | `pnpm dev`          | Start WXT dev server with hot reload             |
 | `pnpm build`        | Production build → `.output/chrome-mv3/`         |
 | `pnpm zip`          | Build and package as `.zip` for store submission |
-| `pnpm test`         | Run all 288 unit and integration tests           |
+| `pnpm test`         | Run all 330 unit and integration tests           |
 | `pnpm test:watch`   | Run tests in watch mode                          |
 | `pnpm compile`      | TypeScript type checking (`vue-tsc --noEmit`)    |
 | `pnpm lint`         | ESLint (flat config, Vue 3 + TypeScript)         |
