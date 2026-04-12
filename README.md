@@ -47,10 +47,10 @@
 
 ### From Store (recommended)
 
-| Browser | Link                                                                                          |
-| ------- | --------------------------------------------------------------------------------------------- |
-| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl) |
-| Edge    | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb)                |
+| Browser | Link                                                                                               |
+| ------- | -------------------------------------------------------------------------------------------------- |
+| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl)      |
+| Edge    | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb) |
 
 ### From Source
 
