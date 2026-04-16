@@ -11,10 +11,11 @@ interface PermissionQuery {
   origins?: string[];
 }
 
-// ─── Constants ──────────────────────────────────────────
-
+// Enhanced permissions differ per browser: downloads.ui is Chromium-only
+// (used for setUiOptions to hide the download bar). Firefox does not
+// support this permission, so it must be excluded to prevent errors.
 const ENHANCED_QUERY: PermissionQuery = {
-  permissions: ['cookies', 'downloads.ui'],
+  permissions: import.meta.env.FIREFOX ? ['cookies'] : ['cookies', 'downloads.ui'],
   origins: ['https://*/*', 'http://*/*'],
 };
 

@@ -34,9 +34,13 @@ export default defineBackground(() => {
   const bgI18n = new I18nEngine(FALLBACK_LOCALE);
 
   const client = new Aria2Client(rpcConfig, { timeoutMs: 5000, maxRetries: 1 });
-  const downloadBarService = new DownloadBarService({
-    setUiOptions: (opts) => chrome.downloads.setUiOptions(opts),
-  });
+  // Firefox does not support chrome.downloads.setUiOptions — create a no-op
+  // service so call sites don't need null checks.
+  const downloadBarService = import.meta.env.FIREFOX
+    ? new DownloadBarService({ setUiOptions: () => Promise.resolve() })
+    : new DownloadBarService({
+        setUiOptions: (opts) => chrome.downloads.setUiOptions(opts),
+      });
   const diagnosticLog = new DiagnosticLog();
 
   const completionTracker = new CompletionTracker({
@@ -75,10 +79,10 @@ export default defineBackground(() => {
       // Use defaults on first install
     }
 
-    // Check enhanced permissions
+    // Check enhanced permissions — downloads.ui is Chromium-only
     try {
       enhancedPermissions = await chrome.permissions.contains({
-        permissions: ['cookies', 'downloads.ui'],
+        permissions: import.meta.env.FIREFOX ? ['cookies'] : ['cookies', 'downloads.ui'],
         origins: ['https://*/*', 'http://*/*'],
       });
     } catch {
@@ -185,31 +189,61 @@ export default defineBackground(() => {
     },
   });
 
-  // ─── Register Listeners (must be synchronous top-level) ────
+  // ─── Download interception ─────────────────────────────
+  //
+  // Chrome: onDeterminingFilename — blocking event where Chrome holds the
+  // download in pending state until suggest() is called. Eliminates race.
+  //
+  // Firefox: onCreated — non-blocking notification that a download started.
+  // We cancel + erase it immediately, then re-download via aria2.
+  // This is the standard pattern used by all Firefox download managers.
 
-  // Download interception — onDeterminingFilename is a blocking event:
-  // Chrome holds the download in pending state until suggest() is called,
-  // eliminating the race condition where downloads complete before we act.
-  chrome.downloads.onDeterminingFilename.addListener((item, suggest) => {
-    void ensureConfigLoaded().then(async () => {
-      try {
-        const intercepted = await orchestrator.handleCreated({
-          id: item.id,
-          url: item.url,
-          finalUrl: item.finalUrl,
-          filename: item.filename,
-          fileSize: item.fileSize,
-          mime: item.mime,
-          byExtensionId: (item as unknown as Record<string, string>).byExtensionId,
-          state: item.state,
-        });
-        if (!intercepted) suggest();
-      } catch {
-        suggest(); // Error → let browser handle it
-      }
+  if (import.meta.env.FIREFOX) {
+    // Firefox path: onCreated fires after the download has been initiated.
+    // Cancel immediately, collect metadata, and send to aria2.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (browser.downloads as any).onCreated.addListener((item: Record<string, unknown>) => {
+      void ensureConfigLoaded().then(async () => {
+        try {
+          await orchestrator.handleCreated({
+            id: item.id as number,
+            url: (item.url as string) ?? '',
+            finalUrl: (item.finalUrl as string) ?? (item.url as string) ?? '',
+            filename: (item.filename as string) ?? '',
+            fileSize: (item.fileSize as number) ?? -1,
+            mime: (item.mime as string) ?? '',
+            byExtensionId: item.byExtensionId as string | undefined,
+            state: (item.state as string) ?? 'in_progress',
+          });
+        } catch {
+          // Error → browser continues the download naturally
+        }
+      });
     });
-    return true; // Will call suggest() asynchronously
-  });
+  } else {
+    // Chrome path: onDeterminingFilename is a blocking event.
+    // Chrome holds the download in pending state until suggest() is called.
+    chrome.downloads.onDeterminingFilename.addListener((item, suggest) => {
+      void ensureConfigLoaded().then(async () => {
+        try {
+          const intercepted = await orchestrator.handleCreated({
+            id: item.id,
+            url: item.url,
+            finalUrl: item.finalUrl,
+            filename: item.filename,
+            fileSize: item.fileSize,
+            mime: item.mime,
+            byExtensionId: (item as unknown as Record<string, string>).byExtensionId,
+            state: item.state,
+          });
+          if (!intercepted) suggest();
+        } catch {
+          suggest(); // Error → let browser handle it
+        }
+      });
+      return true; // Will call suggest() asynchronously
+    });
+  }
 
   // Context menu — registration deferred (see loadConfig().then() below)
   // so that bgI18n has the user's locale loaded before reading the title.

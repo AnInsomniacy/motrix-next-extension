@@ -24,6 +24,9 @@ const emit = defineEmits<{
 import { useI18n } from '@/shared/i18n/engine';
 
 const { t: i18n } = useI18n();
+
+/** Compile-time constant: true only in Firefox builds. */
+const isFirefox = import.meta.env.FIREFOX;
 </script>
 
 <template>
@@ -56,7 +59,9 @@ const { t: i18n } = useI18n();
         </div>
 
         <NCollapseTransition :show="granted">
+          <!-- Hide download bar toggle: Chromium-only (downloads.setUiOptions) -->
           <NFormItem
+            v-if="!isFirefox"
             :label="i18n('options_enhanced_hide_bar_label', 'Hide Browser Download Bar')"
             class="enhanced-toggle"
           >

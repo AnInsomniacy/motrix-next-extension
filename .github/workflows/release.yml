@@ -48,10 +48,18 @@ jobs:
         run: pnpm format:check
 
   package:
-    name: Package & Publish
+    name: Package & Publish (${{ matrix.browser }})
     needs: quality-gate
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    strategy:
+      matrix:
+        include:
+          - browser: chrome
+            zip_cmd: pnpm zip
+          - browser: firefox
+            zip_cmd: pnpm zip:firefox
 
     steps:
       - uses: actions/checkout@v5
@@ -68,8 +76,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build and package
-        run: pnpm zip
+      - name: Build and package (${{ matrix.browser }})
+        run: ${{ matrix.zip_cmd }}
 
       - name: Identify artifact
         id: artifact

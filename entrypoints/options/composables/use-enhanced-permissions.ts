@@ -1,13 +1,16 @@
 /**
  * @fileoverview Composable for enhanced permissions management.
  *
- * Encapsulates grant/revoke lifecycle for optional chrome permissions
- * (cookies, downloads.ui, wildcard origins).
+ * Encapsulates grant/revoke lifecycle for optional browser permissions.
+ * On Chromium: cookies + downloads.ui + wildcard origins.
+ * On Firefox: cookies + wildcard origins (downloads.ui is unsupported).
  */
 import { ref } from 'vue';
 
+// downloads.ui is Chromium-only (used for setUiOptions to hide download bar).
+// Firefox does not support this permission, so it must be excluded.
 const ENHANCED_PERMISSIONS: chrome.permissions.Permissions = {
-  permissions: ['cookies', 'downloads.ui'],
+  permissions: import.meta.env.FIREFOX ? ['cookies'] : ['cookies', 'downloads.ui'],
   origins: ['https://*/*', 'http://*/*'],
 };
 

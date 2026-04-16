@@ -16,7 +16,7 @@ mkdirSync(FIREFOX_PROFILE, { recursive: true });
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
   zip: {
-    artifactTemplate: '{{name}}-{{version}}-chromium-mv3.zip',
+    artifactTemplate: '{{name}}-{{version}}-{{browser}}-mv3.zip',
   },
   webExt: {
     // Reuse a persistent browser profile across dev restarts so that
@@ -26,15 +26,26 @@ export default defineConfig({
     firefoxProfile: FIREFOX_PROFILE,
     keepProfileChanges: true,
   },
-  manifest: {
+  manifest: ({ browser }) => ({
     name: '__MSG_ext_name__',
     description: '__MSG_ext_description__',
     default_locale: 'en',
     permissions: ['downloads', 'storage', 'contextMenus', 'notifications'],
     host_permissions: ['http://127.0.0.1/*', 'http://localhost/*'],
-    optional_permissions: ['cookies', 'downloads.ui'],
+    // downloads.ui is Chromium-only (used for setUiOptions to hide download bar)
+    optional_permissions: browser === 'firefox' ? ['cookies'] : ['cookies', 'downloads.ui'],
     optional_host_permissions: ['https://*/*', 'http://*/*'],
-  },
+    // Firefox AMO requires gecko.id for signing and data_collection_permissions
+    // for privacy disclosure. Chrome ignores this key entirely.
+    ...(browser === 'firefox' && {
+      browser_specific_settings: {
+        gecko: {
+          id: 'motrix-next-extension@aninsomniacy.dev',
+          strict_min_version: '128.0',
+        },
+      },
+    }),
+  }),
   vite: () => ({
     plugins: [
       tailwindcss(),
