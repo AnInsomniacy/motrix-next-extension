@@ -86,6 +86,16 @@ export default defineBackground(() => {
     }
   }
 
+  // One-time config loading per Service Worker lifecycle.
+  // storage.onChanged keeps config in sync after the initial load,
+  // so we only need to read from storage once per cold start.
+  let configLoaded = false;
+  async function ensureConfigLoaded(): Promise<void> {
+    if (configLoaded) return;
+    await loadConfig();
+    configLoaded = true;
+  }
+
   // ─── Persist diagnostic log to storage ────────────
   async function persistDiagnosticLog(): Promise<void> {
     try {
@@ -109,8 +119,6 @@ export default defineBackground(() => {
   const orchestrator = new DownloadOrchestrator({
     aria2: client,
     downloads: {
-      pause: (id) => chrome.downloads.pause(id),
-      resume: (id) => chrome.downloads.resume(id),
       cancel: (id) => chrome.downloads.cancel(id),
       erase: (query) => chrome.downloads.erase(query).then(() => {}),
     },
@@ -179,20 +187,28 @@ export default defineBackground(() => {
 
   // ─── Register Listeners (must be synchronous top-level) ────
 
-  // Download interception
-  chrome.downloads.onCreated.addListener((item) => {
-    void loadConfig().then(() =>
-      orchestrator.handleCreated({
-        id: item.id,
-        url: item.url,
-        finalUrl: item.finalUrl,
-        filename: item.filename,
-        fileSize: item.fileSize,
-        mime: item.mime,
-        byExtensionId: (item as unknown as Record<string, string>).byExtensionId,
-        state: item.state,
-      }),
-    );
+  // Download interception — onDeterminingFilename is a blocking event:
+  // Chrome holds the download in pending state until suggest() is called,
+  // eliminating the race condition where downloads complete before we act.
+  chrome.downloads.onDeterminingFilename.addListener((item, suggest) => {
+    void ensureConfigLoaded().then(async () => {
+      try {
+        const intercepted = await orchestrator.handleCreated({
+          id: item.id,
+          url: item.url,
+          finalUrl: item.finalUrl,
+          filename: item.filename,
+          fileSize: item.fileSize,
+          mime: item.mime,
+          byExtensionId: (item as unknown as Record<string, string>).byExtensionId,
+          state: item.state,
+        });
+        if (!intercepted) suggest();
+      } catch {
+        suggest(); // Error → let browser handle it
+      }
+    });
+    return true; // Will call suggest() asynchronously
   });
 
   // Context menu — registration deferred (see loadConfig().then() below)
@@ -324,7 +340,7 @@ export default defineBackground(() => {
   });
 
   // Initial load + context menu registration + download bar + polling
-  void loadConfig().then(() => {
+  void ensureConfigLoaded().then(() => {
     // Register context menu after locale is loaded — fixes i18n timing
     registerContextMenus();
 

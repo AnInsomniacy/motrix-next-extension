@@ -18,8 +18,6 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
         .mockResolvedValue('gid-torrent-1'),
     },
     downloads: {
-      pause: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
-      resume: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
       cancel: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
       erase: vi.fn<(query: { id: number }) => Promise<void>>().mockResolvedValue(undefined),
     },

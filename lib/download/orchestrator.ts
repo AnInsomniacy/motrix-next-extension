@@ -19,8 +19,6 @@ export interface OrchestratorDeps {
     addTorrent: (base64: string, options?: Record<string, unknown>) => Promise<string>;
   };
   downloads: {
-    pause: (id: number) => Promise<void>;
-    resume: (id: number) => Promise<void>;
     cancel: (id: number) => Promise<void>;
     erase: (query: { id: number }) => Promise<void>;
   };
@@ -57,7 +55,7 @@ export interface OrchestratorDeps {
   fetchFn?: typeof fetch;
 }
 
-/** Shape of a browser DownloadItem as received from chrome.downloads.onCreated */
+/** Shape of a browser DownloadItem as received from chrome.downloads events. */
 interface DownloadItem {
   id: number;
   url: string;
@@ -74,8 +72,11 @@ interface DownloadItem {
 /**
  * Central download interception orchestrator.
  *
- * Flow: filter → pause → collect metadata → addUri/addTorrent → cancel/erase
- * On failure: wake-and-retry → resume (fallback) or cancel (no fallback)
+ * Called from onDeterminingFilename — download is suspended by Chrome until
+ * the caller invokes suggest(). No pause() needed.
+ *
+ * Flow: filter → collect metadata → addUri/addTorrent → cancel/erase
+ * On failure: wake-and-retry → return false (fallback) or cancel (no fallback)
  */
 export class DownloadOrchestrator {
   private readonly deps: OrchestratorDeps;
@@ -89,7 +90,16 @@ export class DownloadOrchestrator {
     this.fetchFn = deps.fetchFn ?? globalThis.fetch.bind(globalThis);
   }
 
-  async handleCreated(item: DownloadItem): Promise<void> {
+  /**
+   * Handle a download interception event.
+   *
+   * Called from `onDeterminingFilename` — the download is suspended by Chrome
+   * until the caller invokes `suggest()`. No `pause()` is needed.
+   *
+   * @returns `true` if the download was intercepted (cancel called),
+   *          `false` if the browser should continue (caller calls suggest).
+   */
+  async handleCreated(item: DownloadItem): Promise<boolean> {
     const settings = this.deps.getSettings();
     const tabUrl = await this.deps.getTabUrl();
 
@@ -113,11 +123,11 @@ export class DownloadOrchestrator {
         message: `Skipped: ${item.url}`,
         context: { url: item.url },
       });
-      return;
+      return false;
     }
 
-    // ─── Pause ────────────────────────────────────
-    await this.deps.downloads.pause(item.id);
+    // No pause() needed — onDeterminingFilename holds the download in pending
+    // state until the caller invokes suggest().
 
     this.deps.diagnosticLog.append({
       level: 'info',
@@ -148,8 +158,7 @@ export class DownloadOrchestrator {
     // shows the Add Task dialog with file selection, then submits via
     // addTorrent — identical UX to dragging a local .torrent into Motrix.
     if (isTorrent && this.deps.openProtocolNewTask) {
-      await this.deps.downloads.cancel(item.id);
-      await this.deps.downloads.erase({ id: item.id });
+      await this.safeCancel(item.id);
       await this.deps.openProtocolNewTask(effectiveUrl, tabUrl);
       this.deps.diagnosticLog.append({
         level: 'info',
@@ -157,7 +166,7 @@ export class DownloadOrchestrator {
         message: `Routed to desktop: ${displayName}`,
         context: { url: item.url, filename: displayName, torrent: true },
       });
-      return;
+      return true;
     }
 
     // ─── Torrent fallback: fetch → base64 → addTorrent ──────
@@ -166,10 +175,9 @@ export class DownloadOrchestrator {
     if (isTorrent) {
       try {
         const gid = await this.submitTorrent(effectiveUrl, aria2Options);
-        await this.deps.downloads.cancel(item.id);
-        await this.deps.downloads.erase({ id: item.id });
+        await this.safeCancel(item.id);
         this.onSendSuccess(gid, displayName, item.url, settings);
-        return;
+        return true;
       } catch (torrentError) {
         this.deps.diagnosticLog.append({
           level: 'warn',
@@ -184,8 +192,7 @@ export class DownloadOrchestrator {
       const gid = await this.deps.aria2.addUri([effectiveUrl], aria2Options);
 
       // ─── Success: cancel browser download ─────
-      await this.deps.downloads.cancel(item.id);
-      await this.deps.downloads.erase({ id: item.id });
+      await this.safeCancel(item.id);
 
       this.deps.diagnosticLog.append({
         level: 'info',
@@ -205,6 +212,8 @@ export class DownloadOrchestrator {
           notification.options as Record<string, unknown>,
         );
       }
+
+      return true;
     } catch (error) {
       // ─── Wake + Retry ──────────────────────────
       const retryGid = await this.tryWakeAndRetry(
@@ -216,8 +225,7 @@ export class DownloadOrchestrator {
       );
 
       if (retryGid !== null) {
-        await this.deps.downloads.cancel(item.id);
-        await this.deps.downloads.erase({ id: item.id });
+        await this.safeCancel(item.id);
         this.deps.onSent?.(retryGid, displayName);
 
         if (settings.notifyOnStart) {
@@ -227,27 +235,45 @@ export class DownloadOrchestrator {
             notification.options as Record<string, unknown>,
           );
         }
-        return;
+        return true;
       }
 
       // ─── Fallback / Cancel ─────────────────────────
       if (settings.fallbackToBrowser) {
-        await this.deps.downloads.resume(item.id);
         this.deps.diagnosticLog.append({
           level: 'warn',
           code: 'download_fallback',
           message: `Fallback: ${effectiveUrl}`,
           context: { url: effectiveUrl, error: String(error) },
         });
+        return false;
       } else {
-        await this.deps.downloads.cancel(item.id);
+        await this.safeCancel(item.id);
         this.deps.diagnosticLog.append({
           level: 'error',
           code: 'download_failed',
           message: `Failed: ${effectiveUrl}`,
           context: { url: effectiveUrl, error: String(error) },
         });
+        return true;
       }
+    }
+  }
+
+  /**
+   * Cancel and erase a browser download, ignoring errors if the download
+   * has already been cancelled or removed.
+   */
+  private async safeCancel(id: number): Promise<void> {
+    try {
+      await this.deps.downloads.cancel(id);
+    } catch {
+      /* download may already be gone */
+    }
+    try {
+      await this.deps.downloads.erase({ id });
+    } catch {
+      /* already removed from history */
     }
   }
 

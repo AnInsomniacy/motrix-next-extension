@@ -38,8 +38,6 @@ function createMockDeps() {
       addTorrent: vi.fn().mockResolvedValue('gid-torrent-1'),
     },
     downloads: {
-      pause: vi.fn().mockResolvedValue(undefined),
-      resume: vi.fn().mockResolvedValue(undefined),
       cancel: vi.fn().mockResolvedValue(undefined),
       erase: vi.fn().mockResolvedValue(undefined),
     },
@@ -81,19 +79,18 @@ describe('DownloadOrchestrator', () => {
   });
 
   describe('handleCreated — successful interception', () => {
-    it('pauses, sends to aria2, then cancels and erases browser download', async () => {
+    it('sends to aria2, then cancels and erases browser download', async () => {
       const item = createMockDownloadItem();
 
-      await orchestrator.handleCreated(item);
+      const intercepted = await orchestrator.handleCreated(item);
 
-      // 1. Pause browser download
-      expect(deps.downloads.pause).toHaveBeenCalledWith(1);
-      // 2. Send to aria2 — no `out` option (aria2 resolves filename natively)
+      expect(intercepted).toBe(true);
+      // Send to aria2 — no `out` option (aria2 resolves filename natively)
       expect(deps.aria2.addUri).toHaveBeenCalledWith(
         ['https://example.com/file.zip'],
         expect.not.objectContaining({ out: expect.anything() }),
       );
-      // 3. Cancel and erase
+      // Cancel and erase
       expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
       expect(deps.downloads.erase).toHaveBeenCalledWith({ id: 1 });
     });
@@ -131,29 +128,31 @@ describe('DownloadOrchestrator', () => {
   });
 
   describe('handleCreated — skip conditions', () => {
-    it('skips when extension is disabled', async () => {
+    it('skips when extension is disabled and returns false', async () => {
       deps.getSettings.mockReturnValue({ ...deps.getSettings(), enabled: false });
 
-      await orchestrator.handleCreated(createMockDownloadItem());
+      const intercepted = await orchestrator.handleCreated(createMockDownloadItem());
 
-      expect(deps.downloads.pause).not.toHaveBeenCalled();
+      expect(intercepted).toBe(false);
       expect(deps.aria2.addUri).not.toHaveBeenCalled();
     });
 
-    it('skips downloads triggered by an extension', async () => {
+    it('skips downloads triggered by an extension and returns false', async () => {
       const item = createMockDownloadItem({ byExtensionId: 'my-ext-id' });
 
-      await orchestrator.handleCreated(item);
+      const intercepted = await orchestrator.handleCreated(item);
 
-      expect(deps.downloads.pause).not.toHaveBeenCalled();
+      expect(intercepted).toBe(false);
+      expect(deps.downloads.cancel).not.toHaveBeenCalled();
     });
 
-    it('skips blob URLs', async () => {
+    it('skips blob URLs and returns false', async () => {
       const item = createMockDownloadItem({ url: 'blob:https://example.com/abc' });
 
-      await orchestrator.handleCreated(item);
+      const intercepted = await orchestrator.handleCreated(item);
 
-      expect(deps.downloads.pause).not.toHaveBeenCalled();
+      expect(intercepted).toBe(false);
+      expect(deps.downloads.cancel).not.toHaveBeenCalled();
     });
 
     it('logs download_skipped diagnostic event', async () => {
@@ -172,9 +171,9 @@ describe('DownloadOrchestrator', () => {
         mime: 'text/html',
       });
 
-      await orchestrator.handleCreated(item);
+      const intercepted = await orchestrator.handleCreated(item);
 
-      expect(deps.downloads.pause).not.toHaveBeenCalled();
+      expect(intercepted).toBe(false);
       expect(deps.aria2.addUri).not.toHaveBeenCalled();
       expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({ code: 'download_skipped' }),
@@ -248,13 +247,12 @@ describe('DownloadOrchestrator', () => {
   });
 
   describe('handleCreated — RPC failure with fallback', () => {
-    it('resumes browser download when aria2 fails and fallback is enabled', async () => {
+    it('returns false for browser fallback when aria2 fails', async () => {
       deps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
 
-      await orchestrator.handleCreated(createMockDownloadItem());
+      const intercepted = await orchestrator.handleCreated(createMockDownloadItem());
 
-      expect(deps.downloads.pause).toHaveBeenCalledWith(1);
-      expect(deps.downloads.resume).toHaveBeenCalledWith(1);
+      expect(intercepted).toBe(false);
       expect(deps.downloads.cancel).not.toHaveBeenCalled();
     });
 
@@ -277,10 +275,10 @@ describe('DownloadOrchestrator', () => {
       });
       deps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
 
-      await orchestrator.handleCreated(createMockDownloadItem());
+      const intercepted = await orchestrator.handleCreated(createMockDownloadItem());
 
+      expect(intercepted).toBe(true);
       expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
-      expect(deps.downloads.resume).not.toHaveBeenCalled();
     });
 
     it('logs download_failed diagnostic event', async () => {
@@ -335,8 +333,9 @@ describe('DownloadOrchestrator', () => {
         .mockResolvedValueOnce('gid-retry');
 
       const orch = new DownloadOrchestrator(wakeDeps);
-      await orch.handleCreated(createMockDownloadItem());
+      const intercepted = await orch.handleCreated(createMockDownloadItem());
 
+      expect(intercepted).toBe(true);
       expect(wakeDeps.wakeService.wakeAndWaitForRpc).toHaveBeenCalledTimes(1);
       expect(wakeDeps.aria2.addUri).toHaveBeenCalledTimes(2);
       expect(wakeDeps.downloads.cancel).toHaveBeenCalledWith(1);
@@ -350,8 +349,9 @@ describe('DownloadOrchestrator', () => {
         .mockResolvedValueOnce('gid-timeout-retry');
 
       const orch = new DownloadOrchestrator(wakeDeps);
-      await orch.handleCreated(createMockDownloadItem());
+      const intercepted = await orch.handleCreated(createMockDownloadItem());
 
+      expect(intercepted).toBe(true);
       expect(wakeDeps.wakeService.wakeAndWaitForRpc).toHaveBeenCalledTimes(1);
       expect(wakeDeps.downloads.cancel).toHaveBeenCalledWith(1);
     });
@@ -362,9 +362,9 @@ describe('DownloadOrchestrator', () => {
       wakeDeps.wakeService.wakeAndWaitForRpc.mockResolvedValue(false);
 
       const orch = new DownloadOrchestrator(wakeDeps);
-      await orch.handleCreated(createMockDownloadItem());
+      const intercepted = await orch.handleCreated(createMockDownloadItem());
 
-      expect(wakeDeps.downloads.resume).toHaveBeenCalledWith(1);
+      expect(intercepted).toBe(false);
       expect(wakeDeps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({ code: 'download_fallback' }),
       );
@@ -375,10 +375,10 @@ describe('DownloadOrchestrator', () => {
       wakeDeps.aria2.addUri.mockRejectedValue(new RpcAuthError());
 
       const orch = new DownloadOrchestrator(wakeDeps);
-      await orch.handleCreated(createMockDownloadItem());
+      const intercepted = await orch.handleCreated(createMockDownloadItem());
 
+      expect(intercepted).toBe(false);
       expect(wakeDeps.wakeService.wakeAndWaitForRpc).not.toHaveBeenCalled();
-      expect(wakeDeps.downloads.resume).toHaveBeenCalledWith(1);
     });
 
     it('does not attempt wake when autoLaunchApp is disabled', async () => {
@@ -390,10 +390,10 @@ describe('DownloadOrchestrator', () => {
       });
 
       const orch = new DownloadOrchestrator(wakeDeps);
-      await orch.handleCreated(createMockDownloadItem());
+      const intercepted = await orch.handleCreated(createMockDownloadItem());
 
+      expect(intercepted).toBe(false);
       expect(wakeDeps.wakeService.wakeAndWaitForRpc).not.toHaveBeenCalled();
-      expect(wakeDeps.downloads.resume).toHaveBeenCalledWith(1);
     });
 
     it('falls back when retry after wake also fails', async () => {
@@ -403,10 +403,10 @@ describe('DownloadOrchestrator', () => {
       wakeDeps.wakeService.wakeAndWaitForRpc.mockResolvedValue(true);
 
       const orch = new DownloadOrchestrator(wakeDeps);
-      await orch.handleCreated(createMockDownloadItem());
+      const intercepted = await orch.handleCreated(createMockDownloadItem());
 
       // Should still fallback after retry failure
-      expect(wakeDeps.downloads.resume).toHaveBeenCalledWith(1);
+      expect(intercepted).toBe(false);
     });
 
     it('logs wake attempt diagnostic', async () => {
