@@ -42,7 +42,7 @@
 - **Completion notifications** — Desktop notifications when downloads are sent and when they finish
 - **Download bar control** — Optionally hides Chrome's native download shelf (Chromium 115+, not available on Firefox)
 - **Dark mode** — System / Light / Dark with 10 Material You color schemes
-- **i18n** — Full English, Chinese (Simplified), and Japanese localization
+- **i18n** — Full English, Chinese (Simplified), Chinese (Traditional), and Japanese localization
 - **Diagnostics** — Built-in event log with severity levels and one-click export
 
 ## Installation
@@ -167,7 +167,7 @@ motrix-next-extension/
 ├── __tests__/                  # 330 tests across 28 files
 │   ├── unit/                   #   27 isolated service test files
 │   └── integration/            #   End-to-end interception flow
-├── public/_locales/            # Chrome i18n message bundles (en, zh_CN, ja)
+├── public/_locales/            # Chrome i18n message bundles (en, zh_CN, zh_Hant, ja)
 └── .github/workflows/ci.yml   # CI: compile → test → lint → i18n → format → build
 ```
 

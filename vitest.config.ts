@@ -17,6 +17,7 @@ export default defineConfig({
       '@': resolve(__dirname, '.'),
       'locale:en': resolve(__dirname, 'public/_locales/en/messages.json'),
       'locale:ja': resolve(__dirname, 'public/_locales/ja/messages.json'),
+      'locale:zh_Hant': resolve(__dirname, 'public/_locales/zh_Hant/messages.json'),
       'locale:zh_CN': resolve(__dirname, 'public/_locales/zh_CN/messages.json'),
     },
   },

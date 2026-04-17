@@ -14,6 +14,7 @@
 // Reads from public/_locales/ at build time — SSOT stays in messages.json.
 import enRaw from 'locale:en';
 import jaRaw from 'locale:ja';
+import zhHantRaw from 'locale:zh_Hant';
 import zhCNRaw from 'locale:zh_CN';
 
 // ─── Types ──────────────────────────────────────────────
@@ -45,6 +46,7 @@ export interface LocaleEntry {
  */
 export const SUPPORTED_LOCALES: readonly LocaleEntry[] = [
   { id: 'zh_CN', endonym: '中文', exonym: 'Chinese' },
+  { id: 'zh_Hant', endonym: '繁體中文', exonym: 'Chinese (Traditional)' },
   { id: 'en', endonym: 'English', exonym: 'English' },
   { id: 'ja', endonym: '日本語', exonym: 'Japanese' },
 ];
@@ -84,6 +86,7 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
   en: flatten(enRaw as ChromeMessages),
   ja: flatten(jaRaw as ChromeMessages),
   zh_CN: flatten(zhCNRaw as ChromeMessages),
+  zh_Hant: flatten(zhHantRaw as ChromeMessages),
 };
 
 // ─── Locale Resolution ──────────────────────────────────
@@ -96,7 +99,7 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
  *
  * @example
  * resolveLocaleId('zh-CN') → 'zh_CN'
- * resolveLocaleId('zh-TW') → 'zh_CN'
+ * resolveLocaleId('zh-TW') → 'zh_Hant'
  * resolveLocaleId('fr')    → 'en'
  */
 export function resolveLocaleId(raw: string): string {
@@ -104,12 +107,18 @@ export function resolveLocaleId(raw: string): string {
   const normalized = raw.replace('-', '_');
   if (DICTIONARIES[normalized]) return normalized;
 
-  // 2. Base language match (case-insensitive)
+  // 2. Explicit Traditional Chinese region mapping
+  const regionNormalized = normalized.toLowerCase();
+  if (regionNormalized === 'zh_tw' || regionNormalized === 'zh_hk' || regionNormalized === 'zh_mo') {
+    return 'zh_Hant';
+  }
+
+  // 3. Base language match (case-insensitive)
   const base = raw.split(/[-_]/)[0]!.toLowerCase();
   if (!base) return FALLBACK_LOCALE;
   const match = Object.keys(DICTIONARIES).find((k) => k.toLowerCase().startsWith(base));
   if (match) return match;
 
-  // 3. Fallback
+  // 4. Fallback
   return FALLBACK_LOCALE;
 }

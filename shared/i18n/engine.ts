@@ -18,6 +18,8 @@ import { ref, computed, inject, type InjectionKey, type Ref, type ComputedRef } 
 import {
   zhCN,
   dateZhCN,
+  zhTW,
+  dateZhTW,
   enUS,
   dateEnUS,
   jaJP,
@@ -184,6 +186,7 @@ const NAIVE_MAP: Record<string, { locale: NLocale; dateLocale: NDateLocale }> = 
   en: { locale: enUS, dateLocale: dateEnUS },
   ja: { locale: jaJP, dateLocale: dateJaJP },
   zh_CN: { locale: zhCN, dateLocale: dateZhCN },
+  zh_Hant: { locale: zhTW, dateLocale: dateZhTW },
 };
 
 const NAIVE_FALLBACK = NAIVE_MAP.en!;

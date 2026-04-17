@@ -29,4 +29,9 @@ declare module 'locale:ja' {
   export default messages;
 }
 
+declare module 'locale:zh_Hant' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
 // Extension point: add more `declare module 'locale:xx'` as needed.

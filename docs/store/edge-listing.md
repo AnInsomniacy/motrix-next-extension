@@ -43,7 +43,7 @@ KEY FEATURES
 
 • Appearance Customization — System/Light/Dark themes with 10 Material You color schemes.
 
-• Multi-Language — English, Chinese (Simplified), and Japanese.
+• Multi-Language — English, Chinese (Simplified), Chinese (Traditional), and Japanese.
 
 HOW IT WORKS
 

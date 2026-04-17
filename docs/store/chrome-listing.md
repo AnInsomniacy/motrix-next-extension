@@ -60,7 +60,7 @@ Motrix Next Extension seamlessly bridges your browser with the Motrix Next deskt
   Choose from System/Light/Dark themes and 10 Material You color schemes.
 
 • Multi-Language Support
-  Full English, Chinese (Simplified), and Japanese localization.
+  Full English, Chinese (Simplified), Chinese (Traditional), and Japanese localization.
 
 • Diagnostics
   Built-in event log with severity levels for troubleshooting interception issues.
@@ -96,7 +96,7 @@ Productivity
 ## Language
 
 ```
-English, Chinese (Simplified), Japanese
+English, Chinese (Simplified), Chinese (Traditional), Japanese
 ```
 
 ## Privacy Policy URL

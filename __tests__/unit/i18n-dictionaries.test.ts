@@ -56,12 +56,13 @@ describe('flatten', () => {
 // ─── SUPPORTED_LOCALES ──────────────────────────────────
 
 describe('SUPPORTED_LOCALES', () => {
-  it('contains at least en and zh_CN', async () => {
+  it('contains en, ja, zh_CN, and zh_Hant', async () => {
     const { SUPPORTED_LOCALES } = await import('@/shared/i18n/dictionaries');
     const ids = SUPPORTED_LOCALES.map((l) => l.id);
     expect(ids).toContain('en');
     expect(ids).toContain('ja');
     expect(ids).toContain('zh_CN');
+    expect(ids).toContain('zh_Hant');
   });
 
   it('has endonym and exonym for each locale', async () => {
@@ -97,17 +98,24 @@ describe('resolveLocaleId', () => {
     const { resolveLocaleId } = await import('@/shared/i18n/dictionaries');
     expect(resolveLocaleId('en')).toBe('en');
     expect(resolveLocaleId('zh_CN')).toBe('zh_CN');
+    expect(resolveLocaleId('zh_Hant')).toBe('zh_Hant');
   });
 
   it('normalizes hyphen to underscore for BCP 47 tags', async () => {
     const { resolveLocaleId } = await import('@/shared/i18n/dictionaries');
     expect(resolveLocaleId('zh-CN')).toBe('zh_CN');
+    expect(resolveLocaleId('zh-Hant')).toBe('zh_Hant');
+  });
+
+  it('maps Traditional Chinese regions to zh_Hant', async () => {
+    const { resolveLocaleId } = await import('@/shared/i18n/dictionaries');
+    expect(resolveLocaleId('zh-TW')).toBe('zh_Hant');
+    expect(resolveLocaleId('zh_HK')).toBe('zh_Hant');
+    expect(resolveLocaleId('zh-MO')).toBe('zh_Hant');
   });
 
   it('matches base language when exact match fails', async () => {
     const { resolveLocaleId } = await import('@/shared/i18n/dictionaries');
-    // zh-TW should map to zh_CN (closest Chinese variant)
-    expect(resolveLocaleId('zh-TW')).toBe('zh_CN');
     expect(resolveLocaleId('zh')).toBe('zh_CN');
   });
 
@@ -133,5 +141,6 @@ describe('resolveLocaleId', () => {
     const { resolveLocaleId } = await import('@/shared/i18n/dictionaries');
     expect(resolveLocaleId('EN')).toBe('en');
     expect(resolveLocaleId('ZH-cn')).toBe('zh_CN');
+    expect(resolveLocaleId('ZH-TW')).toBe('zh_Hant');
   });
 });
