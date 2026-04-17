@@ -82,19 +82,10 @@ jobs:
       - name: Identify artifact
         id: artifact
         run: |
-          # WXT generates an extra sources.zip for Firefox (AMO review).
-          # Select only the extension zip, not the sources archive.
           ZIP=$(ls .output/*-mv3.zip)
           echo "path=$ZIP" >> "$GITHUB_OUTPUT"
           echo "name=$(basename $ZIP)" >> "$GITHUB_OUTPUT"
           echo "Packaged: $ZIP ($(du -h $ZIP | cut -f1))"
-
-          # Check for sources zip (Firefox only — used for AMO submission)
-          SOURCES=$(ls .output/*-sources.zip 2>/dev/null || true)
-          if [ -n "$SOURCES" ]; then
-            echo "sources_path=$SOURCES" >> "$GITHUB_OUTPUT"
-            echo "Sources: $SOURCES ($(du -h $SOURCES | cut -f1))"
-          fi
 
       - name: Upload to GitHub Release
         if: github.event_name == 'release'
@@ -106,20 +97,10 @@ jobs:
             --clobber \
             -R "${{ github.repository }}"
 
-          # Upload sources zip if present (Firefox AMO review artifact)
-          if [ -n "${{ steps.artifact.outputs.sources_path }}" ]; then
-            gh release upload "${{ github.event.release.tag_name }}" \
-              "${{ steps.artifact.outputs.sources_path }}" \
-              --clobber \
-              -R "${{ github.repository }}"
-          fi
-
       - name: Upload workflow artifact
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.artifact.outputs.name }}
-          path: |
-            ${{ steps.artifact.outputs.path }}
-            ${{ steps.artifact.outputs.sources_path }}
+          path: ${{ steps.artifact.outputs.path }}
           retention-days: 30
