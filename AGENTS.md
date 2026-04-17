@@ -83,6 +83,7 @@ __tests__/
 public/_locales/                 # Chrome i18n message bundles
 ├── en/messages.json             # English (reference locale)
 ├── zh_CN/messages.json          # Chinese Simplified
+├── zh_Hant/messages.json        # Chinese Traditional
 └── ja/messages.json             # Japanese
 
 .github/workflows/
@@ -133,7 +134,7 @@ Follow this exact checklist:
 3. **`lib/storage/schema.ts`** — Add the field to the Zod schema with `.default()` matching the constant
 4. **`lib/storage/storage-service.ts`** — Add typed getter/setter if the key is accessed individually
 5. **`parseStorage()` in `schema.ts`** — Ensure the new field is included in the composite parse
-6. **All 3 locale files** — Add any i18n label keys to `en`, `zh_CN`, and `ja`
+6. **All 4 locale files** — Add any i18n label keys to `en`, `zh_CN`, `zh_Hant`, and `ja`
 7. **UI binding** — Wire into the appropriate Options page section
 8. **Tests** — Add parse tests in `__tests__/unit/storage-schema.test.ts`
 
@@ -168,7 +169,7 @@ Follow this exact checklist:
 
 ### Rules
 
-1. **Always update all 3 locales** when adding or modifying keys. Partial updates are not accepted.
+1. **Always update all 4 locales** when adding or modifying keys. Partial updates are not accepted.
 2. English (`en`) is the reference locale — validate this first.
 3. Run `pnpm lint:i18n` after every change to verify consistency.
 

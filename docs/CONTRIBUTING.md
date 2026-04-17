@@ -65,15 +65,16 @@ The extension uses Chrome's native i18n system with `messages.json` files under 
 
 ### Supported Locales
 
-| Locale               | Directory                             |
-| -------------------- | ------------------------------------- |
-| English              | `public/_locales/en/messages.json`    |
-| Chinese (Simplified) | `public/_locales/zh_CN/messages.json` |
-| Japanese             | `public/_locales/ja/messages.json`    |
+| Locale                | Directory                               |
+| --------------------- | --------------------------------------- |
+| English               | `public/_locales/en/messages.json`      |
+| Chinese (Simplified)  | `public/_locales/zh_CN/messages.json`   |
+| Chinese (Traditional) | `public/_locales/zh_Hant/messages.json` |
+| Japanese              | `public/_locales/ja/messages.json`      |
 
 ### Adding or Modifying Keys
 
-1. Add the new key to **all 3 locale files** following the Chrome i18n format:
+1. Add the new key to **all 4 locale files** following the Chrome i18n format:
    ```json
    "key_name": {
      "message": "Your translated text",
@@ -85,7 +86,7 @@ The extension uses Chrome's native i18n system with `messages.json` files under 
    ```bash
    pnpm lint:i18n
    ```
-4. Every PR that adds or modifies i18n keys **must update all 3 locales**. Partial updates will not be accepted.
+4. Every PR that adds or modifies i18n keys **must update all 4 locales**. Partial updates will not be accepted.
 
 ### Adding a New Language
 
@@ -123,7 +124,7 @@ How to split a large change:
 | ---------------------------------------- | ----------------------------------------------------------------------------------- |
 | "Add download history feature" (800 LOC) | PR 1: storage schema + tests → PR 2: history service + tests → PR 3: UI integration |
 | "Add feature + fix lint + update config" | PR 1: lint/config fixes → PR 2: the feature                                         |
-| "Update i18n for 3 features"             | One PR per feature, each updating all 3 locales                                     |
+| "Update i18n for 3 features"             | One PR per feature, each updating all 4 locales                                     |
 
 ### Before you start
 
