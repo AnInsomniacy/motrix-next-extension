@@ -45,7 +45,7 @@ export interface LocaleEntry {
  * Adding a language = adding one entry here + one import + one dict entry.
  */
 export const SUPPORTED_LOCALES: readonly LocaleEntry[] = [
-  { id: 'zh_CN', endonym: '中文', exonym: 'Chinese' },
+  { id: 'zh_CN', endonym: '简体中文', exonym: 'Chinese (Simplified)' },
   { id: 'zh_Hant', endonym: '繁體中文', exonym: 'Chinese (Traditional)' },
   { id: 'en', endonym: 'English', exonym: 'English' },
   { id: 'ja', endonym: '日本語', exonym: 'Japanese' },
