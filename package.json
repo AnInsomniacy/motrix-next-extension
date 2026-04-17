@@ -2,7 +2,7 @@
   "name": "motrix-next-extension",
   "description": "Motrix Next Browser Extension — Send downloads to Motrix Next",
   "private": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "scripts": {
     "dev": "wxt",
