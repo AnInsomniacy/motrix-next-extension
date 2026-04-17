@@ -11,6 +11,8 @@
     <a href="https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb"><img src="docs/badges/edge-add-ons.png" alt="Get it from Microsoft Edge" height="58" /></a>
     &nbsp;&nbsp;
     <a href="https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl"><img src="docs/badges/chrome-web-store.png" alt="Available in the Chrome Web Store" height="58" /></a>
+    &nbsp;&nbsp;
+    <a href="https://addons.mozilla.org/firefox/addon/motrix-next-extension/"><img src="docs/badges/firefox-add-ons.svg" alt="Get the Add-on for Firefox" height="58" /></a>
   </p>
 
 </div>
@@ -38,7 +40,7 @@
 - **Real-time dashboard** — Popup shows live download/upload speeds, active/waiting/completed task counts
 - **Auto-launch** — Launches Motrix Next via `motrixnext://` protocol when not running, waits for RPC, then retries
 - **Completion notifications** — Desktop notifications when downloads are sent and when they finish
-- **Download bar control** — Optionally hides Chrome's native download shelf (Chrome 115+)
+- **Download bar control** — Optionally hides Chrome's native download shelf (Chromium 115+, not available on Firefox)
 - **Dark mode** — System / Light / Dark with 10 Material You color schemes
 - **i18n** — Full English, Chinese (Simplified), and Japanese localization
 - **Diagnostics** — Built-in event log with severity levels and one-click export
@@ -51,6 +53,7 @@
 | ------- | -------------------------------------------------------------------------------------------------- |
 | Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl)      |
 | Edge    | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb) |
+| Firefox | [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/motrix-next-extension/)                 |
 
 ### From Source
 
@@ -58,15 +61,28 @@
 git clone https://github.com/AnInsomniacy/motrix-next-extension.git
 cd motrix-next-extension
 pnpm install
+
+# Chrome / Edge
 pnpm build
+
+# Firefox
+pnpm build:firefox
 ```
 
 Then load the unpacked extension:
+
+**Chrome / Edge:**
 
 1. Navigate to `chrome://extensions` (or `edge://extensions`)
 2. Enable **Developer mode**
 3. Click **Load unpacked**
 4. Select the `.output/chrome-mv3` directory
+
+**Firefox:**
+
+1. Navigate to `about:debugging#/runtime/this-firefox`
+2. Click **Load Temporary Add-on...**
+3. Select `.output/firefox-mv3/manifest.json`
 
 ## FAQ
 
@@ -157,18 +173,22 @@ motrix-next-extension/
 
 ### Scripts
 
-| Command             | Description                                      |
-| ------------------- | ------------------------------------------------ |
-| `pnpm dev`          | Start WXT dev server with hot reload             |
-| `pnpm build`        | Production build → `.output/chrome-mv3/`         |
-| `pnpm zip`          | Build and package as `.zip` for store submission |
-| `pnpm test`         | Run all 330 unit and integration tests           |
-| `pnpm test:watch`   | Run tests in watch mode                          |
-| `pnpm compile`      | TypeScript type checking (`vue-tsc --noEmit`)    |
-| `pnpm lint`         | ESLint (flat config, Vue 3 + TypeScript)         |
-| `pnpm lint:i18n`    | Validate i18n key consistency across all locales |
-| `pnpm format`       | Auto-format all files with Prettier              |
-| `pnpm format:check` | Verify formatting without writing                |
+| Command              | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| `pnpm dev`           | Start WXT dev server with hot reload (Chrome)       |
+| `pnpm dev:firefox`   | Start WXT dev server with hot reload (Firefox)      |
+| `pnpm build`         | Production build → `.output/chrome-mv3/`            |
+| `pnpm build:firefox` | Production build → `.output/firefox-mv3/`           |
+| `pnpm zip`           | Package Chrome build as `.zip` for store submission |
+| `pnpm zip:firefox`   | Package Firefox build as `.zip` for AMO submission  |
+| `pnpm zip:all`       | Package both Chrome and Firefox builds              |
+| `pnpm test`          | Run all unit and integration tests                  |
+| `pnpm test:watch`    | Run tests in watch mode                             |
+| `pnpm compile`       | TypeScript type checking (`vue-tsc --noEmit`)       |
+| `pnpm lint`          | ESLint (flat config, Vue 3 + TypeScript)            |
+| `pnpm lint:i18n`     | Validate i18n key consistency across all locales    |
+| `pnpm format`        | Auto-format all files with Prettier                 |
+| `pnpm format:check`  | Verify formatting without writing                   |
 
 ### Testing
 
