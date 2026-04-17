@@ -1,12 +1,5 @@
-import { Aria2Client } from '@/lib/rpc';
 import { DownloadOrchestrator } from '@/lib/download';
-import {
-  DownloadBarService,
-  CompletionTracker,
-  ContextMenuService,
-  NotificationService,
-  WakeService,
-} from '@/lib/services';
+import { DownloadBarService, ContextMenuService, NotificationService } from '@/lib/services';
 import {
   DiagnosticLog,
   StorageService,
@@ -16,9 +9,6 @@ import {
 } from '@/lib/storage';
 import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
 import { decodeThunderLink } from '@/shared/thunder';
-import { extractFilenameFromUrl } from '@/shared/url';
-import { DocumentUrlError } from '@/shared/errors';
-import { usePolling } from '@/shared/use-polling';
 import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 import type { DownloadSettings, RpcConfig, SiteRule } from '@/shared/types';
 import { I18nEngine } from '@/shared/i18n/engine';
@@ -32,8 +22,6 @@ export default defineBackground(() => {
   let enhancedPermissions = false;
 
   const bgI18n = new I18nEngine(FALLBACK_LOCALE);
-
-  const client = new Aria2Client(rpcConfig, { timeoutMs: 5000, maxRetries: 1 });
   // Firefox does not support chrome.downloads.setUiOptions — create a no-op
   // service so call sites don't need null checks.
   const downloadBarService = import.meta.env.FIREFOX
@@ -43,20 +31,6 @@ export default defineBackground(() => {
       });
   const diagnosticLog = new DiagnosticLog();
 
-  const completionTracker = new CompletionTracker({
-    tellStatus: (gid) => client.tellStatus(gid),
-    onComplete: (_, filename) => {
-      if (!settings.notifyOnComplete) return;
-      const notification = NotificationService.buildSentNotification(filename, Date.now());
-      void chrome.notifications.create(`complete-${Date.now()}`, {
-        type: 'basic',
-        title: bgI18n.t('notification_complete_title', 'Download Complete'),
-        message: filename,
-        iconUrl: notification.options.iconUrl,
-      } as chrome.notifications.NotificationCreateOptions);
-    },
-  });
-
   const storageService = new StorageService(chrome.storage.local);
 
   // ─── Load config from storage on startup ──────────
@@ -64,7 +38,6 @@ export default defineBackground(() => {
     try {
       const data = await storageService.load();
       rpcConfig = data.rpc;
-      client.updateConfig(rpcConfig);
       settings = data.settings;
       siteRules = data.siteRules;
       diagnosticLog.hydrate(data.diagnosticLog);
@@ -121,17 +94,9 @@ export default defineBackground(() => {
 
   // ─── Orchestrator ─────────────────────────────────
   const orchestrator = new DownloadOrchestrator({
-    aria2: client,
     downloads: {
       cancel: (id) => chrome.downloads.cancel(id),
       erase: (query) => chrome.downloads.erase(query).then(() => {}),
-    },
-    notifications: {
-      create: (id: string, opts: Record<string, unknown>) =>
-        chrome.notifications.create(id, opts as chrome.notifications.NotificationCreateOptions),
-    },
-    cookies: {
-      getAll: (details) => chrome.cookies.getAll(details),
     },
     diagnosticLog: {
       append: (event) => {
@@ -143,27 +108,6 @@ export default defineBackground(() => {
     getSiteRules: () => siteRules,
     getTabUrl,
     hasEnhancedPermissions: () => enhancedPermissions,
-    onSent: (gid, filename) => completionTracker.track(gid, filename),
-
-    // Wake + retry: launch app via protocol when RPC is unreachable
-    wakeService: new WakeService(),
-    openProtocol: async () => {
-      // Open protocol tab and keep it open — user needs to click
-      // "Open MotrixNext.app" in the browser's confirmation dialog.
-      // Returns a cleanup fn that closes the tab after app launched.
-      const tab = await chrome.tabs.create({ url: buildProtocolUrl(), active: true });
-      return () => {
-        if (tab.id) chrome.tabs.remove(tab.id).catch(() => {});
-      };
-    },
-    checkRpc: async () => {
-      try {
-        await client.getVersion();
-        return true;
-      } catch {
-        return false;
-      }
-    },
     openProtocolNewTask: async (url: string, referer: string) => {
       const protocolUrl = buildProtocolUrl(ProtocolAction.NewTask, { url, referer });
       // Create tab for the protocol URL — active:true so the "Open MotrixNext?"
@@ -286,27 +230,7 @@ export default defineBackground(() => {
     void loadConfig().then(async () => {
       const url = decodeThunderLink(rawUrl);
       const tabUrl = info.pageUrl ?? '';
-
-      try {
-        await orchestrator.sendUrl(url, tabUrl);
-      } catch (error) {
-        // Document URL: the link points to a webpage with JS-generated download.
-        // Open in the browser so the page's JS can execute and trigger the real
-        // download, which handleCreated() will intercept via finalUrl.
-        if (error instanceof DocumentUrlError) {
-          await chrome.tabs.create({ url, active: true });
-          return;
-        }
-
-        // Other errors — show failure notification
-        const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
-        await chrome.notifications.create(`failed-ctx-${Date.now()}`, {
-          type: 'basic',
-          title: bgI18n.t('notification_failed_title', 'Download Failed'),
-          message: displayName,
-          iconUrl: 'icon/128.png',
-        });
-      }
+      await orchestrator.sendUrl(url, tabUrl);
     });
   });
 
@@ -330,17 +254,7 @@ export default defineBackground(() => {
     if (msg?.type === 'HANDLE_MAGNET' && typeof msg.url === 'string') {
       void loadConfig().then(async () => {
         const url = decodeThunderLink(msg.url as string);
-        try {
-          await orchestrator.sendUrl(url, '');
-        } catch {
-          const displayName = 'magnet download';
-          await chrome.notifications.create(`failed-magnet-${Date.now()}`, {
-            type: 'basic',
-            title: bgI18n.t('notification_failed_title', 'Download Failed'),
-            message: displayName,
-            iconUrl: 'icon/128.png',
-          });
-        }
+        await orchestrator.sendUrl(url, '');
       });
     }
   });
@@ -350,7 +264,6 @@ export default defineBackground(() => {
     if (area !== 'local') return;
     if (changes.rpc?.newValue) {
       rpcConfig = parseRpcConfig(changes.rpc.newValue);
-      client.updateConfig(rpcConfig);
     }
     if (changes.settings?.newValue) {
       settings = parseDownloadSettings(changes.settings.newValue);
@@ -382,18 +295,5 @@ export default defineBackground(() => {
       hideDownloadBar: settings.hideDownloadBar,
       hasEnhancedPermissions: enhancedPermissions,
     });
-
-    // Smart completion polling with exponential backoff
-    const completionPoller = usePolling({
-      fn: async () => {
-        if (completionTracker.trackedCount > 0) {
-          await completionTracker.poll();
-        }
-      },
-      baseIntervalMs: 3000,
-      maxIntervalMs: 30000,
-      backoffMultiplier: 2,
-    });
-    completionPoller.start();
   });
 });

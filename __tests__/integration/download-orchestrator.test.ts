@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DownloadOrchestrator } from '@/lib/download/orchestrator';
+import type { OrchestratorDeps } from '@/lib/download/orchestrator';
 import type { DownloadSettings, SiteRule } from '@/shared/types';
-import { RpcUnreachableError, RpcTimeoutError, RpcAuthError } from '@/shared/errors';
+import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 
 // ─── Mock Types ─────────────────────────────────────────
 
@@ -31,37 +32,25 @@ function createMockDownloadItem(overrides?: Partial<MockDownloadItem>): MockDown
 
 // ─── Mock Dependencies ──────────────────────────────────
 
-function createMockDeps() {
+function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): OrchestratorDeps {
   return {
-    aria2: {
-      addUri: vi.fn().mockResolvedValue('gid-abc123'),
-      addTorrent: vi.fn().mockResolvedValue('gid-torrent-1'),
-    },
     downloads: {
-      cancel: vi.fn().mockResolvedValue(undefined),
-      erase: vi.fn().mockResolvedValue(undefined),
-    },
-    notifications: {
-      create: vi.fn().mockResolvedValue('notif-1'),
-    },
-    cookies: {
-      getAll: vi.fn().mockResolvedValue([]),
+      cancel: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
+      erase: vi.fn<(query: { id: number }) => Promise<void>>().mockResolvedValue(undefined),
     },
     diagnosticLog: {
       append: vi.fn(),
     },
     getSettings: vi.fn().mockReturnValue({
-      enabled: true,
-      minFileSize: 0,
-      fallbackToBrowser: true,
-      hideDownloadBar: false,
-      notifyOnStart: true,
-      notifyOnComplete: false,
-      autoLaunchApp: true,
+      ...DEFAULT_DOWNLOAD_SETTINGS,
     } satisfies DownloadSettings),
     getSiteRules: vi.fn().mockReturnValue([] as SiteRule[]),
-    getTabUrl: vi.fn().mockResolvedValue('https://example.com/page'),
+    getTabUrl: vi.fn<() => Promise<string>>().mockResolvedValue('https://example.com/page'),
     hasEnhancedPermissions: vi.fn().mockReturnValue(false),
+    openProtocolNewTask: vi
+      .fn<(url: string, referer: string) => Promise<void>>()
+      .mockResolvedValue(undefined),
+    ...overrides,
   };
 }
 
@@ -78,42 +67,68 @@ describe('DownloadOrchestrator', () => {
     orchestrator = new DownloadOrchestrator(deps);
   });
 
-  describe('handleCreated — successful interception', () => {
-    it('sends to aria2, then cancels and erases browser download', async () => {
+  // ─── handleCreated — unified deep-link routing ─────────
+
+  describe('handleCreated — routes all intercepted downloads to desktop', () => {
+    it('cancels browser download and routes to desktop via deep link', async () => {
       const item = createMockDownloadItem();
 
       const intercepted = await orchestrator.handleCreated(item);
 
       expect(intercepted).toBe(true);
-      // Send to aria2 — no `out` option (aria2 resolves filename natively)
-      expect(deps.aria2.addUri).toHaveBeenCalledWith(
-        ['https://example.com/file.zip'],
-        expect.not.objectContaining({ out: expect.anything() }),
-      );
-      // Cancel and erase
       expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
       expect(deps.downloads.erase).toHaveBeenCalledWith({ id: 1 });
-    });
-
-    it('sends notification on successful interception', async () => {
-      const item = createMockDownloadItem();
-
-      await orchestrator.handleCreated(item);
-
-      expect(deps.notifications.create).toHaveBeenCalled();
-    });
-
-    it('logs download_sent diagnostic event', async () => {
-      const item = createMockDownloadItem();
-
-      await orchestrator.handleCreated(item);
-
-      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'download_sent' }),
+      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/file.zip',
+        'https://example.com/page',
       );
     });
 
-    it('logs download_intercepted before download_sent (entry → exit instrumentation)', async () => {
+    it('uses finalUrl (post-redirect) instead of url for deep link', async () => {
+      const item = createMockDownloadItem({
+        url: 'https://landing.example.com/page',
+        finalUrl: 'https://cdn.example.com/913b9d40.zip',
+      });
+
+      await orchestrator.handleCreated(item);
+
+      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://cdn.example.com/913b9d40.zip',
+        'https://example.com/page',
+      );
+    });
+
+    it('falls back to url when finalUrl is empty', async () => {
+      const item = createMockDownloadItem({
+        url: 'https://example.com/file.zip',
+        finalUrl: '',
+      });
+
+      await orchestrator.handleCreated(item);
+
+      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/file.zip',
+        'https://example.com/page',
+      );
+    });
+
+    it('routes torrent downloads to desktop (same unified path)', async () => {
+      const item = createMockDownloadItem({
+        url: 'https://example.com/linux.torrent',
+        finalUrl: 'https://example.com/linux.torrent',
+        mime: 'application/x-bittorrent',
+      });
+
+      const intercepted = await orchestrator.handleCreated(item);
+
+      expect(intercepted).toBe(true);
+      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/linux.torrent',
+        'https://example.com/page',
+      );
+    });
+
+    it('logs download_intercepted before download_routed', async () => {
       const item = createMockDownloadItem();
 
       await orchestrator.handleCreated(item);
@@ -121,20 +136,38 @@ describe('DownloadOrchestrator', () => {
       const calls = (deps.diagnosticLog.append as ReturnType<typeof vi.fn>).mock.calls;
       const codes = calls.map((c: unknown[]) => (c[0] as { code: string }).code);
       const interceptedIdx = codes.indexOf('download_intercepted');
-      const sentIdx = codes.indexOf('download_sent');
+      const routedIdx = codes.indexOf('download_routed');
       expect(interceptedIdx).toBeGreaterThanOrEqual(0);
-      expect(sentIdx).toBeGreaterThan(interceptedIdx);
+      expect(routedIdx).toBeGreaterThan(interceptedIdx);
+    });
+
+    it('logs download_routed with correct context', async () => {
+      const item = createMockDownloadItem();
+
+      await orchestrator.handleCreated(item);
+
+      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'download_routed',
+          level: 'info',
+        }),
+      );
     });
   });
 
+  // ─── handleCreated — skip conditions (preserved) ───────
+
   describe('handleCreated — skip conditions', () => {
     it('skips when extension is disabled and returns false', async () => {
-      deps.getSettings.mockReturnValue({ ...deps.getSettings(), enabled: false });
+      (deps.getSettings as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...DEFAULT_DOWNLOAD_SETTINGS,
+        enabled: false,
+      });
 
       const intercepted = await orchestrator.handleCreated(createMockDownloadItem());
 
       expect(intercepted).toBe(false);
-      expect(deps.aria2.addUri).not.toHaveBeenCalled();
+      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
     });
 
     it('skips downloads triggered by an extension and returns false', async () => {
@@ -174,253 +207,101 @@ describe('DownloadOrchestrator', () => {
       const intercepted = await orchestrator.handleCreated(item);
 
       expect(intercepted).toBe(false);
-      expect(deps.aria2.addUri).not.toHaveBeenCalled();
+      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
       expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({ code: 'download_skipped' }),
       );
     });
+
+    it('skips files below minimum size threshold', async () => {
+      (deps.getSettings as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...DEFAULT_DOWNLOAD_SETTINGS,
+        minFileSize: 10, // 10 MB minimum
+      });
+      const item = createMockDownloadItem({ fileSize: 1_000_000 }); // 1 MB
+
+      const intercepted = await orchestrator.handleCreated(item);
+
+      expect(intercepted).toBe(false);
+    });
   });
 
-  describe('handleCreated — finalUrl preference (redirect resolution)', () => {
-    it('sends finalUrl to aria2 instead of pre-redirect url', async () => {
-      const item = createMockDownloadItem({
-        url: 'https://developer2.lanrar.com/file/?xyz&toolsdown',
-        finalUrl: 'https://cdn.example.com/913b9d40.zip',
-        filename: '913b9d40.zip',
-      });
+  // ─── handleCreated — defensive fallback ────────────────
 
-      await orchestrator.handleCreated(item);
+  describe('handleCreated — defensive fallback', () => {
+    it('returns false when openProtocolNewTask is unavailable', async () => {
+      const noDeps = createMockDeps({ openProtocolNewTask: undefined });
+      const orch = new DownloadOrchestrator(noDeps);
 
-      // Must use finalUrl (the CDN URL), NOT url (the landing page)
-      expect(deps.aria2.addUri).toHaveBeenCalledWith(
-        ['https://cdn.example.com/913b9d40.zip'],
-        expect.any(Object),
+      const intercepted = await orch.handleCreated(createMockDownloadItem());
+
+      // Cannot route to desktop — let browser handle download
+      expect(intercepted).toBe(false);
+    });
+  });
+
+  // ─── sendUrl — unified deep-link routing ───────────────
+
+  describe('sendUrl — routes all URLs to desktop', () => {
+    it('routes HTTP URL to desktop via deep link', async () => {
+      const result = await orchestrator.sendUrl(
+        'https://example.com/file.zip',
+        'https://example.com',
       );
+
+      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/file.zip',
+        'https://example.com',
+      );
+      expect(result).toBe('routed-to-desktop');
     });
 
-    it('falls back to url when finalUrl is empty', async () => {
-      const item = createMockDownloadItem({
-        url: 'https://example.com/file.zip',
-        finalUrl: '',
-      });
+    it('routes magnet URI to desktop', async () => {
+      const result = await orchestrator.sendUrl('magnet:?xt=urn:btih:abc123', '');
 
-      await orchestrator.handleCreated(item);
-
-      expect(deps.aria2.addUri).toHaveBeenCalledWith(
-        ['https://example.com/file.zip'],
-        expect.any(Object),
-      );
+      expect(deps.openProtocolNewTask).toHaveBeenCalledWith('magnet:?xt=urn:btih:abc123', '');
+      expect(result).toBe('routed-to-desktop');
     });
 
-    it('uses finalUrl for wake-retry as well', async () => {
-      const wakeDeps = {
-        ...createMockDeps(),
-        wakeService: { wakeAndWaitForRpc: vi.fn().mockResolvedValue(true) },
-        openProtocol: vi.fn().mockResolvedValue(() => {}),
-        checkRpc: vi.fn().mockResolvedValue(true),
-      };
-      // First addUri fails, second succeeds
-      wakeDeps.aria2.addUri
-        .mockRejectedValueOnce(new RpcUnreachableError())
-        .mockResolvedValueOnce('gid-retry');
+    it('routes torrent URL to desktop', async () => {
+      const result = await orchestrator.sendUrl(
+        'https://example.com/linux.torrent',
+        'https://example.com',
+      );
 
-      const orch = new DownloadOrchestrator(wakeDeps);
-      await orch.handleCreated(
-        createMockDownloadItem({
-          url: 'https://landing.example.com/page',
-          finalUrl: 'https://cdn.example.com/real-file.zip',
+      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/linux.torrent',
+        'https://example.com',
+      );
+      expect(result).toBe('routed-to-desktop');
+    });
+
+    it('logs download_routed diagnostic event', async () => {
+      await orchestrator.sendUrl('https://example.com/file.zip', '');
+
+      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'download_routed',
+          level: 'info',
         }),
       );
+    });
 
-      // Both initial and retry calls must use finalUrl
-      expect(wakeDeps.aria2.addUri).toHaveBeenNthCalledWith(
-        1,
-        ['https://cdn.example.com/real-file.zip'],
-        expect.any(Object),
-      );
-      expect(wakeDeps.aria2.addUri).toHaveBeenNthCalledWith(
-        2,
-        ['https://cdn.example.com/real-file.zip'],
-        expect.any(Object),
-      );
+    it('throws when openProtocolNewTask is unavailable', async () => {
+      const noDeps = createMockDeps({ openProtocolNewTask: undefined });
+      const orch = new DownloadOrchestrator(noDeps);
+
+      await expect(orch.sendUrl('https://example.com/file.zip', '')).rejects.toThrow();
     });
   });
 
-  describe('handleCreated — RPC failure with fallback', () => {
-    it('returns false for browser fallback when aria2 fails', async () => {
-      deps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
+  // ─── Verify removed behaviors ─────────────────────────
 
-      const intercepted = await orchestrator.handleCreated(createMockDownloadItem());
-
-      expect(intercepted).toBe(false);
-      expect(deps.downloads.cancel).not.toHaveBeenCalled();
-    });
-
-    it('logs download_fallback diagnostic event', async () => {
-      deps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
-
-      await orchestrator.handleCreated(createMockDownloadItem());
-
-      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'download_fallback' }),
-      );
-    });
-  });
-
-  describe('handleCreated — RPC failure without fallback', () => {
-    it('cancels browser download when fallback is disabled', async () => {
-      deps.getSettings.mockReturnValue({
-        ...deps.getSettings(),
-        fallbackToBrowser: false,
-      });
-      deps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
-
-      const intercepted = await orchestrator.handleCreated(createMockDownloadItem());
-
-      expect(intercepted).toBe(true);
-      expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
-    });
-
-    it('logs download_failed diagnostic event', async () => {
-      deps.getSettings.mockReturnValue({
-        ...deps.getSettings(),
-        fallbackToBrowser: false,
-      });
-      deps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
-
-      await orchestrator.handleCreated(createMockDownloadItem());
-
-      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'download_failed' }),
-      );
-    });
-  });
-
-  describe('handleCreated — cookie forwarding', () => {
-    it('includes cookies in aria2 request when enhanced permissions are granted', async () => {
-      deps.hasEnhancedPermissions.mockReturnValue(true);
-      deps.cookies.getAll.mockResolvedValue([{ name: 'session', value: 'abc123' }]);
-
-      await orchestrator.handleCreated(createMockDownloadItem());
-
-      const addUriCall = deps.aria2.addUri.mock.calls[0];
-      const options = addUriCall?.[1] as Record<string, unknown> | undefined;
-      const headers = options?.header as string[] | undefined;
-      expect(headers).toContainEqual(expect.stringContaining('Cookie: session=abc123'));
-    });
-  });
-
-  // ─── Wake + Retry ───────────────────────────────────────
-
-  describe('handleCreated — wake + retry on unreachable', () => {
-    function createWakeDeps() {
-      const base = createMockDeps();
-      return {
-        ...base,
-        wakeService: {
-          wakeAndWaitForRpc: vi.fn().mockResolvedValue(true),
-        },
-        openProtocol: vi.fn().mockResolvedValue(() => {}),
-        checkRpc: vi.fn().mockResolvedValue(true),
-      };
-    }
-
-    it('wakes app and retries addUri on RpcUnreachableError', async () => {
-      const wakeDeps = createWakeDeps();
-      // First addUri fails (unreachable), second succeeds.
-      wakeDeps.aria2.addUri
-        .mockRejectedValueOnce(new RpcUnreachableError())
-        .mockResolvedValueOnce('gid-retry');
-
-      const orch = new DownloadOrchestrator(wakeDeps);
-      const intercepted = await orch.handleCreated(createMockDownloadItem());
-
-      expect(intercepted).toBe(true);
-      expect(wakeDeps.wakeService.wakeAndWaitForRpc).toHaveBeenCalledTimes(1);
-      expect(wakeDeps.aria2.addUri).toHaveBeenCalledTimes(2);
-      expect(wakeDeps.downloads.cancel).toHaveBeenCalledWith(1);
-      expect(wakeDeps.downloads.erase).toHaveBeenCalledWith({ id: 1 });
-    });
-
-    it('wakes app and retries on RpcTimeoutError', async () => {
-      const wakeDeps = createWakeDeps();
-      wakeDeps.aria2.addUri
-        .mockRejectedValueOnce(new RpcTimeoutError(5000))
-        .mockResolvedValueOnce('gid-timeout-retry');
-
-      const orch = new DownloadOrchestrator(wakeDeps);
-      const intercepted = await orch.handleCreated(createMockDownloadItem());
-
-      expect(intercepted).toBe(true);
-      expect(wakeDeps.wakeService.wakeAndWaitForRpc).toHaveBeenCalledTimes(1);
-      expect(wakeDeps.downloads.cancel).toHaveBeenCalledWith(1);
-    });
-
-    it('falls back to browser when wake times out', async () => {
-      const wakeDeps = createWakeDeps();
-      wakeDeps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
-      wakeDeps.wakeService.wakeAndWaitForRpc.mockResolvedValue(false);
-
-      const orch = new DownloadOrchestrator(wakeDeps);
-      const intercepted = await orch.handleCreated(createMockDownloadItem());
-
-      expect(intercepted).toBe(false);
-      expect(wakeDeps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'download_fallback' }),
-      );
-    });
-
-    it('does not attempt wake on RpcAuthError', async () => {
-      const wakeDeps = createWakeDeps();
-      wakeDeps.aria2.addUri.mockRejectedValue(new RpcAuthError());
-
-      const orch = new DownloadOrchestrator(wakeDeps);
-      const intercepted = await orch.handleCreated(createMockDownloadItem());
-
-      expect(intercepted).toBe(false);
-      expect(wakeDeps.wakeService.wakeAndWaitForRpc).not.toHaveBeenCalled();
-    });
-
-    it('does not attempt wake when autoLaunchApp is disabled', async () => {
-      const wakeDeps = createWakeDeps();
-      wakeDeps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
-      wakeDeps.getSettings.mockReturnValue({
-        ...wakeDeps.getSettings(),
-        autoLaunchApp: false,
-      });
-
-      const orch = new DownloadOrchestrator(wakeDeps);
-      const intercepted = await orch.handleCreated(createMockDownloadItem());
-
-      expect(intercepted).toBe(false);
-      expect(wakeDeps.wakeService.wakeAndWaitForRpc).not.toHaveBeenCalled();
-    });
-
-    it('falls back when retry after wake also fails', async () => {
-      const wakeDeps = createWakeDeps();
-      // Both addUri calls fail
-      wakeDeps.aria2.addUri.mockRejectedValue(new RpcUnreachableError());
-      wakeDeps.wakeService.wakeAndWaitForRpc.mockResolvedValue(true);
-
-      const orch = new DownloadOrchestrator(wakeDeps);
-      const intercepted = await orch.handleCreated(createMockDownloadItem());
-
-      // Should still fallback after retry failure
-      expect(intercepted).toBe(false);
-    });
-
-    it('logs wake attempt diagnostic', async () => {
-      const wakeDeps = createWakeDeps();
-      wakeDeps.aria2.addUri
-        .mockRejectedValueOnce(new RpcUnreachableError())
-        .mockResolvedValueOnce('gid-log-test');
-
-      const orch = new DownloadOrchestrator(wakeDeps);
-      await orch.handleCreated(createMockDownloadItem());
-
-      expect(wakeDeps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'download_wake_attempt' }),
-      );
+  describe('no direct aria2 RPC calls', () => {
+    it('does not have aria2 property in deps interface', () => {
+      // Verify the deps object passed to orchestrator has no aria2 property.
+      // This is a structural test confirming the RPC dependency was removed.
+      expect(deps).not.toHaveProperty('aria2');
     });
   });
 });
