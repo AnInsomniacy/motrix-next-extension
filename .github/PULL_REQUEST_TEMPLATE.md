@@ -66,7 +66,7 @@ If AI was used, specify the tool: <!-- e.g., GitHub Copilot, Claude, ChatGPT -->
 
 - [ ] New feature was discussed and approved in an issue before implementation
 - [ ] Tests written **before** implementation (TDD: red → green → refactor)
-- [ ] i18n keys updated in **all 3 locales** (`en`, `zh_CN`, `ja`) and validated with `pnpm lint:i18n`
+- [ ] i18n keys updated in **all 3 locales** (`en`, `zh_CN`, `zh_Hant`, `ja`) and validated with `pnpm lint:i18n`
 - [ ] Manifest permissions changes are documented in the PR description with justification
 
 ## Release notes
