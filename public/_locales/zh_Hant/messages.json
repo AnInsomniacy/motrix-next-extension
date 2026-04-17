@@ -1,0 +1,438 @@
+{
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "擴展顯示名稱"
+  },
+  "ext_description": {
+    "message": "將瀏覽器下載發送到 Motrix Next — 基於 aria2 的現代下載管理器",
+    "description": "在瀏覽器和應用商店中顯示的擴展描述"
+  },
+  "popup_status_connected": {
+    "message": "已連接",
+    "description": "aria2 RPC 可達時的連接狀態"
+  },
+  "popup_status_disconnected": {
+    "message": "未連接",
+    "description": "aria2 RPC 不可達時的連接狀態"
+  },
+  "popup_status_not_configured": {
+    "message": "未配置",
+    "description": "RPC 密鑰為空時的連接狀態"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "下載速度指示器",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "上傳速度指示器",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "沒有活躍的下載任務",
+    "description": "無活躍 aria2 任務時的提示"
+  },
+  "popup_action_pause_all": {
+    "message": "全部暫停",
+    "description": "暫停所有活躍下載的按鈕"
+  },
+  "popup_action_resume_all": {
+    "message": "全部繼續",
+    "description": "恢復所有暫停下載的按鈕"
+  },
+  "popup_action_settings": {
+    "message": "設置",
+    "description": "打開設置頁的按鈕"
+  },
+  "popup_action_launch": {
+    "message": "啟動 Motrix Next",
+    "description": "斷連時啟動桌面應用的按鈕"
+  },
+  "popup_action_open": {
+    "message": "打開 Motrix Next",
+    "description": "已連接時聚焦桌面應用的按鈕"
+  },
+  "popup_error_unreachable": {
+    "message": "無法連接到 Motrix Next",
+    "description": "RPC 不可達時的錯誤資訊"
+  },
+  "popup_error_check_settings": {
+    "message": "檢查設置",
+    "description": "連接失敗時跳轉設置的按鈕"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · 設置",
+    "description": "設置頁標題"
+  },
+  "options_section_connection": {
+    "message": "連接",
+    "description": "RPC 連接設置區域"
+  },
+  "options_rpc_port_label": {
+    "message": "RPC 端口",
+    "description": "RPC 端口輸入標籤"
+  },
+  "options_rpc_secret_label": {
+    "message": "RPC 密鑰",
+    "description": "RPC 密鑰輸入標籤"
+  },
+  "options_test_connection": {
+    "message": "測試連接",
+    "description": "測試 RPC 連接的按鈕"
+  },
+  "options_connection_success": {
+    "message": "已連接 · aria2 $version$",
+    "description": "測試連接成功後的提示",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "下載行為",
+    "description": "下載攔截行為設置區域"
+  },
+  "options_enabled_label": {
+    "message": "啟用下載攔截",
+    "description": "啟用/禁用下載攔截的開關"
+  },
+  "options_enabled_desc": {
+    "message": "自動攔截瀏覽器下載任務",
+    "description": "攔截開關的說明文本"
+  },
+  "options_min_size_label": {
+    "message": "最小文件大小 (MB)",
+    "description": "最小文件大小過濾器標籤"
+  },
+  "options_min_size_desc": {
+    "message": "跳過小於此閾值的文件",
+    "description": "最小文件大小輸入的說明文本"
+  },
+  "options_fallback_label": {
+    "message": "失敗時回退到瀏覽器下載",
+    "description": "瀏覽器回退開關"
+  },
+  "options_fallback_desc": {
+    "message": "aria2 失敗時自動恢復瀏覽器下載",
+    "description": "回退開關的說明文本"
+  },
+  "options_notify_label": {
+    "message": "通知",
+    "description": "啟用通知的開關"
+  },
+  "options_section_rules": {
+    "message": "站點規則",
+    "description": "按站點下載規則設置區域"
+  },
+  "options_add_rule": {
+    "message": "添加規則",
+    "description": "添加新站點規則的按鈕"
+  },
+  "options_section_enhanced": {
+    "message": "增強模式",
+    "description": "可選增強權限設定區域"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "Cookie 透傳（盡力而為）",
+    "description": "Cookie 轉發到 aria2 的開關"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "隱藏瀏覽器下載欄",
+    "description": "隱藏瀏覽器下載 UI 的開關"
+  },
+  "options_enhanced_grant": {
+    "message": "授權增強權限",
+    "description": "請求可選權限的按鈕"
+  },
+  "options_enhanced_granted": {
+    "message": "權限已授權",
+    "description": "增強權限已啟動的狀態"
+  },
+  "options_section_appearance": {
+    "message": "外觀",
+    "description": "主題設置區域"
+  },
+  "options_theme_system": {
+    "message": "跟隨系統",
+    "description": "主題選項：跟隨系統偏好"
+  },
+  "options_theme_light": {
+    "message": "淺色",
+    "description": "主題選項：淺色模式"
+  },
+  "options_theme_dark": {
+    "message": "深色",
+    "description": "主題選項：深色模式"
+  },
+  "options_section_diagnostics": {
+    "message": "診斷",
+    "description": "診斷事件日誌區域"
+  },
+  "notification_sent_title": {
+    "message": "已發送到 Motrix Next",
+    "description": "下載發送成功的通知標題"
+  },
+  "notification_sent_body": {
+    "message": "$filename$ 正在下載",
+    "description": "下載發送成功的通知內容",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "下載失敗",
+    "description": "下載發送失敗的通知標題"
+  },
+  "notification_fallback_title": {
+    "message": "已回退到瀏覽器下載",
+    "description": "回退到瀏覽器下載的通知標題"
+  },
+  "context_menu_download": {
+    "message": "使用 Motrix Next 下載",
+    "description": "使用 Motrix Next 下載鏈接的右鍵菜單項"
+  },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "彈窗標題"
+  },
+  "popup_speed_active_count": {
+    "message": "$count$ 個活躍",
+    "description": "速度欄中活躍下載數量",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "請確保 Motrix Next 正在運行且 RPC 已啟用。",
+    "description": "連接失敗時的提示"
+  },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "設置頁標題"
+  },
+  "options_header_subtitle": {
+    "message": "擴展設定",
+    "description": "設置頁副標題"
+  },
+  "options_testing_connection": {
+    "message": "測試中...",
+    "description": "測試連接時的按鈕文字"
+  },
+  "options_connection_success_prefix": {
+    "message": "已連接 · aria2",
+    "description": "連接成功狀態前綴"
+  },
+  "options_notify_start_label": {
+    "message": "下載開始時通知",
+    "description": "開始通知的開關標籤"
+  },
+  "options_notify_complete_label": {
+    "message": "下載完成時通知",
+    "description": "完成通知的開關標籤"
+  },
+  "options_rules_empty": {
+    "message": "未配置規則。",
+    "description": "無站點規則時的佔位提示"
+  },
+  "options_enhanced_description": {
+    "message": "授權額外權限以啟用 Cookie 透傳和隱藏瀏覽器下載欄。",
+    "description": "增強權限區域描述"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "Cookie 透傳為盡力而為模式 — 由於瀏覽器私隱策略，部分網站可能無法正常工作。",
+    "description": "Cookie 透傳可靠性說明"
+  },
+  "options_enhanced_status_granted": {
+    "message": "增強權限已授權",
+    "description": "增強權限已啟動的狀態文字"
+  },
+  "options_enhanced_revoke": {
+    "message": "撤銷權限",
+    "description": "撤銷增強權限的按鈕"
+  },
+  "options_diagnostics_export": {
+    "message": "導出診斷報告",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
+  "options_diagnostics_clear": {
+    "message": "清除日誌",
+    "description": "清除診斷日誌的按鈕"
+  },
+  "options_diagnostics_empty": {
+    "message": "暫無診斷事件。",
+    "description": "診斷日誌為空時的佔位提示"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "頁腳版本文字",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "下載完成",
+    "description": "下載完成通知標題"
+  },
+  "options_save": {
+    "message": "保存",
+    "description": "操作欄保存按鈕"
+  },
+  "options_discard": {
+    "message": "放棄",
+    "description": "操作欄放棄按鈕"
+  },
+  "options_save_success": {
+    "message": "設置已保存",
+    "description": "保存成功的提示"
+  },
+  "options_save_error": {
+    "message": "保存設置失敗",
+    "description": "保存失敗的提示"
+  },
+  "options_unsaved_title": {
+    "message": "未保存的更改",
+    "description": "離開帶有未保存更改時的對話框標題"
+  },
+  "options_unsaved_message": {
+    "message": "你有未保存的更改。要在離開前保存嗎？",
+    "description": "離開帶有未保存更改時的對話框內容"
+  },
+  "options_changes_indicator": {
+    "message": "有未保存的更改",
+    "description": "顯示有未保存修改的指示文字"
+  },
+  "options_color_scheme": {
+    "message": "配色方案",
+    "description": "配色方案選擇器標籤"
+  },
+  "options_color_scheme_amber": {
+    "message": "琥珀金",
+    "description": "琥珀金配色方案"
+  },
+  "options_color_scheme_space": {
+    "message": "太空藍",
+    "description": "太空藍配色方案"
+  },
+  "options_color_scheme_mint": {
+    "message": "薄荷綠",
+    "description": "薄荷綠配色方案"
+  },
+  "options_color_scheme_rose": {
+    "message": "玫瑰紅",
+    "description": "玫瑰紅配色方案"
+  },
+  "options_color_scheme_aurora": {
+    "message": "極光紫",
+    "description": "極光紫配色方案"
+  },
+  "options_color_scheme_coral": {
+    "message": "珊瑚橙",
+    "description": "珊瑚橙配色方案"
+  },
+  "options_color_scheme_glacier": {
+    "message": "冰川藍",
+    "description": "冰川藍配色方案"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "常青綠",
+    "description": "常青綠配色方案"
+  },
+  "options_color_scheme_graphite": {
+    "message": "石墨灰",
+    "description": "石墨灰配色方案"
+  },
+  "options_color_scheme_sakura": {
+    "message": "櫻花粉",
+    "description": "櫻花粉配色方案"
+  },
+  "error_rpc_unreachable": {
+    "message": "無法連接到 Motrix Next RPC",
+    "description": "RPC 端點不可達時的錯誤資訊"
+  },
+  "error_rpc_auth": {
+    "message": "RPC 密鑰不正確",
+    "description": "RPC 密鑰不匹配時的錯誤資訊"
+  },
+  "error_rpc_timeout": {
+    "message": "連接超時",
+    "description": "RPC 連接超時時的錯誤資訊"
+  },
+  "error_unknown": {
+    "message": "發生未知錯誤",
+    "description": "兜底錯誤資訊"
+  },
+  "options_rule_always_intercept": {
+    "message": "始終攔截",
+    "description": "站點規則操作：始終攔截下載"
+  },
+  "options_rule_always_skip": {
+    "message": "始終跳過",
+    "description": "站點規則操作：始終不攔截下載"
+  },
+  "options_rule_use_global": {
+    "message": "使用全局設置",
+    "description": "站點規則操作：遵循全局設置"
+  },
+  "task_name_unknown": {
+    "message": "未知",
+    "description": "無法解析任務文件名時的兜底名稱"
+  },
+  "popup_error_auth": {
+    "message": "RPC 密鑰不匹配",
+    "description": "RPC 密鑰錯誤時的彈窗標題"
+  },
+  "popup_error_auth_hint": {
+    "message": "請在設置中確認 RPC 密鑰與 Motrix Next 配置一致。",
+    "description": "RPC 認證錯誤的提示資訊"
+  },
+  "popup_error_timeout": {
+    "message": "連接超時",
+    "description": "RPC 連接超時時的彈窗標題"
+  },
+  "popup_error_timeout_hint": {
+    "message": "請檢查網絡或防火牆設置。RPC 端口：$1",
+    "description": "連接超時的提示資訊，$1 = 端口號",
+    "placeholders": {
+      "1": { "content": "$1", "example": "16800" }
+    }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "請確保 Motrix Next 正在運行。RPC 端口：$1",
+    "description": "無法連接時的提示資訊，$1 = 端口號",
+    "placeholders": {
+      "1": { "content": "$1", "example": "16800" }
+    }
+  },
+  "options_section_language": {
+    "message": "語言",
+    "description": "界面語言設定區域"
+  },
+  "options_locale_auto": {
+    "message": "跟隨系統",
+    "description": "語言選項：跟隨瀏覽器語言"
+  },
+  "options_locale_auto_desc": {
+    "message": "跟隨瀏覽器語言",
+    "description": "自動語言選項的說明"
+  },
+  "options_auto_launch_label": {
+    "message": "自動啟動 Motrix Next",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "攔截下載時如果 Motrix Next 未運行，自動嘗試啟動",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "活躍",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "等待",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "完成",
+    "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "接管中",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "已暫停",
+    "description": "Label next to the interception toggle when inactive"
+  }
+}
