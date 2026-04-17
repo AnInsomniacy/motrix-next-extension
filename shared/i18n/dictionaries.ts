@@ -109,7 +109,11 @@ export function resolveLocaleId(raw: string): string {
 
   // 2. Explicit Traditional Chinese region mapping
   const regionNormalized = normalized.toLowerCase();
-  if (regionNormalized === 'zh_tw' || regionNormalized === 'zh_hk' || regionNormalized === 'zh_mo') {
+  if (
+    regionNormalized === 'zh_tw' ||
+    regionNormalized === 'zh_hk' ||
+    regionNormalized === 'zh_mo'
+  ) {
     return 'zh_Hant';
   }
 
