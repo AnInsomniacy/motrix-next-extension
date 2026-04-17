@@ -3,20 +3,18 @@ import { DownloadBarService, ContextMenuService, NotificationService } from '@/l
 import {
   DiagnosticLog,
   StorageService,
-  parseRpcConfig,
   parseDownloadSettings,
   parseSiteRules,
 } from '@/lib/storage';
 import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
 import { decodeThunderLink } from '@/shared/thunder';
-import { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
-import type { DownloadSettings, RpcConfig, SiteRule } from '@/shared/types';
+import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
+import type { DownloadSettings, SiteRule } from '@/shared/types';
 import { I18nEngine } from '@/shared/i18n/engine';
 import { resolveLocaleId, FALLBACK_LOCALE } from '@/shared/i18n/dictionaries';
 
 export default defineBackground(() => {
   // ─── State (restored from storage on each wake) ───
-  let rpcConfig: RpcConfig = { ...DEFAULT_RPC_CONFIG };
   let settings: DownloadSettings = { ...DEFAULT_DOWNLOAD_SETTINGS };
   let siteRules: SiteRule[] = [];
   let enhancedPermissions = false;
@@ -37,7 +35,6 @@ export default defineBackground(() => {
   async function loadConfig(): Promise<void> {
     try {
       const data = await storageService.load();
-      rpcConfig = data.rpc;
       settings = data.settings;
       siteRules = data.siteRules;
       diagnosticLog.hydrate(data.diagnosticLog);
@@ -263,7 +260,7 @@ export default defineBackground(() => {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
     if (changes.rpc?.newValue) {
-      rpcConfig = parseRpcConfig(changes.rpc.newValue);
+      // rpcConfig is consumed by the orchestrator via deep-link routing
     }
     if (changes.settings?.newValue) {
       settings = parseDownloadSettings(changes.settings.newValue);
