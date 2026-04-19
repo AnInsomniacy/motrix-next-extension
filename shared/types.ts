@@ -116,10 +116,6 @@ export interface UiPrefs {
   locale: string;
 }
 
-export interface PermissionState {
-  enhanced: boolean;
-}
-
 // ─── Diagnostic Log Types ───────────────────────────────
 
 export type DiagnosticCode =

@@ -1,5 +1,8 @@
 {
-  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
   "ext_description": {
     "message": "دانلودهای مرورگر را به Motrix Next ارسال کنید — مدیر دانلود مدرن مبتنی بر aria2",
     "description": "Extension description shown in browser and web store"
@@ -19,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "دانلود فعالی وجود ندارد",
@@ -81,7 +92,11 @@
   "options_connection_success": {
     "message": "متصل · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "رفتار دانلود",
@@ -119,34 +134,26 @@
     "message": "قوانین سایت",
     "description": "Settings section for per-site download rules"
   },
-  "options_add_rule": { "message": "افزودن قانون", "description": "Button to add a new site rule" },
-  "options_section_enhanced": {
-    "message": "حالت پیشرفته",
-    "description": "Settings section for optional enhanced permissions"
+  "options_add_rule": {
+    "message": "افزودن قانون",
+    "description": "Button to add a new site rule"
   },
-  "options_enhanced_cookies_label": {
-    "message": "ارسال کوکی‌ها (بهترین تلاش)",
-    "description": "Toggle label for cookie forwarding to aria2"
+  "options_section_appearance": {
+    "message": "ظاهر",
+    "description": "Settings section for theme"
   },
-  "options_enhanced_hide_bar_label": {
-    "message": "پنهان کردن نوار دانلود",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "اعطای مجوزهای پیشرفته",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "مجوزها اعطا شد",
-    "description": "Status when enhanced permissions are active"
-  },
-  "options_section_appearance": { "message": "ظاهر", "description": "Settings section for theme" },
   "options_theme_system": {
     "message": "سیستم",
     "description": "Theme option: follow system preference"
   },
-  "options_theme_light": { "message": "روشن", "description": "Theme option: light mode" },
-  "options_theme_dark": { "message": "تاریک", "description": "Theme option: dark mode" },
+  "options_theme_light": {
+    "message": "روشن",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "تاریک",
+    "description": "Theme option: dark mode"
+  },
   "options_section_diagnostics": {
     "message": "عیب‌یابی",
     "description": "Settings section for diagnostic event log"
@@ -158,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ در حال دانلود",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "دانلود ناموفق",
@@ -172,17 +183,27 @@
     "message": "دانلود با Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
-  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
   "popup_speed_active_count": {
     "message": "$count$ فعال",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "مطمئن شوید Motrix Next در حال اجراست و RPC فعال است.",
     "description": "Hint shown when connection fails"
   },
-  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
   "options_header_subtitle": {
     "message": "تنظیمات افزونه",
     "description": "Options page header subtitle"
@@ -207,22 +228,6 @@
     "message": "قانونی تنظیم نشده.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "مجوزهای اضافی برای ارسال کوکی و پنهان کردن نوار دانلود اعطا کنید.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "ارسال کوکی به صورت بهترین تلاش است — ممکن است برای همه سایت‌ها به دلیل سیاست‌های حریم خصوصی کار نکند.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "مجوزهای پیشرفته اعطا شد",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "لغو مجوزها",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "خروجی گزارش عیب‌یابی",
     "description": "Button to export full diagnostic report as JSON file"
@@ -238,14 +243,24 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "دانلود کامل شد",
     "description": "Title for download completion notification"
   },
-  "options_save": { "message": "ذخیره", "description": "Save button in action bar" },
-  "options_discard": { "message": "لغو", "description": "Discard button in action bar" },
+  "options_save": {
+    "message": "ذخیره",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "لغو",
+    "description": "Discard button in action bar"
+  },
   "options_save_success": {
     "message": "تنظیمات ذخیره شد",
     "description": "Toast after saving settings successfully"
@@ -282,7 +297,10 @@
     "message": "سبز نعنایی",
     "description": "Mint Green color scheme"
   },
-  "options_color_scheme_rose": { "message": "قرمز گلسرخی", "description": "Rose Red color scheme" },
+  "options_color_scheme_rose": {
+    "message": "قرمز گلسرخی",
+    "description": "Rose Red color scheme"
+  },
   "options_color_scheme_aurora": {
     "message": "بنفش شفقی",
     "description": "Aurora Purple color scheme"
@@ -319,7 +337,10 @@
     "message": "زمان اتصال به پایان رسید",
     "description": "Error when the RPC connection times out"
   },
-  "error_unknown": { "message": "خطای ناشناخته رخ داد", "description": "Fallback error message" },
+  "error_unknown": {
+    "message": "خطای ناشناخته رخ داد",
+    "description": "Fallback error message"
+  },
   "options_rule_always_intercept": {
     "message": "همیشه رهگیری",
     "description": "Site rule action: always intercept downloads"
@@ -351,12 +372,22 @@
   "popup_error_timeout_hint": {
     "message": "تنظیمات شبکه یا فایروال را بررسی کنید. پورت RPC: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "popup_error_unreachable_hint": {
     "message": "مطمئن شوید Motrix Next در حال اجراست. پورت RPC: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "options_section_language": {
     "message": "زبان",

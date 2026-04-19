@@ -30,11 +30,11 @@ export default defineConfig({
     name: '__MSG_ext_name__',
     description: '__MSG_ext_description__',
     default_locale: 'en',
-    permissions: ['downloads', 'storage', 'contextMenus', 'notifications'],
-    host_permissions: ['http://127.0.0.1/*', 'http://localhost/*'],
-    // downloads.ui is Chromium-only (used for setUiOptions to hide download bar)
-    optional_permissions: browser === 'firefox' ? ['cookies'] : ['cookies', 'downloads.ui'],
-    optional_host_permissions: ['https://*/*', 'http://*/*'],
+    permissions:
+      browser === 'firefox'
+        ? ['downloads', 'storage', 'contextMenus', 'notifications', 'cookies']
+        : ['downloads', 'storage', 'contextMenus', 'notifications', 'cookies', 'downloads.ui'],
+    host_permissions: ['http://127.0.0.1/*', 'http://localhost/*', 'https://*/*', 'http://*/*'],
     // Firefox AMO requires gecko.id for signing and data_collection_permissions
     // for privacy disclosure. Chrome ignores this key entirely.
     ...(browser === 'firefox' && {

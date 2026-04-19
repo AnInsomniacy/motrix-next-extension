@@ -22,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "لا توجد تنزيلات نشطة",
@@ -84,7 +92,11 @@
   "options_connection_success": {
     "message": "متصل · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "سلوك التنزيل",
@@ -126,26 +138,6 @@
     "message": "إضافة قاعدة",
     "description": "Button to add a new site rule"
   },
-  "options_section_enhanced": {
-    "message": "الوضع المحسّن",
-    "description": "Settings section for optional enhanced permissions"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "تمرير ملفات تعريف الارتباط (أفضل جهد)",
-    "description": "Toggle label for cookie forwarding to aria2"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "إخفاء شريط التنزيل",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "منح الأذونات المحسّنة",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "تم منح الأذونات",
-    "description": "Status when enhanced permissions are active"
-  },
   "options_section_appearance": {
     "message": "المظهر",
     "description": "Settings section for theme"
@@ -173,7 +165,11 @@
   "notification_sent_body": {
     "message": "جارٍ تنزيل $filename$",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "فشل التنزيل",
@@ -194,7 +190,11 @@
   "popup_speed_active_count": {
     "message": "$count$ نشط",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "تأكد من أن Motrix Next قيد التشغيل وأن RPC مفعّل.",
@@ -228,22 +228,6 @@
     "message": "لا توجد قواعد مُعدّة.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "منح أذونات إضافية لتمرير ملفات تعريف الارتباط وإخفاء شريط تنزيل المتصفح.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "تمرير ملفات تعريف الارتباط يعمل بأفضل جهد — قد لا يعمل مع جميع المواقع بسبب سياسات الخصوصية.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "تم منح الأذونات المحسّنة",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "إلغاء الأذونات",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "تصدير تقرير التشخيص",
     "description": "Button to export full diagnostic report as JSON file"
@@ -259,7 +243,11 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "اكتمل التنزيل",
@@ -385,14 +373,20 @@
     "message": "تحقق من إعدادات الشبكة أو جدار الحماية. منفذ RPC: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
     "placeholders": {
-      "1": { "content": "$1", "example": "16800" }
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
     }
   },
   "popup_error_unreachable_hint": {
     "message": "تأكد من أن Motrix Next قيد التشغيل. منفذ RPC: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
-      "1": { "content": "$1", "example": "16800" }
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
     }
   },
   "options_section_language": {

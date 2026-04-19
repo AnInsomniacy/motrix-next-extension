@@ -27,7 +27,6 @@ import { usePreferenceForm } from '@/shared/use-preference-form';
 
 import { useSiteRules } from './composables/use-site-rules';
 import { useConnectionTest } from './composables/use-connection-test';
-import { useEnhancedPermissions } from './composables/use-enhanced-permissions';
 import { useDiagnostics } from './composables/use-diagnostics';
 import { useAppearance } from './composables/use-appearance';
 import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
@@ -36,7 +35,6 @@ import OptionsNav from './components/OptionsNav.vue';
 import ConnectionSection from './components/ConnectionSection.vue';
 import BehaviorSection from './components/BehaviorSection.vue';
 import SiteRulesSection from './components/SiteRulesSection.vue';
-import EnhancedSection from './components/EnhancedSection.vue';
 import AppearanceSection from './components/AppearanceSection.vue';
 import DiagnosticsSection from './components/DiagnosticsSection.vue';
 import SettingsActionBar from './components/SettingsActionBar.vue';
@@ -72,8 +70,6 @@ const storageService = new StorageService(chrome.storage.local);
 // ─── Composables ────────────────────────────────────────────────────
 
 const { siteRules, hydrate: hydrateSiteRules, addRule, removeRule } = useSiteRules(storageService);
-const { enhancedGranted, checkPermissions, grantEnhanced, revokeEnhanced } =
-  useEnhancedPermissions();
 const {
   diagnosticEvents,
   hydrate: hydrateDiagnostics,
@@ -193,8 +189,6 @@ async function loadFromStorage(): Promise<void> {
   i18nCtx.setLocale(data.uiPrefs.locale);
   hydrateSiteRules(data.siteRules);
   hydrateDiagnostics(data.diagnosticLog);
-
-  await checkPermissions();
 }
 
 // ─── Lifecycle ──────────────────────────────────────────────────────
@@ -329,21 +323,6 @@ onUnmounted(() => {
               <h2 class="section-title">{{ i18n('options_section_rules', 'Site Rules') }}</h2>
               <div class="card">
                 <SiteRulesSection :rules="siteRules" @add="addRule" @remove="removeRule" />
-              </div>
-            </div>
-
-            <!-- Enhanced -->
-            <div v-else-if="activeSection === 'enhanced'" key="enhanced" class="section-wrapper">
-              <h2 class="section-title">{{ i18n('options_section_enhanced', 'Enhanced Mode') }}</h2>
-              <div class="card">
-                <EnhancedSection
-                  :granted="enhancedGranted"
-                  :hide-download-bar="form.hideDownloadBar"
-                  @grant="grantEnhanced"
-                  @revoke="revokeEnhanced"
-                  @update:hide-download-bar="form.hideDownloadBar = $event"
-                />
-                <SettingsActionBar :is-dirty="isDirty" @save="handleSave" @discard="handleReset" />
               </div>
             </div>
 

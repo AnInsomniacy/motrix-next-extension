@@ -1,5 +1,8 @@
 {
-  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
   "ext_description": {
     "message": "Kirim unduhan browser ke Motrix Next — pengelola unduhan modern berbasis aria2",
     "description": "Extension description shown in browser and web store"
@@ -19,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "Tidak ada unduhan aktif",
@@ -81,7 +92,11 @@
   "options_connection_success": {
     "message": "Terhubung · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "Perilaku unduhan",
@@ -123,26 +138,6 @@
     "message": "Tambah aturan",
     "description": "Button to add a new site rule"
   },
-  "options_section_enhanced": {
-    "message": "Mode lanjutan",
-    "description": "Settings section for optional enhanced permissions"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "Penerusan cookie (best-effort)",
-    "description": "Toggle label for cookie forwarding to aria2"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "Sembunyikan bilah unduhan",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "Berikan izin lanjutan",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "Izin diberikan",
-    "description": "Status when enhanced permissions are active"
-  },
   "options_section_appearance": {
     "message": "Tampilan",
     "description": "Settings section for theme"
@@ -151,8 +146,14 @@
     "message": "Sistem",
     "description": "Theme option: follow system preference"
   },
-  "options_theme_light": { "message": "Terang", "description": "Theme option: light mode" },
-  "options_theme_dark": { "message": "Gelap", "description": "Theme option: dark mode" },
+  "options_theme_light": {
+    "message": "Terang",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "Gelap",
+    "description": "Theme option: dark mode"
+  },
   "options_section_diagnostics": {
     "message": "Diagnostik",
     "description": "Settings section for diagnostic event log"
@@ -164,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ sedang diunduh",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "Unduhan gagal",
@@ -178,17 +183,27 @@
     "message": "Unduh dengan Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
-  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
   "popup_speed_active_count": {
     "message": "$count$ aktif",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "Pastikan Motrix Next berjalan dan RPC diaktifkan.",
     "description": "Hint shown when connection fails"
   },
-  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
   "options_header_subtitle": {
     "message": "Pengaturan ekstensi",
     "description": "Options page header subtitle"
@@ -213,22 +228,6 @@
     "message": "Belum ada aturan yang dikonfigurasi.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "Berikan izin tambahan untuk penerusan cookie dan menyembunyikan bilah unduhan.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "Penerusan cookie bersifat best-effort — mungkin tidak berfungsi di semua situs karena kebijakan privasi.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "Izin lanjutan diberikan",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "Cabut izin",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "Ekspor laporan diagnostik",
     "description": "Button to export full diagnostic report as JSON file"
@@ -244,14 +243,24 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "Unduhan selesai",
     "description": "Title for download completion notification"
   },
-  "options_save": { "message": "Simpan", "description": "Save button in action bar" },
-  "options_discard": { "message": "Buang", "description": "Discard button in action bar" },
+  "options_save": {
+    "message": "Simpan",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "Buang",
+    "description": "Discard button in action bar"
+  },
   "options_save_success": {
     "message": "Pengaturan disimpan",
     "description": "Toast after saving settings successfully"
@@ -288,7 +297,10 @@
     "message": "Hijau mint",
     "description": "Mint Green color scheme"
   },
-  "options_color_scheme_rose": { "message": "Merah mawar", "description": "Rose Red color scheme" },
+  "options_color_scheme_rose": {
+    "message": "Merah mawar",
+    "description": "Rose Red color scheme"
+  },
   "options_color_scheme_aurora": {
     "message": "Ungu aurora",
     "description": "Aurora Purple color scheme"
@@ -360,12 +372,22 @@
   "popup_error_timeout_hint": {
     "message": "Periksa pengaturan jaringan atau firewall. Port RPC: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "popup_error_unreachable_hint": {
     "message": "Pastikan Motrix Next berjalan. Port RPC: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "options_section_language": {
     "message": "Bahasa",

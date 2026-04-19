@@ -46,7 +46,6 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
     } satisfies DownloadSettings),
     getSiteRules: vi.fn().mockReturnValue([] as SiteRule[]),
     getTabUrl: vi.fn<() => Promise<string>>().mockResolvedValue('https://example.com/page'),
-    hasEnhancedPermissions: vi.fn().mockReturnValue(false),
     openProtocolNewTask: vi
       .fn<(url: string, referer: string, cookie: string) => Promise<void>>()
       .mockResolvedValue(undefined),
@@ -81,7 +80,7 @@ describe('DownloadOrchestrator', () => {
       expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
         'https://example.com/file.zip',
         'https://example.com/page',
-        '', // no cookies — enhanced permissions not granted
+        '', // no cookies API injected in default mock deps
       );
     });
 
@@ -257,9 +256,8 @@ describe('DownloadOrchestrator', () => {
   // ─── handleCreated — cookie collection ─────────────────
 
   describe('handleCreated — cookie forwarding', () => {
-    it('collects and forwards cookies when enhanced permissions are granted', async () => {
+    it('collects and forwards cookies when cookies API is available', async () => {
       const cookieDeps = createMockDeps({
-        hasEnhancedPermissions: vi.fn().mockReturnValue(true),
         cookies: {
           getAll: vi.fn().mockResolvedValue([
             { name: 'token', value: 'abc123' },
@@ -278,26 +276,6 @@ describe('DownloadOrchestrator', () => {
       );
     });
 
-    it('passes empty cookie string when enhanced permissions are not granted', async () => {
-      const noCookieDeps = createMockDeps({
-        hasEnhancedPermissions: vi.fn().mockReturnValue(false),
-        cookies: {
-          getAll: vi.fn().mockResolvedValue([{ name: 'token', value: 'abc' }]),
-        },
-      });
-      const orch = new DownloadOrchestrator(noCookieDeps);
-
-      await orch.handleCreated(createMockDownloadItem());
-
-      expect(noCookieDeps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-        '',
-      );
-      // cookies.getAll should NOT have been called
-      expect(noCookieDeps.cookies!.getAll).not.toHaveBeenCalled();
-    });
-
     it('passes empty cookie string when cookies API is not provided', async () => {
       const noCookieApiDeps = createMockDeps({ cookies: undefined });
       const orch = new DownloadOrchestrator(noCookieApiDeps);
@@ -313,7 +291,6 @@ describe('DownloadOrchestrator', () => {
 
     it('gracefully degrades when cookies.getAll throws', async () => {
       const errorDeps = createMockDeps({
-        hasEnhancedPermissions: vi.fn().mockReturnValue(true),
         cookies: {
           getAll: vi.fn().mockRejectedValue(new Error('Permission denied')),
         },
@@ -332,7 +309,6 @@ describe('DownloadOrchestrator', () => {
 
     it('passes empty cookie string when no cookies exist for the URL', async () => {
       const emptyCookieDeps = createMockDeps({
-        hasEnhancedPermissions: vi.fn().mockReturnValue(true),
         cookies: {
           getAll: vi.fn().mockResolvedValue([]),
         },
@@ -350,7 +326,6 @@ describe('DownloadOrchestrator', () => {
 
     it('includes hasCookie: true in diagnostic context when cookies are collected', async () => {
       const cookieDeps = createMockDeps({
-        hasEnhancedPermissions: vi.fn().mockReturnValue(true),
         cookies: {
           getAll: vi.fn().mockResolvedValue([{ name: 'auth', value: 'secret' }]),
         },
@@ -379,7 +354,7 @@ describe('DownloadOrchestrator', () => {
       expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
         'https://example.com/file.zip',
         'https://example.com',
-        '', // no cookies — enhanced permissions not granted
+        '', // no cookies API in default mock
       );
       expect(result).toBe('routed-to-desktop');
     });

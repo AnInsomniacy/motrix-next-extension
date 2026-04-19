@@ -18,7 +18,6 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
     getSettings: () => ({ ...DEFAULT_DOWNLOAD_SETTINGS }),
     getSiteRules: () => [] as SiteRule[],
     getTabUrl: vi.fn<() => Promise<string>>().mockResolvedValue(''),
-    hasEnhancedPermissions: () => false,
     openProtocolNewTask: vi
       .fn<(url: string, referer: string, cookie: string) => Promise<void>>()
       .mockResolvedValue(undefined),

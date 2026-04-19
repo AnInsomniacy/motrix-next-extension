@@ -11,7 +11,6 @@ import {
   LinkOutline,
   SettingsOutline,
   ListOutline,
-  ShieldCheckmarkOutline,
   ColorPaletteOutline,
   GlobeOutline,
   BugOutline,
@@ -44,11 +43,6 @@ const sections = [
     label: () => t('options_section_behavior', 'Behavior'),
   },
   { id: 'rules', icon: ListOutline, label: () => t('options_section_rules', 'Site Rules') },
-  {
-    id: 'enhanced',
-    icon: ShieldCheckmarkOutline,
-    label: () => t('options_section_enhanced', 'Enhanced'),
-  },
   {
     id: 'appearance',
     icon: ColorPaletteOutline,

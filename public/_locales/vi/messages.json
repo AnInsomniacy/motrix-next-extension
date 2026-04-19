@@ -1,5 +1,8 @@
 {
-  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
   "ext_description": {
     "message": "Gửi tải xuống từ trình duyệt đến Motrix Next — trình quản lý tải xuống hiện đại dựa trên aria2",
     "description": "Extension description shown in browser and web store"
@@ -19,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "Không có tải xuống đang hoạt động",
@@ -81,7 +92,11 @@
   "options_connection_success": {
     "message": "Đã kết nối · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "Hành vi tải xuống",
@@ -119,26 +134,9 @@
     "message": "Quy tắc trang web",
     "description": "Settings section for per-site download rules"
   },
-  "options_add_rule": { "message": "Thêm quy tắc", "description": "Button to add a new site rule" },
-  "options_section_enhanced": {
-    "message": "Chế độ nâng cao",
-    "description": "Settings section for optional enhanced permissions"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "Chuyển tiếp cookie (best-effort)",
-    "description": "Toggle label for cookie forwarding to aria2"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "Ẩn thanh tải xuống",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "Cấp quyền nâng cao",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "Đã cấp quyền",
-    "description": "Status when enhanced permissions are active"
+  "options_add_rule": {
+    "message": "Thêm quy tắc",
+    "description": "Button to add a new site rule"
   },
   "options_section_appearance": {
     "message": "Giao diện",
@@ -148,8 +146,14 @@
     "message": "Hệ thống",
     "description": "Theme option: follow system preference"
   },
-  "options_theme_light": { "message": "Sáng", "description": "Theme option: light mode" },
-  "options_theme_dark": { "message": "Tối", "description": "Theme option: dark mode" },
+  "options_theme_light": {
+    "message": "Sáng",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "Tối",
+    "description": "Theme option: dark mode"
+  },
   "options_section_diagnostics": {
     "message": "Chẩn đoán",
     "description": "Settings section for diagnostic event log"
@@ -161,7 +165,11 @@
   "notification_sent_body": {
     "message": "Đang tải xuống $filename$",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "Tải xuống thất bại",
@@ -175,17 +183,27 @@
     "message": "Tải xuống bằng Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
-  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
   "popup_speed_active_count": {
     "message": "$count$ đang hoạt động",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "Đảm bảo Motrix Next đang chạy và RPC đã được bật.",
     "description": "Hint shown when connection fails"
   },
-  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
   "options_header_subtitle": {
     "message": "Cài đặt tiện ích",
     "description": "Options page header subtitle"
@@ -210,22 +228,6 @@
     "message": "Chưa có quy tắc nào được cấu hình.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "Cấp quyền bổ sung để chuyển tiếp cookie và ẩn thanh tải xuống.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "Chuyển tiếp cookie hoạt động theo nguyên tắc best-effort — có thể không hoạt động trên tất cả các trang web do chính sách bảo mật.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "Đã cấp quyền nâng cao",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "Thu hồi quyền",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "Xuất báo cáo chẩn đoán",
     "description": "Button to export full diagnostic report as JSON file"
@@ -241,14 +243,24 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "Tải xuống hoàn tất",
     "description": "Title for download completion notification"
   },
-  "options_save": { "message": "Lưu", "description": "Save button in action bar" },
-  "options_discard": { "message": "Hủy", "description": "Discard button in action bar" },
+  "options_save": {
+    "message": "Lưu",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "Hủy",
+    "description": "Discard button in action bar"
+  },
   "options_save_success": {
     "message": "Đã lưu cài đặt",
     "description": "Toast after saving settings successfully"
@@ -285,7 +297,10 @@
     "message": "Xanh bạc hà",
     "description": "Mint Green color scheme"
   },
-  "options_color_scheme_rose": { "message": "Đỏ hoa hồng", "description": "Rose Red color scheme" },
+  "options_color_scheme_rose": {
+    "message": "Đỏ hoa hồng",
+    "description": "Rose Red color scheme"
+  },
   "options_color_scheme_aurora": {
     "message": "Tím cực quang",
     "description": "Aurora Purple color scheme"
@@ -357,12 +372,22 @@
   "popup_error_timeout_hint": {
     "message": "Kiểm tra cài đặt mạng hoặc tường lửa. Cổng RPC: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "popup_error_unreachable_hint": {
     "message": "Đảm bảo Motrix Next đang chạy. Cổng RPC: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "options_section_language": {
     "message": "Ngôn ngữ",

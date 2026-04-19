@@ -25,7 +25,6 @@ describe('MetadataCollector', () => {
         filename: 'file.zip',
         tabUrl: 'https://example.com/page',
         cookiesApi: null,
-        hasEnhancedPermissions: false,
       });
 
       expect(result.filename).toBe('file.zip');
@@ -33,7 +32,7 @@ describe('MetadataCollector', () => {
       expect(result.cookies).toBeNull();
     });
 
-    it('collects cookies when enhanced permissions are granted', async () => {
+    it('collects cookies when cookies API is available', async () => {
       const getAllFn = vi.fn<CookiesApi['getAll']>().mockResolvedValue([
         { name: 'session', value: 'abc123' },
         { name: 'token', value: 'xyz789' },
@@ -47,14 +46,13 @@ describe('MetadataCollector', () => {
         filename: 'file.zip',
         tabUrl: 'https://example.com/page',
         cookiesApi: mockCookies,
-        hasEnhancedPermissions: true,
       });
 
       expect(result.cookies).toBe('session=abc123; token=xyz789');
       expect(mockCookies.getAll).toHaveBeenCalledWith({ url: 'https://example.com/file.zip' });
     });
 
-    it('returns null cookies when enhanced permissions are not granted', async () => {
+    it('returns null cookies when cookies API is null', async () => {
       const collector = new MetadataCollector();
 
       const result = await collector.collectMetadata({
@@ -62,7 +60,6 @@ describe('MetadataCollector', () => {
         filename: 'file.zip',
         tabUrl: 'https://example.com/page',
         cookiesApi: null,
-        hasEnhancedPermissions: false,
       });
 
       expect(result.cookies).toBeNull();
@@ -81,7 +78,6 @@ describe('MetadataCollector', () => {
         filename: 'file.zip',
         tabUrl: 'https://example.com/page',
         cookiesApi: mockCookies,
-        hasEnhancedPermissions: true,
       });
 
       expect(result.cookies).toBeNull();
@@ -97,7 +93,6 @@ describe('MetadataCollector', () => {
         filename: 'file.zip',
         tabUrl: 'https://example.com/page',
         cookiesApi: mockCookies,
-        hasEnhancedPermissions: true,
       });
 
       expect(result.cookies).toBeNull();
@@ -111,7 +106,6 @@ describe('MetadataCollector', () => {
         filename: 'file.zip',
         tabUrl: '',
         cookiesApi: null,
-        hasEnhancedPermissions: false,
       });
 
       expect(result.referer).toBe('https://example.com/file.zip');

@@ -27,7 +27,6 @@ export interface OrchestratorDeps {
   getSettings: () => DownloadSettings;
   getSiteRules: () => SiteRule[];
   getTabUrl: (id?: number) => Promise<string>;
-  hasEnhancedPermissions: () => boolean;
   /**
    * Route a URL to the desktop app via `motrixnext://new?url=...&referer=...&cookie=...`
    * deep link. The desktop app shows its native "Add Task" dialog for user
@@ -172,7 +171,7 @@ export class DownloadOrchestrator {
    * cookies (works for non-cookie-gated CDNs like GitHub Releases).
    */
   private async collectCookies(url: string): Promise<string> {
-    if (!this.deps.cookies || !this.deps.hasEnhancedPermissions()) {
+    if (!this.deps.cookies) {
       return '';
     }
     try {

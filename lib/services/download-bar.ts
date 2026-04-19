@@ -6,7 +6,6 @@ interface DownloadUiApi {
 
 export interface DownloadBarInput {
   hideDownloadBar: boolean;
-  hasEnhancedPermissions: boolean;
 }
 
 // ─── Service ────────────────────────────────────────────
@@ -17,7 +16,6 @@ export interface DownloadBarInput {
  *
  * Design:
  * - Graceful degradation: if the API is unavailable, silently ignores
- * - Only hides when BOTH hideDownloadBar=true AND enhanced permissions granted
  * - Pure DI: no global chrome reference
  */
 export class DownloadBarService {
@@ -28,10 +26,8 @@ export class DownloadBarService {
   }
 
   async apply(input: DownloadBarInput): Promise<void> {
-    const shouldHide = input.hideDownloadBar && input.hasEnhancedPermissions;
-
     try {
-      await this.api.setUiOptions({ enabled: !shouldHide });
+      await this.api.setUiOptions({ enabled: !input.hideDownloadBar });
     } catch {
       // Graceful degradation: API may not be available on older Chrome versions
     }

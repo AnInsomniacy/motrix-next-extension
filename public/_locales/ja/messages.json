@@ -22,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "アクティブなダウンロードなし",
@@ -84,7 +92,11 @@
   "options_connection_success": {
     "message": "接続済み · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "ダウンロード動作",
@@ -126,26 +138,6 @@
     "message": "ルールを追加",
     "description": "Button to add a new site rule"
   },
-  "options_section_enhanced": {
-    "message": "拡張モード",
-    "description": "Settings section for optional enhanced permissions"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "Cookie転送 (ベストエフォート)",
-    "description": "Toggle label for cookie forwarding to aria2"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "ブラウザのダウンロードバーを非表示",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "拡張権限を付与",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "権限付与済み",
-    "description": "Status when enhanced permissions are active"
-  },
   "options_section_appearance": {
     "message": "外観",
     "description": "Settings section for theme"
@@ -173,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ をダウンロード中",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "ダウンロード失敗",
@@ -194,7 +190,11 @@
   "popup_speed_active_count": {
     "message": "$count$ 件アクティブ",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "Motrix Nextが起動中で、RPCが有効であることを確認してください。",
@@ -228,22 +228,6 @@
     "message": "ルールが設定されていません。",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "Cookie転送やブラウザのダウンロードバー非表示のために追加の権限を付与します。",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "Cookie転送はベストエフォートです — ブラウザのプライバシーポリシーにより、一部のサイトでは動作しない場合があります。",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "拡張権限が付与されています",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "権限を取り消す",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "診断レポートをエクスポート",
     "description": "Button to export full diagnostic report as JSON file"
@@ -259,7 +243,11 @@
   "options_footer": {
     "message": "Motrix Next 拡張機能 v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "ダウンロード完了",
@@ -385,14 +373,20 @@
     "message": "ネットワークまたはファイアウォールの設定を確認してください。RPCポート: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
     "placeholders": {
-      "1": { "content": "$1", "example": "16800" }
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
     }
   },
   "popup_error_unreachable_hint": {
     "message": "Motrix Nextが起動中であることを確認してください。RPCポート: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
-      "1": { "content": "$1", "example": "16800" }
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
     }
   },
   "options_section_language": {

@@ -1,5 +1,8 @@
 {
-  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
   "ext_description": {
     "message": "Send nedlastinger fra nettleseren til Motrix Next — en moderne nedlastingsbehandler drevet av aria2",
     "description": "Extension description shown in browser and web store"
@@ -19,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "Ingen aktive nedlastinger",
@@ -81,7 +92,11 @@
   "options_connection_success": {
     "message": "Tilkoblet · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "Nedlastingsatferd",
@@ -123,26 +138,6 @@
     "message": "Legg til regel",
     "description": "Button to add a new site rule"
   },
-  "options_section_enhanced": {
-    "message": "Utvidet modus",
-    "description": "Settings section for optional enhanced permissions"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "Videresending av informasjonskapsler (best-effort)",
-    "description": "Toggle label for cookie forwarding to aria2"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "Skjul nedlastingslinjen",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "Gi utvidede tillatelser",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "Tillatelser gitt",
-    "description": "Status when enhanced permissions are active"
-  },
   "options_section_appearance": {
     "message": "Utseende",
     "description": "Settings section for theme"
@@ -151,8 +146,14 @@
     "message": "System",
     "description": "Theme option: follow system preference"
   },
-  "options_theme_light": { "message": "Lys", "description": "Theme option: light mode" },
-  "options_theme_dark": { "message": "Mørk", "description": "Theme option: dark mode" },
+  "options_theme_light": {
+    "message": "Lys",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "Mørk",
+    "description": "Theme option: dark mode"
+  },
   "options_section_diagnostics": {
     "message": "Diagnostikk",
     "description": "Settings section for diagnostic event log"
@@ -164,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ lastes ned",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "Nedlasting mislyktes",
@@ -178,17 +183,27 @@
     "message": "Last ned med Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
-  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
   "popup_speed_active_count": {
     "message": "$count$ aktive",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "Sørg for at Motrix Next kjører og at RPC er aktivert.",
     "description": "Hint shown when connection fails"
   },
-  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
   "options_header_subtitle": {
     "message": "Utvidelsesinnstillinger",
     "description": "Options page header subtitle"
@@ -213,22 +228,6 @@
     "message": "Ingen regler konfigurert.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "Gi ekstra tillatelser for videresending av informasjonskapsler og skjuling av nedlastingslinjen.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "Videresending av informasjonskapsler er best-effort — det fungerer kanskje ikke for alle nettsteder på grunn av personvernregler.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "Utvidede tillatelser gitt",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "Tilbakekall tillatelser",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "Eksporter diagnostikkrapport",
     "description": "Button to export full diagnostic report as JSON file"
@@ -244,14 +243,24 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "Nedlasting fullført",
     "description": "Title for download completion notification"
   },
-  "options_save": { "message": "Lagre", "description": "Save button in action bar" },
-  "options_discard": { "message": "Forkast", "description": "Discard button in action bar" },
+  "options_save": {
+    "message": "Lagre",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "Forkast",
+    "description": "Discard button in action bar"
+  },
   "options_save_success": {
     "message": "Innstillinger lagret",
     "description": "Toast after saving settings successfully"
@@ -276,10 +285,22 @@
     "message": "Fargeskjema",
     "description": "Label for the color scheme picker"
   },
-  "options_color_scheme_amber": { "message": "Ravgull", "description": "Amber Gold color scheme" },
-  "options_color_scheme_space": { "message": "Romblå", "description": "Space Blue color scheme" },
-  "options_color_scheme_mint": { "message": "Mintgrønn", "description": "Mint Green color scheme" },
-  "options_color_scheme_rose": { "message": "Roserød", "description": "Rose Red color scheme" },
+  "options_color_scheme_amber": {
+    "message": "Ravgull",
+    "description": "Amber Gold color scheme"
+  },
+  "options_color_scheme_space": {
+    "message": "Romblå",
+    "description": "Space Blue color scheme"
+  },
+  "options_color_scheme_mint": {
+    "message": "Mintgrønn",
+    "description": "Mint Green color scheme"
+  },
+  "options_color_scheme_rose": {
+    "message": "Roserød",
+    "description": "Rose Red color scheme"
+  },
   "options_color_scheme_aurora": {
     "message": "Nordlyslilla",
     "description": "Aurora Purple color scheme"
@@ -316,7 +337,10 @@
     "message": "Tilkoblingstidsavbrudd",
     "description": "Error when the RPC connection times out"
   },
-  "error_unknown": { "message": "En ukjent feil oppstod", "description": "Fallback error message" },
+  "error_unknown": {
+    "message": "En ukjent feil oppstod",
+    "description": "Fallback error message"
+  },
   "options_rule_always_intercept": {
     "message": "Alltid avskjær",
     "description": "Site rule action: always intercept downloads"
@@ -348,12 +372,22 @@
   "popup_error_timeout_hint": {
     "message": "Sjekk nettverks- eller brannmurinnstillingene. RPC-port: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "popup_error_unreachable_hint": {
     "message": "Sørg for at Motrix Next kjører. RPC-port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "options_section_language": {
     "message": "Språk",

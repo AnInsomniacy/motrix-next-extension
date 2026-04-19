@@ -1,5 +1,8 @@
 {
-  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
   "ext_description": {
     "message": "Изпращайте изтегляния от браузъра към Motrix Next — модерен мениджър за изтегляне, задвижван от aria2",
     "description": "Extension description shown in browser and web store"
@@ -19,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "Няма активни изтегляния",
@@ -81,7 +92,11 @@
   "options_connection_success": {
     "message": "Свързан · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "Поведение при изтегляне",
@@ -123,26 +138,6 @@
     "message": "Добави правило",
     "description": "Button to add a new site rule"
   },
-  "options_section_enhanced": {
-    "message": "Подобрен режим",
-    "description": "Settings section for optional enhanced permissions"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "Препращане на бисквитки (best-effort)",
-    "description": "Toggle label for cookie forwarding to aria2"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "Скриване на лентата за изтегляне",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "Предоставяне на разширени разрешения",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "Разрешенията са предоставени",
-    "description": "Status when enhanced permissions are active"
-  },
   "options_section_appearance": {
     "message": "Външен вид",
     "description": "Settings section for theme"
@@ -151,8 +146,14 @@
     "message": "Системна",
     "description": "Theme option: follow system preference"
   },
-  "options_theme_light": { "message": "Светла", "description": "Theme option: light mode" },
-  "options_theme_dark": { "message": "Тъмна", "description": "Theme option: dark mode" },
+  "options_theme_light": {
+    "message": "Светла",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "Тъмна",
+    "description": "Theme option: dark mode"
+  },
   "options_section_diagnostics": {
     "message": "Диагностика",
     "description": "Settings section for diagnostic event log"
@@ -164,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ се изтегля",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "Изтеглянето не успя",
@@ -178,17 +183,27 @@
     "message": "Изтегли с Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
-  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
   "popup_speed_active_count": {
     "message": "$count$ активни",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "Уверете се, че Motrix Next работи и RPC е активиран.",
     "description": "Hint shown when connection fails"
   },
-  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
   "options_header_subtitle": {
     "message": "Настройки на разширението",
     "description": "Options page header subtitle"
@@ -213,22 +228,6 @@
     "message": "Няма настроени правила.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "Предоставете допълнителни разрешения за препращане на бисквитки и скриване на лентата за изтегляне.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "Препращането на бисквитки е на принципа best-effort — може да не работи за всички сайтове поради политиките за поверителност.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "Разширените разрешения са предоставени",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "Оттегляне на разрешенията",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "Експортиране на диагностичен отчет",
     "description": "Button to export full diagnostic report as JSON file"
@@ -244,14 +243,24 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "Изтеглянето завърши",
     "description": "Title for download completion notification"
   },
-  "options_save": { "message": "Запази", "description": "Save button in action bar" },
-  "options_discard": { "message": "Отхвърли", "description": "Discard button in action bar" },
+  "options_save": {
+    "message": "Запази",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "Отхвърли",
+    "description": "Discard button in action bar"
+  },
   "options_save_success": {
     "message": "Настройките са запазени",
     "description": "Toast after saving settings successfully"
@@ -363,12 +372,22 @@
   "popup_error_timeout_hint": {
     "message": "Проверете мрежовите настройки или защитната стена. RPC порт: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "popup_error_unreachable_hint": {
     "message": "Уверете се, че Motrix Next работи. RPC порт: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "options_section_language": {
     "message": "Език",

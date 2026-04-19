@@ -1,5 +1,8 @@
 {
-  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
   "ext_description": {
     "message": "Wysyłaj pobierania z przeglądarki do Motrix Next — nowoczesnego menedżera pobierania opartego na aria2",
     "description": "Extension description shown in browser and web store"
@@ -19,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "Brak aktywnych pobierań",
@@ -81,7 +92,11 @@
   "options_connection_success": {
     "message": "Połączony · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "Zachowanie pobierania",
@@ -119,26 +134,9 @@
     "message": "Reguły witryn",
     "description": "Settings section for per-site download rules"
   },
-  "options_add_rule": { "message": "Dodaj regułę", "description": "Button to add a new site rule" },
-  "options_section_enhanced": {
-    "message": "Tryb rozszerzony",
-    "description": "Settings section for optional enhanced permissions"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "Przekazywanie ciasteczek (best-effort)",
-    "description": "Toggle label for cookie forwarding to aria2"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "Ukryj pasek pobierania",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "Przyznaj rozszerzone uprawnienia",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "Uprawnienia przyznane",
-    "description": "Status when enhanced permissions are active"
+  "options_add_rule": {
+    "message": "Dodaj regułę",
+    "description": "Button to add a new site rule"
   },
   "options_section_appearance": {
     "message": "Wygląd",
@@ -148,8 +146,14 @@
     "message": "Systemowy",
     "description": "Theme option: follow system preference"
   },
-  "options_theme_light": { "message": "Jasny", "description": "Theme option: light mode" },
-  "options_theme_dark": { "message": "Ciemny", "description": "Theme option: dark mode" },
+  "options_theme_light": {
+    "message": "Jasny",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "Ciemny",
+    "description": "Theme option: dark mode"
+  },
   "options_section_diagnostics": {
     "message": "Diagnostyka",
     "description": "Settings section for diagnostic event log"
@@ -161,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ jest pobierany",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "Pobieranie nie powiodło się",
@@ -175,17 +183,27 @@
     "message": "Pobierz za pomocą Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
-  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
   "popup_speed_active_count": {
     "message": "$count$ aktywnych",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "Upewnij się, że Motrix Next jest uruchomiony i RPC jest włączone.",
     "description": "Hint shown when connection fails"
   },
-  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
   "options_header_subtitle": {
     "message": "Ustawienia rozszerzenia",
     "description": "Options page header subtitle"
@@ -210,22 +228,6 @@
     "message": "Brak skonfigurowanych reguł.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "Przyznaj dodatkowe uprawnienia do przekazywania ciasteczek i ukrywania paska pobierania.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "Przekazywanie ciasteczek działa na zasadzie best-effort — może nie działać na wszystkich stronach ze względu na polityki prywatności.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "Rozszerzone uprawnienia przyznane",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "Cofnij uprawnienia",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "Eksportuj raport diagnostyczny",
     "description": "Button to export full diagnostic report as JSON file"
@@ -241,14 +243,24 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "Pobieranie zakończone",
     "description": "Title for download completion notification"
   },
-  "options_save": { "message": "Zapisz", "description": "Save button in action bar" },
-  "options_discard": { "message": "Odrzuć", "description": "Discard button in action bar" },
+  "options_save": {
+    "message": "Zapisz",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "Odrzuć",
+    "description": "Discard button in action bar"
+  },
   "options_save_success": {
     "message": "Ustawienia zapisane",
     "description": "Toast after saving settings successfully"
@@ -325,7 +337,10 @@
     "message": "Przekroczono limit czasu połączenia",
     "description": "Error when the RPC connection times out"
   },
-  "error_unknown": { "message": "Wystąpił nieznany błąd", "description": "Fallback error message" },
+  "error_unknown": {
+    "message": "Wystąpił nieznany błąd",
+    "description": "Fallback error message"
+  },
   "options_rule_always_intercept": {
     "message": "Zawsze przechwytuj",
     "description": "Site rule action: always intercept downloads"
@@ -357,12 +372,22 @@
   "popup_error_timeout_hint": {
     "message": "Sprawdź ustawienia sieci lub zapory. Port RPC: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "popup_error_unreachable_hint": {
     "message": "Upewnij się, że Motrix Next jest uruchomiony. Port RPC: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "options_section_language": {
     "message": "Język",

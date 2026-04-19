@@ -1,5 +1,8 @@
 {
-  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
   "ext_description": {
     "message": "Böngésző letöltések küldése a Motrix Next-nek — modern, aria2 alapú letöltéskezelő",
     "description": "Extension description shown in browser and web store"
@@ -19,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "Nincsenek aktív letöltések",
@@ -81,7 +92,11 @@
   "options_connection_success": {
     "message": "Csatlakozva · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "Letöltési viselkedés",
@@ -123,26 +138,6 @@
     "message": "Szabály hozzáadása",
     "description": "Button to add a new site rule"
   },
-  "options_section_enhanced": {
-    "message": "Bővített mód",
-    "description": "Settings section for optional enhanced permissions"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "Cookie továbbítás (best-effort)",
-    "description": "Toggle label for cookie forwarding to aria2"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "Letöltési sáv elrejtése",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "Bővített jogosultságok megadása",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "Jogosultságok megadva",
-    "description": "Status when enhanced permissions are active"
-  },
   "options_section_appearance": {
     "message": "Megjelenés",
     "description": "Settings section for theme"
@@ -151,8 +146,14 @@
     "message": "Rendszer",
     "description": "Theme option: follow system preference"
   },
-  "options_theme_light": { "message": "Világos", "description": "Theme option: light mode" },
-  "options_theme_dark": { "message": "Sötét", "description": "Theme option: dark mode" },
+  "options_theme_light": {
+    "message": "Világos",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "Sötét",
+    "description": "Theme option: dark mode"
+  },
   "options_section_diagnostics": {
     "message": "Diagnosztika",
     "description": "Settings section for diagnostic event log"
@@ -164,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ letöltése folyamatban",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "Letöltés sikertelen",
@@ -178,17 +183,27 @@
     "message": "Letöltés Motrix Next-tel",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
-  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
   "popup_speed_active_count": {
     "message": "$count$ aktív",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "Győződjön meg róla, hogy a Motrix Next fut és az RPC engedélyezve van.",
     "description": "Hint shown when connection fails"
   },
-  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
   "options_header_subtitle": {
     "message": "Bővítmény beállítások",
     "description": "Options page header subtitle"
@@ -213,22 +228,6 @@
     "message": "Nincsenek beállított szabályok.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "Adjon meg további jogosultságokat a cookie továbbításhoz és a letöltési sáv elrejtéséhez.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "A cookie továbbítás best-effort — az adatvédelmi irányelvek miatt nem minden webhelyen működik.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "Bővített jogosultságok megadva",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "Jogosultságok visszavonása",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "Diagnosztikai jelentés exportálása",
     "description": "Button to export full diagnostic report as JSON file"
@@ -244,14 +243,24 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "Letöltés kész",
     "description": "Title for download completion notification"
   },
-  "options_save": { "message": "Mentés", "description": "Save button in action bar" },
-  "options_discard": { "message": "Elvetés", "description": "Discard button in action bar" },
+  "options_save": {
+    "message": "Mentés",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "Elvetés",
+    "description": "Discard button in action bar"
+  },
   "options_save_success": {
     "message": "Beállítások mentve",
     "description": "Toast after saving settings successfully"
@@ -280,12 +289,18 @@
     "message": "Borostyán arany",
     "description": "Amber Gold color scheme"
   },
-  "options_color_scheme_space": { "message": "Űrkék", "description": "Space Blue color scheme" },
+  "options_color_scheme_space": {
+    "message": "Űrkék",
+    "description": "Space Blue color scheme"
+  },
   "options_color_scheme_mint": {
     "message": "Menta zöld",
     "description": "Mint Green color scheme"
   },
-  "options_color_scheme_rose": { "message": "Rózsa piros", "description": "Rose Red color scheme" },
+  "options_color_scheme_rose": {
+    "message": "Rózsa piros",
+    "description": "Rose Red color scheme"
+  },
   "options_color_scheme_aurora": {
     "message": "Sarki fény lila",
     "description": "Aurora Purple color scheme"
@@ -357,12 +372,22 @@
   "popup_error_timeout_hint": {
     "message": "Ellenőrizze a hálózati vagy tűzfal beállításokat. RPC port: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "popup_error_unreachable_hint": {
     "message": "Győződjön meg róla, hogy a Motrix Next fut. RPC port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "options_section_language": {
     "message": "Nyelv",

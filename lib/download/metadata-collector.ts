@@ -16,7 +16,6 @@ export interface CollectInput {
   filename: string;
   tabUrl: string;
   cookiesApi: CookiesApi | null;
-  hasEnhancedPermissions: boolean;
 }
 
 // ─── Collector ──────────────────────────────────────────
@@ -25,18 +24,14 @@ export interface CollectInput {
  * Collects download metadata (cookies, referer, filename) for aria2.
  *
  * Design:
- * - Cookies collected only when enhanced permissions are granted
+ * - Cookies always collected when cookiesApi is available (required permission)
  * - Graceful degradation: cookie failure returns null, never throws
  * - Pure dependency injection: cookiesApi passed in, no global chrome reference
  */
 export class MetadataCollector {
   async collectMetadata(input: CollectInput): Promise<DownloadMetadata> {
     const referer = input.tabUrl || input.url;
-    const cookies = await this.collectCookies(
-      input.url,
-      input.cookiesApi,
-      input.hasEnhancedPermissions,
-    );
+    const cookies = await this.collectCookies(input.url, input.cookiesApi);
 
     return {
       filename: input.filename,
@@ -63,12 +58,8 @@ export class MetadataCollector {
     return headers;
   }
 
-  private async collectCookies(
-    url: string,
-    cookiesApi: CookiesApi | null,
-    hasEnhancedPermissions: boolean,
-  ): Promise<string | null> {
-    if (!hasEnhancedPermissions || !cookiesApi) {
+  private async collectCookies(url: string, cookiesApi: CookiesApi | null): Promise<string | null> {
+    if (!cookiesApi) {
       return null;
     }
 

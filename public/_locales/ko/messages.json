@@ -1,5 +1,8 @@
 {
-  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
   "ext_description": {
     "message": "브라우저 다운로드를 Motrix Next로 전송 — aria2 기반 최신 다운로드 관리자",
     "description": "Extension description shown in browser and web store"
@@ -19,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "활성 다운로드 없음",
@@ -38,7 +49,10 @@
     "message": "모두 재개",
     "description": "Button to resume all paused downloads"
   },
-  "popup_action_settings": { "message": "설정", "description": "Button to open the options page" },
+  "popup_action_settings": {
+    "message": "설정",
+    "description": "Button to open the options page"
+  },
   "popup_action_launch": {
     "message": "Motrix Next 실행",
     "description": "Button to launch the desktop app when disconnected"
@@ -78,7 +92,11 @@
   "options_connection_success": {
     "message": "연결됨 · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "다운로드 동작",
@@ -116,34 +134,26 @@
     "message": "사이트 규칙",
     "description": "Settings section for per-site download rules"
   },
-  "options_add_rule": { "message": "규칙 추가", "description": "Button to add a new site rule" },
-  "options_section_enhanced": {
-    "message": "고급 모드",
-    "description": "Settings section for optional enhanced permissions"
+  "options_add_rule": {
+    "message": "규칙 추가",
+    "description": "Button to add a new site rule"
   },
-  "options_enhanced_cookies_label": {
-    "message": "쿠키 전달 (최선 노력)",
-    "description": "Toggle label for cookie forwarding to aria2"
+  "options_section_appearance": {
+    "message": "외관",
+    "description": "Settings section for theme"
   },
-  "options_enhanced_hide_bar_label": {
-    "message": "브라우저 다운로드 바 숨기기",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "고급 권한 부여",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "권한 부여됨",
-    "description": "Status when enhanced permissions are active"
-  },
-  "options_section_appearance": { "message": "외관", "description": "Settings section for theme" },
   "options_theme_system": {
     "message": "시스템",
     "description": "Theme option: follow system preference"
   },
-  "options_theme_light": { "message": "라이트", "description": "Theme option: light mode" },
-  "options_theme_dark": { "message": "다크", "description": "Theme option: dark mode" },
+  "options_theme_light": {
+    "message": "라이트",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "다크",
+    "description": "Theme option: dark mode"
+  },
   "options_section_diagnostics": {
     "message": "진단",
     "description": "Settings section for diagnostic event log"
@@ -155,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ 다운로드 중",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "다운로드 실패",
@@ -169,17 +183,27 @@
     "message": "Motrix Next로 다운로드",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
-  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
   "popup_speed_active_count": {
     "message": "$count$개 활성",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "Motrix Next가 실행 중이고 RPC가 활성화되어 있는지 확인하세요.",
     "description": "Hint shown when connection fails"
   },
-  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
   "options_header_subtitle": {
     "message": "확장 프로그램 설정",
     "description": "Options page header subtitle"
@@ -204,22 +228,6 @@
     "message": "설정된 규칙이 없습니다.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "쿠키 전달 및 다운로드 바 숨기기를 위해 추가 권한을 부여하세요.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "쿠키 전달은 최선 노력 방식입니다 — 개인정보 보호 정책으로 인해 일부 사이트에서 작동하지 않을 수 있습니다.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "고급 권한이 부여되었습니다",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "권한 취소",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "진단 보고서 내보내기",
     "description": "Button to export full diagnostic report as JSON file"
@@ -235,14 +243,24 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "다운로드 완료",
     "description": "Title for download completion notification"
   },
-  "options_save": { "message": "저장", "description": "Save button in action bar" },
-  "options_discard": { "message": "취소", "description": "Discard button in action bar" },
+  "options_save": {
+    "message": "저장",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "취소",
+    "description": "Discard button in action bar"
+  },
   "options_save_success": {
     "message": "설정이 저장되었습니다",
     "description": "Toast after saving settings successfully"
@@ -275,8 +293,14 @@
     "message": "스페이스 블루",
     "description": "Space Blue color scheme"
   },
-  "options_color_scheme_mint": { "message": "민트 그린", "description": "Mint Green color scheme" },
-  "options_color_scheme_rose": { "message": "로즈 레드", "description": "Rose Red color scheme" },
+  "options_color_scheme_mint": {
+    "message": "민트 그린",
+    "description": "Mint Green color scheme"
+  },
+  "options_color_scheme_rose": {
+    "message": "로즈 레드",
+    "description": "Rose Red color scheme"
+  },
   "options_color_scheme_aurora": {
     "message": "오로라 퍼플",
     "description": "Aurora Purple color scheme"
@@ -348,12 +372,22 @@
   "popup_error_timeout_hint": {
     "message": "네트워크 또는 방화벽 설정을 확인하세요. RPC 포트: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "popup_error_unreachable_hint": {
     "message": "Motrix Next가 실행 중인지 확인하세요. RPC 포트: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "options_section_language": {
     "message": "언어",

@@ -22,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "下载速度指示器",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "上传速度指示器",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "没有活跃的下载任务",
@@ -84,7 +92,11 @@
   "options_connection_success": {
     "message": "已连接 · aria2 $version$",
     "description": "测试连接成功后的提示",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "下载行为",
@@ -126,26 +138,6 @@
     "message": "添加规则",
     "description": "添加新站点规则的按钮"
   },
-  "options_section_enhanced": {
-    "message": "增强模式",
-    "description": "可选增强权限设置区域"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "Cookie 透传（尽力而为）",
-    "description": "Cookie 转发到 aria2 的开关"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "隐藏浏览器下载栏",
-    "description": "隐藏浏览器下载 UI 的开关"
-  },
-  "options_enhanced_grant": {
-    "message": "授权增强权限",
-    "description": "请求可选权限的按钮"
-  },
-  "options_enhanced_granted": {
-    "message": "权限已授权",
-    "description": "增强权限已激活的状态"
-  },
   "options_section_appearance": {
     "message": "外观",
     "description": "主题设置区域"
@@ -173,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ 正在下载",
     "description": "下载发送成功的通知内容",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "下载失败",
@@ -194,7 +190,11 @@
   "popup_speed_active_count": {
     "message": "$count$ 个活跃",
     "description": "速度栏中活跃下载数量",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "请确保 Motrix Next 正在运行且 RPC 已启用。",
@@ -228,22 +228,6 @@
     "message": "未配置规则。",
     "description": "无站点规则时的占位提示"
   },
-  "options_enhanced_description": {
-    "message": "授权额外权限以启用 Cookie 透传和隐藏浏览器下载栏。",
-    "description": "增强权限区域描述"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "Cookie 透传为尽力而为模式 — 由于浏览器隐私策略，部分网站可能无法正常工作。",
-    "description": "Cookie 透传可靠性说明"
-  },
-  "options_enhanced_status_granted": {
-    "message": "增强权限已授权",
-    "description": "增强权限已激活的状态文字"
-  },
-  "options_enhanced_revoke": {
-    "message": "撤销权限",
-    "description": "撤销增强权限的按钮"
-  },
   "options_diagnostics_export": {
     "message": "导出诊断报告",
     "description": "Button to export full diagnostic report as JSON file"
@@ -259,7 +243,11 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "页脚版本文字",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "下载完成",
@@ -385,14 +373,20 @@
     "message": "请检查网络或防火墙设置。RPC 端口：$1",
     "description": "连接超时的提示信息，$1 = 端口号",
     "placeholders": {
-      "1": { "content": "$1", "example": "16800" }
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
     }
   },
   "popup_error_unreachable_hint": {
     "message": "请确保 Motrix Next 正在运行。RPC 端口：$1",
     "description": "无法连接时的提示信息，$1 = 端口号",
     "placeholders": {
-      "1": { "content": "$1", "example": "16800" }
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
     }
   },
   "options_section_language": {

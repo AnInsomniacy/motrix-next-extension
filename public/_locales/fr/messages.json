@@ -1,5 +1,8 @@
 {
-  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
   "ext_description": {
     "message": "Envoyez les téléchargements du navigateur vers Motrix Next — un gestionnaire de téléchargements moderne propulsé par aria2",
     "description": "Extension description shown in browser and web store"
@@ -19,12 +22,20 @@
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_speed_upload": {
     "message": "↑ $speed$",
     "description": "Upload speed indicator",
-    "placeholders": { "speed": { "content": "$1" } }
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
   },
   "popup_no_active_tasks": {
     "message": "Aucun téléchargement actif",
@@ -81,7 +92,11 @@
   "options_connection_success": {
     "message": "Connecté · aria2 $version$",
     "description": "Success message after testing connection",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "options_section_behavior": {
     "message": "Comportement de téléchargement",
@@ -123,26 +138,6 @@
     "message": "Ajouter une règle",
     "description": "Button to add a new site rule"
   },
-  "options_section_enhanced": {
-    "message": "Mode amélioré",
-    "description": "Settings section for optional enhanced permissions"
-  },
-  "options_enhanced_cookies_label": {
-    "message": "Transfert de cookies (best-effort)",
-    "description": "Toggle label for cookie forwarding to aria2"
-  },
-  "options_enhanced_hide_bar_label": {
-    "message": "Masquer la barre de téléchargements",
-    "description": "Toggle label for hiding the browser download UI"
-  },
-  "options_enhanced_grant": {
-    "message": "Accorder les permissions améliorées",
-    "description": "Button to request optional permissions"
-  },
-  "options_enhanced_granted": {
-    "message": "Permissions accordées",
-    "description": "Status when enhanced permissions are active"
-  },
   "options_section_appearance": {
     "message": "Apparence",
     "description": "Settings section for theme"
@@ -151,8 +146,14 @@
     "message": "Système",
     "description": "Theme option: follow system preference"
   },
-  "options_theme_light": { "message": "Clair", "description": "Theme option: light mode" },
-  "options_theme_dark": { "message": "Sombre", "description": "Theme option: dark mode" },
+  "options_theme_light": {
+    "message": "Clair",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "Sombre",
+    "description": "Theme option: dark mode"
+  },
   "options_section_diagnostics": {
     "message": "Diagnostic",
     "description": "Settings section for diagnostic event log"
@@ -164,7 +165,11 @@
   "notification_sent_body": {
     "message": "$filename$ en cours de téléchargement",
     "description": "Notification body when download is sent",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "notification_failed_title": {
     "message": "Échec du téléchargement",
@@ -178,17 +183,27 @@
     "message": "Télécharger avec Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
   },
-  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
   "popup_speed_active_count": {
     "message": "$count$ actifs",
     "description": "Number of active downloads in speed bar",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "popup_error_hint": {
     "message": "Vérifiez que Motrix Next est en cours d'exécution et que RPC est activé.",
     "description": "Hint shown when connection fails"
   },
-  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
   "options_header_subtitle": {
     "message": "Paramètres de l'extension",
     "description": "Options page header subtitle"
@@ -213,22 +228,6 @@
     "message": "Aucune règle configurée.",
     "description": "Placeholder when no site rules exist"
   },
-  "options_enhanced_description": {
-    "message": "Accordez des permissions supplémentaires pour le transfert de cookies et masquer la barre de téléchargements.",
-    "description": "Description of enhanced permissions section"
-  },
-  "options_enhanced_cookie_note": {
-    "message": "Le transfert de cookies est best-effort — il peut ne pas fonctionner pour tous les sites en raison des politiques de confidentialité.",
-    "description": "Disclaimer about cookie forwarding reliability"
-  },
-  "options_enhanced_status_granted": {
-    "message": "Permissions améliorées accordées",
-    "description": "Status text when enhanced permissions are active"
-  },
-  "options_enhanced_revoke": {
-    "message": "Révoquer les permissions",
-    "description": "Button to revoke enhanced permissions"
-  },
   "options_diagnostics_export": {
     "message": "Exporter le rapport de diagnostic",
     "description": "Button to export full diagnostic report as JSON file"
@@ -244,14 +243,24 @@
   "options_footer": {
     "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "notification_complete_title": {
     "message": "Téléchargement terminé",
     "description": "Title for download completion notification"
   },
-  "options_save": { "message": "Enregistrer", "description": "Save button in action bar" },
-  "options_discard": { "message": "Annuler", "description": "Discard button in action bar" },
+  "options_save": {
+    "message": "Enregistrer",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "Annuler",
+    "description": "Discard button in action bar"
+  },
   "options_save_success": {
     "message": "Paramètres enregistrés",
     "description": "Toast after saving settings successfully"
@@ -276,7 +285,10 @@
     "message": "Schéma de couleurs",
     "description": "Label for the color scheme picker"
   },
-  "options_color_scheme_amber": { "message": "Or ambré", "description": "Amber Gold color scheme" },
+  "options_color_scheme_amber": {
+    "message": "Or ambré",
+    "description": "Amber Gold color scheme"
+  },
   "options_color_scheme_space": {
     "message": "Bleu spatial",
     "description": "Space Blue color scheme"
@@ -285,7 +297,10 @@
     "message": "Vert menthe",
     "description": "Mint Green color scheme"
   },
-  "options_color_scheme_rose": { "message": "Rouge rosé", "description": "Rose Red color scheme" },
+  "options_color_scheme_rose": {
+    "message": "Rouge rosé",
+    "description": "Rose Red color scheme"
+  },
   "options_color_scheme_aurora": {
     "message": "Violet aurore",
     "description": "Aurora Purple color scheme"
@@ -357,12 +372,22 @@
   "popup_error_timeout_hint": {
     "message": "Vérifiez les paramètres réseau ou pare-feu. Port RPC : $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "popup_error_unreachable_hint": {
     "message": "Vérifiez que Motrix Next est en cours d'exécution. Port RPC : $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
-    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "16800"
+      }
+    }
   },
   "options_section_language": {
     "message": "Langue",

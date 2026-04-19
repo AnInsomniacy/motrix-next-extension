@@ -17,7 +17,6 @@ export default defineBackground(() => {
   // ─── State (restored from storage on each wake) ───
   let settings: DownloadSettings = { ...DEFAULT_DOWNLOAD_SETTINGS };
   let siteRules: SiteRule[] = [];
-  let enhancedPermissions = false;
 
   const bgI18n = new I18nEngine(FALLBACK_LOCALE);
   // Firefox does not support chrome.downloads.setUiOptions — create a no-op
@@ -47,16 +46,6 @@ export default defineBackground(() => {
       bgI18n.setLocale(effectiveLocale);
     } catch {
       // Use defaults on first install
-    }
-
-    // Check enhanced permissions — downloads.ui is Chromium-only
-    try {
-      enhancedPermissions = await chrome.permissions.contains({
-        permissions: import.meta.env.FIREFOX ? ['cookies'] : ['cookies', 'downloads.ui'],
-        origins: ['https://*/*', 'http://*/*'],
-      });
-    } catch {
-      enhancedPermissions = false;
     }
   }
 
@@ -107,7 +96,6 @@ export default defineBackground(() => {
     getSettings: () => settings,
     getSiteRules: () => siteRules,
     getTabUrl,
-    hasEnhancedPermissions: () => enhancedPermissions,
     openProtocolNewTask: async (url: string, referer: string, cookie: string) => {
       const params: Record<string, string> = { url, referer };
       if (cookie) params.cookie = cookie;
@@ -271,7 +259,6 @@ export default defineBackground(() => {
       settings = parseDownloadSettings(changes.settings.newValue);
       void downloadBarService.apply({
         hideDownloadBar: settings.hideDownloadBar,
-        hasEnhancedPermissions: enhancedPermissions,
       });
     }
     if (changes.siteRules?.newValue) {
@@ -295,7 +282,6 @@ export default defineBackground(() => {
 
     downloadBarService.apply({
       hideDownloadBar: settings.hideDownloadBar,
-      hasEnhancedPermissions: enhancedPermissions,
     });
   });
 });
