@@ -58,6 +58,7 @@ If AI was used, specify the tool: <!-- e.g., GitHub Copilot, Claude, ChatGPT -->
   pnpm compile
   pnpm test
   pnpm lint
+  pnpm lint:i18n
   pnpm build
   ```
 - [ ] Commits follow [Conventional Commits](https://www.conventionalcommits.org/) format
