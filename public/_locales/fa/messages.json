@@ -1,0 +1,401 @@
+{
+  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_description": {
+    "message": "دانلودهای مرورگر را به Motrix Next ارسال کنید — مدیر دانلود مدرن مبتنی بر aria2",
+    "description": "Extension description shown in browser and web store"
+  },
+  "popup_status_connected": {
+    "message": "متصل",
+    "description": "Connection status badge when aria2 RPC is reachable"
+  },
+  "popup_status_disconnected": {
+    "message": "قطع شده",
+    "description": "Connection status badge when aria2 RPC is unreachable"
+  },
+  "popup_status_not_configured": {
+    "message": "پیکربندی نشده",
+    "description": "Connection status badge when RPC secret is empty"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "Download speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "Upload speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "دانلود فعالی وجود ندارد",
+    "description": "Message when there are no active aria2 tasks"
+  },
+  "popup_action_pause_all": {
+    "message": "توقف همه",
+    "description": "Button to pause all active downloads"
+  },
+  "popup_action_resume_all": {
+    "message": "ادامه همه",
+    "description": "Button to resume all paused downloads"
+  },
+  "popup_action_settings": {
+    "message": "تنظیمات",
+    "description": "Button to open the options page"
+  },
+  "popup_action_launch": {
+    "message": "راه‌اندازی Motrix Next",
+    "description": "Button to launch the desktop app when disconnected"
+  },
+  "popup_action_open": {
+    "message": "باز کردن Motrix Next",
+    "description": "Button to focus the desktop app when already connected"
+  },
+  "popup_error_unreachable": {
+    "message": "اتصال به Motrix Next ممکن نیست",
+    "description": "Error message when RPC is unreachable"
+  },
+  "popup_error_check_settings": {
+    "message": "بررسی تنظیمات",
+    "description": "Button to navigate to settings when connection fails"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · تنظیمات",
+    "description": "Options page title"
+  },
+  "options_section_connection": {
+    "message": "اتصال",
+    "description": "Settings section for RPC connection"
+  },
+  "options_rpc_port_label": {
+    "message": "پورت RPC",
+    "description": "Label for the RPC port input"
+  },
+  "options_rpc_secret_label": {
+    "message": "رمز RPC",
+    "description": "Label for the RPC secret input"
+  },
+  "options_test_connection": {
+    "message": "تست اتصال",
+    "description": "Button to test the RPC connection"
+  },
+  "options_connection_success": {
+    "message": "متصل · aria2 $version$",
+    "description": "Success message after testing connection",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "رفتار دانلود",
+    "description": "Settings section for download interception behavior"
+  },
+  "options_enabled_label": {
+    "message": "فعال‌سازی رهگیری دانلود",
+    "description": "Toggle label for enabling/disabling download interception"
+  },
+  "options_enabled_desc": {
+    "message": "رهگیری خودکار دانلودهای مرورگر",
+    "description": "Description text for the interception toggle"
+  },
+  "options_min_size_label": {
+    "message": "حداقل حجم فایل (مگابایت)",
+    "description": "Label for minimum file size filter"
+  },
+  "options_min_size_desc": {
+    "message": "رد کردن فایل‌های کوچک‌تر از این آستانه",
+    "description": "Description text for minimum file size input"
+  },
+  "options_fallback_label": {
+    "message": "بازگشت به مرورگر در صورت خطا",
+    "description": "Toggle label for browser fallback"
+  },
+  "options_fallback_desc": {
+    "message": "از سرگیری دانلود در مرورگر در صورت خطای aria2",
+    "description": "Description text for the fallback toggle"
+  },
+  "options_notify_label": {
+    "message": "اعلان‌ها",
+    "description": "Toggle label for enabling notifications"
+  },
+  "options_section_rules": {
+    "message": "قوانین سایت",
+    "description": "Settings section for per-site download rules"
+  },
+  "options_add_rule": { "message": "افزودن قانون", "description": "Button to add a new site rule" },
+  "options_section_enhanced": {
+    "message": "حالت پیشرفته",
+    "description": "Settings section for optional enhanced permissions"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "ارسال کوکی‌ها (بهترین تلاش)",
+    "description": "Toggle label for cookie forwarding to aria2"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "پنهان کردن نوار دانلود",
+    "description": "Toggle label for hiding the browser download UI"
+  },
+  "options_enhanced_grant": {
+    "message": "اعطای مجوزهای پیشرفته",
+    "description": "Button to request optional permissions"
+  },
+  "options_enhanced_granted": {
+    "message": "مجوزها اعطا شد",
+    "description": "Status when enhanced permissions are active"
+  },
+  "options_section_appearance": { "message": "ظاهر", "description": "Settings section for theme" },
+  "options_theme_system": {
+    "message": "سیستم",
+    "description": "Theme option: follow system preference"
+  },
+  "options_theme_light": { "message": "روشن", "description": "Theme option: light mode" },
+  "options_theme_dark": { "message": "تاریک", "description": "Theme option: dark mode" },
+  "options_section_diagnostics": {
+    "message": "عیب‌یابی",
+    "description": "Settings section for diagnostic event log"
+  },
+  "notification_sent_title": {
+    "message": "به Motrix Next ارسال شد",
+    "description": "Notification title when download is sent"
+  },
+  "notification_sent_body": {
+    "message": "$filename$ در حال دانلود",
+    "description": "Notification body when download is sent",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "دانلود ناموفق",
+    "description": "Notification title when download send fails"
+  },
+  "notification_fallback_title": {
+    "message": "بازگشت به مرورگر",
+    "description": "Notification title when falling back to browser download"
+  },
+  "context_menu_download": {
+    "message": "دانلود با Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
+  },
+  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_speed_active_count": {
+    "message": "$count$ فعال",
+    "description": "Number of active downloads in speed bar",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "مطمئن شوید Motrix Next در حال اجراست و RPC فعال است.",
+    "description": "Hint shown when connection fails"
+  },
+  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_subtitle": {
+    "message": "تنظیمات افزونه",
+    "description": "Options page header subtitle"
+  },
+  "options_testing_connection": {
+    "message": "در حال تست...",
+    "description": "Button text while testing connection"
+  },
+  "options_connection_success_prefix": {
+    "message": "متصل · aria2",
+    "description": "Prefix for successful connection status"
+  },
+  "options_notify_start_label": {
+    "message": "اعلان در شروع دانلود",
+    "description": "Toggle label for start notifications"
+  },
+  "options_notify_complete_label": {
+    "message": "اعلان در اتمام دانلود",
+    "description": "Toggle label for completion notifications"
+  },
+  "options_rules_empty": {
+    "message": "قانونی تنظیم نشده.",
+    "description": "Placeholder when no site rules exist"
+  },
+  "options_enhanced_description": {
+    "message": "مجوزهای اضافی برای ارسال کوکی و پنهان کردن نوار دانلود اعطا کنید.",
+    "description": "Description of enhanced permissions section"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "ارسال کوکی به صورت بهترین تلاش است — ممکن است برای همه سایت‌ها به دلیل سیاست‌های حریم خصوصی کار نکند.",
+    "description": "Disclaimer about cookie forwarding reliability"
+  },
+  "options_enhanced_status_granted": {
+    "message": "مجوزهای پیشرفته اعطا شد",
+    "description": "Status text when enhanced permissions are active"
+  },
+  "options_enhanced_revoke": {
+    "message": "لغو مجوزها",
+    "description": "Button to revoke enhanced permissions"
+  },
+  "options_diagnostics_export": {
+    "message": "خروجی گزارش عیب‌یابی",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
+  "options_diagnostics_clear": {
+    "message": "پاک کردن سوابق",
+    "description": "Button to clear diagnostic log"
+  },
+  "options_diagnostics_empty": {
+    "message": "رویداد عیب‌یابی وجود ندارد.",
+    "description": "Placeholder when diagnostic log is empty"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "Footer text with version number",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "دانلود کامل شد",
+    "description": "Title for download completion notification"
+  },
+  "options_save": { "message": "ذخیره", "description": "Save button in action bar" },
+  "options_discard": { "message": "لغو", "description": "Discard button in action bar" },
+  "options_save_success": {
+    "message": "تنظیمات ذخیره شد",
+    "description": "Toast after saving settings successfully"
+  },
+  "options_save_error": {
+    "message": "خطا در ذخیره تنظیمات",
+    "description": "Toast when saving settings fails"
+  },
+  "options_unsaved_title": {
+    "message": "تغییرات ذخیره نشده",
+    "description": "Dialog title when leaving with unsaved changes"
+  },
+  "options_unsaved_message": {
+    "message": "تغییرات ذخیره نشده دارید. قبل از خروج ذخیره شود؟",
+    "description": "Dialog body when leaving with unsaved changes"
+  },
+  "options_changes_indicator": {
+    "message": "تغییرات ذخیره نشده",
+    "description": "Indicator text showing there are unsaved modifications"
+  },
+  "options_color_scheme": {
+    "message": "طرح رنگ",
+    "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "طلایی کهربایی",
+    "description": "Amber Gold color scheme"
+  },
+  "options_color_scheme_space": {
+    "message": "آبی فضایی",
+    "description": "Space Blue color scheme"
+  },
+  "options_color_scheme_mint": {
+    "message": "سبز نعنایی",
+    "description": "Mint Green color scheme"
+  },
+  "options_color_scheme_rose": { "message": "قرمز گلسرخی", "description": "Rose Red color scheme" },
+  "options_color_scheme_aurora": {
+    "message": "بنفش شفقی",
+    "description": "Aurora Purple color scheme"
+  },
+  "options_color_scheme_coral": {
+    "message": "نارنجی مرجانی",
+    "description": "Coral Orange color scheme"
+  },
+  "options_color_scheme_glacier": {
+    "message": "فیروزه‌ای یخچالی",
+    "description": "Glacier Cyan color scheme"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "سبز همیشگی",
+    "description": "Evergreen color scheme"
+  },
+  "options_color_scheme_graphite": {
+    "message": "خاکستری گرافیتی",
+    "description": "Graphite Grey color scheme"
+  },
+  "options_color_scheme_sakura": {
+    "message": "صورتی ساکورا",
+    "description": "Sakura Pink color scheme"
+  },
+  "error_rpc_unreachable": {
+    "message": "اتصال به Motrix Next RPC ممکن نیست",
+    "description": "Error when the RPC endpoint is unreachable"
+  },
+  "error_rpc_auth": {
+    "message": "رمز RPC نادرست است",
+    "description": "Error when the RPC secret does not match"
+  },
+  "error_rpc_timeout": {
+    "message": "زمان اتصال به پایان رسید",
+    "description": "Error when the RPC connection times out"
+  },
+  "error_unknown": { "message": "خطای ناشناخته رخ داد", "description": "Fallback error message" },
+  "options_rule_always_intercept": {
+    "message": "همیشه رهگیری",
+    "description": "Site rule action: always intercept downloads"
+  },
+  "options_rule_always_skip": {
+    "message": "همیشه رد شود",
+    "description": "Site rule action: never intercept downloads"
+  },
+  "options_rule_use_global": {
+    "message": "استفاده از تنظیم عمومی",
+    "description": "Site rule action: follow the global setting"
+  },
+  "task_name_unknown": {
+    "message": "ناشناخته",
+    "description": "Fallback name when a task filename cannot be resolved"
+  },
+  "popup_error_auth": {
+    "message": "رمز RPC مطابقت ندارد",
+    "description": "Popup banner title when RPC secret is incorrect"
+  },
+  "popup_error_auth_hint": {
+    "message": "مطمئن شوید رمز RPC در تنظیمات با پیکربندی Motrix Next مطابقت دارد.",
+    "description": "Popup banner hint for RPC auth error"
+  },
+  "popup_error_timeout": {
+    "message": "زمان اتصال به پایان رسید",
+    "description": "Popup banner title when RPC connection times out"
+  },
+  "popup_error_timeout_hint": {
+    "message": "تنظیمات شبکه یا فایروال را بررسی کنید. پورت RPC: $1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "مطمئن شوید Motrix Next در حال اجراست. پورت RPC: $1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "options_section_language": {
+    "message": "زبان",
+    "description": "Settings section for interface language"
+  },
+  "options_locale_auto": {
+    "message": "خودکار",
+    "description": "Language option: follow browser language"
+  },
+  "options_locale_auto_desc": {
+    "message": "پیروی از زبان مرورگر",
+    "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "راه‌اندازی خودکار Motrix Next",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "تلاش برای راه‌اندازی Motrix Next وقتی اجرا نیست",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "فعال",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "در انتظار",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "تکمیل شده",
+    "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "رهگیری فعال",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "متوقف شده",
+    "description": "Label next to the interception toggle when inactive"
+  }
+}

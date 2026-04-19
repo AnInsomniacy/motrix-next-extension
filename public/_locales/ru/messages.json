@@ -1,0 +1,413 @@
+{
+  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_description": {
+    "message": "Отправляйте загрузки из браузера в Motrix Next — современный менеджер загрузок на базе aria2",
+    "description": "Extension description shown in browser and web store"
+  },
+  "popup_status_connected": {
+    "message": "Подключено",
+    "description": "Connection status badge when aria2 RPC is reachable"
+  },
+  "popup_status_disconnected": {
+    "message": "Отключено",
+    "description": "Connection status badge when aria2 RPC is unreachable"
+  },
+  "popup_status_not_configured": {
+    "message": "Не настроено",
+    "description": "Connection status badge when RPC secret is empty"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "Download speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "Upload speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "Нет активных загрузок",
+    "description": "Message when there are no active aria2 tasks"
+  },
+  "popup_action_pause_all": {
+    "message": "Приостановить все",
+    "description": "Button to pause all active downloads"
+  },
+  "popup_action_resume_all": {
+    "message": "Возобновить все",
+    "description": "Button to resume all paused downloads"
+  },
+  "popup_action_settings": {
+    "message": "Настройки",
+    "description": "Button to open the options page"
+  },
+  "popup_action_launch": {
+    "message": "Запустить Motrix Next",
+    "description": "Button to launch the desktop app when disconnected"
+  },
+  "popup_action_open": {
+    "message": "Открыть Motrix Next",
+    "description": "Button to focus the desktop app when already connected"
+  },
+  "popup_error_unreachable": {
+    "message": "Не удаётся подключиться к Motrix Next",
+    "description": "Error message when RPC is unreachable"
+  },
+  "popup_error_check_settings": {
+    "message": "Проверить настройки",
+    "description": "Button to navigate to settings when connection fails"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · Настройки",
+    "description": "Options page title"
+  },
+  "options_section_connection": {
+    "message": "Соединение",
+    "description": "Settings section for RPC connection"
+  },
+  "options_rpc_port_label": {
+    "message": "Порт RPC",
+    "description": "Label for the RPC port input"
+  },
+  "options_rpc_secret_label": {
+    "message": "Секрет RPC",
+    "description": "Label for the RPC secret input"
+  },
+  "options_test_connection": {
+    "message": "Тест соединения",
+    "description": "Button to test the RPC connection"
+  },
+  "options_connection_success": {
+    "message": "Подключено · aria2 $version$",
+    "description": "Success message after testing connection",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "Поведение загрузки",
+    "description": "Settings section for download interception behavior"
+  },
+  "options_enabled_label": {
+    "message": "Включить перехват загрузок",
+    "description": "Toggle label for enabling/disabling download interception"
+  },
+  "options_enabled_desc": {
+    "message": "Автоматически перехватывать загрузки браузера",
+    "description": "Description text for the interception toggle"
+  },
+  "options_min_size_label": {
+    "message": "Минимальный размер файла (МБ)",
+    "description": "Label for minimum file size filter"
+  },
+  "options_min_size_desc": {
+    "message": "Пропускать файлы меньше этого порога",
+    "description": "Description text for minimum file size input"
+  },
+  "options_fallback_label": {
+    "message": "Вернуться к браузеру при ошибке",
+    "description": "Toggle label for browser fallback"
+  },
+  "options_fallback_desc": {
+    "message": "Возобновить загрузку в браузере, если aria2 не удалось",
+    "description": "Description text for the fallback toggle"
+  },
+  "options_notify_label": {
+    "message": "Уведомления",
+    "description": "Toggle label for enabling notifications"
+  },
+  "options_section_rules": {
+    "message": "Правила сайтов",
+    "description": "Settings section for per-site download rules"
+  },
+  "options_add_rule": {
+    "message": "Добавить правило",
+    "description": "Button to add a new site rule"
+  },
+  "options_section_enhanced": {
+    "message": "Расширенный режим",
+    "description": "Settings section for optional enhanced permissions"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "Пересылка cookie (best-effort)",
+    "description": "Toggle label for cookie forwarding to aria2"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "Скрыть панель загрузок",
+    "description": "Toggle label for hiding the browser download UI"
+  },
+  "options_enhanced_grant": {
+    "message": "Предоставить расширенные разрешения",
+    "description": "Button to request optional permissions"
+  },
+  "options_enhanced_granted": {
+    "message": "Разрешения предоставлены",
+    "description": "Status when enhanced permissions are active"
+  },
+  "options_section_appearance": {
+    "message": "Внешний вид",
+    "description": "Settings section for theme"
+  },
+  "options_theme_system": {
+    "message": "Системная",
+    "description": "Theme option: follow system preference"
+  },
+  "options_theme_light": { "message": "Светлая", "description": "Theme option: light mode" },
+  "options_theme_dark": { "message": "Тёмная", "description": "Theme option: dark mode" },
+  "options_section_diagnostics": {
+    "message": "Диагностика",
+    "description": "Settings section for diagnostic event log"
+  },
+  "notification_sent_title": {
+    "message": "Отправлено в Motrix Next",
+    "description": "Notification title when download is sent"
+  },
+  "notification_sent_body": {
+    "message": "$filename$ загружается",
+    "description": "Notification body when download is sent",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "Загрузка не удалась",
+    "description": "Notification title when download send fails"
+  },
+  "notification_fallback_title": {
+    "message": "Возврат к браузеру",
+    "description": "Notification title when falling back to browser download"
+  },
+  "context_menu_download": {
+    "message": "Скачать с Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
+  },
+  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_speed_active_count": {
+    "message": "$count$ активных",
+    "description": "Number of active downloads in speed bar",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "Убедитесь, что Motrix Next запущен и RPC включён.",
+    "description": "Hint shown when connection fails"
+  },
+  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_subtitle": {
+    "message": "Настройки расширения",
+    "description": "Options page header subtitle"
+  },
+  "options_testing_connection": {
+    "message": "Тестирование...",
+    "description": "Button text while testing connection"
+  },
+  "options_connection_success_prefix": {
+    "message": "Подключено · aria2",
+    "description": "Prefix for successful connection status"
+  },
+  "options_notify_start_label": {
+    "message": "Уведомлять при начале загрузки",
+    "description": "Toggle label for start notifications"
+  },
+  "options_notify_complete_label": {
+    "message": "Уведомлять при завершении загрузки",
+    "description": "Toggle label for completion notifications"
+  },
+  "options_rules_empty": {
+    "message": "Правила не настроены.",
+    "description": "Placeholder when no site rules exist"
+  },
+  "options_enhanced_description": {
+    "message": "Предоставьте дополнительные разрешения для пересылки cookie и скрытия панели загрузок.",
+    "description": "Description of enhanced permissions section"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "Пересылка cookie работает по принципу best-effort — может не работать для всех сайтов из-за политик конфиденциальности.",
+    "description": "Disclaimer about cookie forwarding reliability"
+  },
+  "options_enhanced_status_granted": {
+    "message": "Расширенные разрешения предоставлены",
+    "description": "Status text when enhanced permissions are active"
+  },
+  "options_enhanced_revoke": {
+    "message": "Отозвать разрешения",
+    "description": "Button to revoke enhanced permissions"
+  },
+  "options_diagnostics_export": {
+    "message": "Экспорт диагностического отчёта",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
+  "options_diagnostics_clear": {
+    "message": "Очистить журнал",
+    "description": "Button to clear diagnostic log"
+  },
+  "options_diagnostics_empty": {
+    "message": "Нет диагностических событий.",
+    "description": "Placeholder when diagnostic log is empty"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "Footer text with version number",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "Загрузка завершена",
+    "description": "Title for download completion notification"
+  },
+  "options_save": { "message": "Сохранить", "description": "Save button in action bar" },
+  "options_discard": { "message": "Отменить", "description": "Discard button in action bar" },
+  "options_save_success": {
+    "message": "Настройки сохранены",
+    "description": "Toast after saving settings successfully"
+  },
+  "options_save_error": {
+    "message": "Не удалось сохранить настройки",
+    "description": "Toast when saving settings fails"
+  },
+  "options_unsaved_title": {
+    "message": "Несохранённые изменения",
+    "description": "Dialog title when leaving with unsaved changes"
+  },
+  "options_unsaved_message": {
+    "message": "У вас есть несохранённые изменения. Сохранить перед выходом?",
+    "description": "Dialog body when leaving with unsaved changes"
+  },
+  "options_changes_indicator": {
+    "message": "Несохранённые изменения",
+    "description": "Indicator text showing there are unsaved modifications"
+  },
+  "options_color_scheme": {
+    "message": "Цветовая схема",
+    "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "Янтарное золото",
+    "description": "Amber Gold color scheme"
+  },
+  "options_color_scheme_space": {
+    "message": "Космический синий",
+    "description": "Space Blue color scheme"
+  },
+  "options_color_scheme_mint": {
+    "message": "Мятно-зелёный",
+    "description": "Mint Green color scheme"
+  },
+  "options_color_scheme_rose": {
+    "message": "Розово-красный",
+    "description": "Rose Red color scheme"
+  },
+  "options_color_scheme_aurora": {
+    "message": "Аврора фиолетовый",
+    "description": "Aurora Purple color scheme"
+  },
+  "options_color_scheme_coral": {
+    "message": "Коралловый оранжевый",
+    "description": "Coral Orange color scheme"
+  },
+  "options_color_scheme_glacier": {
+    "message": "Ледниковый голубой",
+    "description": "Glacier Cyan color scheme"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "Вечнозелёный",
+    "description": "Evergreen color scheme"
+  },
+  "options_color_scheme_graphite": {
+    "message": "Графитовый серый",
+    "description": "Graphite Grey color scheme"
+  },
+  "options_color_scheme_sakura": {
+    "message": "Розовая сакура",
+    "description": "Sakura Pink color scheme"
+  },
+  "error_rpc_unreachable": {
+    "message": "Не удаётся подключиться к Motrix Next RPC",
+    "description": "Error when the RPC endpoint is unreachable"
+  },
+  "error_rpc_auth": {
+    "message": "Секрет RPC неверен",
+    "description": "Error when the RPC secret does not match"
+  },
+  "error_rpc_timeout": {
+    "message": "Время подключения истекло",
+    "description": "Error when the RPC connection times out"
+  },
+  "error_unknown": {
+    "message": "Произошла неизвестная ошибка",
+    "description": "Fallback error message"
+  },
+  "options_rule_always_intercept": {
+    "message": "Всегда перехватывать",
+    "description": "Site rule action: always intercept downloads"
+  },
+  "options_rule_always_skip": {
+    "message": "Всегда пропускать",
+    "description": "Site rule action: never intercept downloads"
+  },
+  "options_rule_use_global": {
+    "message": "Использовать глобальную настройку",
+    "description": "Site rule action: follow the global setting"
+  },
+  "task_name_unknown": {
+    "message": "Неизвестно",
+    "description": "Fallback name when a task filename cannot be resolved"
+  },
+  "popup_error_auth": {
+    "message": "Секрет RPC не совпадает",
+    "description": "Popup banner title when RPC secret is incorrect"
+  },
+  "popup_error_auth_hint": {
+    "message": "Проверьте, что секрет RPC в настройках совпадает с конфигурацией Motrix Next.",
+    "description": "Popup banner hint for RPC auth error"
+  },
+  "popup_error_timeout": {
+    "message": "Время подключения истекло",
+    "description": "Popup banner title when RPC connection times out"
+  },
+  "popup_error_timeout_hint": {
+    "message": "Проверьте сетевые настройки или брандмауэр. Порт RPC: $1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "Убедитесь, что Motrix Next запущен. Порт RPC: $1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "options_section_language": {
+    "message": "Язык",
+    "description": "Settings section for interface language"
+  },
+  "options_locale_auto": {
+    "message": "Автоматический",
+    "description": "Language option: follow browser language"
+  },
+  "options_locale_auto_desc": {
+    "message": "Следовать языку браузера",
+    "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "Автоматически запускать Motrix Next",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "Попытаться запустить Motrix Next, когда он не запущен",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "Активные",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "Ожидание",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "Завершённые",
+    "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "Перехват включён",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "На паузе",
+    "description": "Label next to the interception toggle when inactive"
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_description": {
+    "message": "Tarayıcı indirmelerini Motrix Next'e gönderin — aria2 tabanlı modern bir indirme yöneticisi",
+    "description": "Extension description shown in browser and web store"
+  },
+  "popup_status_connected": {
+    "message": "Bağlı",
+    "description": "Connection status badge when aria2 RPC is reachable"
+  },
+  "popup_status_disconnected": {
+    "message": "Bağlı değil",
+    "description": "Connection status badge when aria2 RPC is unreachable"
+  },
+  "popup_status_not_configured": {
+    "message": "Yapılandırılmadı",
+    "description": "Connection status badge when RPC secret is empty"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "Download speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "Upload speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "Etkin indirme yok",
+    "description": "Message when there are no active aria2 tasks"
+  },
+  "popup_action_pause_all": {
+    "message": "Tümünü duraklat",
+    "description": "Button to pause all active downloads"
+  },
+  "popup_action_resume_all": {
+    "message": "Tümünü sürdür",
+    "description": "Button to resume all paused downloads"
+  },
+  "popup_action_settings": {
+    "message": "Ayarlar",
+    "description": "Button to open the options page"
+  },
+  "popup_action_launch": {
+    "message": "Motrix Next'i başlat",
+    "description": "Button to launch the desktop app when disconnected"
+  },
+  "popup_action_open": {
+    "message": "Motrix Next'i aç",
+    "description": "Button to focus the desktop app when already connected"
+  },
+  "popup_error_unreachable": {
+    "message": "Motrix Next'e bağlanılamıyor",
+    "description": "Error message when RPC is unreachable"
+  },
+  "popup_error_check_settings": {
+    "message": "Ayarları kontrol et",
+    "description": "Button to navigate to settings when connection fails"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · Ayarlar",
+    "description": "Options page title"
+  },
+  "options_section_connection": {
+    "message": "Bağlantı",
+    "description": "Settings section for RPC connection"
+  },
+  "options_rpc_port_label": {
+    "message": "RPC portu",
+    "description": "Label for the RPC port input"
+  },
+  "options_rpc_secret_label": {
+    "message": "RPC gizli anahtarı",
+    "description": "Label for the RPC secret input"
+  },
+  "options_test_connection": {
+    "message": "Bağlantıyı test et",
+    "description": "Button to test the RPC connection"
+  },
+  "options_connection_success": {
+    "message": "Bağlı · aria2 $version$",
+    "description": "Success message after testing connection",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "İndirme davranışı",
+    "description": "Settings section for download interception behavior"
+  },
+  "options_enabled_label": {
+    "message": "İndirme yakalamayı etkinleştir",
+    "description": "Toggle label for enabling/disabling download interception"
+  },
+  "options_enabled_desc": {
+    "message": "Tarayıcı indirmelerini otomatik olarak yakala",
+    "description": "Description text for the interception toggle"
+  },
+  "options_min_size_label": {
+    "message": "Minimum dosya boyutu (MB)",
+    "description": "Label for minimum file size filter"
+  },
+  "options_min_size_desc": {
+    "message": "Bu eşikten küçük dosyaları atla",
+    "description": "Description text for minimum file size input"
+  },
+  "options_fallback_label": {
+    "message": "Hata durumunda tarayıcıya geri dön",
+    "description": "Toggle label for browser fallback"
+  },
+  "options_fallback_desc": {
+    "message": "aria2 başarısız olursa indirmeyi tarayıcıda sürdür",
+    "description": "Description text for the fallback toggle"
+  },
+  "options_notify_label": {
+    "message": "Bildirimler",
+    "description": "Toggle label for enabling notifications"
+  },
+  "options_section_rules": {
+    "message": "Site kuralları",
+    "description": "Settings section for per-site download rules"
+  },
+  "options_add_rule": { "message": "Kural ekle", "description": "Button to add a new site rule" },
+  "options_section_enhanced": {
+    "message": "Gelişmiş mod",
+    "description": "Settings section for optional enhanced permissions"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "Çerez iletme (best-effort)",
+    "description": "Toggle label for cookie forwarding to aria2"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "İndirme çubuğunu gizle",
+    "description": "Toggle label for hiding the browser download UI"
+  },
+  "options_enhanced_grant": {
+    "message": "Gelişmiş izinleri ver",
+    "description": "Button to request optional permissions"
+  },
+  "options_enhanced_granted": {
+    "message": "İzinler verildi",
+    "description": "Status when enhanced permissions are active"
+  },
+  "options_section_appearance": {
+    "message": "Görünüm",
+    "description": "Settings section for theme"
+  },
+  "options_theme_system": {
+    "message": "Sistem",
+    "description": "Theme option: follow system preference"
+  },
+  "options_theme_light": { "message": "Açık", "description": "Theme option: light mode" },
+  "options_theme_dark": { "message": "Koyu", "description": "Theme option: dark mode" },
+  "options_section_diagnostics": {
+    "message": "Tanılama",
+    "description": "Settings section for diagnostic event log"
+  },
+  "notification_sent_title": {
+    "message": "Motrix Next'e gönderildi",
+    "description": "Notification title when download is sent"
+  },
+  "notification_sent_body": {
+    "message": "$filename$ indiriliyor",
+    "description": "Notification body when download is sent",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "İndirme başarısız",
+    "description": "Notification title when download send fails"
+  },
+  "notification_fallback_title": {
+    "message": "Tarayıcıya geri dönülüyor",
+    "description": "Notification title when falling back to browser download"
+  },
+  "context_menu_download": {
+    "message": "Motrix Next ile indir",
+    "description": "Context menu item for downloading a link with Motrix Next"
+  },
+  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_speed_active_count": {
+    "message": "$count$ etkin",
+    "description": "Number of active downloads in speed bar",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "Motrix Next'in çalıştığından ve RPC'nin etkin olduğundan emin olun.",
+    "description": "Hint shown when connection fails"
+  },
+  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_subtitle": {
+    "message": "Uzantı ayarları",
+    "description": "Options page header subtitle"
+  },
+  "options_testing_connection": {
+    "message": "Test ediliyor...",
+    "description": "Button text while testing connection"
+  },
+  "options_connection_success_prefix": {
+    "message": "Bağlı · aria2",
+    "description": "Prefix for successful connection status"
+  },
+  "options_notify_start_label": {
+    "message": "İndirme başladığında bildir",
+    "description": "Toggle label for start notifications"
+  },
+  "options_notify_complete_label": {
+    "message": "İndirme tamamlandığında bildir",
+    "description": "Toggle label for completion notifications"
+  },
+  "options_rules_empty": {
+    "message": "Yapılandırılmış kural yok.",
+    "description": "Placeholder when no site rules exist"
+  },
+  "options_enhanced_description": {
+    "message": "Çerez iletme ve indirme çubuğunu gizleme için ek izinler verin.",
+    "description": "Description of enhanced permissions section"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "Çerez iletme best-effort ilkesine göre çalışır — gizlilik politikaları nedeniyle tüm sitelerde çalışmayabilir.",
+    "description": "Disclaimer about cookie forwarding reliability"
+  },
+  "options_enhanced_status_granted": {
+    "message": "Gelişmiş izinler verildi",
+    "description": "Status text when enhanced permissions are active"
+  },
+  "options_enhanced_revoke": {
+    "message": "İzinleri iptal et",
+    "description": "Button to revoke enhanced permissions"
+  },
+  "options_diagnostics_export": {
+    "message": "Tanılama raporu dışa aktar",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
+  "options_diagnostics_clear": {
+    "message": "Günlüğü temizle",
+    "description": "Button to clear diagnostic log"
+  },
+  "options_diagnostics_empty": {
+    "message": "Tanılama olayı yok.",
+    "description": "Placeholder when diagnostic log is empty"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "Footer text with version number",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "İndirme tamamlandı",
+    "description": "Title for download completion notification"
+  },
+  "options_save": { "message": "Kaydet", "description": "Save button in action bar" },
+  "options_discard": { "message": "Vazgeç", "description": "Discard button in action bar" },
+  "options_save_success": {
+    "message": "Ayarlar kaydedildi",
+    "description": "Toast after saving settings successfully"
+  },
+  "options_save_error": {
+    "message": "Ayarlar kaydedilemedi",
+    "description": "Toast when saving settings fails"
+  },
+  "options_unsaved_title": {
+    "message": "Kaydedilmemiş değişiklikler",
+    "description": "Dialog title when leaving with unsaved changes"
+  },
+  "options_unsaved_message": {
+    "message": "Kaydedilmemiş değişiklikleriniz var. Çıkmadan önce kaydetmek ister misiniz?",
+    "description": "Dialog body when leaving with unsaved changes"
+  },
+  "options_changes_indicator": {
+    "message": "Kaydedilmemiş değişiklikler",
+    "description": "Indicator text showing there are unsaved modifications"
+  },
+  "options_color_scheme": {
+    "message": "Renk şeması",
+    "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "Amber altın",
+    "description": "Amber Gold color scheme"
+  },
+  "options_color_scheme_space": {
+    "message": "Uzay mavisi",
+    "description": "Space Blue color scheme"
+  },
+  "options_color_scheme_mint": {
+    "message": "Nane yeşili",
+    "description": "Mint Green color scheme"
+  },
+  "options_color_scheme_rose": {
+    "message": "Gül kırmızısı",
+    "description": "Rose Red color scheme"
+  },
+  "options_color_scheme_aurora": {
+    "message": "Kutup ışığı moru",
+    "description": "Aurora Purple color scheme"
+  },
+  "options_color_scheme_coral": {
+    "message": "Mercan turuncusu",
+    "description": "Coral Orange color scheme"
+  },
+  "options_color_scheme_glacier": {
+    "message": "Buzul mavisi",
+    "description": "Glacier Cyan color scheme"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "Herdem yeşil",
+    "description": "Evergreen color scheme"
+  },
+  "options_color_scheme_graphite": {
+    "message": "Grafit grisi",
+    "description": "Graphite Grey color scheme"
+  },
+  "options_color_scheme_sakura": {
+    "message": "Sakura pembesi",
+    "description": "Sakura Pink color scheme"
+  },
+  "error_rpc_unreachable": {
+    "message": "Motrix Next RPC'ye bağlanılamıyor",
+    "description": "Error when the RPC endpoint is unreachable"
+  },
+  "error_rpc_auth": {
+    "message": "RPC gizli anahtarı yanlış",
+    "description": "Error when the RPC secret does not match"
+  },
+  "error_rpc_timeout": {
+    "message": "Bağlantı zaman aşımı",
+    "description": "Error when the RPC connection times out"
+  },
+  "error_unknown": {
+    "message": "Bilinmeyen bir hata oluştu",
+    "description": "Fallback error message"
+  },
+  "options_rule_always_intercept": {
+    "message": "Her zaman yakala",
+    "description": "Site rule action: always intercept downloads"
+  },
+  "options_rule_always_skip": {
+    "message": "Her zaman atla",
+    "description": "Site rule action: never intercept downloads"
+  },
+  "options_rule_use_global": {
+    "message": "Genel ayarı kullan",
+    "description": "Site rule action: follow the global setting"
+  },
+  "task_name_unknown": {
+    "message": "Bilinmiyor",
+    "description": "Fallback name when a task filename cannot be resolved"
+  },
+  "popup_error_auth": {
+    "message": "RPC gizli anahtarı eşleşmiyor",
+    "description": "Popup banner title when RPC secret is incorrect"
+  },
+  "popup_error_auth_hint": {
+    "message": "Ayarlardaki RPC gizli anahtarının Motrix Next yapılandırmasıyla eşleştiğini kontrol edin.",
+    "description": "Popup banner hint for RPC auth error"
+  },
+  "popup_error_timeout": {
+    "message": "Bağlantı zaman aşımı",
+    "description": "Popup banner title when RPC connection times out"
+  },
+  "popup_error_timeout_hint": {
+    "message": "Ağ veya güvenlik duvarı ayarlarını kontrol edin. RPC portu: $1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "Motrix Next'in çalıştığından emin olun. RPC portu: $1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "options_section_language": {
+    "message": "Dil",
+    "description": "Settings section for interface language"
+  },
+  "options_locale_auto": {
+    "message": "Otomatik",
+    "description": "Language option: follow browser language"
+  },
+  "options_locale_auto_desc": {
+    "message": "Tarayıcı dilini takip et",
+    "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "Motrix Next'i otomatik başlat",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "Çalışmıyorken Motrix Next'i başlatmayı dene",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "Etkin",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "Bekliyor",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "Tamamlandı",
+    "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "Yakalama etkin",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "Duraklatıldı",
+    "description": "Label next to the interception toggle when inactive"
+  }
+}

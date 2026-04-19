@@ -15,7 +15,7 @@
 | **Framework**       | WXT 0.20 (Manifest V3) + Vue 3 Composition API  |
 | **UI**              | Naive UI + Tailwind CSS 4                       |
 | **Validation**      | Zod 4 (storage schemas)                         |
-| **Testing**         | Vitest (288 tests, DI-based — no browser mocks) |
+| **Testing**         | Vitest (335 tests, DI-based — no browser mocks) |
 | **Build**           | Vite (via WXT) → `.output/chrome-mv3/`          |
 | **Package Manager** | pnpm 10                                         |
 
@@ -64,7 +64,8 @@ lib/                             # Core logic — all services use dependency in
 shared/
 ├── i18n/
 │   ├── engine.ts                # Compile-time i18n with positional $placeholder$ support
-│   └── dictionaries.ts          # Locale module registry
+│   ├── dictionaries.ts          # Locale module registry (26 languages)
+│   └── locale-modules.d.ts      # Virtual module type declarations for locale:* imports
 ├── types.ts                     # TypeScript interfaces (RpcConfig, DownloadSettings, etc.)
 ├── constants.ts                 # Default configs, timing constants, URL schemes
 ├── color-schemes.ts             # Material You color scheme definitions
@@ -77,13 +78,36 @@ shared/
 └── use-theme.ts                 # System/light/dark theme detection composable
 
 __tests__/
-├── unit/                        # 27 isolated service test files
+├── unit/                        # 28 isolated service test files
 └── integration/                 # End-to-end interception flow
 
-public/_locales/                 # Chrome i18n message bundles
+public/_locales/                 # Chrome i18n message bundles (26 languages)
+├── ar/messages.json             # Arabic
+├── bg/messages.json             # Bulgarian
+├── ca/messages.json             # Catalan
+├── de/messages.json             # German
+├── el/messages.json             # Greek
 ├── en/messages.json             # English (reference locale)
+├── es/messages.json             # Spanish
+├── fa/messages.json             # Persian
+├── fr/messages.json             # French
+├── hu/messages.json             # Hungarian
+├── id/messages.json             # Indonesian
+├── it/messages.json             # Italian
+├── ja/messages.json             # Japanese
+├── ko/messages.json             # Korean
+├── nb/messages.json             # Norwegian Bokmål
+├── nl/messages.json             # Dutch
+├── pl/messages.json             # Polish
+├── pt_BR/messages.json          # Portuguese (Brazil)
+├── ro/messages.json             # Romanian
+├── ru/messages.json             # Russian
+├── th/messages.json             # Thai
+├── tr/messages.json             # Turkish
+├── uk/messages.json             # Ukrainian
+├── vi/messages.json             # Vietnamese
 ├── zh_CN/messages.json          # Chinese Simplified
-└── ja/messages.json             # Japanese
+└── zh_TW/messages.json          # Chinese Traditional
 
 .github/workflows/
 ├── ci.yml                       # Quality gate: compile → test → lint → i18n → format → build
@@ -133,7 +157,7 @@ Follow this exact checklist:
 3. **`lib/storage/schema.ts`** — Add the field to the Zod schema with `.default()` matching the constant
 4. **`lib/storage/storage-service.ts`** — Add typed getter/setter if the key is accessed individually
 5. **`parseStorage()` in `schema.ts`** — Ensure the new field is included in the composite parse
-6. **All 3 locale files** — Add any i18n label keys to `en`, `zh_CN`, and `ja`
+6. **All 26 locale files** — Add i18n label keys. **Must use batch Python script** (see Section D)
 7. **UI binding** — Wire into the appropriate Options page section
 8. **Tests** — Add parse tests in `__tests__/unit/storage-schema.test.ts`
 
@@ -168,16 +192,28 @@ Follow this exact checklist:
 
 ### Rules
 
-1. **Always update all 3 locales** when adding or modifying keys. Partial updates are not accepted.
-2. English (`en`) is the reference locale — validate this first.
-3. Run `pnpm lint:i18n` after every change to verify consistency.
+1. **NEVER edit locale files manually one by one.** Always use the batch Python script.
+2. **Always update all 26 locales** when adding or modifying keys. Partial updates are not accepted.
+3. English (`en`) is the reference locale — validate this first.
+4. Run `pnpm lint:i18n` after every change to verify consistency across all 26 locales.
 
-### 3 Locale Directories
+### 26 Locale Directories
 
 ```
-public/_locales/en/messages.json
-public/_locales/zh_CN/messages.json
-public/_locales/ja/messages.json
+public/_locales/ar/   # Arabic          public/_locales/nb/      # Norwegian Bokmål
+public/_locales/bg/   # Bulgarian       public/_locales/nl/      # Dutch
+public/_locales/ca/   # Catalan         public/_locales/pl/      # Polish
+public/_locales/de/   # German          public/_locales/pt_BR/   # Portuguese (Brazil)
+public/_locales/el/   # Greek           public/_locales/ro/      # Romanian
+public/_locales/en/   # English (ref)   public/_locales/ru/      # Russian
+public/_locales/es/   # Spanish         public/_locales/th/      # Thai
+public/_locales/fa/   # Persian         public/_locales/tr/      # Turkish
+public/_locales/fr/   # French          public/_locales/uk/      # Ukrainian
+public/_locales/hu/   # Hungarian       public/_locales/vi/      # Vietnamese
+public/_locales/id/   # Indonesian      public/_locales/zh_CN/   # Chinese Simplified
+public/_locales/it/   # Italian         public/_locales/zh_TW/   # Chinese Traditional
+public/_locales/ja/   # Japanese
+public/_locales/ko/   # Korean
 ```
 
 ### Chrome i18n Format
@@ -197,13 +233,66 @@ public/_locales/ja/messages.json
 }
 ```
 
+### Batch Update Script
+
+**Must use `scripts/batch-update-locales.py`** to add or modify i18n keys. This ensures all 26 locales are updated atomically and no locale is missed.
+
+```python
+#!/usr/bin/env python3
+"""Batch-update Chrome i18n locale files with native translations."""
+import json, os, sys
+
+LOCALES_DIR = os.path.join(os.path.dirname(__file__), "..", "public", "_locales")
+
+KEY_NAME = "new_key_name"
+DESCRIPTION = "Description for translators"
+PLACEHOLDERS = None  # or {"name": {"content": "$1", "example": "value"}}
+
+TRANSLATIONS = {
+    "ar":    "Arabic text",
+    "bg":    "Bulgarian text",
+    "ca":    "Catalan text",
+    "de":    "German text",
+    "el":    "Greek text",
+    "en":    "English text",
+    "es":    "Spanish text",
+    "fa":    "Persian text",
+    "fr":    "French text",
+    "hu":    "Hungarian text",
+    "id":    "Indonesian text",
+    "it":    "Italian text",
+    "ja":    "Japanese text",
+    "ko":    "Korean text",
+    "nb":    "Norwegian Bokmål text",
+    "nl":    "Dutch text",
+    "pl":    "Polish text",
+    "pt_BR": "Portuguese (Brazil) text",
+    "ro":    "Romanian text",
+    "ru":    "Russian text",
+    "th":    "Thai text",
+    "tr":    "Turkish text",
+    "uk":    "Ukrainian text",
+    "vi":    "Vietnamese text",
+    "zh_CN": "Simplified Chinese text",
+    "zh_TW": "Traditional Chinese text",
+}
+
+# Script validates all 26 entries, builds Chrome i18n format, writes atomically.
+# Run: python3 scripts/batch-update-locales.py
+```
+
+> **Critical:** After running, verify with `pnpm lint:i18n` — key inconsistencies will surface here.
+
 ### Adding a New Language
 
 1. Create `public/_locales/{code}/messages.json` (copy `en` as template)
-2. Translate all messages
-3. Register the locale in `shared/i18n/dictionaries.ts`
-4. Add the locale code to `LOCALES` array in `scripts/lint-i18n.ts`
-5. Submit a Pull Request
+2. Translate all 106 message keys
+3. Register the locale in `shared/i18n/dictionaries.ts` (import + `SUPPORTED_LOCALES` entry + `DICTIONARIES` entry)
+4. Add a `locale:{code}` alias in `vitest.config.ts`
+5. Add a `declare module 'locale:{code}'` block in `shared/i18n/locale-modules.d.ts`
+6. Add the locale code to `LOCALES` array in `scripts/lint-i18n.ts`
+7. Run `pnpm lint:i18n` to verify key parity with the `en` reference
+8. Submit a Pull Request
 
 ---
 
@@ -326,9 +415,9 @@ Run these before committing changes:
 pnpm format           # Auto-format all files
 pnpm format:check     # Verify formatting (CI runs this)
 pnpm compile          # TypeScript type checking
-pnpm test             # Vitest — 288 unit + integration tests
+pnpm test             # Vitest — 335 unit + integration tests
 pnpm lint             # ESLint
-pnpm lint:i18n        # i18n key consistency across 3 locales
+pnpm lint:i18n        # i18n key consistency across 26 locales
 pnpm build            # Production build
 pnpm zip              # Package for store submission
 ```

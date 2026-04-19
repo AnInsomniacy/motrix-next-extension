@@ -1,0 +1,383 @@
+{
+  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_description": {
+    "message": "將瀏覽器下載傳送至 Motrix Next——基於 aria2 的現代下載管理器",
+    "description": "Extension description shown in browser and web store"
+  },
+  "popup_status_connected": {
+    "message": "已連線",
+    "description": "Connection status badge when aria2 RPC is reachable"
+  },
+  "popup_status_disconnected": {
+    "message": "已斷線",
+    "description": "Connection status badge when aria2 RPC is unreachable"
+  },
+  "popup_status_not_configured": {
+    "message": "未設定",
+    "description": "Connection status badge when RPC secret is empty"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "Download speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "Upload speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "沒有進行中的下載",
+    "description": "Message when there are no active aria2 tasks"
+  },
+  "popup_action_pause_all": {
+    "message": "全部暫停",
+    "description": "Button to pause all active downloads"
+  },
+  "popup_action_resume_all": {
+    "message": "全部繼續",
+    "description": "Button to resume all paused downloads"
+  },
+  "popup_action_settings": { "message": "設定", "description": "Button to open the options page" },
+  "popup_action_launch": {
+    "message": "啟動 Motrix Next",
+    "description": "Button to launch the desktop app when disconnected"
+  },
+  "popup_action_open": {
+    "message": "開啟 Motrix Next",
+    "description": "Button to focus the desktop app when already connected"
+  },
+  "popup_error_unreachable": {
+    "message": "無法連線至 Motrix Next",
+    "description": "Error message when RPC is unreachable"
+  },
+  "popup_error_check_settings": {
+    "message": "檢查設定",
+    "description": "Button to navigate to settings when connection fails"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · 設定",
+    "description": "Options page title"
+  },
+  "options_section_connection": {
+    "message": "連線",
+    "description": "Settings section for RPC connection"
+  },
+  "options_rpc_port_label": {
+    "message": "RPC 連接埠",
+    "description": "Label for the RPC port input"
+  },
+  "options_rpc_secret_label": {
+    "message": "RPC 密鑰",
+    "description": "Label for the RPC secret input"
+  },
+  "options_test_connection": {
+    "message": "測試連線",
+    "description": "Button to test the RPC connection"
+  },
+  "options_connection_success": {
+    "message": "已連線 · aria2 $version$",
+    "description": "Success message after testing connection",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "下載行為",
+    "description": "Settings section for download interception behavior"
+  },
+  "options_enabled_label": {
+    "message": "啟用下載攔截",
+    "description": "Toggle label for enabling/disabling download interception"
+  },
+  "options_enabled_desc": {
+    "message": "自動攔截瀏覽器下載",
+    "description": "Description text for the interception toggle"
+  },
+  "options_min_size_label": {
+    "message": "最小檔案大小 (MB)",
+    "description": "Label for minimum file size filter"
+  },
+  "options_min_size_desc": {
+    "message": "略過小於此門檻的檔案",
+    "description": "Description text for minimum file size input"
+  },
+  "options_fallback_label": {
+    "message": "失敗時回退到瀏覽器",
+    "description": "Toggle label for browser fallback"
+  },
+  "options_fallback_desc": {
+    "message": "aria2 失敗時在瀏覽器中繼續下載",
+    "description": "Description text for the fallback toggle"
+  },
+  "options_notify_label": {
+    "message": "通知",
+    "description": "Toggle label for enabling notifications"
+  },
+  "options_section_rules": {
+    "message": "網站規則",
+    "description": "Settings section for per-site download rules"
+  },
+  "options_add_rule": { "message": "新增規則", "description": "Button to add a new site rule" },
+  "options_section_enhanced": {
+    "message": "進階模式",
+    "description": "Settings section for optional enhanced permissions"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "Cookie 轉發 (盡力而為)",
+    "description": "Toggle label for cookie forwarding to aria2"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "隱藏下載列",
+    "description": "Toggle label for hiding the browser download UI"
+  },
+  "options_enhanced_grant": {
+    "message": "授予進階權限",
+    "description": "Button to request optional permissions"
+  },
+  "options_enhanced_granted": {
+    "message": "權限已授予",
+    "description": "Status when enhanced permissions are active"
+  },
+  "options_section_appearance": { "message": "外觀", "description": "Settings section for theme" },
+  "options_theme_system": {
+    "message": "系統",
+    "description": "Theme option: follow system preference"
+  },
+  "options_theme_light": { "message": "淺色", "description": "Theme option: light mode" },
+  "options_theme_dark": { "message": "深色", "description": "Theme option: dark mode" },
+  "options_section_diagnostics": {
+    "message": "診斷",
+    "description": "Settings section for diagnostic event log"
+  },
+  "notification_sent_title": {
+    "message": "已傳送至 Motrix Next",
+    "description": "Notification title when download is sent"
+  },
+  "notification_sent_body": {
+    "message": "正在下載 $filename$",
+    "description": "Notification body when download is sent",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "下載失敗",
+    "description": "Notification title when download send fails"
+  },
+  "notification_fallback_title": {
+    "message": "回退到瀏覽器",
+    "description": "Notification title when falling back to browser download"
+  },
+  "context_menu_download": {
+    "message": "使用 Motrix Next 下載",
+    "description": "Context menu item for downloading a link with Motrix Next"
+  },
+  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_speed_active_count": {
+    "message": "$count$ 個進行中",
+    "description": "Number of active downloads in speed bar",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "請確認 Motrix Next 正在執行且 RPC 已啟用。",
+    "description": "Hint shown when connection fails"
+  },
+  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_subtitle": {
+    "message": "擴充功能設定",
+    "description": "Options page header subtitle"
+  },
+  "options_testing_connection": {
+    "message": "測試中...",
+    "description": "Button text while testing connection"
+  },
+  "options_connection_success_prefix": {
+    "message": "已連線 · aria2",
+    "description": "Prefix for successful connection status"
+  },
+  "options_notify_start_label": {
+    "message": "下載開始時通知",
+    "description": "Toggle label for start notifications"
+  },
+  "options_notify_complete_label": {
+    "message": "下載完成時通知",
+    "description": "Toggle label for completion notifications"
+  },
+  "options_rules_empty": {
+    "message": "尚未設定規則。",
+    "description": "Placeholder when no site rules exist"
+  },
+  "options_enhanced_description": {
+    "message": "授予額外權限以啟用 Cookie 轉發和隱藏下載列。",
+    "description": "Description of enhanced permissions section"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "Cookie 轉發為盡力而為——由於隱私政策，可能無法在所有網站上運作。",
+    "description": "Disclaimer about cookie forwarding reliability"
+  },
+  "options_enhanced_status_granted": {
+    "message": "進階權限已授予",
+    "description": "Status text when enhanced permissions are active"
+  },
+  "options_enhanced_revoke": {
+    "message": "撤銷權限",
+    "description": "Button to revoke enhanced permissions"
+  },
+  "options_diagnostics_export": {
+    "message": "匯出診斷報告",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
+  "options_diagnostics_clear": {
+    "message": "清除記錄",
+    "description": "Button to clear diagnostic log"
+  },
+  "options_diagnostics_empty": {
+    "message": "沒有診斷事件。",
+    "description": "Placeholder when diagnostic log is empty"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "Footer text with version number",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "下載完成",
+    "description": "Title for download completion notification"
+  },
+  "options_save": { "message": "儲存", "description": "Save button in action bar" },
+  "options_discard": { "message": "捨棄", "description": "Discard button in action bar" },
+  "options_save_success": {
+    "message": "設定已儲存",
+    "description": "Toast after saving settings successfully"
+  },
+  "options_save_error": {
+    "message": "儲存設定失敗",
+    "description": "Toast when saving settings fails"
+  },
+  "options_unsaved_title": {
+    "message": "未儲存的變更",
+    "description": "Dialog title when leaving with unsaved changes"
+  },
+  "options_unsaved_message": {
+    "message": "您有未儲存的變更。離開前要儲存嗎？",
+    "description": "Dialog body when leaving with unsaved changes"
+  },
+  "options_changes_indicator": {
+    "message": "未儲存的變更",
+    "description": "Indicator text showing there are unsaved modifications"
+  },
+  "options_color_scheme": {
+    "message": "色彩方案",
+    "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": { "message": "琥珀金", "description": "Amber Gold color scheme" },
+  "options_color_scheme_space": { "message": "太空藍", "description": "Space Blue color scheme" },
+  "options_color_scheme_mint": { "message": "薄荷綠", "description": "Mint Green color scheme" },
+  "options_color_scheme_rose": { "message": "玫瑰紅", "description": "Rose Red color scheme" },
+  "options_color_scheme_aurora": {
+    "message": "極光紫",
+    "description": "Aurora Purple color scheme"
+  },
+  "options_color_scheme_coral": { "message": "珊瑚橘", "description": "Coral Orange color scheme" },
+  "options_color_scheme_glacier": {
+    "message": "冰川青",
+    "description": "Glacier Cyan color scheme"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "常青綠",
+    "description": "Evergreen color scheme"
+  },
+  "options_color_scheme_graphite": {
+    "message": "石墨灰",
+    "description": "Graphite Grey color scheme"
+  },
+  "options_color_scheme_sakura": { "message": "櫻花粉", "description": "Sakura Pink color scheme" },
+  "error_rpc_unreachable": {
+    "message": "無法連線至 Motrix Next RPC",
+    "description": "Error when the RPC endpoint is unreachable"
+  },
+  "error_rpc_auth": {
+    "message": "RPC 密鑰不正確",
+    "description": "Error when the RPC secret does not match"
+  },
+  "error_rpc_timeout": {
+    "message": "連線逾時",
+    "description": "Error when the RPC connection times out"
+  },
+  "error_unknown": { "message": "發生未知錯誤", "description": "Fallback error message" },
+  "options_rule_always_intercept": {
+    "message": "始終攔截",
+    "description": "Site rule action: always intercept downloads"
+  },
+  "options_rule_always_skip": {
+    "message": "始終略過",
+    "description": "Site rule action: never intercept downloads"
+  },
+  "options_rule_use_global": {
+    "message": "使用全域設定",
+    "description": "Site rule action: follow the global setting"
+  },
+  "task_name_unknown": {
+    "message": "未知",
+    "description": "Fallback name when a task filename cannot be resolved"
+  },
+  "popup_error_auth": {
+    "message": "RPC 密鑰不匹配",
+    "description": "Popup banner title when RPC secret is incorrect"
+  },
+  "popup_error_auth_hint": {
+    "message": "請確認設定中的 RPC 密鑰與 Motrix Next 設定一致。",
+    "description": "Popup banner hint for RPC auth error"
+  },
+  "popup_error_timeout": {
+    "message": "連線逾時",
+    "description": "Popup banner title when RPC connection times out"
+  },
+  "popup_error_timeout_hint": {
+    "message": "請檢查網路或防火牆設定。RPC 連接埠：$1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "請確認 Motrix Next 正在執行。RPC 連接埠：$1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "options_section_language": {
+    "message": "語言",
+    "description": "Settings section for interface language"
+  },
+  "options_locale_auto": {
+    "message": "自動",
+    "description": "Language option: follow browser language"
+  },
+  "options_locale_auto_desc": {
+    "message": "跟隨瀏覽器語言",
+    "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "自動啟動 Motrix Next",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "未執行時嘗試啟動 Motrix Next",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "進行中",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "等待中",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "已完成",
+    "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "攔截中",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "已暫停",
+    "description": "Label next to the interception toggle when inactive"
+  }
+}

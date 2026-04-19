@@ -88,8 +88,8 @@ const sections = [
   flex-direction: column;
   gap: 2px;
   padding: 8px;
-  width: 180px;
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 150px;
 }
 
 .nav-item {

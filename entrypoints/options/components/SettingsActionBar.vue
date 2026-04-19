@@ -139,6 +139,11 @@ const { t: i18n } = useI18n();
     transform 0.35s cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
+.save-btn:hover {
+  filter: brightness(1.1);
+  box-shadow: var(--shadow-elevated);
+}
+
 .save-btn :deep(.n-button__border) {
   border-color: var(--color-success) !important;
   transition: border-color 0.35s cubic-bezier(0.2, 0, 0, 1);
@@ -168,6 +173,11 @@ const { t: i18n } = useI18n();
     color 0.35s cubic-bezier(0.2, 0, 0, 1),
     border-color 0.35s cubic-bezier(0.2, 0, 0, 1),
     transform 0.35s cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+.discard-btn:hover {
+  filter: brightness(1.1);
+  box-shadow: var(--shadow-elevated);
 }
 
 .discard-btn :deep(.n-button__border) {

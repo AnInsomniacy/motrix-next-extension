@@ -15,7 +15,34 @@ import { resolve } from 'node:path';
 
 const LOCALES_DIR = resolve(import.meta.dirname ?? '.', '..', 'public', '_locales');
 const REFERENCE_LOCALE = 'en';
-const LOCALES = ['en', 'ja', 'zh_CN'];
+const LOCALES = [
+  'ar',
+  'bg',
+  'ca',
+  'de',
+  'el',
+  'en',
+  'es',
+  'fa',
+  'fr',
+  'hu',
+  'id',
+  'it',
+  'ja',
+  'ko',
+  'nb',
+  'nl',
+  'pl',
+  'pt_BR',
+  'ro',
+  'ru',
+  'th',
+  'tr',
+  'uk',
+  'vi',
+  'zh_CN',
+  'zh_TW',
+];
 
 // ─── Duplicate Key Detection ────────────────────────────
 // JSON.parse doesn't detect duplicates — we parse the raw text with regex.

@@ -461,16 +461,16 @@ onUnmounted(() => {
 .options-body {
   display: flex;
   flex: 1;
-  max-width: 960px;
   width: 100%;
   margin: 0 auto;
-  padding: 16px 0;
+  padding: 16px 24px;
 }
 
 .options-content {
-  flex: 1;
+  flex: 3;
   min-width: 0;
   padding: 8px 32px 32px 16px;
+  border-left: 1px solid var(--color-outline-variant);
 }
 
 .section-wrapper {

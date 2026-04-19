@@ -30,7 +30,7 @@ describe('I18nEngine.t', () => {
 
   it('uses en dictionary when initialized with unknown locale', async () => {
     const { I18nEngine } = await import('@/shared/i18n/engine');
-    const engine = new I18nEngine('fr');
+    const engine = new I18nEngine('sw'); // Swahili — not in supported locales
     expect(engine.t('popup_status_connected')).toBe('Connected');
   });
 });

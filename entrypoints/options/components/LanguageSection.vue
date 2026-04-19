@@ -128,7 +128,7 @@ const detectedLocaleName = computed(() => {
   padding: 12px 16px;
   border-radius: 10px;
   border: 1.5px solid var(--color-outline-variant, rgba(128, 128, 128, 0.2));
-  background: transparent;
+  background-color: transparent;
   cursor: pointer;
   transition:
     background-color 0.25s cubic-bezier(0.2, 0, 0, 1),
@@ -141,12 +141,13 @@ const detectedLocaleName = computed(() => {
 }
 
 .locale-card:hover {
-  background: var(--color-surface-container, rgba(128, 128, 128, 0.06));
+  background-color: var(--color-surface-container, rgba(128, 128, 128, 0.06));
+  border-color: var(--color-outline);
 }
 
 .locale-card.active {
   border-color: var(--color-primary, #d4a017);
-  background: var(--color-primary-container, rgba(212, 160, 23, 0.08));
+  background-color: var(--color-primary-container, rgba(212, 160, 23, 0.08));
   box-shadow: 0 0 0 1px var(--color-primary, #d4a017);
 }
 

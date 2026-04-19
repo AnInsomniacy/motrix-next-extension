@@ -14,12 +14,62 @@ type ChromeMessages = Record<
   }
 >;
 
+declare module 'locale:ar' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:bg' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:ca' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:de' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:el' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
 declare module 'locale:en' {
   const messages: ChromeMessages;
   export default messages;
 }
 
-declare module 'locale:zh_CN' {
+declare module 'locale:es' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:fa' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:fr' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:hu' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:id' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:it' {
   const messages: ChromeMessages;
   export default messages;
 }
@@ -29,4 +79,67 @@ declare module 'locale:ja' {
   export default messages;
 }
 
-// Extension point: add more `declare module 'locale:xx'` as needed.
+declare module 'locale:ko' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:nb' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:nl' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:pl' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:pt_BR' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:ro' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:ru' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:th' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:tr' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:uk' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:vi' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:zh_CN' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
+declare module 'locale:zh_TW' {
+  const messages: ChromeMessages;
+  export default messages;
+}

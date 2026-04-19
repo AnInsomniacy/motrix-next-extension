@@ -1,0 +1,407 @@
+{
+  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_description": {
+    "message": "Stuur browserdownloads naar Motrix Next — een moderne downloadmanager aangedreven door aria2",
+    "description": "Extension description shown in browser and web store"
+  },
+  "popup_status_connected": {
+    "message": "Verbonden",
+    "description": "Connection status badge when aria2 RPC is reachable"
+  },
+  "popup_status_disconnected": {
+    "message": "Niet verbonden",
+    "description": "Connection status badge when aria2 RPC is unreachable"
+  },
+  "popup_status_not_configured": {
+    "message": "Niet geconfigureerd",
+    "description": "Connection status badge when RPC secret is empty"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "Download speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "Upload speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "Geen actieve downloads",
+    "description": "Message when there are no active aria2 tasks"
+  },
+  "popup_action_pause_all": {
+    "message": "Alles pauzeren",
+    "description": "Button to pause all active downloads"
+  },
+  "popup_action_resume_all": {
+    "message": "Alles hervatten",
+    "description": "Button to resume all paused downloads"
+  },
+  "popup_action_settings": {
+    "message": "Instellingen",
+    "description": "Button to open the options page"
+  },
+  "popup_action_launch": {
+    "message": "Motrix Next starten",
+    "description": "Button to launch the desktop app when disconnected"
+  },
+  "popup_action_open": {
+    "message": "Motrix Next openen",
+    "description": "Button to focus the desktop app when already connected"
+  },
+  "popup_error_unreachable": {
+    "message": "Kan niet verbinden met Motrix Next",
+    "description": "Error message when RPC is unreachable"
+  },
+  "popup_error_check_settings": {
+    "message": "Instellingen controleren",
+    "description": "Button to navigate to settings when connection fails"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · Instellingen",
+    "description": "Options page title"
+  },
+  "options_section_connection": {
+    "message": "Verbinding",
+    "description": "Settings section for RPC connection"
+  },
+  "options_rpc_port_label": {
+    "message": "RPC-poort",
+    "description": "Label for the RPC port input"
+  },
+  "options_rpc_secret_label": {
+    "message": "RPC-geheim",
+    "description": "Label for the RPC secret input"
+  },
+  "options_test_connection": {
+    "message": "Verbinding testen",
+    "description": "Button to test the RPC connection"
+  },
+  "options_connection_success": {
+    "message": "Verbonden · aria2 $version$",
+    "description": "Success message after testing connection",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "Downloadgedrag",
+    "description": "Settings section for download interception behavior"
+  },
+  "options_enabled_label": {
+    "message": "Download-onderschepping inschakelen",
+    "description": "Toggle label for enabling/disabling download interception"
+  },
+  "options_enabled_desc": {
+    "message": "Browserdownloads automatisch onderscheppen",
+    "description": "Description text for the interception toggle"
+  },
+  "options_min_size_label": {
+    "message": "Minimale bestandsgrootte (MB)",
+    "description": "Label for minimum file size filter"
+  },
+  "options_min_size_desc": {
+    "message": "Bestanden kleiner dan deze drempel overslaan",
+    "description": "Description text for minimum file size input"
+  },
+  "options_fallback_label": {
+    "message": "Terugvallen op browser bij fout",
+    "description": "Toggle label for browser fallback"
+  },
+  "options_fallback_desc": {
+    "message": "Download hervatten in de browser als aria2 faalt",
+    "description": "Description text for the fallback toggle"
+  },
+  "options_notify_label": {
+    "message": "Meldingen",
+    "description": "Toggle label for enabling notifications"
+  },
+  "options_section_rules": {
+    "message": "Siteregels",
+    "description": "Settings section for per-site download rules"
+  },
+  "options_add_rule": {
+    "message": "Regel toevoegen",
+    "description": "Button to add a new site rule"
+  },
+  "options_section_enhanced": {
+    "message": "Uitgebreide modus",
+    "description": "Settings section for optional enhanced permissions"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "Cookie-doorsturen (best-effort)",
+    "description": "Toggle label for cookie forwarding to aria2"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "Downloadbalk verbergen",
+    "description": "Toggle label for hiding the browser download UI"
+  },
+  "options_enhanced_grant": {
+    "message": "Uitgebreide machtigingen verlenen",
+    "description": "Button to request optional permissions"
+  },
+  "options_enhanced_granted": {
+    "message": "Machtigingen verleend",
+    "description": "Status when enhanced permissions are active"
+  },
+  "options_section_appearance": {
+    "message": "Uiterlijk",
+    "description": "Settings section for theme"
+  },
+  "options_theme_system": {
+    "message": "Systeem",
+    "description": "Theme option: follow system preference"
+  },
+  "options_theme_light": { "message": "Licht", "description": "Theme option: light mode" },
+  "options_theme_dark": { "message": "Donker", "description": "Theme option: dark mode" },
+  "options_section_diagnostics": {
+    "message": "Diagnostiek",
+    "description": "Settings section for diagnostic event log"
+  },
+  "notification_sent_title": {
+    "message": "Verzonden naar Motrix Next",
+    "description": "Notification title when download is sent"
+  },
+  "notification_sent_body": {
+    "message": "$filename$ wordt gedownload",
+    "description": "Notification body when download is sent",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "Download mislukt",
+    "description": "Notification title when download send fails"
+  },
+  "notification_fallback_title": {
+    "message": "Terugvallen op browser",
+    "description": "Notification title when falling back to browser download"
+  },
+  "context_menu_download": {
+    "message": "Downloaden met Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
+  },
+  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_speed_active_count": {
+    "message": "$count$ actief",
+    "description": "Number of active downloads in speed bar",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "Zorg ervoor dat Motrix Next draait en RPC is ingeschakeld.",
+    "description": "Hint shown when connection fails"
+  },
+  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_subtitle": {
+    "message": "Extensie-instellingen",
+    "description": "Options page header subtitle"
+  },
+  "options_testing_connection": {
+    "message": "Testen...",
+    "description": "Button text while testing connection"
+  },
+  "options_connection_success_prefix": {
+    "message": "Verbonden · aria2",
+    "description": "Prefix for successful connection status"
+  },
+  "options_notify_start_label": {
+    "message": "Melding bij start download",
+    "description": "Toggle label for start notifications"
+  },
+  "options_notify_complete_label": {
+    "message": "Melding bij voltooide download",
+    "description": "Toggle label for completion notifications"
+  },
+  "options_rules_empty": {
+    "message": "Geen regels geconfigureerd.",
+    "description": "Placeholder when no site rules exist"
+  },
+  "options_enhanced_description": {
+    "message": "Verleen extra machtigingen voor cookie-doorsturen en het verbergen van de downloadbalk.",
+    "description": "Description of enhanced permissions section"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "Cookie-doorsturen is best-effort — werkt mogelijk niet voor alle sites vanwege privacybeleid.",
+    "description": "Disclaimer about cookie forwarding reliability"
+  },
+  "options_enhanced_status_granted": {
+    "message": "Uitgebreide machtigingen verleend",
+    "description": "Status text when enhanced permissions are active"
+  },
+  "options_enhanced_revoke": {
+    "message": "Machtigingen intrekken",
+    "description": "Button to revoke enhanced permissions"
+  },
+  "options_diagnostics_export": {
+    "message": "Diagnostisch rapport exporteren",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
+  "options_diagnostics_clear": {
+    "message": "Logboek wissen",
+    "description": "Button to clear diagnostic log"
+  },
+  "options_diagnostics_empty": {
+    "message": "Geen diagnostische gebeurtenissen.",
+    "description": "Placeholder when diagnostic log is empty"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "Footer text with version number",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "Download voltooid",
+    "description": "Title for download completion notification"
+  },
+  "options_save": { "message": "Opslaan", "description": "Save button in action bar" },
+  "options_discard": { "message": "Verwerpen", "description": "Discard button in action bar" },
+  "options_save_success": {
+    "message": "Instellingen opgeslagen",
+    "description": "Toast after saving settings successfully"
+  },
+  "options_save_error": {
+    "message": "Opslaan van instellingen mislukt",
+    "description": "Toast when saving settings fails"
+  },
+  "options_unsaved_title": {
+    "message": "Niet-opgeslagen wijzigingen",
+    "description": "Dialog title when leaving with unsaved changes"
+  },
+  "options_unsaved_message": {
+    "message": "U heeft niet-opgeslagen wijzigingen. Opslaan voor het verlaten?",
+    "description": "Dialog body when leaving with unsaved changes"
+  },
+  "options_changes_indicator": {
+    "message": "Niet-opgeslagen wijzigingen",
+    "description": "Indicator text showing there are unsaved modifications"
+  },
+  "options_color_scheme": {
+    "message": "Kleurenschema",
+    "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "Ambergoud",
+    "description": "Amber Gold color scheme"
+  },
+  "options_color_scheme_space": {
+    "message": "Ruimteblauw",
+    "description": "Space Blue color scheme"
+  },
+  "options_color_scheme_mint": { "message": "Mintgroen", "description": "Mint Green color scheme" },
+  "options_color_scheme_rose": { "message": "Rozerood", "description": "Rose Red color scheme" },
+  "options_color_scheme_aurora": {
+    "message": "Aurorapaars",
+    "description": "Aurora Purple color scheme"
+  },
+  "options_color_scheme_coral": {
+    "message": "Koraaloranje",
+    "description": "Coral Orange color scheme"
+  },
+  "options_color_scheme_glacier": {
+    "message": "Gletsjercyaan",
+    "description": "Glacier Cyan color scheme"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "Altijdgroen",
+    "description": "Evergreen color scheme"
+  },
+  "options_color_scheme_graphite": {
+    "message": "Grafietgrijs",
+    "description": "Graphite Grey color scheme"
+  },
+  "options_color_scheme_sakura": {
+    "message": "Sakuraroze",
+    "description": "Sakura Pink color scheme"
+  },
+  "error_rpc_unreachable": {
+    "message": "Kan niet verbinden met Motrix Next RPC",
+    "description": "Error when the RPC endpoint is unreachable"
+  },
+  "error_rpc_auth": {
+    "message": "RPC-geheim is onjuist",
+    "description": "Error when the RPC secret does not match"
+  },
+  "error_rpc_timeout": {
+    "message": "Verbindingstime-out",
+    "description": "Error when the RPC connection times out"
+  },
+  "error_unknown": {
+    "message": "Er is een onbekende fout opgetreden",
+    "description": "Fallback error message"
+  },
+  "options_rule_always_intercept": {
+    "message": "Altijd onderscheppen",
+    "description": "Site rule action: always intercept downloads"
+  },
+  "options_rule_always_skip": {
+    "message": "Altijd overslaan",
+    "description": "Site rule action: never intercept downloads"
+  },
+  "options_rule_use_global": {
+    "message": "Globale instelling gebruiken",
+    "description": "Site rule action: follow the global setting"
+  },
+  "task_name_unknown": {
+    "message": "Onbekend",
+    "description": "Fallback name when a task filename cannot be resolved"
+  },
+  "popup_error_auth": {
+    "message": "RPC-geheim komt niet overeen",
+    "description": "Popup banner title when RPC secret is incorrect"
+  },
+  "popup_error_auth_hint": {
+    "message": "Controleer of het RPC-geheim in de instellingen overeenkomt met de Motrix Next-configuratie.",
+    "description": "Popup banner hint for RPC auth error"
+  },
+  "popup_error_timeout": {
+    "message": "Verbindingstime-out",
+    "description": "Popup banner title when RPC connection times out"
+  },
+  "popup_error_timeout_hint": {
+    "message": "Controleer de netwerk- of firewallinstellingen. RPC-poort: $1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "Zorg ervoor dat Motrix Next draait. RPC-poort: $1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "options_section_language": {
+    "message": "Taal",
+    "description": "Settings section for interface language"
+  },
+  "options_locale_auto": {
+    "message": "Automatisch",
+    "description": "Language option: follow browser language"
+  },
+  "options_locale_auto_desc": {
+    "message": "Volg de browsertaal",
+    "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "Motrix Next automatisch starten",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "Probeer Motrix Next te starten wanneer het niet draait",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "Actief",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "Wachtend",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "Voltooid",
+    "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "Onderschepping actief",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "Gepauzeerd",
+    "description": "Label next to the interception toggle when inactive"
+  }
+}

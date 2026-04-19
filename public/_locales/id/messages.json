@@ -1,0 +1,410 @@
+{
+  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_description": {
+    "message": "Kirim unduhan browser ke Motrix Next — pengelola unduhan modern berbasis aria2",
+    "description": "Extension description shown in browser and web store"
+  },
+  "popup_status_connected": {
+    "message": "Terhubung",
+    "description": "Connection status badge when aria2 RPC is reachable"
+  },
+  "popup_status_disconnected": {
+    "message": "Terputus",
+    "description": "Connection status badge when aria2 RPC is unreachable"
+  },
+  "popup_status_not_configured": {
+    "message": "Belum dikonfigurasi",
+    "description": "Connection status badge when RPC secret is empty"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "Download speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "Upload speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "Tidak ada unduhan aktif",
+    "description": "Message when there are no active aria2 tasks"
+  },
+  "popup_action_pause_all": {
+    "message": "Jeda semua",
+    "description": "Button to pause all active downloads"
+  },
+  "popup_action_resume_all": {
+    "message": "Lanjutkan semua",
+    "description": "Button to resume all paused downloads"
+  },
+  "popup_action_settings": {
+    "message": "Pengaturan",
+    "description": "Button to open the options page"
+  },
+  "popup_action_launch": {
+    "message": "Jalankan Motrix Next",
+    "description": "Button to launch the desktop app when disconnected"
+  },
+  "popup_action_open": {
+    "message": "Buka Motrix Next",
+    "description": "Button to focus the desktop app when already connected"
+  },
+  "popup_error_unreachable": {
+    "message": "Tidak dapat terhubung ke Motrix Next",
+    "description": "Error message when RPC is unreachable"
+  },
+  "popup_error_check_settings": {
+    "message": "Periksa pengaturan",
+    "description": "Button to navigate to settings when connection fails"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · Pengaturan",
+    "description": "Options page title"
+  },
+  "options_section_connection": {
+    "message": "Koneksi",
+    "description": "Settings section for RPC connection"
+  },
+  "options_rpc_port_label": {
+    "message": "Port RPC",
+    "description": "Label for the RPC port input"
+  },
+  "options_rpc_secret_label": {
+    "message": "Rahasia RPC",
+    "description": "Label for the RPC secret input"
+  },
+  "options_test_connection": {
+    "message": "Tes koneksi",
+    "description": "Button to test the RPC connection"
+  },
+  "options_connection_success": {
+    "message": "Terhubung · aria2 $version$",
+    "description": "Success message after testing connection",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "Perilaku unduhan",
+    "description": "Settings section for download interception behavior"
+  },
+  "options_enabled_label": {
+    "message": "Aktifkan intersepsi unduhan",
+    "description": "Toggle label for enabling/disabling download interception"
+  },
+  "options_enabled_desc": {
+    "message": "Intersepsi otomatis unduhan browser",
+    "description": "Description text for the interception toggle"
+  },
+  "options_min_size_label": {
+    "message": "Ukuran file minimum (MB)",
+    "description": "Label for minimum file size filter"
+  },
+  "options_min_size_desc": {
+    "message": "Lewati file yang lebih kecil dari ambang batas ini",
+    "description": "Description text for minimum file size input"
+  },
+  "options_fallback_label": {
+    "message": "Kembali ke browser jika gagal",
+    "description": "Toggle label for browser fallback"
+  },
+  "options_fallback_desc": {
+    "message": "Lanjutkan unduhan di browser jika aria2 gagal",
+    "description": "Description text for the fallback toggle"
+  },
+  "options_notify_label": {
+    "message": "Notifikasi",
+    "description": "Toggle label for enabling notifications"
+  },
+  "options_section_rules": {
+    "message": "Aturan situs",
+    "description": "Settings section for per-site download rules"
+  },
+  "options_add_rule": {
+    "message": "Tambah aturan",
+    "description": "Button to add a new site rule"
+  },
+  "options_section_enhanced": {
+    "message": "Mode lanjutan",
+    "description": "Settings section for optional enhanced permissions"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "Penerusan cookie (best-effort)",
+    "description": "Toggle label for cookie forwarding to aria2"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "Sembunyikan bilah unduhan",
+    "description": "Toggle label for hiding the browser download UI"
+  },
+  "options_enhanced_grant": {
+    "message": "Berikan izin lanjutan",
+    "description": "Button to request optional permissions"
+  },
+  "options_enhanced_granted": {
+    "message": "Izin diberikan",
+    "description": "Status when enhanced permissions are active"
+  },
+  "options_section_appearance": {
+    "message": "Tampilan",
+    "description": "Settings section for theme"
+  },
+  "options_theme_system": {
+    "message": "Sistem",
+    "description": "Theme option: follow system preference"
+  },
+  "options_theme_light": { "message": "Terang", "description": "Theme option: light mode" },
+  "options_theme_dark": { "message": "Gelap", "description": "Theme option: dark mode" },
+  "options_section_diagnostics": {
+    "message": "Diagnostik",
+    "description": "Settings section for diagnostic event log"
+  },
+  "notification_sent_title": {
+    "message": "Terkirim ke Motrix Next",
+    "description": "Notification title when download is sent"
+  },
+  "notification_sent_body": {
+    "message": "$filename$ sedang diunduh",
+    "description": "Notification body when download is sent",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "Unduhan gagal",
+    "description": "Notification title when download send fails"
+  },
+  "notification_fallback_title": {
+    "message": "Kembali ke browser",
+    "description": "Notification title when falling back to browser download"
+  },
+  "context_menu_download": {
+    "message": "Unduh dengan Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
+  },
+  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_speed_active_count": {
+    "message": "$count$ aktif",
+    "description": "Number of active downloads in speed bar",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "Pastikan Motrix Next berjalan dan RPC diaktifkan.",
+    "description": "Hint shown when connection fails"
+  },
+  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_subtitle": {
+    "message": "Pengaturan ekstensi",
+    "description": "Options page header subtitle"
+  },
+  "options_testing_connection": {
+    "message": "Menguji...",
+    "description": "Button text while testing connection"
+  },
+  "options_connection_success_prefix": {
+    "message": "Terhubung · aria2",
+    "description": "Prefix for successful connection status"
+  },
+  "options_notify_start_label": {
+    "message": "Notifikasi saat unduhan dimulai",
+    "description": "Toggle label for start notifications"
+  },
+  "options_notify_complete_label": {
+    "message": "Notifikasi saat unduhan selesai",
+    "description": "Toggle label for completion notifications"
+  },
+  "options_rules_empty": {
+    "message": "Belum ada aturan yang dikonfigurasi.",
+    "description": "Placeholder when no site rules exist"
+  },
+  "options_enhanced_description": {
+    "message": "Berikan izin tambahan untuk penerusan cookie dan menyembunyikan bilah unduhan.",
+    "description": "Description of enhanced permissions section"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "Penerusan cookie bersifat best-effort — mungkin tidak berfungsi di semua situs karena kebijakan privasi.",
+    "description": "Disclaimer about cookie forwarding reliability"
+  },
+  "options_enhanced_status_granted": {
+    "message": "Izin lanjutan diberikan",
+    "description": "Status text when enhanced permissions are active"
+  },
+  "options_enhanced_revoke": {
+    "message": "Cabut izin",
+    "description": "Button to revoke enhanced permissions"
+  },
+  "options_diagnostics_export": {
+    "message": "Ekspor laporan diagnostik",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
+  "options_diagnostics_clear": {
+    "message": "Hapus log",
+    "description": "Button to clear diagnostic log"
+  },
+  "options_diagnostics_empty": {
+    "message": "Tidak ada peristiwa diagnostik.",
+    "description": "Placeholder when diagnostic log is empty"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "Footer text with version number",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "Unduhan selesai",
+    "description": "Title for download completion notification"
+  },
+  "options_save": { "message": "Simpan", "description": "Save button in action bar" },
+  "options_discard": { "message": "Buang", "description": "Discard button in action bar" },
+  "options_save_success": {
+    "message": "Pengaturan disimpan",
+    "description": "Toast after saving settings successfully"
+  },
+  "options_save_error": {
+    "message": "Gagal menyimpan pengaturan",
+    "description": "Toast when saving settings fails"
+  },
+  "options_unsaved_title": {
+    "message": "Perubahan belum disimpan",
+    "description": "Dialog title when leaving with unsaved changes"
+  },
+  "options_unsaved_message": {
+    "message": "Ada perubahan yang belum disimpan. Simpan sebelum keluar?",
+    "description": "Dialog body when leaving with unsaved changes"
+  },
+  "options_changes_indicator": {
+    "message": "Perubahan belum disimpan",
+    "description": "Indicator text showing there are unsaved modifications"
+  },
+  "options_color_scheme": {
+    "message": "Skema warna",
+    "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "Emas amber",
+    "description": "Amber Gold color scheme"
+  },
+  "options_color_scheme_space": {
+    "message": "Biru angkasa",
+    "description": "Space Blue color scheme"
+  },
+  "options_color_scheme_mint": {
+    "message": "Hijau mint",
+    "description": "Mint Green color scheme"
+  },
+  "options_color_scheme_rose": { "message": "Merah mawar", "description": "Rose Red color scheme" },
+  "options_color_scheme_aurora": {
+    "message": "Ungu aurora",
+    "description": "Aurora Purple color scheme"
+  },
+  "options_color_scheme_coral": {
+    "message": "Oranye koral",
+    "description": "Coral Orange color scheme"
+  },
+  "options_color_scheme_glacier": {
+    "message": "Sian glasier",
+    "description": "Glacier Cyan color scheme"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "Hijau abadi",
+    "description": "Evergreen color scheme"
+  },
+  "options_color_scheme_graphite": {
+    "message": "Abu-abu grafit",
+    "description": "Graphite Grey color scheme"
+  },
+  "options_color_scheme_sakura": {
+    "message": "Merah muda sakura",
+    "description": "Sakura Pink color scheme"
+  },
+  "error_rpc_unreachable": {
+    "message": "Tidak dapat terhubung ke Motrix Next RPC",
+    "description": "Error when the RPC endpoint is unreachable"
+  },
+  "error_rpc_auth": {
+    "message": "Rahasia RPC salah",
+    "description": "Error when the RPC secret does not match"
+  },
+  "error_rpc_timeout": {
+    "message": "Koneksi habis waktu",
+    "description": "Error when the RPC connection times out"
+  },
+  "error_unknown": {
+    "message": "Terjadi kesalahan yang tidak diketahui",
+    "description": "Fallback error message"
+  },
+  "options_rule_always_intercept": {
+    "message": "Selalu intersepsi",
+    "description": "Site rule action: always intercept downloads"
+  },
+  "options_rule_always_skip": {
+    "message": "Selalu lewati",
+    "description": "Site rule action: never intercept downloads"
+  },
+  "options_rule_use_global": {
+    "message": "Gunakan pengaturan global",
+    "description": "Site rule action: follow the global setting"
+  },
+  "task_name_unknown": {
+    "message": "Tidak diketahui",
+    "description": "Fallback name when a task filename cannot be resolved"
+  },
+  "popup_error_auth": {
+    "message": "Rahasia RPC tidak cocok",
+    "description": "Popup banner title when RPC secret is incorrect"
+  },
+  "popup_error_auth_hint": {
+    "message": "Periksa apakah rahasia RPC di pengaturan cocok dengan konfigurasi Motrix Next.",
+    "description": "Popup banner hint for RPC auth error"
+  },
+  "popup_error_timeout": {
+    "message": "Koneksi habis waktu",
+    "description": "Popup banner title when RPC connection times out"
+  },
+  "popup_error_timeout_hint": {
+    "message": "Periksa pengaturan jaringan atau firewall. Port RPC: $1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "Pastikan Motrix Next berjalan. Port RPC: $1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "options_section_language": {
+    "message": "Bahasa",
+    "description": "Settings section for interface language"
+  },
+  "options_locale_auto": {
+    "message": "Otomatis",
+    "description": "Language option: follow browser language"
+  },
+  "options_locale_auto_desc": {
+    "message": "Mengikuti bahasa browser",
+    "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "Jalankan Motrix Next otomatis",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "Coba jalankan Motrix Next saat tidak berjalan",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "Aktif",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "Menunggu",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "Selesai",
+    "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "Menginterepsi",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "Dijeda",
+    "description": "Label next to the interception toggle when inactive"
+  }
+}

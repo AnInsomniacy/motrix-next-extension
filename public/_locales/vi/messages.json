@@ -1,0 +1,407 @@
+{
+  "ext_name": { "message": "Motrix Next Extension", "description": "Extension display name" },
+  "ext_description": {
+    "message": "Gửi tải xuống từ trình duyệt đến Motrix Next — trình quản lý tải xuống hiện đại dựa trên aria2",
+    "description": "Extension description shown in browser and web store"
+  },
+  "popup_status_connected": {
+    "message": "Đã kết nối",
+    "description": "Connection status badge when aria2 RPC is reachable"
+  },
+  "popup_status_disconnected": {
+    "message": "Đã ngắt kết nối",
+    "description": "Connection status badge when aria2 RPC is unreachable"
+  },
+  "popup_status_not_configured": {
+    "message": "Chưa cấu hình",
+    "description": "Connection status badge when RPC secret is empty"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "Download speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "Upload speed indicator",
+    "placeholders": { "speed": { "content": "$1" } }
+  },
+  "popup_no_active_tasks": {
+    "message": "Không có tải xuống đang hoạt động",
+    "description": "Message when there are no active aria2 tasks"
+  },
+  "popup_action_pause_all": {
+    "message": "Tạm dừng tất cả",
+    "description": "Button to pause all active downloads"
+  },
+  "popup_action_resume_all": {
+    "message": "Tiếp tục tất cả",
+    "description": "Button to resume all paused downloads"
+  },
+  "popup_action_settings": {
+    "message": "Cài đặt",
+    "description": "Button to open the options page"
+  },
+  "popup_action_launch": {
+    "message": "Khởi chạy Motrix Next",
+    "description": "Button to launch the desktop app when disconnected"
+  },
+  "popup_action_open": {
+    "message": "Mở Motrix Next",
+    "description": "Button to focus the desktop app when already connected"
+  },
+  "popup_error_unreachable": {
+    "message": "Không thể kết nối với Motrix Next",
+    "description": "Error message when RPC is unreachable"
+  },
+  "popup_error_check_settings": {
+    "message": "Kiểm tra cài đặt",
+    "description": "Button to navigate to settings when connection fails"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · Cài đặt",
+    "description": "Options page title"
+  },
+  "options_section_connection": {
+    "message": "Kết nối",
+    "description": "Settings section for RPC connection"
+  },
+  "options_rpc_port_label": {
+    "message": "Cổng RPC",
+    "description": "Label for the RPC port input"
+  },
+  "options_rpc_secret_label": {
+    "message": "Khóa bí mật RPC",
+    "description": "Label for the RPC secret input"
+  },
+  "options_test_connection": {
+    "message": "Kiểm tra kết nối",
+    "description": "Button to test the RPC connection"
+  },
+  "options_connection_success": {
+    "message": "Đã kết nối · aria2 $version$",
+    "description": "Success message after testing connection",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "options_section_behavior": {
+    "message": "Hành vi tải xuống",
+    "description": "Settings section for download interception behavior"
+  },
+  "options_enabled_label": {
+    "message": "Bật chặn tải xuống",
+    "description": "Toggle label for enabling/disabling download interception"
+  },
+  "options_enabled_desc": {
+    "message": "Tự động chặn tải xuống từ trình duyệt",
+    "description": "Description text for the interception toggle"
+  },
+  "options_min_size_label": {
+    "message": "Kích thước tệp tối thiểu (MB)",
+    "description": "Label for minimum file size filter"
+  },
+  "options_min_size_desc": {
+    "message": "Bỏ qua các tệp nhỏ hơn ngưỡng này",
+    "description": "Description text for minimum file size input"
+  },
+  "options_fallback_label": {
+    "message": "Quay lại trình duyệt khi lỗi",
+    "description": "Toggle label for browser fallback"
+  },
+  "options_fallback_desc": {
+    "message": "Tiếp tục tải xuống trong trình duyệt nếu aria2 thất bại",
+    "description": "Description text for the fallback toggle"
+  },
+  "options_notify_label": {
+    "message": "Thông báo",
+    "description": "Toggle label for enabling notifications"
+  },
+  "options_section_rules": {
+    "message": "Quy tắc trang web",
+    "description": "Settings section for per-site download rules"
+  },
+  "options_add_rule": { "message": "Thêm quy tắc", "description": "Button to add a new site rule" },
+  "options_section_enhanced": {
+    "message": "Chế độ nâng cao",
+    "description": "Settings section for optional enhanced permissions"
+  },
+  "options_enhanced_cookies_label": {
+    "message": "Chuyển tiếp cookie (best-effort)",
+    "description": "Toggle label for cookie forwarding to aria2"
+  },
+  "options_enhanced_hide_bar_label": {
+    "message": "Ẩn thanh tải xuống",
+    "description": "Toggle label for hiding the browser download UI"
+  },
+  "options_enhanced_grant": {
+    "message": "Cấp quyền nâng cao",
+    "description": "Button to request optional permissions"
+  },
+  "options_enhanced_granted": {
+    "message": "Đã cấp quyền",
+    "description": "Status when enhanced permissions are active"
+  },
+  "options_section_appearance": {
+    "message": "Giao diện",
+    "description": "Settings section for theme"
+  },
+  "options_theme_system": {
+    "message": "Hệ thống",
+    "description": "Theme option: follow system preference"
+  },
+  "options_theme_light": { "message": "Sáng", "description": "Theme option: light mode" },
+  "options_theme_dark": { "message": "Tối", "description": "Theme option: dark mode" },
+  "options_section_diagnostics": {
+    "message": "Chẩn đoán",
+    "description": "Settings section for diagnostic event log"
+  },
+  "notification_sent_title": {
+    "message": "Đã gửi đến Motrix Next",
+    "description": "Notification title when download is sent"
+  },
+  "notification_sent_body": {
+    "message": "Đang tải xuống $filename$",
+    "description": "Notification body when download is sent",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "notification_failed_title": {
+    "message": "Tải xuống thất bại",
+    "description": "Notification title when download send fails"
+  },
+  "notification_fallback_title": {
+    "message": "Quay lại trình duyệt",
+    "description": "Notification title when falling back to browser download"
+  },
+  "context_menu_download": {
+    "message": "Tải xuống bằng Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
+  },
+  "popup_title": { "message": "Motrix Next", "description": "Popup header title" },
+  "popup_speed_active_count": {
+    "message": "$count$ đang hoạt động",
+    "description": "Number of active downloads in speed bar",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "popup_error_hint": {
+    "message": "Đảm bảo Motrix Next đang chạy và RPC đã được bật.",
+    "description": "Hint shown when connection fails"
+  },
+  "options_header_title": { "message": "Motrix Next", "description": "Options page header title" },
+  "options_header_subtitle": {
+    "message": "Cài đặt tiện ích",
+    "description": "Options page header subtitle"
+  },
+  "options_testing_connection": {
+    "message": "Đang kiểm tra...",
+    "description": "Button text while testing connection"
+  },
+  "options_connection_success_prefix": {
+    "message": "Đã kết nối · aria2",
+    "description": "Prefix for successful connection status"
+  },
+  "options_notify_start_label": {
+    "message": "Thông báo khi bắt đầu tải xuống",
+    "description": "Toggle label for start notifications"
+  },
+  "options_notify_complete_label": {
+    "message": "Thông báo khi tải xuống hoàn tất",
+    "description": "Toggle label for completion notifications"
+  },
+  "options_rules_empty": {
+    "message": "Chưa có quy tắc nào được cấu hình.",
+    "description": "Placeholder when no site rules exist"
+  },
+  "options_enhanced_description": {
+    "message": "Cấp quyền bổ sung để chuyển tiếp cookie và ẩn thanh tải xuống.",
+    "description": "Description of enhanced permissions section"
+  },
+  "options_enhanced_cookie_note": {
+    "message": "Chuyển tiếp cookie hoạt động theo nguyên tắc best-effort — có thể không hoạt động trên tất cả các trang web do chính sách bảo mật.",
+    "description": "Disclaimer about cookie forwarding reliability"
+  },
+  "options_enhanced_status_granted": {
+    "message": "Đã cấp quyền nâng cao",
+    "description": "Status text when enhanced permissions are active"
+  },
+  "options_enhanced_revoke": {
+    "message": "Thu hồi quyền",
+    "description": "Button to revoke enhanced permissions"
+  },
+  "options_diagnostics_export": {
+    "message": "Xuất báo cáo chẩn đoán",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
+  "options_diagnostics_clear": {
+    "message": "Xóa nhật ký",
+    "description": "Button to clear diagnostic log"
+  },
+  "options_diagnostics_empty": {
+    "message": "Không có sự kiện chẩn đoán.",
+    "description": "Placeholder when diagnostic log is empty"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "Footer text with version number",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "notification_complete_title": {
+    "message": "Tải xuống hoàn tất",
+    "description": "Title for download completion notification"
+  },
+  "options_save": { "message": "Lưu", "description": "Save button in action bar" },
+  "options_discard": { "message": "Hủy", "description": "Discard button in action bar" },
+  "options_save_success": {
+    "message": "Đã lưu cài đặt",
+    "description": "Toast after saving settings successfully"
+  },
+  "options_save_error": {
+    "message": "Lưu cài đặt thất bại",
+    "description": "Toast when saving settings fails"
+  },
+  "options_unsaved_title": {
+    "message": "Thay đổi chưa lưu",
+    "description": "Dialog title when leaving with unsaved changes"
+  },
+  "options_unsaved_message": {
+    "message": "Bạn có thay đổi chưa lưu. Lưu trước khi thoát?",
+    "description": "Dialog body when leaving with unsaved changes"
+  },
+  "options_changes_indicator": {
+    "message": "Thay đổi chưa lưu",
+    "description": "Indicator text showing there are unsaved modifications"
+  },
+  "options_color_scheme": {
+    "message": "Bảng màu",
+    "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "Vàng hổ phách",
+    "description": "Amber Gold color scheme"
+  },
+  "options_color_scheme_space": {
+    "message": "Xanh vũ trụ",
+    "description": "Space Blue color scheme"
+  },
+  "options_color_scheme_mint": {
+    "message": "Xanh bạc hà",
+    "description": "Mint Green color scheme"
+  },
+  "options_color_scheme_rose": { "message": "Đỏ hoa hồng", "description": "Rose Red color scheme" },
+  "options_color_scheme_aurora": {
+    "message": "Tím cực quang",
+    "description": "Aurora Purple color scheme"
+  },
+  "options_color_scheme_coral": {
+    "message": "Cam san hô",
+    "description": "Coral Orange color scheme"
+  },
+  "options_color_scheme_glacier": {
+    "message": "Lam băng hà",
+    "description": "Glacier Cyan color scheme"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "Xanh thường xuân",
+    "description": "Evergreen color scheme"
+  },
+  "options_color_scheme_graphite": {
+    "message": "Xám than chì",
+    "description": "Graphite Grey color scheme"
+  },
+  "options_color_scheme_sakura": {
+    "message": "Hồng anh đào",
+    "description": "Sakura Pink color scheme"
+  },
+  "error_rpc_unreachable": {
+    "message": "Không thể kết nối với Motrix Next RPC",
+    "description": "Error when the RPC endpoint is unreachable"
+  },
+  "error_rpc_auth": {
+    "message": "Khóa bí mật RPC không đúng",
+    "description": "Error when the RPC secret does not match"
+  },
+  "error_rpc_timeout": {
+    "message": "Hết thời gian kết nối",
+    "description": "Error when the RPC connection times out"
+  },
+  "error_unknown": {
+    "message": "Đã xảy ra lỗi không xác định",
+    "description": "Fallback error message"
+  },
+  "options_rule_always_intercept": {
+    "message": "Luôn chặn",
+    "description": "Site rule action: always intercept downloads"
+  },
+  "options_rule_always_skip": {
+    "message": "Luôn bỏ qua",
+    "description": "Site rule action: never intercept downloads"
+  },
+  "options_rule_use_global": {
+    "message": "Dùng cài đặt chung",
+    "description": "Site rule action: follow the global setting"
+  },
+  "task_name_unknown": {
+    "message": "Không xác định",
+    "description": "Fallback name when a task filename cannot be resolved"
+  },
+  "popup_error_auth": {
+    "message": "Khóa bí mật RPC không khớp",
+    "description": "Popup banner title when RPC secret is incorrect"
+  },
+  "popup_error_auth_hint": {
+    "message": "Kiểm tra khóa bí mật RPC trong cài đặt có khớp với cấu hình Motrix Next.",
+    "description": "Popup banner hint for RPC auth error"
+  },
+  "popup_error_timeout": {
+    "message": "Hết thời gian kết nối",
+    "description": "Popup banner title when RPC connection times out"
+  },
+  "popup_error_timeout_hint": {
+    "message": "Kiểm tra cài đặt mạng hoặc tường lửa. Cổng RPC: $1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "Đảm bảo Motrix Next đang chạy. Cổng RPC: $1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
+    "placeholders": { "1": { "content": "$1", "example": "16800" } }
+  },
+  "options_section_language": {
+    "message": "Ngôn ngữ",
+    "description": "Settings section for interface language"
+  },
+  "options_locale_auto": {
+    "message": "Tự động",
+    "description": "Language option: follow browser language"
+  },
+  "options_locale_auto_desc": {
+    "message": "Theo ngôn ngữ trình duyệt",
+    "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "Tự động khởi chạy Motrix Next",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "options_auto_launch_desc": {
+    "message": "Thử khởi chạy Motrix Next khi chưa chạy",
+    "description": "Description for auto-launch toggle"
+  },
+  "popup_stat_active": {
+    "message": "Đang chạy",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "Đang chờ",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "Hoàn tất",
+    "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "Đang chặn",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "Tạm dừng",
+    "description": "Label next to the interception toggle when inactive"
+  }
+}
