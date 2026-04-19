@@ -137,14 +137,15 @@ Every stage returns a typed `FilterResult` with the reason code. All stages are 
 
 ### How to Bump
 
+Always use the provided script:
+
 ```bash
-# Edit package.json version field
-npm version patch   # 1.0.0 → 1.0.1
-npm version minor   # 1.0.0 → 1.1.0
-npm version major   # 1.0.0 → 2.0.0
+./scripts/bump-version.sh 1.0.6
 ```
 
-> **Never manually edit the version string.** Always use `npm version` which also creates a git tag.
+This validates the SemVer format and atomically updates `package.json`.
+
+> **Never manually edit the version string.** Always use `bump-version.sh`.
 
 ---
 
@@ -304,20 +305,53 @@ The release workflow (`.github/workflows/release.yml`) is triggered by `on: rele
 
 ### How to Publish a Release
 
+All code changes must be finalized before starting. Execute these three steps in strict order:
+
 1. **Bump the version:**
 
    ```bash
-   npm version patch  # or minor/major
-   git push && git push --tags
+   ./scripts/bump-version.sh 1.0.6
    ```
 
-2. **Generate Release Title and Notes** following the conventions below, output in two separate code blocks (title + body).
+   **Do not modify code after this step.** This updates `package.json`.
 
-3. **Create a GitHub Release** selecting the tag — CI automatically runs quality gates, packages the `.zip`, and uploads it to the Release.
+2. **Release:**
+
+   ```bash
+   ./scripts/release.sh
+   ```
+
+   This formats code, runs all quality gates (compile → test → lint → i18n → format),
+   commits all changes, creates an annotated tag `v{VERSION}`, and pushes to origin.
+
+3. **Generate Release Title and Notes** following the conventions below, output in two
+   separate code blocks (title + body) so the user can copy-paste into the GitHub Release page.
+
+4. **User publishes on GitHub** — CI automatically runs quality gates, packages the `.zip`
+   for both Chromium and Firefox, and uploads them to the Release.
+
+### Recovering from a Failed Release
+
+```bash
+# 1. Fix the code, commit and push
+git add -A && git commit -m "fix: resolve build issue" && git push
+
+# 2. Delete the remote tag
+git push origin --delete v1.0.6
+
+# 3. Delete the local tag
+git tag -d v1.0.6
+
+# 4. Delete the failed Release on GitHub (Releases → click → Delete this release)
+# 5. Re-run bump-version.sh with the same version to re-create the tag
+./scripts/bump-version.sh 1.0.6
+./scripts/release.sh
+```
 
 ### Build Artifact
 
-The `pnpm zip` command produces `motrix-next-extension-{version}-chromium-mv3.zip`. This single artifact works with **all Chromium-based browsers** (Chrome, Edge, Brave, Arc, Vivaldi, etc.).
+`pnpm zip` produces `motrix-next-extension-{version}-chromium-mv3.zip` for Chromium browsers.
+`pnpm zip:firefox` produces `motrix-next-extension-{version}-firefox-mv3.zip` for Firefox.
 
 ### Release Notes Conventions
 
