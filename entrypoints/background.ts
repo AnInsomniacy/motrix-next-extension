@@ -89,11 +89,14 @@ export default defineBackground(() => {
     }
   }
 
-  // ─── Orchestrator ─────────────────────────────────
+  // ─── Orchestrator ───────────────────────────────────
   const orchestrator = new DownloadOrchestrator({
     downloads: {
       cancel: (id) => chrome.downloads.cancel(id),
       erase: (query) => chrome.downloads.erase(query).then(() => {}),
+    },
+    cookies: {
+      getAll: (details) => chrome.cookies.getAll(details),
     },
     diagnosticLog: {
       append: (event) => {
@@ -105,8 +108,10 @@ export default defineBackground(() => {
     getSiteRules: () => siteRules,
     getTabUrl,
     hasEnhancedPermissions: () => enhancedPermissions,
-    openProtocolNewTask: async (url: string, referer: string) => {
-      const protocolUrl = buildProtocolUrl(ProtocolAction.NewTask, { url, referer });
+    openProtocolNewTask: async (url: string, referer: string, cookie: string) => {
+      const params: Record<string, string> = { url, referer };
+      if (cookie) params.cookie = cookie;
+      const protocolUrl = buildProtocolUrl(ProtocolAction.NewTask, params);
       // Create tab for the protocol URL — active:true so the "Open MotrixNext?"
       // confirmation dialog gets focus and is visible to the user.
       const tab = await chrome.tabs.create({ url: protocolUrl, active: true });

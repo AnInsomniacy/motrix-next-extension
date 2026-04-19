@@ -9,12 +9,17 @@ import { extractFilenameFromUrl } from '@/shared/url';
  * Minimal dependency interface for the unified deep-link orchestrator.
  *
  * All downloads are routed to the desktop app via `openProtocolNewTask`.
- * No direct aria2 RPC, cookie collection, or wake logic is needed.
+ * No direct aria2 RPC or wake logic is needed. Cookie collection is
+ * handled inline via the injected `cookies` API.
  */
 export interface OrchestratorDeps {
   downloads: {
     cancel: (id: number) => Promise<void>;
     erase: (query: { id: number }) => Promise<void>;
+  };
+  /** Optional browser cookies API for forwarding auth cookies to the desktop app. */
+  cookies?: {
+    getAll: (details: { url: string }) => Promise<Array<{ name: string; value: string }>>;
   };
   diagnosticLog: {
     append: (event: DiagnosticInput) => void;
@@ -24,11 +29,14 @@ export interface OrchestratorDeps {
   getTabUrl: (id?: number) => Promise<string>;
   hasEnhancedPermissions: () => boolean;
   /**
-   * Route a URL to the desktop app via `motrixnext://new?url=...&referer=...`
+   * Route a URL to the desktop app via `motrixnext://new?url=...&referer=...&cookie=...`
    * deep link. The desktop app shows its native "Add Task" dialog for user
    * confirmation and applies file classification before submission.
+   *
+   * @param cookie - Serialized cookie string (e.g. "k1=v1; k2=v2"). Empty when
+   *                 cookies permission is not granted or no cookies exist.
    */
-  openProtocolNewTask?: (url: string, referer: string) => Promise<void>;
+  openProtocolNewTask?: (url: string, referer: string, cookie: string) => Promise<void>;
 }
 
 /** Shape of a browser DownloadItem as received from chrome.downloads events. */
@@ -49,13 +57,13 @@ interface DownloadItem {
  * Central download interception orchestrator — unified deep-link routing.
  *
  * All intercepted downloads are routed to the desktop app via
- * `motrixnext://new?url=...&referer=...` deep link. The desktop app
- * shows the "Add Task" dialog for user confirmation and applies file
+ * `motrixnext://new?url=...&referer=...&cookie=...` deep link. The desktop
+ * app shows the "Add Task" dialog for user confirmation and applies file
  * classification, proxy, and other settings before submission.
  *
  * The extension no longer calls aria2 RPC directly — it is a thin
  * interceptor + router layer:
- *   filter → cancel browser download → openProtocolNewTask
+ *   filter → collect cookies → cancel browser download → openProtocolNewTask
  */
 export class DownloadOrchestrator {
   private readonly deps: OrchestratorDeps;
@@ -124,15 +132,16 @@ export class DownloadOrchestrator {
     // app would re-request the landing page instead of the actual file.
     const effectiveUrl = item.finalUrl || item.url;
     const displayName = item.filename || extractFilenameFromUrl(effectiveUrl) || 'download';
+    const cookie = await this.collectCookies(effectiveUrl);
 
     await this.safeCancel(item.id);
-    await this.deps.openProtocolNewTask(effectiveUrl, tabUrl);
+    await this.deps.openProtocolNewTask(effectiveUrl, tabUrl, cookie);
 
     this.deps.diagnosticLog.append({
       level: 'info',
       code: 'download_routed',
       message: `Routed to desktop: ${displayName}`,
-      context: { url: effectiveUrl, filename: displayName },
+      context: { url: effectiveUrl, filename: displayName, hasCookie: cookie.length > 0 },
     });
 
     return true;
@@ -156,9 +165,29 @@ export class DownloadOrchestrator {
   }
 
   /**
+   * Collect browser cookies for the given URL.
+   *
+   * Requires the `cookies` optional permission to be granted. When not
+   * available, returns an empty string — the download proceeds without
+   * cookies (works for non-cookie-gated CDNs like GitHub Releases).
+   */
+  private async collectCookies(url: string): Promise<string> {
+    if (!this.deps.cookies || !this.deps.hasEnhancedPermissions()) {
+      return '';
+    }
+    try {
+      const cookies = await this.deps.cookies.getAll({ url });
+      if (!cookies.length) return '';
+      return cookies.map((c) => `${c.name}=${c.value}`).join('; ');
+    } catch {
+      return ''; // Graceful degradation — never block the download
+    }
+  }
+
+  /**
    * Send a URL to the desktop app (e.g. from context menu or magnet interception).
    *
-   * Routes through `motrixnext://new?url=...&referer=...` deep link.
+   * Routes through `motrixnext://new?url=...&referer=...&cookie=...` deep link.
    * The desktop app shows the "Add Task" dialog for user confirmation.
    *
    * @returns `'routed-to-desktop'` sentinel on success
@@ -170,14 +199,15 @@ export class DownloadOrchestrator {
     }
 
     const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
+    const cookie = await this.collectCookies(url);
 
-    await this.deps.openProtocolNewTask(url, tabUrl);
+    await this.deps.openProtocolNewTask(url, tabUrl, cookie);
 
     this.deps.diagnosticLog.append({
       level: 'info',
       code: 'download_routed',
       message: `Routed to desktop: ${displayName}`,
-      context: { url },
+      context: { url, hasCookie: cookie.length > 0 },
     });
 
     return 'routed-to-desktop';

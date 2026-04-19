@@ -20,7 +20,7 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
     getTabUrl: vi.fn<() => Promise<string>>().mockResolvedValue(''),
     hasEnhancedPermissions: () => false,
     openProtocolNewTask: vi
-      .fn<(url: string, referer: string) => Promise<void>>()
+      .fn<(url: string, referer: string, cookie: string) => Promise<void>>()
       .mockResolvedValue(undefined),
     ...overrides,
   };
@@ -38,6 +38,7 @@ describe('DownloadOrchestrator.sendUrl', () => {
     expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
       'https://example.com/file.zip',
       'https://example.com',
+      '',
     );
     expect(result).toBe('routed-to-desktop');
   });
@@ -51,6 +52,7 @@ describe('DownloadOrchestrator.sendUrl', () => {
     expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
       'https://cdn.example.com/video.mp4',
       'https://example.com/videos',
+      '',
     );
   });
 
@@ -60,7 +62,7 @@ describe('DownloadOrchestrator.sendUrl', () => {
 
     const result = await orch.sendUrl('https://example.com/file.zip', '');
 
-    expect(deps.openProtocolNewTask).toHaveBeenCalledWith('https://example.com/file.zip', '');
+    expect(deps.openProtocolNewTask).toHaveBeenCalledWith('https://example.com/file.zip', '', '');
     expect(result).toBe('routed-to-desktop');
   });
 
@@ -70,7 +72,7 @@ describe('DownloadOrchestrator.sendUrl', () => {
 
     await orch.sendUrl('magnet:?xt=urn:btih:abc', '');
 
-    expect(deps.openProtocolNewTask).toHaveBeenCalledWith('magnet:?xt=urn:btih:abc', '');
+    expect(deps.openProtocolNewTask).toHaveBeenCalledWith('magnet:?xt=urn:btih:abc', '', '');
   });
 
   it('routes torrent URLs to desktop without fetching', async () => {
@@ -82,6 +84,7 @@ describe('DownloadOrchestrator.sendUrl', () => {
     expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
       'https://tracker.example.com/dl/ubuntu.torrent',
       'https://ubuntu.com',
+      '',
     );
   });
 
@@ -113,7 +116,7 @@ describe('DownloadOrchestrator.sendUrl', () => {
 
     await orch.sendUrl(encodedUrl, '');
 
-    expect(deps.openProtocolNewTask).toHaveBeenCalledWith(encodedUrl, '');
+    expect(deps.openProtocolNewTask).toHaveBeenCalledWith(encodedUrl, '', '');
   });
 
   it('routes FTP URLs to desktop', async () => {
@@ -124,6 +127,7 @@ describe('DownloadOrchestrator.sendUrl', () => {
 
     expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
       'ftp://mirror.example.com/pub/file.iso',
+      '',
       '',
     );
   });

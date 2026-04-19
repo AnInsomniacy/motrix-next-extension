@@ -48,7 +48,7 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
     getTabUrl: vi.fn<() => Promise<string>>().mockResolvedValue('https://example.com/page'),
     hasEnhancedPermissions: vi.fn().mockReturnValue(false),
     openProtocolNewTask: vi
-      .fn<(url: string, referer: string) => Promise<void>>()
+      .fn<(url: string, referer: string, cookie: string) => Promise<void>>()
       .mockResolvedValue(undefined),
     ...overrides,
   };
@@ -81,6 +81,7 @@ describe('DownloadOrchestrator', () => {
       expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
         'https://example.com/file.zip',
         'https://example.com/page',
+        '', // no cookies — enhanced permissions not granted
       );
     });
 
@@ -95,6 +96,7 @@ describe('DownloadOrchestrator', () => {
       expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
         'https://cdn.example.com/913b9d40.zip',
         'https://example.com/page',
+        '',
       );
     });
 
@@ -109,6 +111,7 @@ describe('DownloadOrchestrator', () => {
       expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
         'https://example.com/file.zip',
         'https://example.com/page',
+        '',
       );
     });
 
@@ -125,6 +128,7 @@ describe('DownloadOrchestrator', () => {
       expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
         'https://example.com/linux.torrent',
         'https://example.com/page',
+        '',
       );
     });
 
@@ -152,6 +156,16 @@ describe('DownloadOrchestrator', () => {
           level: 'info',
         }),
       );
+    });
+
+    it('includes hasCookie: false in diagnostic context without cookies', async () => {
+      await orchestrator.handleCreated(createMockDownloadItem());
+
+      const routedCall = (deps.diagnosticLog.append as ReturnType<typeof vi.fn>).mock.calls.find(
+        (c: unknown[]) => (c[0] as { code: string }).code === 'download_routed',
+      );
+      expect(routedCall).toBeDefined();
+      expect((routedCall![0] as { context: { hasCookie: boolean } }).context.hasCookie).toBe(false);
     });
   });
 
@@ -240,6 +254,119 @@ describe('DownloadOrchestrator', () => {
     });
   });
 
+  // ─── handleCreated — cookie collection ─────────────────
+
+  describe('handleCreated — cookie forwarding', () => {
+    it('collects and forwards cookies when enhanced permissions are granted', async () => {
+      const cookieDeps = createMockDeps({
+        hasEnhancedPermissions: vi.fn().mockReturnValue(true),
+        cookies: {
+          getAll: vi.fn().mockResolvedValue([
+            { name: 'token', value: 'abc123' },
+            { name: 'session', value: 'xyz789' },
+          ]),
+        },
+      });
+      const orch = new DownloadOrchestrator(cookieDeps);
+
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(cookieDeps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/file.zip',
+        'https://example.com/page',
+        'token=abc123; session=xyz789',
+      );
+    });
+
+    it('passes empty cookie string when enhanced permissions are not granted', async () => {
+      const noCookieDeps = createMockDeps({
+        hasEnhancedPermissions: vi.fn().mockReturnValue(false),
+        cookies: {
+          getAll: vi.fn().mockResolvedValue([{ name: 'token', value: 'abc' }]),
+        },
+      });
+      const orch = new DownloadOrchestrator(noCookieDeps);
+
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(noCookieDeps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/file.zip',
+        'https://example.com/page',
+        '',
+      );
+      // cookies.getAll should NOT have been called
+      expect(noCookieDeps.cookies!.getAll).not.toHaveBeenCalled();
+    });
+
+    it('passes empty cookie string when cookies API is not provided', async () => {
+      const noCookieApiDeps = createMockDeps({ cookies: undefined });
+      const orch = new DownloadOrchestrator(noCookieApiDeps);
+
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(noCookieApiDeps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/file.zip',
+        'https://example.com/page',
+        '',
+      );
+    });
+
+    it('gracefully degrades when cookies.getAll throws', async () => {
+      const errorDeps = createMockDeps({
+        hasEnhancedPermissions: vi.fn().mockReturnValue(true),
+        cookies: {
+          getAll: vi.fn().mockRejectedValue(new Error('Permission denied')),
+        },
+      });
+      const orch = new DownloadOrchestrator(errorDeps);
+
+      const intercepted = await orch.handleCreated(createMockDownloadItem());
+
+      expect(intercepted).toBe(true);
+      expect(errorDeps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/file.zip',
+        'https://example.com/page',
+        '', // graceful degradation — empty cookie
+      );
+    });
+
+    it('passes empty cookie string when no cookies exist for the URL', async () => {
+      const emptyCookieDeps = createMockDeps({
+        hasEnhancedPermissions: vi.fn().mockReturnValue(true),
+        cookies: {
+          getAll: vi.fn().mockResolvedValue([]),
+        },
+      });
+      const orch = new DownloadOrchestrator(emptyCookieDeps);
+
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(emptyCookieDeps.openProtocolNewTask).toHaveBeenCalledWith(
+        'https://example.com/file.zip',
+        'https://example.com/page',
+        '',
+      );
+    });
+
+    it('includes hasCookie: true in diagnostic context when cookies are collected', async () => {
+      const cookieDeps = createMockDeps({
+        hasEnhancedPermissions: vi.fn().mockReturnValue(true),
+        cookies: {
+          getAll: vi.fn().mockResolvedValue([{ name: 'auth', value: 'secret' }]),
+        },
+      });
+      const orch = new DownloadOrchestrator(cookieDeps);
+
+      await orch.handleCreated(createMockDownloadItem());
+
+      const routedCall = (
+        cookieDeps.diagnosticLog.append as ReturnType<typeof vi.fn>
+      ).mock.calls.find((c: unknown[]) => (c[0] as { code: string }).code === 'download_routed');
+      expect(routedCall).toBeDefined();
+      expect((routedCall![0] as { context: { hasCookie: boolean } }).context.hasCookie).toBe(true);
+    });
+  });
+
   // ─── sendUrl — unified deep-link routing ───────────────
 
   describe('sendUrl — routes all URLs to desktop', () => {
@@ -252,6 +379,7 @@ describe('DownloadOrchestrator', () => {
       expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
         'https://example.com/file.zip',
         'https://example.com',
+        '', // no cookies — enhanced permissions not granted
       );
       expect(result).toBe('routed-to-desktop');
     });
@@ -259,7 +387,7 @@ describe('DownloadOrchestrator', () => {
     it('routes magnet URI to desktop', async () => {
       const result = await orchestrator.sendUrl('magnet:?xt=urn:btih:abc123', '');
 
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith('magnet:?xt=urn:btih:abc123', '');
+      expect(deps.openProtocolNewTask).toHaveBeenCalledWith('magnet:?xt=urn:btih:abc123', '', '');
       expect(result).toBe('routed-to-desktop');
     });
 
@@ -272,6 +400,7 @@ describe('DownloadOrchestrator', () => {
       expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
         'https://example.com/linux.torrent',
         'https://example.com',
+        '',
       );
       expect(result).toBe('routed-to-desktop');
     });
