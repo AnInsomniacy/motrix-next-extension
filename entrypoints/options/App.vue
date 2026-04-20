@@ -278,14 +278,14 @@ onUnmounted(() => {
               <h2 class="section-title">{{ i18n('options_section_connection', 'Connection') }}</h2>
               <div class="card">
                 <ConnectionSection
-                  :api-port="form.port"
-                  :api-secret="form.secret"
+                  :port="form.port"
+                  :secret="form.secret"
                   :status="connectionStatus"
                   :version="connectionVersion"
                   :error="connectionError"
                   :testing="testingConnection"
-                  @update:api-port="form.port = $event"
-                  @update:api-secret="form.secret = $event"
+                  @update:port="form.port = $event"
+                  @update:secret="form.secret = $event"
                   @test="testConnection"
                 />
                 <SettingsActionBar :is-dirty="isDirty" @save="handleSave" @discard="handleReset" />

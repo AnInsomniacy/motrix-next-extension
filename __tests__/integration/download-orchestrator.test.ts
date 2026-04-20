@@ -405,10 +405,10 @@ describe('DownloadOrchestrator', () => {
 
   // ─── Verify removed behaviors ─────────────────────────
 
-  describe('no direct aria2 RPC calls', () => {
+  describe('no legacy aria2 dependency', () => {
     it('does not have aria2 property in deps interface', () => {
       // Verify the deps object passed to orchestrator has no aria2 property.
-      // This is a structural test confirming the RPC dependency was removed.
+      // This is a structural test confirming the legacy dependency was removed.
       expect(deps).not.toHaveProperty('aria2');
     });
   });

@@ -7,7 +7,7 @@ import type { StorageService } from '@/lib/storage/storage-service';
 function mockStorageService(): StorageService {
   return {
     load: vi.fn(),
-    saveRpcConfig: vi.fn().mockResolvedValue(undefined),
+    saveConnectionConfig: vi.fn().mockResolvedValue(undefined),
     saveSettings: vi.fn().mockResolvedValue(undefined),
     saveSiteRules: vi.fn().mockResolvedValue(undefined),
     saveUiPrefs: vi.fn().mockResolvedValue(undefined),

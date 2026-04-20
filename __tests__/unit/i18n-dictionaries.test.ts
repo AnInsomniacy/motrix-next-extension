@@ -99,7 +99,7 @@ describe('flatten', () => {
 
   it('preserves messages that already use positional placeholders', async () => {
     const { DICTIONARIES } = await import('@/shared/i18n/dictionaries');
-    // "Check your network or firewall settings. RPC port: $1"
+    // "Check your network or firewall settings. API port: $1"
     // placeholders: { "1": { content: "$1" } } — $1$ → $1 (identity)
     const msg = DICTIONARIES.en!['popup_error_timeout_hint'];
     expect(msg).toContain('$1');

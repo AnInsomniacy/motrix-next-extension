@@ -43,7 +43,7 @@ const { naiveTheme, themeOverrides } = useTheme(colorSchemeId);
 const status = ref<ConnectionStatus>(ConnectionStatus.Disconnected);
 const version = ref<string | null>(null);
 const errorType = ref<string | null>(null);
-const apiPort = ref(DEFAULT_CONNECTION_CONFIG.port);
+const connectionPort = ref(DEFAULT_CONNECTION_CONFIG.port);
 const globalStat = ref<StatResponse | null>(null);
 const loading = ref(true);
 const enabled = ref(true);
@@ -146,7 +146,7 @@ onMounted(async () => {
   });
 
   // Initialize API client with validated config
-  apiPort.value = data.connection.port;
+  connectionPort.value = data.connection.port;
   apiClient = new DesktopApiClient({ port: data.connection.port, secret: data.connection.secret });
 
   // Smart polling with exponential backoff + visibility awareness
@@ -220,8 +220,8 @@ onUnmounted(() => {
                     {{
                       i18nSub(
                         'popup_error_timeout_hint',
-                        [String(apiPort)],
-                        `Check your network or firewall settings. API port: ${apiPort}`,
+                        [String(connectionPort.value)],
+                        `Check your network or firewall settings. API port: ${connectionPort.value}`,
                       )
                     }}
                   </p>
@@ -235,8 +235,8 @@ onUnmounted(() => {
                     {{
                       i18nSub(
                         'popup_error_unreachable_hint',
-                        [String(apiPort)],
-                        `Make sure Motrix Next is running. API port: ${apiPort}`,
+                        [String(connectionPort.value)],
+                        `Make sure Motrix Next is running. API port: ${connectionPort.value}`,
                       )
                     }}
                   </p>

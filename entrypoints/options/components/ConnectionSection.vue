@@ -15,8 +15,8 @@ import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
 import { ConnectionStatus } from '@/lib/services';
 
 const props = defineProps<{
-  apiPort: number;
-  apiSecret: string;
+  port: number;
+  secret: string;
   status: ConnectionStatus;
   version: string | null;
   error: string | null;
@@ -24,8 +24,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  'update:apiPort': [value: number];
-  'update:apiSecret': [value: string];
+  'update:port': [value: number];
+  'update:secret': [value: string];
   test: [];
 }>();
 
@@ -55,21 +55,21 @@ const errorMessage = computed(() => {
     <div class="section__grid">
       <NFormItem :label="i18n('options_api_port_label', 'API Port')">
         <NInputNumber
-          :value="apiPort"
+          :value="port"
           :min="1024"
           :max="65535"
           style="width: 140px"
-          @update:value="(v: number | null) => emit('update:apiPort', v ?? 16801)"
+          @update:value="(v: number | null) => emit('update:port', v ?? 16801)"
         />
       </NFormItem>
       <NFormItem :label="i18n('options_api_secret_label', 'API Secret')">
         <NInput
-          :value="apiSecret"
+          :value="secret"
           type="password"
           show-password-on="click"
           :placeholder="i18n('options_api_secret_placeholder', 'Paste from desktop app')"
           style="width: 280px"
-          @update:value="(v: string) => emit('update:apiSecret', v)"
+          @update:value="(v: string) => emit('update:secret', v)"
         />
       </NFormItem>
     </div>
