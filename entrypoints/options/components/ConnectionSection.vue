@@ -7,7 +7,7 @@
  * NTag, and NIcon for visual consistency with the desktop Advanced.vue.
  *
  * After the REST API migration, the extension communicates exclusively
- * via the embedded Axum HTTP API — aria2 RPC fields are no longer needed.
+ * via the embedded Axum HTTP API.
  */
 import { computed } from 'vue';
 import { NFormItem, NInput, NInputNumber, NButton, NTag, NIcon } from 'naive-ui';

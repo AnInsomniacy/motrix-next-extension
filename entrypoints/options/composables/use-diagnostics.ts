@@ -25,7 +25,7 @@ export function useDiagnostics(storageService: StorageService) {
    * Export a complete diagnostic report as a downloadable JSON file.
    *
    * Includes extension version, browser info, all configuration
-   * (except RPC secret), and the full diagnostic event log.
+   * (except API secret), and the full diagnostic event log.
    */
   async function exportDiagnosticReport(): Promise<void> {
     const data = await storageService.load();

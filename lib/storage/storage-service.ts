@@ -46,7 +46,7 @@ export class StorageService {
     return parseStorage(raw);
   }
 
-  /** Persist RPC connection configuration. */
+  /** Persist API connection configuration. */
   async saveRpcConfig(config: RpcConfig): Promise<void> {
     await this.api.set({ rpc: config });
   }

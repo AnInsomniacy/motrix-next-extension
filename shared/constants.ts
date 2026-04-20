@@ -27,10 +27,10 @@ export const DEFAULT_UI_PREFS: Readonly<UiPrefs> = {
 /** Maximum number of diagnostic events to retain in storage. */
 export const MAX_DIAGNOSTIC_EVENTS = 30;
 
-/** HTTP timeout for aria2 RPC calls in milliseconds. */
+/** HTTP timeout for API calls in milliseconds. */
 export const RPC_TIMEOUT_MS = 5000;
 
-/** Number of retry attempts for failed RPC calls. */
+/** Number of retry attempts for failed API calls. */
 export const RPC_MAX_RETRIES = 1;
 
 /** Interval for connection heartbeat checks in milliseconds. */

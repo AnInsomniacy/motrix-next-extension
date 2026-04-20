@@ -123,7 +123,7 @@ export class SiteRuleStage implements FilterStage {
  * Many cloud storage services (Lanzou, MediaFire, etc.) serve JavaScript-heavy
  * landing pages at intermediate URLs. If the browser treats a text/html response
  * as a "download" (e.g. via Content-Disposition: attachment), intercepting it
- * would cause aria2 to download the HTML page itself.
+ * would cause the download manager to fetch the HTML page itself.
  *
  * By skipping document MIME types, the browser handles (renders) these pages
  * normally, and the real binary download — triggered by the page's JavaScript —

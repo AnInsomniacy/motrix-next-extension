@@ -1,4 +1,4 @@
-// ─── Aria2 RPC Types (used by download orchestrator) ────
+// ─── Download Engine Types (used by download orchestrator) ──
 
 export interface Aria2GlobalStat {
   downloadSpeed: string;
@@ -41,7 +41,7 @@ export interface Aria2InputOptions {
   'user-agent'?: string;
 }
 
-// ─── RPC Client Types ───────────────────────────────────
+// ─── Connection Config Types ────────────────────────────
 
 export interface RpcConfig {
   host: string;

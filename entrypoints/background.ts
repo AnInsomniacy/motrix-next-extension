@@ -48,7 +48,7 @@ export default defineBackground(() => {
       siteRules = data.siteRules;
       diagnosticLog.hydrate(data.diagnosticLog);
 
-      // Sync desktop HTTP API client config from stored RPC settings
+      // Sync desktop HTTP API client config from stored API settings
       desktopClient.updateConfig({
         port: data.rpc.apiPort,
         secret: data.rpc.apiSecret,
@@ -114,8 +114,8 @@ export default defineBackground(() => {
     getTabUrl,
     desktopClient,
     wakeDesktop: async () =>
-      wakeService.wakeAndWaitForRpc({
-        checkRpc: () => desktopClient.isReachable(),
+      wakeService.wakeAndWaitForApi({
+        checkApi: () => desktopClient.isReachable(),
         openProtocol: async () => {
           const tab = await chrome.tabs.create({
             url: buildProtocolUrl(ProtocolAction.NewTask, {}),
@@ -160,12 +160,12 @@ export default defineBackground(() => {
   // download in pending state until suggest() is called. Eliminates race.
   //
   // Firefox: onCreated — non-blocking notification that a download started.
-  // We cancel + erase it immediately, then re-download via aria2.
+  // We cancel + erase it immediately, then re-download via Motrix Next.
   // This is the standard pattern used by all Firefox download managers.
 
   if (import.meta.env.FIREFOX) {
     // Firefox path: onCreated fires after the download has been initiated.
-    // Cancel immediately, collect metadata, and send to aria2.
+    // Cancel immediately, collect metadata, and send to Motrix Next.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (browser.downloads as any).onCreated.addListener((item: Record<string, unknown>) => {
       void ensureConfigLoaded().then(async () => {

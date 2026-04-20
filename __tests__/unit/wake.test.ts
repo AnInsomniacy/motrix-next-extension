@@ -8,16 +8,16 @@ describe('WakeService', () => {
     service = new WakeService();
   });
 
-  // ─── wakeAndWaitForRpc ─────────────────────────────────
+  // ─── wakeAndWaitForApi ─────────────────────────────────
 
-  it('skips protocol launch if RPC is already reachable', async () => {
+  it('skips protocol launch if API is already reachable', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    const checkRpc = vi.fn().mockResolvedValue(true);
+    const checkApi = vi.fn().mockResolvedValue(true);
 
-    const result = await service.wakeAndWaitForRpc({
+    const result = await service.wakeAndWaitForApi({
       openProtocol,
-      checkRpc,
+      checkApi,
       maxWaitMs: 5000,
       pollIntervalMs: 100,
     });
@@ -25,21 +25,21 @@ describe('WakeService', () => {
     expect(result).toBe(true);
     expect(openProtocol).not.toHaveBeenCalled();
     expect(closeTab).not.toHaveBeenCalled();
-    expect(checkRpc).toHaveBeenCalledTimes(1);
+    expect(checkApi).toHaveBeenCalledTimes(1);
   });
 
-  it('launches protocol and polls until RPC becomes reachable', async () => {
+  it('launches protocol and polls until API becomes reachable', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
     let callCount = 0;
-    const checkRpc = vi.fn().mockImplementation(async () => {
+    const checkApi = vi.fn().mockImplementation(async () => {
       callCount++;
       return callCount >= 3; // Succeeds on 3rd poll
     });
 
-    const result = await service.wakeAndWaitForRpc({
+    const result = await service.wakeAndWaitForApi({
       openProtocol,
-      checkRpc,
+      checkApi,
       maxWaitMs: 10000,
       pollIntervalMs: 50,
     });
@@ -47,17 +47,17 @@ describe('WakeService', () => {
     expect(result).toBe(true);
     expect(openProtocol).toHaveBeenCalledTimes(1);
     expect(closeTab).toHaveBeenCalledTimes(1); // Tab closed after success
-    expect(checkRpc).toHaveBeenCalledTimes(3);
+    expect(checkApi).toHaveBeenCalledTimes(3);
   });
 
   it('returns false when polling times out (tab stays open)', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    const checkRpc = vi.fn().mockResolvedValue(false);
+    const checkApi = vi.fn().mockResolvedValue(false);
 
-    const result = await service.wakeAndWaitForRpc({
+    const result = await service.wakeAndWaitForApi({
       openProtocol,
-      checkRpc,
+      checkApi,
       maxWaitMs: 300,
       pollIntervalMs: 50,
     });
@@ -66,46 +66,46 @@ describe('WakeService', () => {
     expect(openProtocol).toHaveBeenCalledTimes(1);
     // Tab NOT closed on timeout — user may still click manually
     expect(closeTab).not.toHaveBeenCalled();
-    expect(checkRpc.mock.calls.length).toBeGreaterThanOrEqual(2);
+    expect(checkApi.mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('treats checkRpc exceptions as unreachable (continues polling)', async () => {
+  it('treats checkApi exceptions as unreachable (continues polling)', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
     let callCount = 0;
-    const checkRpc = vi.fn().mockImplementation(async () => {
+    const checkApi = vi.fn().mockImplementation(async () => {
       callCount++;
       if (callCount < 3) throw new Error('ECONNREFUSED');
       return true;
     });
 
-    const result = await service.wakeAndWaitForRpc({
+    const result = await service.wakeAndWaitForApi({
       openProtocol,
-      checkRpc,
+      checkApi,
       maxWaitMs: 10000,
       pollIntervalMs: 50,
     });
 
     expect(result).toBe(true);
     expect(closeTab).toHaveBeenCalledTimes(1);
-    expect(checkRpc).toHaveBeenCalledTimes(3);
+    expect(checkApi).toHaveBeenCalledTimes(3);
   });
 
   it('deduplicates concurrent wake calls (single protocol launch)', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
     let callCount = 0;
-    const checkRpc = vi.fn().mockImplementation(async () => {
+    const checkApi = vi.fn().mockImplementation(async () => {
       callCount++;
       return callCount >= 3;
     });
 
-    const deps = { openProtocol, checkRpc, maxWaitMs: 10000, pollIntervalMs: 50 };
+    const deps = { openProtocol, checkApi, maxWaitMs: 10000, pollIntervalMs: 50 };
 
     // Fire two concurrent wake requests
     const [r1, r2] = await Promise.all([
-      service.wakeAndWaitForRpc(deps),
-      service.wakeAndWaitForRpc(deps),
+      service.wakeAndWaitForApi(deps),
+      service.wakeAndWaitForApi(deps),
     ]);
 
     expect(r1).toBe(true);
@@ -117,14 +117,14 @@ describe('WakeService', () => {
   it('uses default timeouts when not specified', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    const checkRpc = vi.fn().mockResolvedValue(true);
+    const checkApi = vi.fn().mockResolvedValue(true);
 
     // First call returns false (not reachable), second returns true
-    checkRpc.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    checkApi.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
 
-    const result = await service.wakeAndWaitForRpc({
+    const result = await service.wakeAndWaitForApi({
       openProtocol,
-      checkRpc,
+      checkApi,
       // No maxWaitMs / pollIntervalMs — should use defaults
     });
 
@@ -134,22 +134,22 @@ describe('WakeService', () => {
   it('resets state after completion so subsequent calls work', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    const checkRpc = vi.fn().mockResolvedValue(false);
+    const checkApi = vi.fn().mockResolvedValue(false);
 
     // First call: timeout
-    const r1 = await service.wakeAndWaitForRpc({
+    const r1 = await service.wakeAndWaitForApi({
       openProtocol,
-      checkRpc,
+      checkApi,
       maxWaitMs: 100,
       pollIntervalMs: 30,
     });
     expect(r1).toBe(false);
 
     // Second call: immediate success
-    checkRpc.mockResolvedValue(true);
-    const r2 = await service.wakeAndWaitForRpc({
+    checkApi.mockResolvedValue(true);
+    const r2 = await service.wakeAndWaitForApi({
       openProtocol,
-      checkRpc,
+      checkApi,
       maxWaitMs: 5000,
       pollIntervalMs: 50,
     });

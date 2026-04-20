@@ -21,7 +21,7 @@ export interface CollectInput {
 // ─── Collector ──────────────────────────────────────────
 
 /**
- * Collects download metadata (cookies, referer, filename) for aria2.
+ * Collects download metadata (cookies, referer, filename) for Motrix Next.
  *
  * Design:
  * - Cookies always collected when cookiesApi is available (required permission)
@@ -41,10 +41,10 @@ export class MetadataCollector {
   }
 
   /**
-   * Build aria2-compatible header array from metadata.
+   * Build Motrix-compatible header array from metadata.
    * Returns headers like ["Cookie: ...", "Referer: ..."].
    */
-  static buildAria2Headers(metadata: DownloadMetadata): string[] {
+  static buildHeaders(metadata: DownloadMetadata): string[] {
     const headers: string[] = [];
 
     if (metadata.cookies) {

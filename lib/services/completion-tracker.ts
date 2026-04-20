@@ -5,7 +5,7 @@ interface TaskStatus {
 }
 
 export interface CompletionTrackerDeps {
-  /** Query aria2 for the current status of a GID. */
+  /** Query the desktop app for the current status of a GID. */
   tellStatus: (gid: string) => Promise<TaskStatus>;
   /** Callback fired when a tracked GID reaches 'complete' status. */
   onComplete: (gid: string, filename: string) => void;
@@ -18,7 +18,7 @@ const TERMINAL_STATUSES = new Set(['complete', 'error', 'removed']);
 // ─── Service ────────────────────────────────────────────
 
 /**
- * Tracks aria2 GIDs sent by the extension and polls for completion.
+ * Tracks download GIDs sent by the extension and polls for completion.
  *
  * Design:
  * - Pure DI: no global chrome reference

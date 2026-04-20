@@ -6,7 +6,7 @@
  * clicks on `<a href="magnet:...">` elements at the DOM level and routes
  * them to the background service worker via `chrome.runtime.sendMessage`.
  *
- * The background handles the magnet URI through `aria2.addUri`, which
+ * The background handles the magnet URI through the desktop API, which
  * natively supports magnet links.
  */
 export default defineContentScript({

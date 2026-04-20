@@ -108,7 +108,12 @@ const { t: i18n } = useI18n();
 .section :deep(.n-form-item) {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
+}
+
+.section :deep(.n-form-item-label) {
+  flex: 1;
+  min-width: 0;
 }
 
 .label-group {

@@ -9,15 +9,15 @@
   },
   "popup_status_connected": {
     "message": "Bağlı",
-    "description": "Connection status badge when aria2 RPC is reachable"
+    "description": "Connection status badge when API is reachable"
   },
   "popup_status_disconnected": {
     "message": "Bağlı değil",
-    "description": "Connection status badge when aria2 RPC is unreachable"
+    "description": "Connection status badge when API is unreachable"
   },
   "popup_status_not_configured": {
     "message": "Yapılandırılmadı",
-    "description": "Connection status badge when RPC secret is empty"
+    "description": "Connection status badge when API secret is empty"
   },
   "popup_speed_download": {
     "message": "↓ $speed$",
@@ -39,7 +39,7 @@
   },
   "popup_no_active_tasks": {
     "message": "Etkin indirme yok",
-    "description": "Message when there are no active aria2 tasks"
+    "description": "Message when there are no active download tasks"
   },
   "popup_action_pause_all": {
     "message": "Tümünü duraklat",
@@ -63,7 +63,7 @@
   },
   "popup_error_unreachable": {
     "message": "Motrix Next'e bağlanılamıyor",
-    "description": "Error message when RPC is unreachable"
+    "description": "Error message when API is unreachable"
   },
   "popup_error_check_settings": {
     "message": "Ayarları kontrol et",
@@ -75,28 +75,11 @@
   },
   "options_section_connection": {
     "message": "Bağlantı",
-    "description": "Settings section for RPC connection"
-  },
-  "options_rpc_port_label": {
-    "message": "RPC portu",
-    "description": "Label for the RPC port input"
-  },
-  "options_rpc_secret_label": {
-    "message": "RPC gizli anahtarı",
-    "description": "Label for the RPC secret input"
+    "description": "Settings section for API connection"
   },
   "options_test_connection": {
     "message": "Bağlantıyı test et",
-    "description": "Button to test the RPC connection"
-  },
-  "options_connection_success": {
-    "message": "Bağlı · aria2 $version$",
-    "description": "Success message after testing connection",
-    "placeholders": {
-      "version": {
-        "content": "$1"
-      }
-    }
+    "description": "Button to test the API connection"
   },
   "options_section_behavior": {
     "message": "İndirme davranışı",
@@ -335,7 +318,7 @@
   },
   "error_rpc_timeout": {
     "message": "Bağlantı zaman aşımı",
-    "description": "Error when the RPC connection times out"
+    "description": "Error when the API connection times out"
   },
   "error_unknown": {
     "message": "Bilinmeyen bir hata oluştu",
@@ -367,7 +350,7 @@
   },
   "popup_error_timeout": {
     "message": "Bağlantı zaman aşımı",
-    "description": "Popup banner title when RPC connection times out"
+    "description": "Popup banner title when API connection times out"
   },
   "popup_error_timeout_hint": {
     "message": "Check your network or firewall settings. API port: $1",

@@ -9,10 +9,10 @@
 import { computed } from 'vue';
 import { NIcon } from 'naive-ui';
 import { ArrowDownOutline, ArrowUpOutline, SpeedometerOutline } from '@vicons/ionicons5';
-import type { Aria2GlobalStat } from '@/shared/types';
+import type { StatResponse } from '@/lib/rpc/desktop-client';
 
 const props = defineProps<{
-  stat: Aria2GlobalStat;
+  stat: StatResponse;
 }>();
 
 import { useI18n } from '@/shared/i18n/engine';

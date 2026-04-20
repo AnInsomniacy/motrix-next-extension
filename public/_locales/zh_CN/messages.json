@@ -9,15 +9,15 @@
   },
   "popup_status_connected": {
     "message": "已连接",
-    "description": "aria2 RPC 可达时的连接状态"
+    "description": "Connection status badge when API is reachable"
   },
   "popup_status_disconnected": {
     "message": "未连接",
-    "description": "aria2 RPC 不可达时的连接状态"
+    "description": "Connection status badge when API is unreachable"
   },
   "popup_status_not_configured": {
     "message": "未配置",
-    "description": "RPC 密钥为空时的连接状态"
+    "description": "Connection status badge when API secret is empty"
   },
   "popup_speed_download": {
     "message": "↓ $speed$",
@@ -39,7 +39,7 @@
   },
   "popup_no_active_tasks": {
     "message": "没有活跃的下载任务",
-    "description": "无活跃 aria2 任务时的提示"
+    "description": "Message when there are no active download tasks"
   },
   "popup_action_pause_all": {
     "message": "全部暂停",
@@ -63,7 +63,7 @@
   },
   "popup_error_unreachable": {
     "message": "无法连接到 Motrix Next",
-    "description": "RPC 不可达时的错误信息"
+    "description": "Error message when API is unreachable"
   },
   "popup_error_check_settings": {
     "message": "检查设置",
@@ -75,28 +75,11 @@
   },
   "options_section_connection": {
     "message": "连接",
-    "description": "RPC 连接设置区域"
-  },
-  "options_rpc_port_label": {
-    "message": "RPC 端口",
-    "description": "RPC 端口输入标签"
-  },
-  "options_rpc_secret_label": {
-    "message": "RPC 密钥",
-    "description": "RPC 密钥输入标签"
+    "description": "Settings section for API connection"
   },
   "options_test_connection": {
     "message": "测试连接",
-    "description": "测试 RPC 连接的按钮"
-  },
-  "options_connection_success": {
-    "message": "已连接 · aria2 $version$",
-    "description": "测试连接成功后的提示",
-    "placeholders": {
-      "version": {
-        "content": "$1"
-      }
-    }
+    "description": "Button to test the API connection"
   },
   "options_section_behavior": {
     "message": "下载行为",
@@ -335,7 +318,7 @@
   },
   "error_rpc_timeout": {
     "message": "连接超时",
-    "description": "RPC 连接超时时的错误信息"
+    "description": "Error when the API connection times out"
   },
   "error_unknown": {
     "message": "发生未知错误",
@@ -367,7 +350,7 @@
   },
   "popup_error_timeout": {
     "message": "连接超时",
-    "description": "RPC 连接超时时的弹窗标题"
+    "description": "Popup banner title when API connection times out"
   },
   "popup_error_timeout_hint": {
     "message": "请检查网络或防火墙设置。API 端口：$1",

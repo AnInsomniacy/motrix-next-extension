@@ -17,14 +17,14 @@ import {
   TimeOutline,
   CheckmarkDoneOutline,
 } from '@vicons/ionicons5';
-import type { Aria2GlobalStat } from '@/shared/types';
+import type { StatResponse } from '@/lib/rpc/desktop-client';
 
 import { useI18n } from '@/shared/i18n/engine';
 
 const { t: i18n } = useI18n();
 
 const props = defineProps<{
-  stat: Aria2GlobalStat;
+  stat: StatResponse;
   disabled: boolean;
 }>();
 

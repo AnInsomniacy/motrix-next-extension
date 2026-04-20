@@ -9,15 +9,15 @@
   },
   "popup_status_connected": {
     "message": "已連線",
-    "description": "Connection status badge when aria2 RPC is reachable"
+    "description": "Connection status badge when API is reachable"
   },
   "popup_status_disconnected": {
     "message": "已斷線",
-    "description": "Connection status badge when aria2 RPC is unreachable"
+    "description": "Connection status badge when API is unreachable"
   },
   "popup_status_not_configured": {
     "message": "未設定",
-    "description": "Connection status badge when RPC secret is empty"
+    "description": "Connection status badge when API secret is empty"
   },
   "popup_speed_download": {
     "message": "↓ $speed$",
@@ -39,7 +39,7 @@
   },
   "popup_no_active_tasks": {
     "message": "沒有進行中的下載",
-    "description": "Message when there are no active aria2 tasks"
+    "description": "Message when there are no active download tasks"
   },
   "popup_action_pause_all": {
     "message": "全部暫停",
@@ -63,7 +63,7 @@
   },
   "popup_error_unreachable": {
     "message": "無法連線至 Motrix Next",
-    "description": "Error message when RPC is unreachable"
+    "description": "Error message when API is unreachable"
   },
   "popup_error_check_settings": {
     "message": "檢查設定",
@@ -75,28 +75,11 @@
   },
   "options_section_connection": {
     "message": "連線",
-    "description": "Settings section for RPC connection"
-  },
-  "options_rpc_port_label": {
-    "message": "RPC 連接埠",
-    "description": "Label for the RPC port input"
-  },
-  "options_rpc_secret_label": {
-    "message": "RPC 密鑰",
-    "description": "Label for the RPC secret input"
+    "description": "Settings section for API connection"
   },
   "options_test_connection": {
     "message": "測試連線",
-    "description": "Button to test the RPC connection"
-  },
-  "options_connection_success": {
-    "message": "已連線 · aria2 $version$",
-    "description": "Success message after testing connection",
-    "placeholders": {
-      "version": {
-        "content": "$1"
-      }
-    }
+    "description": "Button to test the API connection"
   },
   "options_section_behavior": {
     "message": "下載行為",
@@ -335,7 +318,7 @@
   },
   "error_rpc_timeout": {
     "message": "連線逾時",
-    "description": "Error when the RPC connection times out"
+    "description": "Error when the API connection times out"
   },
   "error_unknown": {
     "message": "發生未知錯誤",
@@ -367,7 +350,7 @@
   },
   "popup_error_timeout": {
     "message": "連線逾時",
-    "description": "Popup banner title when RPC connection times out"
+    "description": "Popup banner title when API connection times out"
   },
   "popup_error_timeout_hint": {
     "message": "請檢查網路或防火牆設定。API 端口：$1",

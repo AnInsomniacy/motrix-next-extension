@@ -112,7 +112,7 @@ describe('MetadataCollector', () => {
     });
   });
 
-  describe('buildAria2Headers', () => {
+  describe('buildHeaders', () => {
     it('builds header array with cookie and referer', () => {
       const metadata: DownloadMetadata = {
         filename: 'file.zip',
@@ -120,7 +120,7 @@ describe('MetadataCollector', () => {
         referer: 'https://example.com',
       };
 
-      const headers = MetadataCollector.buildAria2Headers(metadata);
+      const headers = MetadataCollector.buildHeaders(metadata);
 
       expect(headers).toContain('Cookie: session=abc123');
       expect(headers).toContain('Referer: https://example.com');
@@ -133,7 +133,7 @@ describe('MetadataCollector', () => {
         referer: 'https://example.com',
       };
 
-      const headers = MetadataCollector.buildAria2Headers(metadata);
+      const headers = MetadataCollector.buildHeaders(metadata);
 
       expect(headers).not.toContainEqual(expect.stringContaining('Cookie:'));
       expect(headers).toContain('Referer: https://example.com');
@@ -146,7 +146,7 @@ describe('MetadataCollector', () => {
         referer: '',
       };
 
-      const headers = MetadataCollector.buildAria2Headers(metadata);
+      const headers = MetadataCollector.buildHeaders(metadata);
 
       expect(headers).toEqual([]);
     });
