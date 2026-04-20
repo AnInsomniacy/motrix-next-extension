@@ -1,5 +1,11 @@
 import { DownloadOrchestrator } from '@/lib/download';
-import { DownloadBarService, ContextMenuService, NotificationService } from '@/lib/services';
+import { DesktopApiClient } from '@/lib/rpc';
+import {
+  DownloadBarService,
+  ContextMenuService,
+  NotificationService,
+  WakeService,
+} from '@/lib/services';
 import {
   DiagnosticLog,
   StorageService,
@@ -30,6 +36,10 @@ export default defineBackground(() => {
 
   const storageService = new StorageService(chrome.storage.local);
 
+  // ─── Desktop API client ───────────────────────
+  const desktopClient = new DesktopApiClient({ port: 16801, secret: '' });
+  const wakeService = new WakeService();
+
   // ─── Load config from storage on startup ──────────
   async function loadConfig(): Promise<void> {
     try {
@@ -37,6 +47,12 @@ export default defineBackground(() => {
       settings = data.settings;
       siteRules = data.siteRules;
       diagnosticLog.hydrate(data.diagnosticLog);
+
+      // Sync desktop HTTP API client config from stored RPC settings
+      desktopClient.updateConfig({
+        port: data.rpc.apiPort,
+        secret: data.rpc.apiSecret,
+      });
 
       // Hydrate i18n locale
       const effectiveLocale =
@@ -96,6 +112,21 @@ export default defineBackground(() => {
     getSettings: () => settings,
     getSiteRules: () => siteRules,
     getTabUrl,
+    desktopClient,
+    wakeDesktop: async () =>
+      wakeService.wakeAndWaitForRpc({
+        checkRpc: () => desktopClient.isReachable(),
+        openProtocol: async () => {
+          const tab = await chrome.tabs.create({
+            url: buildProtocolUrl(ProtocolAction.NewTask, {}),
+            active: true,
+          });
+          const tabId = tab.id;
+          return () => {
+            if (tabId) chrome.tabs.remove(tabId).catch(() => {});
+          };
+        },
+      }),
     openProtocolNewTask: async (url: string, referer: string, cookie: string) => {
       const params: Record<string, string> = { url, referer };
       if (cookie) params.cookie = cookie;
@@ -253,7 +284,11 @@ export default defineBackground(() => {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
     if (changes.rpc?.newValue) {
-      // rpcConfig is consumed by the orchestrator via deep-link routing
+      const rpc = changes.rpc.newValue as { apiPort?: number; apiSecret?: string };
+      desktopClient.updateConfig({
+        port: rpc.apiPort ?? 16801,
+        secret: rpc.apiSecret ?? '',
+      });
     }
     if (changes.settings?.newValue) {
       settings = parseDownloadSettings(changes.settings.newValue);

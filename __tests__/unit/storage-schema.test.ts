@@ -12,19 +12,19 @@ import {
 
 describe('parseRpcConfig', () => {
   it('returns valid config unchanged', () => {
-    const input = { host: '192.168.1.1', port: 6800, secret: 'mysecret' };
+    const input = { host: '192.168.1.1', port: 6800, secret: 'mysecret', apiPort: 9999, apiSecret: "" };
     const result = parseRpcConfig(input);
     expect(result).toEqual(input);
   });
 
   it('fills missing fields with defaults', () => {
     const result = parseRpcConfig({});
-    expect(result).toEqual({ host: '127.0.0.1', port: 16800, secret: '' });
+    expect(result).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
   });
 
   it('fills undefined input with defaults', () => {
     const result = parseRpcConfig(undefined);
-    expect(result).toEqual({ host: '127.0.0.1', port: 16800, secret: '' });
+    expect(result).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
   });
 
   it('replaces invalid port type with default', () => {
@@ -48,7 +48,13 @@ describe('parseRpcConfig', () => {
   });
 
   it('strips extra fields', () => {
-    const result = parseRpcConfig({ host: '127.0.0.1', port: 16800, secret: '', extra: true });
+    const result = parseRpcConfig({
+      host: '127.0.0.1',
+      port: 16800,
+      secret: '',
+      apiPort: 16801, apiSecret: "",
+      extra: true,
+    });
     expect(result).not.toHaveProperty('extra');
   });
 });
@@ -293,7 +299,7 @@ describe('parseDiagnosticEvents', () => {
 describe('parseStorage', () => {
   it('returns fully defaulted storage for empty object', () => {
     const result = parseStorage({});
-    expect(result.rpc).toEqual({ host: '127.0.0.1', port: 16800, secret: '' });
+    expect(result.rpc).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
     expect(result.settings).toEqual({
       enabled: true,
       minFileSize: 0,
@@ -334,7 +340,7 @@ describe('parseStorage', () => {
       diagnosticLog: false,
     });
     // All fields should be defaults — not throw
-    expect(result.rpc).toEqual({ host: '127.0.0.1', port: 16800, secret: '' });
+    expect(result.rpc).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
     expect(result.settings.enabled).toBe(true);
     expect(result.siteRules).toEqual([]);
     expect(result.uiPrefs.theme).toBe('system');

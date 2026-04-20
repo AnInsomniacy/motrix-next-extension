@@ -30,7 +30,7 @@ describe('StorageService.load', () => {
 
     const result = await service.load();
 
-    expect(result.rpc).toEqual({ host: '127.0.0.1', port: 16800, secret: '' });
+    expect(result.rpc).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
     expect(result.settings.enabled).toBe(true);
     expect(result.siteRules).toEqual([]);
     expect(result.uiPrefs.theme).toBe('system');
@@ -82,10 +82,10 @@ describe('StorageService.saveRpcConfig', () => {
     const api = createMockApi({});
     const service = new StorageService(api);
 
-    await service.saveRpcConfig({ host: '10.0.0.1', port: 6800, secret: 'abc' });
+    await service.saveRpcConfig({ host: '10.0.0.1', port: 6800, secret: 'abc', apiPort: 16801, apiSecret: "" });
 
     expect(api.set).toHaveBeenCalledWith({
-      rpc: { host: '10.0.0.1', port: 6800, secret: 'abc' },
+      rpc: { host: '10.0.0.1', port: 6800, secret: 'abc', apiPort: 16801, apiSecret: "" },
     });
   });
 });

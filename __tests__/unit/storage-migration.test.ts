@@ -48,7 +48,7 @@ describe('migrateStorage', () => {
       string,
       unknown
     >;
-    expect(setCall.rpc).toEqual({ host: '127.0.0.1', port: 6800, secret: 'test' });
+    expect(setCall.rpc).toEqual({ host: '127.0.0.1', port: 6800, secret: 'test', apiSecret: 'test' });
     expect(setCall.settings).toEqual({ enabled: false });
   });
 

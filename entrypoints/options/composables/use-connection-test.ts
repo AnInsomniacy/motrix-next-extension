@@ -1,11 +1,11 @@
 /**
- * @fileoverview Composable for RPC connection testing.
+ * @fileoverview Composable for API connection testing.
  *
  * Encapsulates connection state (status, version, error, loading)
  * and the testConnection flow with minimum visual delay.
  */
 import { ref, type Ref, type ComputedRef } from 'vue';
-import { Aria2Client } from '@/lib/rpc';
+import { DesktopApiClient } from '@/lib/rpc';
 import { ConnectionService, ConnectionStatus } from '@/lib/services';
 import type { RpcConfig } from '@/shared/types';
 
@@ -19,8 +19,11 @@ export function useConnectionTest(rpcConfig: Ref<RpcConfig> | ComputedRef<RpcCon
     testingConnection.value = true;
     connectionError.value = null;
 
-    const client = new Aria2Client(rpcConfig.value, { timeoutMs: 5000 });
-    const svc = new ConnectionService(client);
+    const apiClient = new DesktopApiClient({
+      port: rpcConfig.value.apiPort,
+      secret: rpcConfig.value.apiSecret,
+    });
+    const svc = new ConnectionService(apiClient);
 
     // Minimum 600ms so loading animation doesn't flash on fast local connections
     const minDelay = new Promise((r) => setTimeout(r, 600));

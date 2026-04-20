@@ -1,2 +1,9 @@
-export { Aria2Client } from './aria2-client';
-export type { Aria2ClientOptions } from './aria2-client';
+export { DesktopApiClient } from './desktop-client';
+export type {
+  DesktopApiConfig,
+  AddDownloadRequest,
+  AddDownloadResponse,
+  PingResponse,
+  StatResponse,
+  ActionResponse,
+} from './desktop-client';

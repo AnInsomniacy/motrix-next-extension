@@ -123,7 +123,7 @@
     "description": "Toggle label for browser fallback"
   },
   "options_fallback_desc": {
-    "message": "Tiếp tục tải xuống trong trình duyệt nếu aria2 thất bại",
+    "message": "Resume download in browser if Motrix Next fails",
     "description": "Description text for the fallback toggle"
   },
   "options_notify_label": {
@@ -197,7 +197,7 @@
     }
   },
   "popup_error_hint": {
-    "message": "Đảm bảo Motrix Next đang chạy và RPC đã được bật.",
+    "message": "Make sure Motrix Next is running and API is enabled.",
     "description": "Hint shown when connection fails"
   },
   "options_header_title": {
@@ -213,7 +213,7 @@
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Đã kết nối · aria2",
+    "message": "Connected · Motrix",
     "description": "Prefix for successful connection status"
   },
   "options_notify_start_label": {
@@ -326,12 +326,12 @@
     "description": "Sakura Pink color scheme"
   },
   "error_rpc_unreachable": {
-    "message": "Không thể kết nối với Motrix Next RPC",
-    "description": "Error when the RPC endpoint is unreachable"
+    "message": "Cannot connect to Motrix Next",
+    "description": "Error when the API endpoint is unreachable"
   },
   "error_rpc_auth": {
-    "message": "Khóa bí mật RPC không đúng",
-    "description": "Error when the RPC secret does not match"
+    "message": "API secret is incorrect",
+    "description": "Error when the API secret does not match"
   },
   "error_rpc_timeout": {
     "message": "Hết thời gian kết nối",
@@ -358,34 +358,34 @@
     "description": "Fallback name when a task filename cannot be resolved"
   },
   "popup_error_auth": {
-    "message": "Khóa bí mật RPC không khớp",
-    "description": "Popup banner title when RPC secret is incorrect"
+    "message": "API secret mismatch",
+    "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Kiểm tra khóa bí mật RPC trong cài đặt có khớp với cấu hình Motrix Next.",
-    "description": "Popup banner hint for RPC auth error"
+    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
+    "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
     "message": "Hết thời gian kết nối",
     "description": "Popup banner title when RPC connection times out"
   },
   "popup_error_timeout_hint": {
-    "message": "Kiểm tra cài đặt mạng hoặc tường lửa. Cổng RPC: $1",
+    "message": "Check your network or firewall settings. API port: $1",
     "description": "Popup banner hint for timeout error, $1 = port number",
     "placeholders": {
       "1": {
         "content": "$1",
-        "example": "16800"
+        "example": "16801"
       }
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Đảm bảo Motrix Next đang chạy. Cổng RPC: $1",
+    "message": "Make sure Motrix Next is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
         "content": "$1",
-        "example": "16800"
+        "example": "16801"
       }
     }
   },
@@ -428,5 +428,17 @@
   "popup_toggle_disabled": {
     "message": "Tạm dừng",
     "description": "Label next to the interception toggle when inactive"
+  },
+  "options_api_port_label": {
+    "message": "API Port",
+    "description": "Label for the API port input"
+  },
+  "options_api_secret_label": {
+    "message": "API Secret",
+    "description": "Label for the API secret input"
+  },
+  "options_api_secret_placeholder": {
+    "message": "Paste from desktop app",
+    "description": "Placeholder text for API secret input"
   }
 }

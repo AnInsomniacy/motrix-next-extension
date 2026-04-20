@@ -123,8 +123,8 @@
     "description": "浏览器回退开关"
   },
   "options_fallback_desc": {
-    "message": "aria2 失败时自动恢复浏览器下载",
-    "description": "回退开关的说明文本"
+    "message": "当 Motrix Next 失败时回退到浏览器下载",
+    "description": "Description text for the fallback toggle"
   },
   "options_notify_label": {
     "message": "通知",
@@ -197,8 +197,8 @@
     }
   },
   "popup_error_hint": {
-    "message": "请确保 Motrix Next 正在运行且 RPC 已启用。",
-    "description": "连接失败时的提示"
+    "message": "请确保 Motrix Next 正在运行且 API 已启用。",
+    "description": "Hint shown when connection fails"
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -213,8 +213,8 @@
     "description": "测试连接时的按钮文字"
   },
   "options_connection_success_prefix": {
-    "message": "已连接 · aria2",
-    "description": "连接成功状态前缀"
+    "message": "已连接 · Motrix",
+    "description": "Prefix for successful connection status"
   },
   "options_notify_start_label": {
     "message": "下载开始时通知",
@@ -326,12 +326,12 @@
     "description": "樱花粉配色方案"
   },
   "error_rpc_unreachable": {
-    "message": "无法连接到 Motrix Next RPC",
-    "description": "RPC 端点不可达时的错误信息"
+    "message": "无法连接到 Motrix Next",
+    "description": "Error when the API endpoint is unreachable"
   },
   "error_rpc_auth": {
-    "message": "RPC 密钥不正确",
-    "description": "RPC 密钥不匹配时的错误信息"
+    "message": "API 密钥不正确",
+    "description": "Error when the API secret does not match"
   },
   "error_rpc_timeout": {
     "message": "连接超时",
@@ -358,34 +358,34 @@
     "description": "无法解析任务文件名时的兜底名称"
   },
   "popup_error_auth": {
-    "message": "RPC 密钥不匹配",
-    "description": "RPC 密钥错误时的弹窗标题"
+    "message": "API 密钥不匹配",
+    "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "请在设置中确认 RPC 密钥与 Motrix Next 配置一致。",
-    "description": "RPC 认证错误的提示信息"
+    "message": "请检查设置中的 API 密钥是否与 Motrix Next 配置一致。",
+    "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
     "message": "连接超时",
     "description": "RPC 连接超时时的弹窗标题"
   },
   "popup_error_timeout_hint": {
-    "message": "请检查网络或防火墙设置。RPC 端口：$1",
-    "description": "连接超时的提示信息，$1 = 端口号",
+    "message": "请检查网络或防火墙设置。API 端口：$1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
     "placeholders": {
       "1": {
         "content": "$1",
-        "example": "16800"
+        "example": "16801"
       }
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "请确保 Motrix Next 正在运行。RPC 端口：$1",
-    "description": "无法连接时的提示信息，$1 = 端口号",
+    "message": "请确保 Motrix Next 正在运行。API 端口：$1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
         "content": "$1",
-        "example": "16800"
+        "example": "16801"
       }
     }
   },
@@ -428,5 +428,17 @@
   "popup_toggle_disabled": {
     "message": "已暂停",
     "description": "Label next to the interception toggle when inactive"
+  },
+  "options_api_port_label": {
+    "message": "API 端口",
+    "description": "Label for the API port input"
+  },
+  "options_api_secret_label": {
+    "message": "API 密钥",
+    "description": "Label for the API secret input"
+  },
+  "options_api_secret_placeholder": {
+    "message": "从桌面应用粘贴",
+    "description": "Placeholder text for API secret input"
   }
 }

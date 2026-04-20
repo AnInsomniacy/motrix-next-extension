@@ -242,14 +242,18 @@ describe('DownloadOrchestrator', () => {
   // ─── handleCreated — defensive fallback ────────────────
 
   describe('handleCreated — defensive fallback', () => {
-    it('returns false when openProtocolNewTask is unavailable', async () => {
-      const noDeps = createMockDeps({ openProtocolNewTask: undefined });
+    it('cancels download but logs warning when no route is available', async () => {
+      const noDeps = createMockDeps({ openProtocolNewTask: undefined, desktopClient: undefined });
       const orch = new DownloadOrchestrator(noDeps);
 
       const intercepted = await orch.handleCreated(createMockDownloadItem());
 
-      // Cannot route to desktop — let browser handle download
-      expect(intercepted).toBe(false);
+      // Download was already cancelled — can't un-cancel, so returns true
+      expect(intercepted).toBe(true);
+      // Should log a warning about no route available
+      expect(noDeps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({ code: 'download_fallback', level: 'warn' }),
+      );
     });
   });
 

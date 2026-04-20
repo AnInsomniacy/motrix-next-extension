@@ -61,7 +61,7 @@ describe('useDiagnostics', () => {
   it('exportDiagnosticReport() triggers a file download with complete diagnostic data', async () => {
     const storage = mockStorageService();
     (storage.load as ReturnType<typeof vi.fn>).mockResolvedValue({
-      rpc: { host: '127.0.0.1', port: 16800, secret: 'my-secret' },
+      rpc: { host: '127.0.0.1', port: 16800, secret: 'my-secret', apiPort: 16801 },
       settings: {
         enabled: true,
         minFileSize: 0,

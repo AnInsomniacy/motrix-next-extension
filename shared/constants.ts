@@ -4,6 +4,8 @@ export const DEFAULT_RPC_CONFIG: Readonly<RpcConfig> = {
   host: '127.0.0.1',
   port: 16800,
   secret: '',
+  apiPort: 16801,
+  apiSecret: '',
 } as const;
 
 export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = {

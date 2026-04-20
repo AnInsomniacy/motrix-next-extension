@@ -123,7 +123,7 @@
     "description": "Toggle label for browser fallback"
   },
   "options_fallback_desc": {
-    "message": "aria2 失敗時在瀏覽器中繼續下載",
+    "message": "當 Motrix Next 失敗時回退到瀏覽器下載",
     "description": "Description text for the fallback toggle"
   },
   "options_notify_label": {
@@ -197,7 +197,7 @@
     }
   },
   "popup_error_hint": {
-    "message": "請確認 Motrix Next 正在執行且 RPC 已啟用。",
+    "message": "請確保 Motrix Next 正在運行且 API 已啟用。",
     "description": "Hint shown when connection fails"
   },
   "options_header_title": {
@@ -213,7 +213,7 @@
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "已連線 · aria2",
+    "message": "已連接 · Motrix",
     "description": "Prefix for successful connection status"
   },
   "options_notify_start_label": {
@@ -326,12 +326,12 @@
     "description": "Sakura Pink color scheme"
   },
   "error_rpc_unreachable": {
-    "message": "無法連線至 Motrix Next RPC",
-    "description": "Error when the RPC endpoint is unreachable"
+    "message": "無法連接到 Motrix Next",
+    "description": "Error when the API endpoint is unreachable"
   },
   "error_rpc_auth": {
-    "message": "RPC 密鑰不正確",
-    "description": "Error when the RPC secret does not match"
+    "message": "API 密鑰不正確",
+    "description": "Error when the API secret does not match"
   },
   "error_rpc_timeout": {
     "message": "連線逾時",
@@ -358,34 +358,34 @@
     "description": "Fallback name when a task filename cannot be resolved"
   },
   "popup_error_auth": {
-    "message": "RPC 密鑰不匹配",
-    "description": "Popup banner title when RPC secret is incorrect"
+    "message": "API 密鑰不匹配",
+    "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "請確認設定中的 RPC 密鑰與 Motrix Next 設定一致。",
-    "description": "Popup banner hint for RPC auth error"
+    "message": "請檢查設定中的 API 密鑰是否與 Motrix Next 配置一致。",
+    "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
     "message": "連線逾時",
     "description": "Popup banner title when RPC connection times out"
   },
   "popup_error_timeout_hint": {
-    "message": "請檢查網路或防火牆設定。RPC 連接埠：$1",
+    "message": "請檢查網路或防火牆設定。API 端口：$1",
     "description": "Popup banner hint for timeout error, $1 = port number",
     "placeholders": {
       "1": {
         "content": "$1",
-        "example": "16800"
+        "example": "16801"
       }
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "請確認 Motrix Next 正在執行。RPC 連接埠：$1",
+    "message": "請確保 Motrix Next 正在運行。API 端口：$1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
         "content": "$1",
-        "example": "16800"
+        "example": "16801"
       }
     }
   },
@@ -428,5 +428,17 @@
   "popup_toggle_disabled": {
     "message": "已暫停",
     "description": "Label next to the interception toggle when inactive"
+  },
+  "options_api_port_label": {
+    "message": "API 端口",
+    "description": "Label for the API port input"
+  },
+  "options_api_secret_label": {
+    "message": "API 密鑰",
+    "description": "Label for the API secret input"
+  },
+  "options_api_secret_placeholder": {
+    "message": "從桌面應用程式貼上",
+    "description": "Placeholder text for API secret input"
   }
 }

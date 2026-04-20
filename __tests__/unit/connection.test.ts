@@ -3,21 +3,21 @@ import { ConnectionService, ConnectionStatus } from '@/lib/services/connection';
 
 describe('ConnectionService', () => {
   describe('checkConnection', () => {
-    it('returns connected with version on success', async () => {
+    it('returns connected with app version when ping succeeds', async () => {
       const mockClient = {
-        getVersion: vi.fn().mockResolvedValue({ version: '1.37.0', enabledFeatures: [] }),
+        ping: vi.fn().mockResolvedValue({ status: 'ok', version: '3.7.3' }),
       };
       const service = new ConnectionService(mockClient);
 
       const result = await service.checkConnection();
 
       expect(result.status).toBe(ConnectionStatus.Connected);
-      expect(result.version).toBe('1.37.0');
+      expect(result.version).toBe('3.7.3');
     });
 
-    it('returns disconnected on RPC error', async () => {
+    it('returns disconnected when ping fails', async () => {
       const mockClient = {
-        getVersion: vi.fn().mockRejectedValue(new Error('unreachable')),
+        ping: vi.fn().mockRejectedValue(new Error('fetch failed')),
       };
       const service = new ConnectionService(mockClient);
 
@@ -25,7 +25,33 @@ describe('ConnectionService', () => {
 
       expect(result.status).toBe(ConnectionStatus.Disconnected);
       expect(result.version).toBeNull();
-      expect(result.error).toBeDefined();
+      expect(result.error).toBe('Error');
+    });
+
+    it('returns disconnected with custom error name', async () => {
+      const err = new Error('timeout');
+      err.name = 'TimeoutError';
+      const mockClient = {
+        ping: vi.fn().mockRejectedValue(err),
+      };
+      const service = new ConnectionService(mockClient);
+
+      const result = await service.checkConnection();
+
+      expect(result.status).toBe(ConnectionStatus.Disconnected);
+      expect(result.error).toBe('TimeoutError');
+    });
+
+    it('handles non-Error thrown values', async () => {
+      const mockClient = {
+        ping: vi.fn().mockRejectedValue('string error'),
+      };
+      const service = new ConnectionService(mockClient);
+
+      const result = await service.checkConnection();
+
+      expect(result.status).toBe(ConnectionStatus.Disconnected);
+      expect(result.error).toBe('UnknownError');
     });
   });
 });

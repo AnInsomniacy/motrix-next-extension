@@ -1,9 +1,4 @@
-// ─── Aria2 RPC Types ────────────────────────────────────
-
-export interface Aria2Version {
-  version: string;
-  enabledFeatures: string[];
-}
+// ─── Aria2 RPC Types (used by download orchestrator) ────
 
 export interface Aria2GlobalStat {
   downloadSpeed: string;
@@ -52,25 +47,10 @@ export interface RpcConfig {
   host: string;
   port: number;
   secret: string;
-}
-
-export interface RpcRequest {
-  jsonrpc: '2.0';
-  id: string;
-  method: string;
-  params: unknown[];
-}
-
-export interface RpcResponse<T = unknown> {
-  jsonrpc: '2.0';
-  id: string;
-  result?: T;
-  error?: RpcErrorPayload;
-}
-
-export interface RpcErrorPayload {
-  code: number;
-  message: string;
+  /** Port for the desktop app's HTTP API (extension → desktop communication). */
+  apiPort: number;
+  /** Shared secret for the HTTP API Bearer token auth. */
+  apiSecret: string;
 }
 
 // ─── Download Filter Types ──────────────────────────────

@@ -31,6 +31,8 @@ const RpcConfigSchema = z
     host: z.string().default(DEFAULT_RPC_CONFIG.host),
     port: z.number().int().min(1).max(65535).default(DEFAULT_RPC_CONFIG.port),
     secret: z.string().default(DEFAULT_RPC_CONFIG.secret),
+    apiPort: z.number().int().min(1024).max(65535).default(DEFAULT_RPC_CONFIG.apiPort),
+    apiSecret: z.string().default(DEFAULT_RPC_CONFIG.apiSecret),
   })
   .strict();
 

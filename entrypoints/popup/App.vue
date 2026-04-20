@@ -4,20 +4,20 @@
  *
  * Wraps the popup UI in a Naive UI NConfigProvider for consistent M3
  * theming, delegates rendering to dedicated sub-components, and manages
- * the data polling lifecycle. All business logic (RPC client, connection
+ * the data polling lifecycle. All business logic (API client, connection
  * check, task polling) is preserved unchanged from the original.
  */
 import { ref, provide, onMounted, onUnmounted } from 'vue';
 import { usePolling } from '@/shared/use-polling';
 import { NConfigProvider, NSpin, NIcon, NButton } from 'naive-ui';
 import { PauseOutline, PlayOutline, RocketOutline, AlertCircleOutline } from '@vicons/ionicons5';
-import { Aria2Client } from '@/lib/rpc';
+import { DesktopApiClient } from '@/lib/rpc';
 import { ConnectionService, ConnectionStatus } from '@/lib/services';
 import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
 import { resolveThemeClass } from '@/lib/services';
 import type { ThemePreference } from '@/lib/services';
 import { StorageService } from '@/lib/storage';
-import type { Aria2GlobalStat } from '@/shared/types';
+import type { StatResponse } from '@/lib/rpc/desktop-client';
 import { DEFAULT_RPC_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
 
@@ -43,12 +43,12 @@ const { naiveTheme, themeOverrides } = useTheme(colorSchemeId);
 const status = ref<ConnectionStatus>(ConnectionStatus.Disconnected);
 const version = ref<string | null>(null);
 const errorType = ref<string | null>(null);
-const rpcPort = ref(DEFAULT_RPC_CONFIG.port);
-const globalStat = ref<Aria2GlobalStat | null>(null);
+const apiPort = ref(DEFAULT_RPC_CONFIG.apiPort);
+const globalStat = ref<StatResponse | null>(null);
 const loading = ref(true);
 const enabled = ref(true);
 
-let client: Aria2Client;
+let apiClient: DesktopApiClient;
 let storageService: StorageService;
 let stopPolling: (() => void) | null = null;
 
@@ -56,14 +56,14 @@ let stopPolling: (() => void) | null = null;
 
 async function fetchData(): Promise<void> {
   try {
-    const connectionSvc = new ConnectionService(client);
+    const connectionSvc = new ConnectionService(apiClient);
     const result = await connectionSvc.checkConnection();
     status.value = result.status;
     version.value = result.version;
     errorType.value = result.error ?? null;
 
     if (result.status === ConnectionStatus.Connected) {
-      globalStat.value = await client.getGlobalStat();
+      globalStat.value = await apiClient.getStat();
     }
   } catch {
     status.value = ConnectionStatus.Disconnected;
@@ -76,7 +76,7 @@ async function fetchData(): Promise<void> {
 
 async function pauseAll(): Promise<void> {
   try {
-    await client.pauseAll();
+    await apiClient.pauseAll();
     await fetchData();
   } catch {
     /* silent */
@@ -85,7 +85,7 @@ async function pauseAll(): Promise<void> {
 
 async function resumeAll(): Promise<void> {
   try {
-    await client.unpauseAll();
+    await apiClient.resumeAll();
     await fetchData();
   } catch {
     /* silent */
@@ -145,9 +145,9 @@ onMounted(async () => {
     document.documentElement.className = resolveThemeClass(theme, e.matches);
   });
 
-  // Initialize RPC client with validated config
-  rpcPort.value = data.rpc.port;
-  client = new Aria2Client(data.rpc, { timeoutMs: 3000 });
+  // Initialize API client with validated config
+  apiPort.value = data.rpc.apiPort;
+  apiClient = new DesktopApiClient({ port: data.rpc.apiPort, secret: data.rpc.apiSecret });
 
   // Smart polling with exponential backoff + visibility awareness
   const poller = usePolling({
@@ -200,13 +200,13 @@ onUnmounted(() => {
                 <!-- Auth Error -->
                 <div v-if="errorType === 'RpcAuthError'" key="auth">
                   <p class="popup-banner__title">
-                    {{ i18n('popup_error_auth', 'RPC secret mismatch') }}
+                    {{ i18n('popup_error_auth', 'API secret mismatch') }}
                   </p>
                   <p class="popup-banner__hint">
                     {{
                       i18n(
                         'popup_error_auth_hint',
-                        'Check that the RPC secret in Settings matches your Motrix Next configuration.',
+                        'Check that the API secret in Settings matches your Motrix Next configuration.',
                       )
                     }}
                   </p>
@@ -220,8 +220,8 @@ onUnmounted(() => {
                     {{
                       i18nSub(
                         'popup_error_timeout_hint',
-                        [String(rpcPort)],
-                        `Check your network or firewall settings. RPC port: ${rpcPort}`,
+                        [String(apiPort)],
+                        `Check your network or firewall settings. API port: ${apiPort}`,
                       )
                     }}
                   </p>
@@ -235,8 +235,8 @@ onUnmounted(() => {
                     {{
                       i18nSub(
                         'popup_error_unreachable_hint',
-                        [String(rpcPort)],
-                        `Make sure Motrix Next is running. RPC port: ${rpcPort}`,
+                        [String(apiPort)],
+                        `Make sure Motrix Next is running. API port: ${apiPort}`,
                       )
                     }}
                   </p>

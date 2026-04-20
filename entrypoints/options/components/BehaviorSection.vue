@@ -70,7 +70,7 @@ const { t: i18n } = useI18n();
         <div class="label-group">
           <span>{{ i18n('options_fallback_label', 'Fallback to Browser on Failure') }}</span>
           <span class="label-hint">{{
-            i18n('options_fallback_desc', 'Resume download in browser if aria2 fails')
+            i18n('options_fallback_desc', 'Resume download in browser if Motrix Next fails')
           }}</span>
         </div>
       </template>

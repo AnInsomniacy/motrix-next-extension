@@ -2,15 +2,16 @@ import type { DownloadSettings, SiteRule, FilterContext } from '@/shared/types';
 import type { DiagnosticInput } from '@/lib/storage/diagnostic-log';
 import { evaluateFilterPipeline, createFilterPipeline } from './filter';
 import { extractFilenameFromUrl } from '@/shared/url';
+import type { DesktopApiClient } from '@/lib/rpc/desktop-client';
 
 // ─── Dependency Interface ───────────────────────────────
 
 /**
- * Minimal dependency interface for the unified deep-link orchestrator.
+ * Minimal dependency interface for the download orchestrator.
  *
- * All downloads are routed to the desktop app via `openProtocolNewTask`.
- * No direct aria2 RPC or wake logic is needed. Cookie collection is
- * handled inline via the injected `cookies` API.
+ * Primary path: HTTP API via `desktopClient.addDownload()`.
+ * Fallback path: `openProtocolNewTask()` deep-link when the desktop app
+ * is not reachable via HTTP (e.g. app not yet started).
  */
 export interface OrchestratorDeps {
   downloads: {
@@ -28,12 +29,19 @@ export interface OrchestratorDeps {
   getSiteRules: () => SiteRule[];
   getTabUrl: (id?: number) => Promise<string>;
   /**
-   * Route a URL to the desktop app via `motrixnext://new?url=...&referer=...&cookie=...`
-   * deep link. The desktop app shows its native "Add Task" dialog for user
-   * confirmation and applies file classification before submission.
-   *
-   * @param cookie - Serialized cookie string (e.g. "k1=v1; k2=v2"). Empty when
-   *                 cookies permission is not granted or no cookies exist.
+   * HTTP API client for direct communication with the desktop app.
+   * When available and reachable, this is the primary download submission path.
+   */
+  desktopClient?: DesktopApiClient;
+  /**
+   * Wake the desktop app via protocol handler and wait for the HTTP API
+   * to become reachable. Returns true if the app woke up successfully.
+   * Used as an intermediate step before falling back to the raw deep-link.
+   */
+  wakeDesktop?: () => Promise<boolean>;
+  /**
+   * Fallback: route a URL to the desktop app via `motrixnext://new?url=...`
+   * deep link. Used only when both HTTP API and wake+retry fail.
    */
   openProtocolNewTask?: (url: string, referer: string, cookie: string) => Promise<void>;
 }
@@ -53,16 +61,14 @@ interface DownloadItem {
 // ─── Orchestrator ───────────────────────────────────────
 
 /**
- * Central download interception orchestrator — unified deep-link routing.
+ * Central download interception orchestrator.
  *
- * All intercepted downloads are routed to the desktop app via
- * `motrixnext://new?url=...&referer=...&cookie=...` deep link. The desktop
- * app shows the "Add Task" dialog for user confirmation and applies file
- * classification, proxy, and other settings before submission.
+ * Routing priority:
+ * 1. HTTP API (`desktopClient.addDownload()`) — non-blocking, no browser dialog
+ * 2. Deep-link fallback (`openProtocolNewTask()`) — when HTTP API unreachable
  *
- * The extension no longer calls aria2 RPC directly — it is a thin
- * interceptor + router layer:
- *   filter → collect cookies → cancel browser download → openProtocolNewTask
+ * The extension is a thin interceptor + router layer:
+ *   filter → collect cookies → cancel browser download → send to desktop
  */
 export class DownloadOrchestrator {
   private readonly deps: OrchestratorDeps;
@@ -79,8 +85,6 @@ export class DownloadOrchestrator {
    * Called from `onDeterminingFilename` — the download is suspended by Chrome
    * until the caller invokes `suggest()`. No `pause()` is needed.
    *
-   * All intercepted downloads are routed to the desktop app via deep link.
-   *
    * @returns `true` if the download was intercepted (cancel called),
    *          `false` if the browser should continue (caller calls suggest).
    */
@@ -88,7 +92,7 @@ export class DownloadOrchestrator {
     const settings = this.deps.getSettings();
     const tabUrl = await this.deps.getTabUrl();
 
-    // ─── Filter ───────────────────────────────────
+    // ─── Filter ─────────────────────────────────
     const ctx: FilterContext = {
       url: item.url,
       finalUrl: item.finalUrl,
@@ -118,32 +122,127 @@ export class DownloadOrchestrator {
       context: { url: item.url, fileSize: item.fileSize, mime: item.mime },
     });
 
-    // ─── Route to desktop app ─────────────────────
-    // Defensive fallback: if openProtocolNewTask is unavailable, let
-    // the browser handle the download (return false = don't cancel).
-    if (!this.deps.openProtocolNewTask) {
-      return false;
-    }
-
-    // Prefer finalUrl — the post-redirect URL that Chrome actually downloaded
-    // from. Many cloud storage services return an HTML landing page at
-    // item.url, then redirect to a CDN URL. Without finalUrl, the desktop
-    // app would re-request the landing page instead of the actual file.
+    // ─── Route to desktop app ───────────────────
     const effectiveUrl = item.finalUrl || item.url;
     const displayName = item.filename || extractFilenameFromUrl(effectiveUrl) || 'download';
     const cookie = await this.collectCookies(effectiveUrl);
 
     await this.safeCancel(item.id);
-    await this.deps.openProtocolNewTask(effectiveUrl, tabUrl, cookie);
 
-    this.deps.diagnosticLog.append({
-      level: 'info',
-      code: 'download_routed',
-      message: `Routed to desktop: ${displayName}`,
-      context: { url: effectiveUrl, filename: displayName, hasCookie: cookie.length > 0 },
-    });
+    const routed = await this.sendToDesktop(effectiveUrl, tabUrl, cookie, displayName);
+    if (!routed) {
+      // Both paths failed — can't route to desktop
+      this.deps.diagnosticLog.append({
+        level: 'warn',
+        code: 'download_fallback',
+        message: `No route to desktop for: ${displayName}`,
+        context: { url: effectiveUrl },
+      });
+      return true; // Already cancelled — can't un-cancel
+    }
 
     return true;
+  }
+
+  /**
+   * Send a URL to the desktop app (e.g. from context menu or magnet interception).
+   *
+   * @returns `'routed-to-desktop'` sentinel on success
+   * @throws when no routing path is available
+   */
+  async sendUrl(url: string, tabUrl: string): Promise<string> {
+    const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
+    const cookie = await this.collectCookies(url);
+
+    const routed = await this.sendToDesktop(url, tabUrl, cookie, displayName);
+    if (!routed) {
+      throw new Error(
+        'Desktop app routing unavailable: neither HTTP API nor protocol handler provided',
+      );
+    }
+
+    return 'routed-to-desktop';
+  }
+
+  // ─── Private Helpers ──────────────────────────────
+
+  /**
+   * Try HTTP API first, then fall back to deep-link protocol.
+   * @returns `true` if successfully routed, `false` if all paths failed.
+   */
+  private async sendToDesktop(
+    url: string,
+    referer: string,
+    cookie: string,
+    displayName: string,
+  ): Promise<boolean> {
+    // Primary: HTTP API
+    if (this.deps.desktopClient) {
+      try {
+        const response = await this.deps.desktopClient.addDownload({
+          url,
+          referer: referer || undefined,
+          cookie: cookie || undefined,
+          filename: displayName || undefined,
+        });
+
+        this.deps.diagnosticLog.append({
+          level: 'info',
+          code: 'download_routed',
+          message: `Routed via HTTP API: ${displayName} (${response.action})`,
+          context: { url, action: response.action, hasCookie: cookie.length > 0 },
+        });
+        return true;
+      } catch (e) {
+        // HTTP API failed — attempt wake + retry before falling back to deep-link
+        this.deps.diagnosticLog.append({
+          level: 'warn',
+          code: 'download_fallback',
+          message: `HTTP API failed, attempting wake: ${e instanceof Error ? e.message : String(e)}`,
+          context: { url },
+        });
+
+        // Wake → retry: try to start the desktop app and retry via HTTP
+        if (this.deps.wakeDesktop && this.deps.desktopClient) {
+          try {
+            const woke = await this.deps.wakeDesktop();
+            if (woke) {
+              const retryResponse = await this.deps.desktopClient.addDownload({
+                url,
+                referer: referer || undefined,
+                cookie: cookie || undefined,
+                filename: displayName || undefined,
+              });
+
+              this.deps.diagnosticLog.append({
+                level: 'info',
+                code: 'download_routed',
+                message: `Routed via HTTP API (after wake): ${displayName} (${retryResponse.action})`,
+                context: { url, action: retryResponse.action, hasCookie: cookie.length > 0 },
+              });
+              return true;
+            }
+          } catch {
+            // Wake+retry failed — fall through to deep-link
+          }
+        }
+      }
+    }
+
+    // Fallback: deep-link protocol
+    if (this.deps.openProtocolNewTask) {
+      await this.deps.openProtocolNewTask(url, referer, cookie);
+
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_routed',
+        message: `Routed via deep-link: ${displayName}`,
+        context: { url, hasCookie: cookie.length > 0 },
+      });
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -165,10 +264,6 @@ export class DownloadOrchestrator {
 
   /**
    * Collect browser cookies for the given URL.
-   *
-   * Requires the `cookies` optional permission to be granted. When not
-   * available, returns an empty string — the download proceeds without
-   * cookies (works for non-cookie-gated CDNs like GitHub Releases).
    */
   private async collectCookies(url: string): Promise<string> {
     if (!this.deps.cookies) {
@@ -181,34 +276,5 @@ export class DownloadOrchestrator {
     } catch {
       return ''; // Graceful degradation — never block the download
     }
-  }
-
-  /**
-   * Send a URL to the desktop app (e.g. from context menu or magnet interception).
-   *
-   * Routes through `motrixnext://new?url=...&referer=...&cookie=...` deep link.
-   * The desktop app shows the "Add Task" dialog for user confirmation.
-   *
-   * @returns `'routed-to-desktop'` sentinel on success
-   * @throws when `openProtocolNewTask` is unavailable
-   */
-  async sendUrl(url: string, tabUrl: string): Promise<string> {
-    if (!this.deps.openProtocolNewTask) {
-      throw new Error('Desktop app routing unavailable: openProtocolNewTask not provided');
-    }
-
-    const displayName = extractFilenameFromUrl(url) || url.split('/').pop() || 'download';
-    const cookie = await this.collectCookies(url);
-
-    await this.deps.openProtocolNewTask(url, tabUrl, cookie);
-
-    this.deps.diagnosticLog.append({
-      level: 'info',
-      code: 'download_routed',
-      message: `Routed to desktop: ${displayName}`,
-      context: { url, hasCookie: cookie.length > 0 },
-    });
-
-    return 'routed-to-desktop';
   }
 }

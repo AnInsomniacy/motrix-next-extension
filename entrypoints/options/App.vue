@@ -85,6 +85,8 @@ const appearance = useAppearance(storageService, setTheme, (id) => {
 interface SettingsForm {
   port: number;
   secret: string;
+  apiPort: number;
+  apiSecret: string;
   enabled: boolean;
   minFileSize: number;
   fallbackToBrowser: boolean;
@@ -98,6 +100,8 @@ function buildForm(): SettingsForm {
   return {
     port: DEFAULT_RPC_CONFIG.port,
     secret: DEFAULT_RPC_CONFIG.secret,
+    apiPort: DEFAULT_RPC_CONFIG.apiPort,
+    apiSecret: DEFAULT_RPC_CONFIG.apiSecret,
     enabled: DEFAULT_DOWNLOAD_SETTINGS.enabled,
     minFileSize: DEFAULT_DOWNLOAD_SETTINGS.minFileSize,
     fallbackToBrowser: DEFAULT_DOWNLOAD_SETTINGS.fallbackToBrowser,
@@ -123,6 +127,8 @@ const {
       host: DEFAULT_RPC_CONFIG.host,
       port: f.port,
       secret: f.secret,
+      apiPort: f.apiPort,
+      apiSecret: f.apiSecret,
     });
     await storageService.saveSettings({
       enabled: f.enabled,
@@ -158,6 +164,8 @@ const rpcForTest = computed<RpcConfig>(() => ({
   host: DEFAULT_RPC_CONFIG.host,
   port: form.value.port,
   secret: form.value.secret,
+  apiPort: form.value.apiPort,
+  apiSecret: form.value.apiSecret,
 }));
 
 const { connectionStatus, connectionVersion, connectionError, testingConnection, testConnection } =
@@ -175,6 +183,8 @@ async function loadFromStorage(): Promise<void> {
   // Hydrate dirty-tracked form (schema-validated, no casts)
   form.value.port = data.rpc.port;
   form.value.secret = data.rpc.secret;
+  form.value.apiPort = data.rpc.apiPort;
+  form.value.apiSecret = data.rpc.apiSecret;
   form.value.enabled = data.settings.enabled;
   form.value.minFileSize = data.settings.minFileSize;
   form.value.fallbackToBrowser = data.settings.fallbackToBrowser;
@@ -280,14 +290,14 @@ onUnmounted(() => {
               <h2 class="section-title">{{ i18n('options_section_connection', 'Connection') }}</h2>
               <div class="card">
                 <ConnectionSection
-                  :port="form.port"
-                  :secret="form.secret"
+                  :api-port="form.apiPort"
+                  :api-secret="form.apiSecret"
                   :status="connectionStatus"
                   :version="connectionVersion"
                   :error="connectionError"
                   :testing="testingConnection"
-                  @update:port="form.port = $event"
-                  @update:secret="form.secret = $event"
+                  @update:api-port="form.apiPort = $event"
+                  @update:api-secret="form.apiSecret = $event"
                   @test="testConnection"
                 />
                 <SettingsActionBar :is-dirty="isDirty" @save="handleSave" @discard="handleReset" />

@@ -2,9 +2,12 @@
 /**
  * @fileoverview Connection settings section.
  *
- * RPC host/port/secret configuration with a "Test Connection" button
+ * API port/secret configuration with a "Test Connection" button
  * and status feedback. Uses Naive UI NInput, NInputNumber, NButton,
- * NTag, and NSpin for visual consistency with the desktop Basic.vue.
+ * NTag, and NIcon for visual consistency with the desktop Advanced.vue.
+ *
+ * After the REST API migration, the extension communicates exclusively
+ * via the embedded Axum HTTP API — aria2 RPC fields are no longer needed.
  */
 import { computed } from 'vue';
 import { NFormItem, NInput, NInputNumber, NButton, NTag, NIcon } from 'naive-ui';
@@ -12,8 +15,8 @@ import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
 import { ConnectionStatus } from '@/lib/services';
 
 const props = defineProps<{
-  port: number;
-  secret: string;
+  apiPort: number;
+  apiSecret: string;
   status: ConnectionStatus;
   version: string | null;
   error: string | null;
@@ -21,8 +24,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  'update:port': [value: number];
-  'update:secret': [value: string];
+  'update:apiPort': [value: number];
+  'update:apiSecret': [value: string];
   test: [];
 }>();
 
@@ -34,8 +37,8 @@ const isConnected = computed(() => props.status === ConnectionStatus.Connected);
 
 /** Map error class names from ConnectionService to i18n keys. */
 const ERROR_I18N: Record<string, [key: string, fallback: string]> = {
-  RpcUnreachableError: ['error_rpc_unreachable', 'Cannot connect to Motrix Next RPC'],
-  RpcAuthError: ['error_rpc_auth', 'RPC secret is incorrect'],
+  RpcUnreachableError: ['error_rpc_unreachable', 'Cannot connect to Motrix Next'],
+  RpcAuthError: ['error_rpc_auth', 'API secret is incorrect'],
   RpcTimeoutError: ['error_rpc_timeout', 'Connection timed out'],
   UnknownError: ['error_unknown', 'An unknown error occurred'],
 };
@@ -50,23 +53,23 @@ const errorMessage = computed(() => {
 <template>
   <div class="section">
     <div class="section__grid">
-      <NFormItem :label="i18n('options_rpc_port_label', 'RPC Port')">
+      <NFormItem :label="i18n('options_api_port_label', 'API Port')">
         <NInputNumber
-          :value="port"
-          :min="1"
+          :value="apiPort"
+          :min="1024"
           :max="65535"
           style="width: 140px"
-          @update:value="(v: number | null) => emit('update:port', v ?? 16800)"
+          @update:value="(v: number | null) => emit('update:apiPort', v ?? 16801)"
         />
       </NFormItem>
-      <NFormItem :label="i18n('options_rpc_secret_label', 'RPC Secret')">
+      <NFormItem :label="i18n('options_api_secret_label', 'API Secret')">
         <NInput
-          :value="secret"
+          :value="apiSecret"
           type="password"
           show-password-on="click"
-          placeholder="••••••••"
-          style="width: 240px"
-          @update:value="(v: string) => emit('update:secret', v)"
+          :placeholder="i18n('options_api_secret_placeholder', 'Paste from desktop app')"
+          style="width: 280px"
+          @update:value="(v: string) => emit('update:apiSecret', v)"
         />
       </NFormItem>
     </div>
@@ -90,7 +93,7 @@ const errorMessage = computed(() => {
           class="section__feedback section__feedback--ok"
         >
           <NIcon :size="16"><CheckmarkCircleOutline /></NIcon>
-          {{ i18n('options_connection_success_prefix', 'Connected · aria2') }}
+          {{ i18n('options_connection_success_prefix', 'Connected · Motrix') }}
           <NTag size="small" round>v{{ version }}</NTag>
         </span>
         <span v-else-if="error" key="err" class="section__feedback section__feedback--err">
