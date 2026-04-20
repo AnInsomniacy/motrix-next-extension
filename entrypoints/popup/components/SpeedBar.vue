@@ -9,7 +9,7 @@
 import { computed } from 'vue';
 import { NIcon } from 'naive-ui';
 import { ArrowDownOutline, ArrowUpOutline, SpeedometerOutline } from '@vicons/ionicons5';
-import type { StatResponse } from '@/lib/rpc/desktop-client';
+import type { StatResponse } from '@/lib/api/desktop-client';
 
 const props = defineProps<{
   stat: StatResponse;

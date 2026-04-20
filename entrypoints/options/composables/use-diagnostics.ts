@@ -41,7 +41,7 @@ export function useDiagnostics(storageService: StorageService) {
         language: navigator.language,
       },
       config: {
-        rpc: { host: data.rpc.host, port: data.rpc.port },
+        connection: { port: data.connection.port },
         settings: data.settings,
         siteRules: data.siteRules,
         uiPrefs: data.uiPrefs,

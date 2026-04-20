@@ -17,7 +17,7 @@ import {
   TimeOutline,
   CheckmarkDoneOutline,
 } from '@vicons/ionicons5';
-import type { StatResponse } from '@/lib/rpc/desktop-client';
+import type { StatResponse } from '@/lib/api/desktop-client';
 
 import { useI18n } from '@/shared/i18n/engine';
 

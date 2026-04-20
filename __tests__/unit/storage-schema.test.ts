@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  parseRpcConfig,
+  parseConnectionConfig,
   parseDownloadSettings,
   parseSiteRules,
   parseUiPrefs,
@@ -8,51 +8,49 @@ import {
   parseStorage,
 } from '@/lib/storage/schema';
 
-// ─── RpcConfig Schema ───────────────────────────────────
+// ─── ConnectionConfig Schema ────────────────────────────
 
-describe('parseRpcConfig', () => {
+describe('parseConnectionConfig', () => {
   it('returns valid config unchanged', () => {
-    const input = { host: '192.168.1.1', port: 6800, secret: 'mysecret', apiPort: 9999, apiSecret: "" };
-    const result = parseRpcConfig(input);
+    const input = { port: 9999, secret: 'mysecret' };
+    const result = parseConnectionConfig(input);
     expect(result).toEqual(input);
   });
 
   it('fills missing fields with defaults', () => {
-    const result = parseRpcConfig({});
-    expect(result).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
+    const result = parseConnectionConfig({});
+    expect(result).toEqual({ port: 16801, secret: '' });
   });
 
   it('fills undefined input with defaults', () => {
-    const result = parseRpcConfig(undefined);
-    expect(result).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
+    const result = parseConnectionConfig(undefined);
+    expect(result).toEqual({ port: 16801, secret: '' });
   });
 
   it('replaces invalid port type with default', () => {
-    const result = parseRpcConfig({ port: 'not-a-number' });
-    expect(result.port).toBe(16800);
+    const result = parseConnectionConfig({ port: 'not-a-number' });
+    expect(result.port).toBe(16801);
   });
 
   it('clamps port below minimum to default', () => {
-    const result = parseRpcConfig({ port: -1 });
-    expect(result.port).toBe(16800);
+    const result = parseConnectionConfig({ port: -1 });
+    expect(result.port).toBe(16801);
   });
 
   it('clamps port above maximum to default', () => {
-    const result = parseRpcConfig({ port: 99999 });
-    expect(result.port).toBe(16800);
+    const result = parseConnectionConfig({ port: 99999 });
+    expect(result.port).toBe(16801);
   });
 
   it('replaces invalid secret type with default', () => {
-    const result = parseRpcConfig({ secret: 123 });
+    const result = parseConnectionConfig({ secret: 123 });
     expect(result.secret).toBe('');
   });
 
   it('strips extra fields', () => {
-    const result = parseRpcConfig({
-      host: '127.0.0.1',
-      port: 16800,
+    const result = parseConnectionConfig({
+      port: 16801,
       secret: '',
-      apiPort: 16801, apiSecret: "",
       extra: true,
     });
     expect(result).not.toHaveProperty('extra');
@@ -271,9 +269,9 @@ describe('parseDiagnosticEvents', () => {
   });
 
   it.each([
-    'rpc_connected',
-    'rpc_unreachable',
-    'rpc_auth_failed',
+    'api_connected',
+    'api_unreachable',
+    'api_auth_failed',
     'download_intercepted',
     'download_sent',
     'download_skipped',
@@ -299,7 +297,7 @@ describe('parseDiagnosticEvents', () => {
 describe('parseStorage', () => {
   it('returns fully defaulted storage for empty object', () => {
     const result = parseStorage({});
-    expect(result.rpc).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
+    expect(result.connection).toEqual({ port: 16801, secret: '' });
     expect(result.settings).toEqual({
       enabled: true,
       minFileSize: 0,
@@ -316,31 +314,31 @@ describe('parseStorage', () => {
 
   it('returns fully defaulted storage for null input', () => {
     const result = parseStorage(null);
-    expect(result.rpc.port).toBe(16800);
+    expect(result.connection.port).toBe(16801);
     expect(result.settings.enabled).toBe(true);
   });
 
   it('correctly parses a partial storage object', () => {
     const result = parseStorage({
-      rpc: { port: 6800 },
+      connection: { port: 9000 },
       settings: { enabled: false },
     });
-    expect(result.rpc.port).toBe(6800);
-    expect(result.rpc.host).toBe('127.0.0.1'); // defaulted
+    expect(result.connection.port).toBe(9000);
+    expect(result.connection.secret).toBe(''); // defaulted
     expect(result.settings.enabled).toBe(false);
     expect(result.settings.minFileSize).toBe(0); // defaulted
   });
 
   it('survives completely corrupt data gracefully', () => {
     const result = parseStorage({
-      rpc: 'garbage',
+      connection: 'garbage',
       settings: 12345,
       siteRules: 'not-an-array',
       uiPrefs: null,
       diagnosticLog: false,
     });
     // All fields should be defaults — not throw
-    expect(result.rpc).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
+    expect(result.connection).toEqual({ port: 16801, secret: '' });
     expect(result.settings.enabled).toBe(true);
     expect(result.siteRules).toEqual([]);
     expect(result.uiPrefs.theme).toBe('system');

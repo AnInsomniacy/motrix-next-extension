@@ -11,7 +11,7 @@ import {
   type AddDownloadRequest,
   type AddDownloadResponse,
   type PingResponse,
-} from '@/lib/rpc/desktop-client';
+} from '@/lib/api/desktop-client';
 
 describe('DesktopApiClient', () => {
   const defaultConfig: DesktopApiConfig = {
@@ -192,9 +192,7 @@ describe('DesktopApiClient', () => {
       const [url, init] = vi.mocked(fetch).mock.calls[0]!;
       expect(url).toBe('http://127.0.0.1:16801/stat');
       expect(init?.method).toBeUndefined(); // GET doesn't need explicit method
-      expect((init?.headers as Record<string, string>)['Authorization']).toBe(
-        'Bearer test-secret',
-      );
+      expect((init?.headers as Record<string, string>)['Authorization']).toBe('Bearer test-secret');
     });
 
     it('omits Authorization when secret is empty', async () => {
@@ -249,9 +247,7 @@ describe('DesktopApiClient', () => {
       const [url, init] = vi.mocked(fetch).mock.calls[0]!;
       expect(url).toBe('http://127.0.0.1:16801/pause-all');
       expect(init?.method).toBe('POST');
-      expect((init?.headers as Record<string, string>)['Authorization']).toBe(
-        'Bearer test-secret',
-      );
+      expect((init?.headers as Record<string, string>)['Authorization']).toBe('Bearer test-secret');
     });
 
     it('returns error response when engine is not running', async () => {
@@ -286,9 +282,7 @@ describe('DesktopApiClient', () => {
       const [url, init] = vi.mocked(fetch).mock.calls[0]!;
       expect(url).toBe('http://127.0.0.1:16801/resume-all');
       expect(init?.method).toBe('POST');
-      expect((init?.headers as Record<string, string>)['Authorization']).toBe(
-        'Bearer test-secret',
-      );
+      expect((init?.headers as Record<string, string>)['Authorization']).toBe('Bearer test-secret');
     });
 
     it('returns error response when engine is not running', async () => {

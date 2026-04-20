@@ -30,7 +30,7 @@ describe('StorageService.load', () => {
 
     const result = await service.load();
 
-    expect(result.rpc).toEqual({ host: '127.0.0.1', port: 16800, secret: '', apiPort: 16801, apiSecret: "" });
+    expect(result.connection).toEqual({ port: 16801, secret: '' });
     expect(result.settings.enabled).toBe(true);
     expect(result.siteRules).toEqual([]);
     expect(result.uiPrefs.theme).toBe('system');
@@ -40,7 +40,7 @@ describe('StorageService.load', () => {
   it('returns schema-validated data for valid storage', async () => {
     const api = createMockApi({
       _version: 1,
-      rpc: { host: '192.168.1.1', port: 6800, secret: 'test' },
+      connection: { port: 9000, secret: 'test' },
       settings: {
         enabled: false,
         minFileSize: 5,
@@ -54,15 +54,15 @@ describe('StorageService.load', () => {
 
     const result = await service.load();
 
-    expect(result.rpc.port).toBe(6800);
-    expect(result.rpc.secret).toBe('test');
+    expect(result.connection.port).toBe(9000);
+    expect(result.connection.secret).toBe('test');
     expect(result.settings.enabled).toBe(false);
     expect(result.settings.minFileSize).toBe(5);
   });
 
   it('returns defaults for corrupt storage without throwing', async () => {
     const api = createMockApi({
-      rpc: 'garbage',
+      connection: 'garbage',
       settings: 42,
     });
     const service = new StorageService(api);
@@ -70,22 +70,22 @@ describe('StorageService.load', () => {
     const result = await service.load();
 
     // Should return defaults, not throw
-    expect(result.rpc.port).toBe(16800);
+    expect(result.connection.port).toBe(16801);
     expect(result.settings.enabled).toBe(true);
   });
 });
 
-// ─── saveRpcConfig() ────────────────────────────────────
+// ─── saveConnectionConfig() ─────────────────────────────
 
-describe('StorageService.saveRpcConfig', () => {
-  it('persists RPC config to storage', async () => {
+describe('StorageService.saveConnectionConfig', () => {
+  it('persists connection config to storage', async () => {
     const api = createMockApi({});
     const service = new StorageService(api);
 
-    await service.saveRpcConfig({ host: '10.0.0.1', port: 6800, secret: 'abc', apiPort: 16801, apiSecret: "" });
+    await service.saveConnectionConfig({ port: 9000, secret: 'abc' });
 
     expect(api.set).toHaveBeenCalledWith({
-      rpc: { host: '10.0.0.1', port: 6800, secret: 'abc', apiPort: 16801, apiSecret: "" },
+      connection: { port: 9000, secret: 'abc' },
     });
   });
 });

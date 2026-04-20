@@ -4,7 +4,7 @@ export { StorageService } from './storage-service';
 export type { StorageApi } from './storage-service';
 export {
   parseStorage,
-  parseRpcConfig,
+  parseConnectionConfig,
   parseDownloadSettings,
   parseSiteRules,
   parseUiPrefs,

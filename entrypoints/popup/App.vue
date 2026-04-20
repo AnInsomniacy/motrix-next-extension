@@ -11,14 +11,14 @@ import { ref, provide, onMounted, onUnmounted } from 'vue';
 import { usePolling } from '@/shared/use-polling';
 import { NConfigProvider, NSpin, NIcon, NButton } from 'naive-ui';
 import { PauseOutline, PlayOutline, RocketOutline, AlertCircleOutline } from '@vicons/ionicons5';
-import { DesktopApiClient } from '@/lib/rpc';
+import { DesktopApiClient } from '@/lib/api';
 import { ConnectionService, ConnectionStatus } from '@/lib/services';
 import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
 import { resolveThemeClass } from '@/lib/services';
 import type { ThemePreference } from '@/lib/services';
 import { StorageService } from '@/lib/storage';
-import type { StatResponse } from '@/lib/rpc/desktop-client';
-import { DEFAULT_RPC_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
+import type { StatResponse } from '@/lib/api/desktop-client';
+import { DEFAULT_CONNECTION_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
 
 import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
@@ -43,7 +43,7 @@ const { naiveTheme, themeOverrides } = useTheme(colorSchemeId);
 const status = ref<ConnectionStatus>(ConnectionStatus.Disconnected);
 const version = ref<string | null>(null);
 const errorType = ref<string | null>(null);
-const apiPort = ref(DEFAULT_RPC_CONFIG.apiPort);
+const apiPort = ref(DEFAULT_CONNECTION_CONFIG.port);
 const globalStat = ref<StatResponse | null>(null);
 const loading = ref(true);
 const enabled = ref(true);
@@ -146,8 +146,8 @@ onMounted(async () => {
   });
 
   // Initialize API client with validated config
-  apiPort.value = data.rpc.apiPort;
-  apiClient = new DesktopApiClient({ port: data.rpc.apiPort, secret: data.rpc.apiSecret });
+  apiPort.value = data.connection.port;
+  apiClient = new DesktopApiClient({ port: data.connection.port, secret: data.connection.secret });
 
   // Smart polling with exponential backoff + visibility awareness
   const poller = usePolling({
@@ -198,7 +198,7 @@ onUnmounted(() => {
             <div>
               <Transition name="text-swap" mode="out-in">
                 <!-- Auth Error -->
-                <div v-if="errorType === 'RpcAuthError'" key="auth">
+                <div v-if="errorType === 'ApiAuthError'" key="auth">
                   <p class="popup-banner__title">
                     {{ i18n('popup_error_auth', 'API secret mismatch') }}
                   </p>
@@ -212,7 +212,7 @@ onUnmounted(() => {
                   </p>
                 </div>
                 <!-- Timeout Error -->
-                <div v-else-if="errorType === 'RpcTimeoutError'" key="timeout">
+                <div v-else-if="errorType === 'ApiTimeoutError'" key="timeout">
                   <p class="popup-banner__title">
                     {{ i18n('popup_error_timeout', 'Connection timed out') }}
                   </p>

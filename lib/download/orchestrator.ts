@@ -2,7 +2,7 @@ import type { DownloadSettings, SiteRule, FilterContext } from '@/shared/types';
 import type { DiagnosticInput } from '@/lib/storage/diagnostic-log';
 import { evaluateFilterPipeline, createFilterPipeline } from './filter';
 import { extractFilenameFromUrl } from '@/shared/url';
-import type { DesktopApiClient } from '@/lib/rpc/desktop-client';
+import type { DesktopApiClient } from '@/lib/api/desktop-client';
 
 // ─── Dependency Interface ───────────────────────────────
 

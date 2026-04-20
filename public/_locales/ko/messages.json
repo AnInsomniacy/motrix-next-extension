@@ -308,18 +308,6 @@
     "message": "사쿠라 핑크",
     "description": "Sakura Pink color scheme"
   },
-  "error_rpc_unreachable": {
-    "message": "Motrix Next에 연결할 수 없습니다",
-    "description": "Error when the API endpoint is unreachable"
-  },
-  "error_rpc_auth": {
-    "message": "API 비밀키가 올바르지 않습니다",
-    "description": "Error when the API secret does not match"
-  },
-  "error_rpc_timeout": {
-    "message": "연결 시간 초과",
-    "description": "Error when the API connection times out"
-  },
   "error_unknown": {
     "message": "알 수 없는 오류가 발생했습니다",
     "description": "Fallback error message"
@@ -423,5 +411,17 @@
   "options_api_secret_placeholder": {
     "message": "데스크톱 앱에서 붙여넣기",
     "description": "Placeholder text for API secret input"
+  },
+  "error_api_unreachable": {
+    "message": "Motrix Next에 연결할 수 없습니다",
+    "description": "Error when the API endpoint is unreachable"
+  },
+  "error_api_auth": {
+    "message": "API 비밀키가 올바르지 않습니다",
+    "description": "Error when the API secret does not match"
+  },
+  "error_api_timeout": {
+    "message": "연결 시간 초과",
+    "description": "Error when the API connection times out"
   }
 }

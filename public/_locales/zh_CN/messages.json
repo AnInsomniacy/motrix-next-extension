@@ -308,18 +308,6 @@
     "message": "樱花粉",
     "description": "樱花粉配色方案"
   },
-  "error_rpc_unreachable": {
-    "message": "无法连接到 Motrix Next",
-    "description": "Error when the API endpoint is unreachable"
-  },
-  "error_rpc_auth": {
-    "message": "API 密钥不正确",
-    "description": "Error when the API secret does not match"
-  },
-  "error_rpc_timeout": {
-    "message": "连接超时",
-    "description": "Error when the API connection times out"
-  },
   "error_unknown": {
     "message": "发生未知错误",
     "description": "兜底错误信息"
@@ -423,5 +411,17 @@
   "options_api_secret_placeholder": {
     "message": "从桌面应用粘贴",
     "description": "Placeholder text for API secret input"
+  },
+  "error_api_unreachable": {
+    "message": "无法连接到 Motrix Next",
+    "description": "Error when the API endpoint is unreachable"
+  },
+  "error_api_auth": {
+    "message": "API 密钥不正确",
+    "description": "Error when the API secret does not match"
+  },
+  "error_api_timeout": {
+    "message": "连接超时",
+    "description": "Error when the API connection times out"
   }
 }

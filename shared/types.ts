@@ -43,14 +43,11 @@ export interface Aria2InputOptions {
 
 // ─── Connection Config Types ────────────────────────────
 
-export interface RpcConfig {
-  host: string;
+export interface ConnectionConfig {
+  /** Port for the desktop app's HTTP API. */
   port: number;
-  secret: string;
-  /** Port for the desktop app's HTTP API (extension → desktop communication). */
-  apiPort: number;
   /** Shared secret for the HTTP API Bearer token auth. */
-  apiSecret: string;
+  secret: string;
 }
 
 // ─── Download Filter Types ──────────────────────────────
@@ -99,9 +96,9 @@ export interface UiPrefs {
 // ─── Diagnostic Log Types ───────────────────────────────
 
 export type DiagnosticCode =
-  | 'rpc_connected'
-  | 'rpc_unreachable'
-  | 'rpc_auth_failed'
+  | 'api_connected'
+  | 'api_unreachable'
+  | 'api_auth_failed'
   | 'download_intercepted'
   | 'download_sent'
   | 'download_skipped'

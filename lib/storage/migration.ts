@@ -15,7 +15,7 @@
 // ─── Version ────────────────────────────────────────────
 
 /** Current storage schema version. Bump this and add a migration entry. */
-export const STORAGE_VERSION = 2;
+export const STORAGE_VERSION = 1;
 
 // ─── Migration Definitions ─────────────────────────────
 
@@ -37,23 +37,6 @@ const MIGRATIONS: readonly Migration[] = [
     // stamps the version without altering any data structure.
     version: 1,
     up: (data) => ({ ...data, _version: 1 }),
-  },
-  {
-    // v1 → v2: Add apiSecret field to RpcConfig.
-    // Existing users' rpc.secret (aria2 RPC secret) is copied to
-    // rpc.apiSecret for backward compatibility with the desktop app.
-    version: 2,
-    up: (data) => {
-      const raw = data.rpc;
-      if (raw == null || typeof raw !== 'object') {
-        return { ...data, _version: 2 };
-      }
-      const rpc = raw as Record<string, unknown>;
-      if (rpc.apiSecret === undefined) {
-        rpc.apiSecret = typeof rpc.secret === 'string' ? rpc.secret : '';
-      }
-      return { ...data, rpc, _version: 2 };
-    },
   },
 ];
 

@@ -9,7 +9,11 @@
  */
 
 // ─── Constants ──────────────────────────────────────────
-export { DEFAULT_RPC_CONFIG, DEFAULT_DOWNLOAD_SETTINGS, DEFAULT_UI_PREFS } from './constants';
+export {
+  DEFAULT_CONNECTION_CONFIG,
+  DEFAULT_DOWNLOAD_SETTINGS,
+  DEFAULT_UI_PREFS,
+} from './constants';
 
 // ─── Utilities ──────────────────────────────────────────
 export { extractFilenameFromUrl } from './url';
@@ -17,10 +21,10 @@ export { decodeThunderLink } from './thunder';
 
 // ─── Error Types ────────────────────────────────────────
 export {
-  RpcError,
-  RpcTimeoutError,
-  RpcAuthError,
-  RpcUnreachableError,
+  ApiError,
+  ApiTimeoutError,
+  ApiAuthError,
+  ApiUnreachableError,
   DownloadError,
   PermissionError,
 } from './errors';

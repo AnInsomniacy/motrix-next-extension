@@ -37,9 +37,9 @@ const isConnected = computed(() => props.status === ConnectionStatus.Connected);
 
 /** Map error class names from ConnectionService to i18n keys. */
 const ERROR_I18N: Record<string, [key: string, fallback: string]> = {
-  RpcUnreachableError: ['error_rpc_unreachable', 'Cannot connect to Motrix Next'],
-  RpcAuthError: ['error_rpc_auth', 'API secret is incorrect'],
-  RpcTimeoutError: ['error_rpc_timeout', 'Connection timed out'],
+  ApiUnreachableError: ['error_api_unreachable', 'Cannot connect to Motrix Next'],
+  ApiAuthError: ['error_api_auth', 'API secret is incorrect'],
+  ApiTimeoutError: ['error_api_timeout', 'Connection timed out'],
   UnknownError: ['error_unknown', 'An unknown error occurred'],
 };
 

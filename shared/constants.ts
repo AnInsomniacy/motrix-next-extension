@@ -1,11 +1,8 @@
-import type { DownloadSettings, RpcConfig, UiPrefs } from './types';
+import type { DownloadSettings, ConnectionConfig, UiPrefs } from './types';
 
-export const DEFAULT_RPC_CONFIG: Readonly<RpcConfig> = {
-  host: '127.0.0.1',
-  port: 16800,
+export const DEFAULT_CONNECTION_CONFIG: Readonly<ConnectionConfig> = {
+  port: 16801,
   secret: '',
-  apiPort: 16801,
-  apiSecret: '',
 } as const;
 
 export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = {
@@ -28,10 +25,10 @@ export const DEFAULT_UI_PREFS: Readonly<UiPrefs> = {
 export const MAX_DIAGNOSTIC_EVENTS = 30;
 
 /** HTTP timeout for API calls in milliseconds. */
-export const RPC_TIMEOUT_MS = 5000;
+export const API_TIMEOUT_MS = 5000;
 
 /** Number of retry attempts for failed API calls. */
-export const RPC_MAX_RETRIES = 1;
+export const API_MAX_RETRIES = 1;
 
 /** Interval for connection heartbeat checks in milliseconds. */
 export const HEARTBEAT_INTERVAL_MS = 10_000;

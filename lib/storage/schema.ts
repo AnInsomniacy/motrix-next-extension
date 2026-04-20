@@ -19,20 +19,17 @@
 import { z } from 'zod';
 
 import {
-  DEFAULT_RPC_CONFIG,
+  DEFAULT_CONNECTION_CONFIG,
   DEFAULT_DOWNLOAD_SETTINGS,
   DEFAULT_UI_PREFS,
 } from '@/shared/constants';
 
 // ─── Leaf Schemas ───────────────────────────────────────
 
-const RpcConfigSchema = z
+const ConnectionConfigSchema = z
   .object({
-    host: z.string().default(DEFAULT_RPC_CONFIG.host),
-    port: z.number().int().min(1).max(65535).default(DEFAULT_RPC_CONFIG.port),
-    secret: z.string().default(DEFAULT_RPC_CONFIG.secret),
-    apiPort: z.number().int().min(1024).max(65535).default(DEFAULT_RPC_CONFIG.apiPort),
-    apiSecret: z.string().default(DEFAULT_RPC_CONFIG.apiSecret),
+    port: z.number().int().min(1024).max(65535).default(DEFAULT_CONNECTION_CONFIG.port),
+    secret: z.string().default(DEFAULT_CONNECTION_CONFIG.secret),
   })
   .strict();
 
@@ -67,9 +64,9 @@ const UiPrefsSchema = z
 const DiagnosticLevelSchema = z.enum(['info', 'warn', 'error']);
 
 const DiagnosticCodeSchema = z.enum([
-  'rpc_connected',
-  'rpc_unreachable',
-  'rpc_auth_failed',
+  'api_connected',
+  'api_unreachable',
+  'api_auth_failed',
   'download_intercepted',
   'download_sent',
   'download_skipped',
@@ -96,7 +93,7 @@ const DiagnosticEventSchema = z.object({
 // ─── Composite Storage Schema ───────────────────────────
 
 export interface ParsedStorage {
-  rpc: z.infer<typeof RpcConfigSchema>;
+  connection: z.infer<typeof ConnectionConfigSchema>;
   settings: z.infer<typeof DownloadSettingsSchema>;
   siteRules: z.infer<typeof SiteRuleSchema>[];
   uiPrefs: z.infer<typeof UiPrefsSchema>;
@@ -110,17 +107,17 @@ export interface ParsedStorage {
 // Invalid input → defaults. Never throws.
 
 /**
- * Parse and validate an RpcConfig object.
+ * Parse and validate a ConnectionConfig object.
  * Missing or invalid fields are replaced with defaults.
  */
-export function parseRpcConfig(input: unknown): ParsedStorage['rpc'] {
+export function parseConnectionConfig(input: unknown): ParsedStorage['connection'] {
   if (input == null || typeof input !== 'object') {
-    return RpcConfigSchema.parse({});
+    return ConnectionConfigSchema.parse({});
   }
-  const result = RpcConfigSchema.safeParse(input);
+  const result = ConnectionConfigSchema.safeParse(input);
   if (result.success) return result.data;
   // Field-level fallback: parse with all defaults, then overlay valid fields
-  return RpcConfigSchema.parse({});
+  return ConnectionConfigSchema.parse({});
 }
 
 /**
@@ -181,7 +178,7 @@ export function parseDiagnosticEvents(input: unknown): ParsedStorage['diagnostic
 export function parseStorage(input: unknown): ParsedStorage {
   const raw = (input != null && typeof input === 'object' ? input : {}) as Record<string, unknown>;
   return {
-    rpc: parseRpcConfig(raw.rpc),
+    connection: parseConnectionConfig(raw.connection),
     settings: parseDownloadSettings(raw.settings),
     siteRules: parseSiteRules(raw.siteRules),
     uiPrefs: parseUiPrefs(raw.uiPrefs),

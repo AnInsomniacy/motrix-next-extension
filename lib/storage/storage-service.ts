@@ -14,7 +14,7 @@
 import { parseStorage, type ParsedStorage } from './schema';
 import { migrateStorage, type MigrationStorageApi } from './migration';
 import type {
-  RpcConfig,
+  ConnectionConfig,
   DownloadSettings,
   SiteRule,
   UiPrefs,
@@ -47,8 +47,8 @@ export class StorageService {
   }
 
   /** Persist API connection configuration. */
-  async saveRpcConfig(config: RpcConfig): Promise<void> {
-    await this.api.set({ rpc: config });
+  async saveConnectionConfig(config: ConnectionConfig): Promise<void> {
+    await this.api.set({ connection: config });
   }
 
   /** Persist download behavior settings. */

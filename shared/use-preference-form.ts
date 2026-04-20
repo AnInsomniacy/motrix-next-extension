@@ -114,7 +114,7 @@ export interface UsePreferenceFormReturn<T> {
  * ```ts
  * const { form, isDirty, handleSave, handleReset } = usePreferenceForm({
  *   buildForm: () => ({ port: 16800, secret: '' }),
- *   persist: async (f) => chrome.storage.local.set({ rpc: f }),
+ *   persist: async (f) => chrome.storage.local.set({ connection: f }),
  * });
  * ```
  */

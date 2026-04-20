@@ -8,7 +8,7 @@ import type { DiagnosticEvent } from '@/shared/types';
 function mockStorageService(): StorageService {
   return {
     load: vi.fn(),
-    saveRpcConfig: vi.fn().mockResolvedValue(undefined),
+    saveConnectionConfig: vi.fn().mockResolvedValue(undefined),
     saveSettings: vi.fn().mockResolvedValue(undefined),
     saveSiteRules: vi.fn().mockResolvedValue(undefined),
     saveUiPrefs: vi.fn().mockResolvedValue(undefined),
@@ -61,7 +61,7 @@ describe('useDiagnostics', () => {
   it('exportDiagnosticReport() triggers a file download with complete diagnostic data', async () => {
     const storage = mockStorageService();
     (storage.load as ReturnType<typeof vi.fn>).mockResolvedValue({
-      rpc: { host: '127.0.0.1', port: 16800, secret: 'my-secret', apiPort: 16801 },
+      connection: { port: 16801, secret: 'my-secret' },
       settings: {
         enabled: true,
         minFileSize: 0,
@@ -124,12 +124,12 @@ describe('useDiagnostics', () => {
     expect(report.exportedAt).toBeDefined();
     expect(report.extension.version).toBe('1.0.1');
     expect(report.browser.userAgent).toBe('TestAgent');
-    expect(report.config.rpc.host).toBe('127.0.0.1');
+    expect(report.config.connection.port).toBe(16801);
     expect(report.config.siteRules).toHaveLength(1);
     expect(report.diagnosticLog).toHaveLength(1);
 
     // Verify secret is NOT exported
-    expect(report.config.rpc.secret).toBeUndefined();
+    expect(report.config.connection.secret).toBeUndefined();
 
     // Verify download triggered
     expect(clickFn).toHaveBeenCalledTimes(1);

@@ -16,9 +16,9 @@
 import { ref, provide, onMounted, onUnmounted, computed, watch } from 'vue';
 import { NConfigProvider, createDiscreteApi } from 'naive-ui';
 import { StorageService } from '@/lib/storage';
-import type { RpcConfig } from '@/shared/types';
+import type { ConnectionConfig } from '@/shared/types';
 import {
-  DEFAULT_RPC_CONFIG,
+  DEFAULT_CONNECTION_CONFIG,
   DEFAULT_DOWNLOAD_SETTINGS,
   DEFAULT_UI_PREFS,
 } from '@/shared/constants';
@@ -85,8 +85,6 @@ const appearance = useAppearance(storageService, setTheme, (id) => {
 interface SettingsForm {
   port: number;
   secret: string;
-  apiPort: number;
-  apiSecret: string;
   enabled: boolean;
   minFileSize: number;
   fallbackToBrowser: boolean;
@@ -98,10 +96,8 @@ interface SettingsForm {
 
 function buildForm(): SettingsForm {
   return {
-    port: DEFAULT_RPC_CONFIG.port,
-    secret: DEFAULT_RPC_CONFIG.secret,
-    apiPort: DEFAULT_RPC_CONFIG.apiPort,
-    apiSecret: DEFAULT_RPC_CONFIG.apiSecret,
+    port: DEFAULT_CONNECTION_CONFIG.port,
+    secret: DEFAULT_CONNECTION_CONFIG.secret,
     enabled: DEFAULT_DOWNLOAD_SETTINGS.enabled,
     minFileSize: DEFAULT_DOWNLOAD_SETTINGS.minFileSize,
     fallbackToBrowser: DEFAULT_DOWNLOAD_SETTINGS.fallbackToBrowser,
@@ -123,12 +119,9 @@ const {
 } = usePreferenceForm<SettingsForm>({
   buildForm,
   persist: async (f) => {
-    await storageService.saveRpcConfig({
-      host: DEFAULT_RPC_CONFIG.host,
+    await storageService.saveConnectionConfig({
       port: f.port,
       secret: f.secret,
-      apiPort: f.apiPort,
-      apiSecret: f.apiSecret,
     });
     await storageService.saveSettings({
       enabled: f.enabled,
@@ -160,16 +153,13 @@ function handleReset(): void {
 
 // ─── Connection Test ────────────────────────────────────────────────
 
-const rpcForTest = computed<RpcConfig>(() => ({
-  host: DEFAULT_RPC_CONFIG.host,
+const connectionForTest = computed<ConnectionConfig>(() => ({
   port: form.value.port,
   secret: form.value.secret,
-  apiPort: form.value.apiPort,
-  apiSecret: form.value.apiSecret,
 }));
 
 const { connectionStatus, connectionVersion, connectionError, testingConnection, testConnection } =
-  useConnectionTest(rpcForTest);
+  useConnectionTest(connectionForTest);
 
 // ─── Extension Version ─────────────────────────────────────────────
 
@@ -181,10 +171,8 @@ async function loadFromStorage(): Promise<void> {
   const data = await storageService.load();
 
   // Hydrate dirty-tracked form (schema-validated, no casts)
-  form.value.port = data.rpc.port;
-  form.value.secret = data.rpc.secret;
-  form.value.apiPort = data.rpc.apiPort;
-  form.value.apiSecret = data.rpc.apiSecret;
+  form.value.port = data.connection.port;
+  form.value.secret = data.connection.secret;
   form.value.enabled = data.settings.enabled;
   form.value.minFileSize = data.settings.minFileSize;
   form.value.fallbackToBrowser = data.settings.fallbackToBrowser;
@@ -290,14 +278,14 @@ onUnmounted(() => {
               <h2 class="section-title">{{ i18n('options_section_connection', 'Connection') }}</h2>
               <div class="card">
                 <ConnectionSection
-                  :api-port="form.apiPort"
-                  :api-secret="form.apiSecret"
+                  :api-port="form.port"
+                  :api-secret="form.secret"
                   :status="connectionStatus"
                   :version="connectionVersion"
                   :error="connectionError"
                   :testing="testingConnection"
-                  @update:api-port="form.apiPort = $event"
-                  @update:api-secret="form.apiSecret = $event"
+                  @update:api-port="form.port = $event"
+                  @update:api-secret="form.secret = $event"
                   @test="testConnection"
                 />
                 <SettingsActionBar :is-dirty="isDirty" @save="handleSave" @discard="handleReset" />

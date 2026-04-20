@@ -308,18 +308,6 @@
     "message": "Rose sakura",
     "description": "Sakura Pink color scheme"
   },
-  "error_rpc_unreachable": {
-    "message": "Cannot connect to Motrix Next",
-    "description": "Error when the API endpoint is unreachable"
-  },
-  "error_rpc_auth": {
-    "message": "API secret is incorrect",
-    "description": "Error when the API secret does not match"
-  },
-  "error_rpc_timeout": {
-    "message": "Délai de connexion dépassé",
-    "description": "Error when the API connection times out"
-  },
   "error_unknown": {
     "message": "Une erreur inconnue s'est produite",
     "description": "Fallback error message"
@@ -423,5 +411,17 @@
   "options_api_secret_placeholder": {
     "message": "Paste from desktop app",
     "description": "Placeholder text for API secret input"
+  },
+  "error_api_unreachable": {
+    "message": "Cannot connect to Motrix Next",
+    "description": "Error when the API endpoint is unreachable"
+  },
+  "error_api_auth": {
+    "message": "API secret is incorrect",
+    "description": "Error when the API secret does not match"
+  },
+  "error_api_timeout": {
+    "message": "Délai de connexion dépassé",
+    "description": "Error when the API connection times out"
   }
 }

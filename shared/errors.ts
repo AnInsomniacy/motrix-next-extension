@@ -11,38 +11,38 @@ export class ExtensionError extends Error {
 }
 
 /** API communication errors. */
-export class RpcError extends ExtensionError {
+export class ApiError extends ExtensionError {
   constructor(
     message: string,
-    public readonly rpcCode?: number,
+    public readonly apiCode?: number,
     cause?: unknown,
   ) {
-    super(message, 'RPC_ERROR', cause);
-    this.name = 'RpcError';
+    super(message, 'API_ERROR', cause);
+    this.name = 'ApiError';
   }
 }
 
 /** API endpoint is unreachable (network error, timeout). */
-export class RpcUnreachableError extends RpcError {
+export class ApiUnreachableError extends ApiError {
   constructor(cause?: unknown) {
     super('Cannot connect to Motrix Next API', -1, cause);
-    this.name = 'RpcUnreachableError';
+    this.name = 'ApiUnreachableError';
   }
 }
 
 /** API secret is incorrect. */
-export class RpcAuthError extends RpcError {
+export class ApiAuthError extends ApiError {
   constructor() {
     super('API secret is incorrect', 7);
-    this.name = 'RpcAuthError';
+    this.name = 'ApiAuthError';
   }
 }
 
 /** API call timed out. */
-export class RpcTimeoutError extends RpcError {
+export class ApiTimeoutError extends ApiError {
   constructor(timeoutMs: number) {
     super(`API call timed out after ${timeoutMs}ms`, -2);
-    this.name = 'RpcTimeoutError';
+    this.name = 'ApiTimeoutError';
   }
 }
 

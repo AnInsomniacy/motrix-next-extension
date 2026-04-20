@@ -1,5 +1,5 @@
 import { DownloadOrchestrator } from '@/lib/download';
-import { DesktopApiClient } from '@/lib/rpc';
+import { DesktopApiClient } from '@/lib/api';
 import {
   DownloadBarService,
   ContextMenuService,
@@ -50,8 +50,8 @@ export default defineBackground(() => {
 
       // Sync desktop HTTP API client config from stored API settings
       desktopClient.updateConfig({
-        port: data.rpc.apiPort,
-        secret: data.rpc.apiSecret,
+        port: data.connection.port,
+        secret: data.connection.secret,
       });
 
       // Hydrate i18n locale
@@ -283,11 +283,11 @@ export default defineBackground(() => {
   // Storage change listener — update config with schema validation
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
-    if (changes.rpc?.newValue) {
-      const rpc = changes.rpc.newValue as { apiPort?: number; apiSecret?: string };
+    if (changes.connection?.newValue) {
+      const conn = changes.connection.newValue as { port?: number; secret?: string };
       desktopClient.updateConfig({
-        port: rpc.apiPort ?? 16801,
-        secret: rpc.apiSecret ?? '',
+        port: conn.port ?? 16801,
+        secret: conn.secret ?? '',
       });
     }
     if (changes.settings?.newValue) {

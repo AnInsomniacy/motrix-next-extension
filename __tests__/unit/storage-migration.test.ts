@@ -21,7 +21,7 @@ describe('STORAGE_VERSION', () => {
 
 describe('migrateStorage', () => {
   it('stamps _version on data with no version field', async () => {
-    const api = createMockStorage({ rpc: { port: 6800 } });
+    const api = createMockStorage({ connection: { port: 16801 } });
 
     await migrateStorage(api);
 
@@ -38,7 +38,7 @@ describe('migrateStorage', () => {
 
   it('preserves existing data fields during migration', async () => {
     const api = createMockStorage({
-      rpc: { host: '127.0.0.1', port: 6800, secret: 'test' },
+      connection: { port: 9000, secret: 'test' },
       settings: { enabled: false },
     });
 
@@ -48,7 +48,7 @@ describe('migrateStorage', () => {
       string,
       unknown
     >;
-    expect(setCall.rpc).toEqual({ host: '127.0.0.1', port: 6800, secret: 'test', apiSecret: 'test' });
+    expect(setCall.connection).toEqual({ port: 9000, secret: 'test' });
     expect(setCall.settings).toEqual({ enabled: false });
   });
 

@@ -34,7 +34,7 @@ describe('ConnectionService', () => {
 
       expect(result.status).toBe(ConnectionStatus.Disconnected);
       expect(result.version).toBeNull();
-      expect(result.error).toBe('RpcUnreachableError');
+      expect(result.error).toBe('ApiUnreachableError');
     });
 
     it('returns auth error when ping succeeds but getStat returns 401', async () => {
@@ -47,7 +47,7 @@ describe('ConnectionService', () => {
 
       expect(result.status).toBe(ConnectionStatus.Disconnected);
       expect(result.version).toBe('3.7.3'); // version from ping
-      expect(result.error).toBe('RpcAuthError');
+      expect(result.error).toBe('ApiAuthError');
     });
 
     it('returns timeout error on AbortError', async () => {
@@ -59,7 +59,7 @@ describe('ConnectionService', () => {
       const result = await service.checkConnection();
 
       expect(result.status).toBe(ConnectionStatus.Disconnected);
-      expect(result.error).toBe('RpcTimeoutError');
+      expect(result.error).toBe('ApiTimeoutError');
     });
 
     it('handles non-Error thrown values', async () => {
@@ -82,7 +82,7 @@ describe('ConnectionService', () => {
 
       expect(result.status).toBe(ConnectionStatus.Disconnected);
       expect(result.version).toBeNull();
-      expect(result.error).toBe('RpcUnreachableError');
+      expect(result.error).toBe('ApiUnreachableError');
     });
   });
 });

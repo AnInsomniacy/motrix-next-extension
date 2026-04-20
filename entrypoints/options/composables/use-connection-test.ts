@@ -5,11 +5,13 @@
  * and the testConnection flow with minimum visual delay.
  */
 import { ref, type Ref, type ComputedRef } from 'vue';
-import { DesktopApiClient } from '@/lib/rpc';
+import { DesktopApiClient } from '@/lib/api';
 import { ConnectionService, ConnectionStatus } from '@/lib/services';
-import type { RpcConfig } from '@/shared/types';
+import type { ConnectionConfig } from '@/shared/types';
 
-export function useConnectionTest(rpcConfig: Ref<RpcConfig> | ComputedRef<RpcConfig>) {
+export function useConnectionTest(
+  connectionConfig: Ref<ConnectionConfig> | ComputedRef<ConnectionConfig>,
+) {
   const connectionStatus = ref<ConnectionStatus>(ConnectionStatus.Disconnected);
   const connectionVersion = ref<string | null>(null);
   const connectionError = ref<string | null>(null);
@@ -20,8 +22,8 @@ export function useConnectionTest(rpcConfig: Ref<RpcConfig> | ComputedRef<RpcCon
     connectionError.value = null;
 
     const apiClient = new DesktopApiClient({
-      port: rpcConfig.value.apiPort,
-      secret: rpcConfig.value.apiSecret,
+      port: connectionConfig.value.port,
+      secret: connectionConfig.value.secret,
     });
     const svc = new ConnectionService(apiClient);
 

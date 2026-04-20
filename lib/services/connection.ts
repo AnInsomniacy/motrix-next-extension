@@ -1,4 +1,4 @@
-import type { PingResponse, StatResponse } from '@/lib/rpc/desktop-client';
+import type { PingResponse, StatResponse } from '@/lib/api/desktop-client';
 
 export enum ConnectionStatus {
   Connected = 'connected',
@@ -26,16 +26,16 @@ interface ApiClient {
 
 // ── Typed Error Classes ──────────────────────────────────
 
-class RpcUnreachableError extends Error {
-  override name = 'RpcUnreachableError';
+class ApiUnreachableError extends Error {
+  override name = 'ApiUnreachableError';
 }
 
-class RpcAuthError extends Error {
-  override name = 'RpcAuthError';
+class ApiAuthError extends Error {
+  override name = 'ApiAuthError';
 }
 
-class RpcTimeoutError extends Error {
-  override name = 'RpcTimeoutError';
+class ApiTimeoutError extends Error {
+  override name = 'ApiTimeoutError';
 }
 
 /**
@@ -71,7 +71,7 @@ export class ConnectionService {
           return {
             status: ConnectionStatus.Disconnected,
             version: ping.version,
-            error: 'RpcAuthError',
+            error: 'ApiAuthError',
           };
         }
         // Non-401 errors during getStat are still auth-related failures
@@ -97,26 +97,26 @@ export class ConnectionService {
     if (error instanceof Error) {
       // Already classified
       if (
-        error instanceof RpcUnreachableError ||
-        error instanceof RpcAuthError ||
-        error instanceof RpcTimeoutError
+        error instanceof ApiUnreachableError ||
+        error instanceof ApiAuthError ||
+        error instanceof ApiTimeoutError
       ) {
         return error.name;
       }
 
       // Network errors (ERR_CONNECTION_REFUSED, etc.)
       if (error.name === 'TypeError' || error.message.includes('Failed to fetch')) {
-        return 'RpcUnreachableError';
+        return 'ApiUnreachableError';
       }
 
       // Timeout
       if (error.name === 'AbortError' || error.message.includes('timeout')) {
-        return 'RpcTimeoutError';
+        return 'ApiTimeoutError';
       }
 
       // Auth (HTTP 401)
       if (error.message.includes('401')) {
-        return 'RpcAuthError';
+        return 'ApiAuthError';
       }
     }
 
