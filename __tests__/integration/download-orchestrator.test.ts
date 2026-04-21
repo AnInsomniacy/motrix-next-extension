@@ -412,4 +412,78 @@ describe('DownloadOrchestrator', () => {
       expect(deps).not.toHaveProperty('aria2');
     });
   });
+
+  // ─── Diagnostic logging coverage ──────────────────────
+
+  describe('diagnostic log — cookie_collect_failed', () => {
+    it('logs cookie_collect_failed when cookies.getAll throws', async () => {
+      const errorDeps = createMockDeps({
+        cookies: {
+          getAll: vi.fn().mockRejectedValue(new Error('Permission denied')),
+        },
+      });
+      const orch = new DownloadOrchestrator(errorDeps);
+
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(errorDeps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'cookie_collect_failed',
+          level: 'warn',
+        }),
+      );
+    });
+  });
+
+  describe('diagnostic log — download_cancel_failed', () => {
+    it('logs download_cancel_failed when cancel throws', async () => {
+      const errorDeps = createMockDeps({
+        downloads: {
+          cancel: vi.fn().mockRejectedValue(new Error('Download already gone')),
+          erase: vi.fn().mockResolvedValue(undefined),
+        },
+      });
+      const orch = new DownloadOrchestrator(errorDeps);
+
+      await orch.handleCreated(createMockDownloadItem());
+
+      expect(errorDeps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'download_cancel_failed',
+          level: 'warn',
+        }),
+      );
+    });
+  });
+
+  describe('diagnostic log — stage name in context', () => {
+    it('includes stage name in download_skipped context', async () => {
+      (deps.getSettings as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...DEFAULT_DOWNLOAD_SETTINGS,
+        enabled: false,
+      });
+
+      await orchestrator.handleCreated(createMockDownloadItem());
+
+      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'download_skipped',
+          context: expect.objectContaining({ stage: 'enabled' }),
+        }),
+      );
+    });
+
+    it('includes stage name in download_skipped context for scheme filter', async () => {
+      const item = createMockDownloadItem({ url: 'blob:https://example.com/abc' });
+
+      await orchestrator.handleCreated(item);
+
+      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'download_skipped',
+          context: expect.objectContaining({ stage: 'scheme' }),
+        }),
+      );
+    });
+  });
 });

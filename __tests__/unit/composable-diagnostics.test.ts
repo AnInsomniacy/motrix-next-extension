@@ -21,7 +21,7 @@ function createEvent(overrides: Partial<DiagnosticEvent> = {}): DiagnosticEvent 
     id: 'evt-1',
     ts: Date.now(),
     level: 'info',
-    code: 'download_sent',
+    code: 'download_routed',
     message: 'Sent: file.zip',
     ...overrides,
   };

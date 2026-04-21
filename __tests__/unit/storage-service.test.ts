@@ -151,7 +151,7 @@ describe('StorageService.saveDiagnosticLog', () => {
     const service = new StorageService(api);
 
     const events = [
-      { id: 'e1', ts: 1, level: 'info' as const, code: 'download_sent' as const, message: 'ok' },
+      { id: 'e1', ts: 1, level: 'info' as const, code: 'download_routed' as const, message: 'ok' },
     ];
 
     await service.saveDiagnosticLog(events);

@@ -103,14 +103,14 @@ export class DownloadOrchestrator {
       byExtensionId: item.byExtensionId,
     };
 
-    const verdict = evaluateFilterPipeline(ctx, settings, this.filterStages);
+    const { verdict, stageName } = evaluateFilterPipeline(ctx, settings, this.filterStages);
 
     if (verdict === 'skip') {
       this.deps.diagnosticLog.append({
         level: 'info',
         code: 'download_skipped',
-        message: `Skipped: ${item.url}`,
-        context: { url: item.url },
+        message: `Skipped by ${stageName ?? 'unknown'}: ${item.url}`,
+        context: { url: item.url, stage: stageName ?? 'unknown' },
       });
       return false;
     }
@@ -119,7 +119,12 @@ export class DownloadOrchestrator {
       level: 'info',
       code: 'download_intercepted',
       message: `Intercepted: ${item.url}`,
-      context: { url: item.url, fileSize: item.fileSize, mime: item.mime },
+      context: {
+        url: item.url,
+        fileSize: item.fileSize,
+        mime: item.mime,
+        ...(stageName ? { stage: stageName } : {}),
+      },
     });
 
     // ─── Route to desktop app ───────────────────
@@ -204,6 +209,13 @@ export class DownloadOrchestrator {
 
         // Wake → retry: try to start the desktop app and retry via HTTP
         if (this.deps.wakeDesktop && this.deps.desktopClient) {
+          this.deps.diagnosticLog.append({
+            level: 'info',
+            code: 'download_wake_attempt',
+            message: `Waking desktop app for: ${displayName}`,
+            context: { url },
+          });
+
           try {
             const woke = await this.deps.wakeDesktop();
             if (woke) {
@@ -222,6 +234,14 @@ export class DownloadOrchestrator {
               });
               return true;
             }
+
+            // Wake returned false — timed out
+            this.deps.diagnosticLog.append({
+              level: 'warn',
+              code: 'wake_timeout',
+              message: `Wake timed out for: ${displayName}`,
+              context: { url },
+            });
           } catch {
             // Wake+retry failed — fall through to deep-link
           }
@@ -252,13 +272,18 @@ export class DownloadOrchestrator {
   private async safeCancel(id: number): Promise<void> {
     try {
       await this.deps.downloads.cancel(id);
-    } catch {
-      /* download may already be gone */
+    } catch (e) {
+      this.deps.diagnosticLog.append({
+        level: 'warn',
+        code: 'download_cancel_failed',
+        message: `Cancel failed for download ${id}: ${e instanceof Error ? e.message : String(e)}`,
+        context: { downloadId: id },
+      });
     }
     try {
       await this.deps.downloads.erase({ id });
     } catch {
-      /* already removed from history */
+      /* already removed from history — benign */
     }
   }
 
@@ -273,7 +298,13 @@ export class DownloadOrchestrator {
       const cookies = await this.deps.cookies.getAll({ url });
       if (!cookies.length) return '';
       return cookies.map((c) => `${c.name}=${c.value}`).join('; ');
-    } catch {
+    } catch (e) {
+      this.deps.diagnosticLog.append({
+        level: 'warn',
+        code: 'cookie_collect_failed',
+        message: `Cookie collection failed: ${e instanceof Error ? e.message : String(e)}`,
+        context: { url },
+      });
       return ''; // Graceful degradation — never block the download
     }
   }

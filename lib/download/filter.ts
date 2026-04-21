@@ -176,17 +176,29 @@ export function createFilterPipeline(getRules: () => SiteRule[]): FilterStage[] 
 }
 
 /**
+ * Result of evaluating a filter pipeline.
+ *
+ * `stageName` identifies which stage produced the terminal verdict.
+ * When all stages pass (default intercept), `stageName` is `null`.
+ */
+export interface FilterPipelineResult {
+  verdict: FilterVerdict;
+  stageName: string | null;
+}
+
+/**
  * Evaluate a filter pipeline against a download context.
- * Returns 'intercept' or 'skip'. Default (all stages pass) = 'intercept'.
+ * Returns 'intercept' or 'skip' along with the deciding stage name.
+ * Default (all stages pass) = intercept with `stageName: null`.
  */
 export function evaluateFilterPipeline(
   ctx: FilterContext,
   config: DownloadSettings,
   stages: FilterStage[],
-): FilterVerdict {
+): FilterPipelineResult {
   for (const stage of stages) {
     const verdict = stage.evaluate(ctx, config);
-    if (verdict !== null) return verdict;
+    if (verdict !== null) return { verdict, stageName: stage.name };
   }
-  return 'intercept';
+  return { verdict: 'intercept', stageName: null };
 }

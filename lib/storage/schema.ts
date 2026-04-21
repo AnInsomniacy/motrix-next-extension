@@ -64,21 +64,45 @@ const UiPrefsSchema = z
 const DiagnosticLevelSchema = z.enum(['info', 'warn', 'error']);
 
 const DiagnosticCodeSchema = z.enum([
+  // API connectivity
   'api_connected',
   'api_unreachable',
   'api_auth_failed',
+  // Download interception lifecycle
   'download_intercepted',
-  'download_sent',
   'download_skipped',
   'download_fallback',
   'download_failed',
-  'download_wake_attempt',
   'download_routed',
   'download_browser_redirect',
+  'download_cancel_failed',
+  'download_handler_error',
+  // Wake lifecycle
+  'download_wake_attempt',
+  'wake_initiated',
+  'wake_success',
+  'wake_timeout',
+  // Cookie & permission
   'cookie_permission_missing',
   'cookie_collect_failed',
   'permission_granted',
   'permission_revoked',
+  // Extension lifecycle
+  'extension_started',
+  'extension_installed',
+  'extension_updated',
+  // Configuration
+  'config_loaded',
+  'config_load_failed',
+  'config_changed',
+  // User-initiated actions
+  'context_menu_triggered',
+  'magnet_intercepted',
+  // Infrastructure
+  'storage_persist_failed',
+  'storage_migrated',
+  'download_bar_error',
+  'tab_query_failed',
 ]);
 
 const DiagnosticEventSchema = z.object({

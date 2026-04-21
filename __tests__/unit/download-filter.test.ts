@@ -264,43 +264,47 @@ describe('MimeTypeStage', () => {
 // ─── Full Pipeline ──────────────────────────────────────
 
 describe('evaluateFilterPipeline', () => {
-  it('returns intercept for a normal download with default settings', () => {
+  it('returns intercept with null stageName for a normal download', () => {
     const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(createContext(), DEFAULT_SETTINGS, stages);
-    expect(result).toBe('intercept');
+    expect(result.verdict).toBe('intercept');
+    expect(result.stageName).toBeNull();
   });
 
-  it('returns skip when disabled', () => {
+  it('returns skip with "enabled" stageName when disabled', () => {
     const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
       createContext(),
       { ...DEFAULT_SETTINGS, enabled: false },
       stages,
     );
-    expect(result).toBe('skip');
+    expect(result.verdict).toBe('skip');
+    expect(result.stageName).toBe('enabled');
   });
 
-  it('returns skip for blob URL even when enabled', () => {
+  it('returns skip with "scheme" stageName for blob URL', () => {
     const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
       createContext({ url: 'blob:https://example.com/abc' }),
       DEFAULT_SETTINGS,
       stages,
     );
-    expect(result).toBe('skip');
+    expect(result.verdict).toBe('skip');
+    expect(result.stageName).toBe('scheme');
   });
 
-  it('returns skip when file is too small', () => {
+  it('returns skip with "file-size" stageName when file is too small', () => {
     const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
       createContext({ fileSize: 512 }), // 512 bytes
       { ...DEFAULT_SETTINGS, minFileSize: 1 }, // min 1 MB
       stages,
     );
-    expect(result).toBe('skip');
+    expect(result.verdict).toBe('skip');
+    expect(result.stageName).toBe('file-size');
   });
 
-  it('returns skip when site rule says always-skip', () => {
+  it('returns skip with "site-rule" stageName when rule says always-skip', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-skip' }];
     const stages = createFilterPipeline(() => rules);
     const result = evaluateFilterPipeline(
@@ -308,10 +312,11 @@ describe('evaluateFilterPipeline', () => {
       DEFAULT_SETTINGS,
       stages,
     );
-    expect(result).toBe('skip');
+    expect(result.verdict).toBe('skip');
+    expect(result.stageName).toBe('site-rule');
   });
 
-  it('returns intercept when site rule says always-intercept even with small file', () => {
+  it('returns intercept with "site-rule" stageName when rule says always-intercept even with small file', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-intercept' }];
     const stages = createFilterPipeline(() => rules);
     const result = evaluateFilterPipeline(
@@ -320,20 +325,22 @@ describe('evaluateFilterPipeline', () => {
       stages,
     );
     // Site rule (always-intercept) should override file size filter
-    expect(result).toBe('intercept');
+    expect(result.verdict).toBe('intercept');
+    expect(result.stageName).toBe('site-rule');
   });
 
-  it('returns skip when extension triggered the download', () => {
+  it('returns skip with "self-trigger" stageName when extension triggered the download', () => {
     const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
       createContext({ byExtensionId: 'my-extension' }),
       DEFAULT_SETTINGS,
       stages,
     );
-    expect(result).toBe('skip');
+    expect(result.verdict).toBe('skip');
+    expect(result.stageName).toBe('self-trigger');
   });
 
-  it('returns skip for text/html MIME type (cloud storage landing page)', () => {
+  it('returns skip with "mime-type" stageName for text/html MIME type', () => {
     const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
       createContext({
@@ -343,7 +350,8 @@ describe('evaluateFilterPipeline', () => {
       DEFAULT_SETTINGS,
       stages,
     );
-    expect(result).toBe('skip');
+    expect(result.verdict).toBe('skip');
+    expect(result.stageName).toBe('mime-type');
   });
 
   it('site rule always-intercept overrides MIME type skip', () => {
@@ -358,6 +366,7 @@ describe('evaluateFilterPipeline', () => {
       stages,
     );
     // Site rule (always-intercept) fires before MimeTypeStage → intercept wins
-    expect(result).toBe('intercept');
+    expect(result.verdict).toBe('intercept');
+    expect(result.stageName).toBe('site-rule');
   });
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { DiagnosticLog } from '@/lib/storage/diagnostic-log';
+import { MAX_DIAGNOSTIC_EVENTS } from '@/shared/constants';
 import type { DiagnosticEvent } from '@/shared/types';
 
 // ─── Tests ──────────────────────────────────────────────
@@ -9,6 +10,23 @@ describe('DiagnosticLog', () => {
 
   beforeEach(() => {
     log = new DiagnosticLog(5); // small max for testing
+  });
+
+  describe('default capacity', () => {
+    it('uses MAX_DIAGNOSTIC_EVENTS (100) as default capacity', () => {
+      expect(MAX_DIAGNOSTIC_EVENTS).toBe(100);
+
+      const productionLog = new DiagnosticLog();
+      for (let i = 0; i < 150; i++) {
+        productionLog.append({ level: 'info', code: 'api_connected', message: `Event ${i}` });
+      }
+
+      const events = productionLog.getAll();
+      expect(events).toHaveLength(100);
+      // Oldest events should be dropped (0-49), newest kept (50-149)
+      expect(events[0]?.message).toBe('Event 50');
+      expect(events[99]?.message).toBe('Event 149');
+    });
   });
 
   describe('append', () => {

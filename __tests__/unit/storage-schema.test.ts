@@ -216,7 +216,7 @@ describe('parseDiagnosticEvents', () => {
         id: 'evt-1',
         ts: 1700000000000,
         level: 'info' as const,
-        code: 'download_sent' as const,
+        code: 'download_routed' as const,
         message: 'Test message',
       },
     ];
@@ -251,8 +251,8 @@ describe('parseDiagnosticEvents', () => {
 
   it('filters out events with invalid level', () => {
     const input = [
-      { id: 'e1', ts: 1, level: 'info', code: 'download_sent', message: 'ok' },
-      { id: 'e2', ts: 2, level: 'CRITICAL', code: 'download_sent', message: 'bad level' },
+      { id: 'e1', ts: 1, level: 'info', code: 'download_routed', message: 'ok' },
+      { id: 'e2', ts: 2, level: 'CRITICAL', code: 'download_routed', message: 'bad level' },
     ];
     const result = parseDiagnosticEvents(input);
     expect(result).toHaveLength(1);
@@ -260,30 +260,54 @@ describe('parseDiagnosticEvents', () => {
 
   it('filters out events with unknown diagnostic code', () => {
     const input = [
-      { id: 'e1', ts: 1, level: 'info', code: 'download_sent', message: 'ok' },
+      { id: 'e1', ts: 1, level: 'info', code: 'download_routed', message: 'ok' },
       { id: 'e2', ts: 2, level: 'info', code: 'totally_made_up', message: 'bad code' },
     ];
     const result = parseDiagnosticEvents(input);
     expect(result).toHaveLength(1);
-    expect(result[0]!.code).toBe('download_sent');
+    expect(result[0]!.code).toBe('download_routed');
   });
 
   it.each([
+    // API connectivity
     'api_connected',
     'api_unreachable',
     'api_auth_failed',
+    // Download interception lifecycle
     'download_intercepted',
-    'download_sent',
     'download_skipped',
     'download_fallback',
     'download_failed',
-    'download_wake_attempt',
     'download_routed',
     'download_browser_redirect',
+    'download_cancel_failed',
+    'download_handler_error',
+    // Wake lifecycle
+    'download_wake_attempt',
+    'wake_initiated',
+    'wake_success',
+    'wake_timeout',
+    // Cookie & permission
     'cookie_permission_missing',
     'cookie_collect_failed',
     'permission_granted',
     'permission_revoked',
+    // Extension lifecycle
+    'extension_started',
+    'extension_installed',
+    'extension_updated',
+    // Configuration
+    'config_loaded',
+    'config_load_failed',
+    'config_changed',
+    // User-initiated actions
+    'context_menu_triggered',
+    'magnet_intercepted',
+    // Infrastructure
+    'storage_persist_failed',
+    'storage_migrated',
+    'download_bar_error',
+    'tab_query_failed',
   ] as const)('accepts diagnostic code: %s', (code) => {
     const input = [{ id: 'e1', ts: 1, level: 'info', code, message: 'test' }];
     const result = parseDiagnosticEvents(input);

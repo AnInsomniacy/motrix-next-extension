@@ -22,7 +22,7 @@ export const DEFAULT_UI_PREFS: Readonly<UiPrefs> = {
 } as const;
 
 /** Maximum number of diagnostic events to retain in storage. */
-export const MAX_DIAGNOSTIC_EVENTS = 30;
+export const MAX_DIAGNOSTIC_EVENTS = 100;
 
 /** HTTP timeout for API calls in milliseconds. */
 export const API_TIMEOUT_MS = 5000;

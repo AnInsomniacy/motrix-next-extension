@@ -15,7 +15,8 @@ import {
 import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
 import { decodeThunderLink } from '@/shared/thunder';
 import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
-import type { DownloadSettings, SiteRule } from '@/shared/types';
+import type { DownloadSettings, SiteRule, DiagnosticCode } from '@/shared/types';
+import type { DiagnosticInput } from '@/lib/storage/diagnostic-log';
 import { I18nEngine } from '@/shared/i18n/engine';
 import { resolveLocaleId, FALLBACK_LOCALE } from '@/shared/i18n/dictionaries';
 
@@ -35,6 +36,42 @@ export default defineBackground(() => {
   const diagnosticLog = new DiagnosticLog();
 
   const storageService = new StorageService(chrome.storage.local);
+
+  // ─── Logging helpers ──────────────────────────────────
+
+  /**
+   * Append a diagnostic event and persist to storage.
+   * Central logging point — all background logging flows through here.
+   */
+  function log(input: DiagnosticInput): void {
+    diagnosticLog.append(input);
+    void persistDiagnosticLog();
+  }
+
+  /** Shorthand for common log patterns. */
+  function logInfo(
+    code: DiagnosticCode,
+    message: string,
+    context?: DiagnosticInput['context'],
+  ): void {
+    log({ level: 'info', code, message, context });
+  }
+
+  function logWarn(
+    code: DiagnosticCode,
+    message: string,
+    context?: DiagnosticInput['context'],
+  ): void {
+    log({ level: 'warn', code, message, context });
+  }
+
+  function logError(
+    code: DiagnosticCode,
+    message: string,
+    context?: DiagnosticInput['context'],
+  ): void {
+    log({ level: 'error', code, message, context });
+  }
 
   // ─── Desktop API client ───────────────────────
   const desktopClient = new DesktopApiClient({ port: 16801, secret: '' });
@@ -60,8 +97,18 @@ export default defineBackground(() => {
           ? resolveLocaleId(chrome.i18n.getUILanguage())
           : data.uiPrefs.locale;
       bgI18n.setLocale(effectiveLocale);
-    } catch {
-      // Use defaults on first install
+
+      logInfo('config_loaded', 'Configuration loaded from storage', {
+        port: data.connection.port,
+        enabled: data.settings.enabled,
+        ruleCount: data.siteRules.length,
+        locale: effectiveLocale,
+      });
+    } catch (e) {
+      logError(
+        'config_load_failed',
+        `Configuration load failed, using defaults: ${e instanceof Error ? e.message : String(e)}`,
+      );
     }
   }
 
@@ -79,8 +126,10 @@ export default defineBackground(() => {
   async function persistDiagnosticLog(): Promise<void> {
     try {
       await storageService.saveDiagnosticLog(diagnosticLog.getAll());
-    } catch {
-      // Silently fail — not critical
+    } catch (e) {
+      // Log to console only — cannot use log() here to avoid infinite recursion
+      // (log() → persistDiagnosticLog() → error → log() → ...)
+      console.warn('[MotrixNext] Diagnostic log persist failed:', e);
     }
   }
 
@@ -89,7 +138,11 @@ export default defineBackground(() => {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       return tab?.url ?? '';
-    } catch {
+    } catch (e) {
+      logWarn(
+        'tab_query_failed',
+        `Tab query failed, referer will be empty: ${e instanceof Error ? e.message : String(e)}`,
+      );
       return '';
     }
   }
@@ -104,7 +157,7 @@ export default defineBackground(() => {
       getAll: (details) => chrome.cookies.getAll(details),
     },
     diagnosticLog: {
-      append: (event) => {
+      append: (event: DiagnosticInput) => {
         diagnosticLog.append(event);
         void persistDiagnosticLog();
       },
@@ -180,8 +233,14 @@ export default defineBackground(() => {
             byExtensionId: item.byExtensionId as string | undefined,
             state: (item.state as string) ?? 'in_progress',
           });
-        } catch {
-          // Error → browser continues the download naturally
+        } catch (e) {
+          logError(
+            'download_handler_error',
+            `Firefox download handler crashed: ${e instanceof Error ? e.message : String(e)}`,
+            {
+              url: (item.url as string) ?? '',
+            },
+          );
         }
       });
     });
@@ -202,7 +261,14 @@ export default defineBackground(() => {
             state: item.state,
           });
           if (!intercepted) suggest();
-        } catch {
+        } catch (e) {
+          logError(
+            'download_handler_error',
+            `Chrome download handler crashed: ${e instanceof Error ? e.message : String(e)}`,
+            {
+              url: item.url,
+            },
+          );
           suggest(); // Error → let browser handle it
         }
       });
@@ -248,10 +314,25 @@ export default defineBackground(() => {
     });
     if (!rawUrl) return;
 
+    logInfo('context_menu_triggered', `Context menu download: ${rawUrl}`, {
+      url: rawUrl,
+      pageUrl: info.pageUrl ?? '',
+    });
+
     void loadConfig().then(async () => {
-      const url = decodeThunderLink(rawUrl);
-      const tabUrl = info.pageUrl ?? '';
-      await orchestrator.sendUrl(url, tabUrl);
+      try {
+        const url = decodeThunderLink(rawUrl);
+        const tabUrl = info.pageUrl ?? '';
+        await orchestrator.sendUrl(url, tabUrl);
+      } catch (e) {
+        logError(
+          'download_failed',
+          `Context menu download failed: ${e instanceof Error ? e.message : String(e)}`,
+          {
+            url: rawUrl,
+          },
+        );
+      }
     });
   });
 
@@ -273,9 +354,23 @@ export default defineBackground(() => {
   // Magnet link interception from content script
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg?.type === 'HANDLE_MAGNET' && typeof msg.url === 'string') {
+      logInfo('magnet_intercepted', `Magnet link intercepted: ${msg.url as string}`, {
+        url: msg.url as string,
+      });
+
       void loadConfig().then(async () => {
-        const url = decodeThunderLink(msg.url as string);
-        await orchestrator.sendUrl(url, '');
+        try {
+          const url = decodeThunderLink(msg.url as string);
+          await orchestrator.sendUrl(url, '');
+        } catch (e) {
+          logError(
+            'download_failed',
+            `Magnet download failed: ${e instanceof Error ? e.message : String(e)}`,
+            {
+              url: msg.url as string,
+            },
+          );
+        }
       });
     }
   });
@@ -283,6 +378,9 @@ export default defineBackground(() => {
   // Storage change listener — update config with schema validation
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
+
+    const changedKeys = Object.keys(changes);
+
     if (changes.connection?.newValue) {
       const conn = changes.connection.newValue as { port?: number; secret?: string };
       desktopClient.updateConfig({
@@ -308,9 +406,58 @@ export default defineBackground(() => {
         updateContextMenuLocale();
       }
     }
+
+    // Log config changes — exclude diagnosticLog writes (too noisy)
+    const meaningful = changedKeys.filter((k) => k !== 'diagnosticLog');
+    if (meaningful.length > 0) {
+      logInfo('config_changed', `Configuration updated: ${meaningful.join(', ')}`, {
+        keys: meaningful.join(', '),
+      });
+    }
   });
 
-  // Initial load + context menu registration + download bar + polling
+  // ─── Extension install / update ───────────────────────
+  chrome.runtime.onInstalled.addListener((details) => {
+    if (details.reason === 'install') {
+      logInfo('extension_installed', 'Extension installed');
+    } else if (details.reason === 'update') {
+      logInfo(
+        'extension_updated',
+        `Extension updated from ${details.previousVersion ?? 'unknown'}`,
+        {
+          previousVersion: details.previousVersion ?? 'unknown',
+          currentVersion: chrome.runtime.getManifest().version,
+        },
+      );
+    }
+  });
+
+  // ─── Permission changes ───────────────────────────────
+  chrome.permissions.onAdded?.addListener((permissions) => {
+    logInfo(
+      'permission_granted',
+      `Permissions granted: ${permissions.permissions?.join(', ') ?? 'origins'}`,
+      {
+        permissions: permissions.permissions?.join(', ') ?? '',
+        origins: permissions.origins?.join(', ') ?? '',
+      },
+    );
+  });
+
+  chrome.permissions.onRemoved?.addListener((permissions) => {
+    logWarn(
+      'permission_revoked',
+      `Permissions revoked: ${permissions.permissions?.join(', ') ?? 'origins'}`,
+      {
+        permissions: permissions.permissions?.join(', ') ?? '',
+        origins: permissions.origins?.join(', ') ?? '',
+      },
+    );
+  });
+
+  // ─── Initial load + context menu registration ─────────
+  logInfo('extension_started', `Service worker started (v${chrome.runtime.getManifest().version})`);
+
   void ensureConfigLoaded().then(() => {
     // Register context menu after locale is loaded — fixes i18n timing
     registerContextMenus();
