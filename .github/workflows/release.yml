@@ -104,3 +104,164 @@ jobs:
           name: ${{ steps.artifact.outputs.name }}
           path: ${{ steps.artifact.outputs.path }}
           retention-days: 30
+
+  # ── Store Publishing (production releases only) ──────────────────
+  # These jobs are skipped for prerelease/beta tags and workflow_dispatch.
+  # Gate: github.event.release.prerelease == false
+
+  publish-chrome:
+    name: Publish to Chrome Web Store
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'release' && !github.event.release.prerelease
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and package (Chromium)
+        run: pnpm zip
+
+      - name: Upload and publish to Chrome Web Store
+        env:
+          EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        run: |
+          ZIP_PATH=$(ls .output/*-chromium-mv3.zip)
+          echo "Uploading $ZIP_PATH to Chrome Web Store..."
+          npx -y chrome-webstore-upload-cli upload \
+            --source "$ZIP_PATH" \
+            --extension-id "$EXTENSION_ID" \
+            --client-id "$CLIENT_ID" \
+            --client-secret "$CLIENT_SECRET" \
+            --refresh-token "$REFRESH_TOKEN" \
+            --auto-publish
+
+  publish-firefox:
+    name: Publish to Firefox AMO
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'release' && !github.event.release.prerelease
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (Firefox)
+        run: pnpm build:firefox
+
+      - name: Package source code for AMO review
+        run: git archive --format=zip --output=source-code.zip HEAD
+
+      - name: Sign and submit to AMO
+        run: |
+          echo "Submitting to Firefox AMO (listed channel)..."
+          npx -y web-ext sign \
+            --source-dir .output/firefox-mv3 \
+            --channel listed \
+            --api-key "${{ secrets.FIREFOX_API_KEY }}" \
+            --api-secret "${{ secrets.FIREFOX_API_SECRET }}" \
+            --upload-source-code source-code.zip
+
+  publish-edge:
+    name: Publish to Edge Add-ons
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'release' && !github.event.release.prerelease
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and package (Chromium)
+        run: pnpm zip
+
+      - name: Upload and publish to Edge Add-ons
+        env:
+          PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          API_KEY: ${{ secrets.EDGE_API_KEY }}
+        run: |
+          ZIP_PATH=$(ls .output/*-chromium-mv3.zip)
+          echo "Uploading $ZIP_PATH to Edge Add-ons..."
+
+          # Upload package to draft submission
+          RESPONSE_HEADERS=$(mktemp)
+          curl -s -D "$RESPONSE_HEADERS" -X POST \
+            "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions/draft/package" \
+            -H "Authorization: ApiKey ${API_KEY}" \
+            -H "X-ClientID: ${CLIENT_ID}" \
+            -H "Content-Type: application/zip" \
+            --data-binary "@${ZIP_PATH}"
+
+          OPERATION_ID=$(grep -i "location:" "$RESPONSE_HEADERS" | sed 's/.*\///' | tr -d '\r\n')
+          echo "Upload operation ID: $OPERATION_ID"
+
+          # Poll until upload validation completes (max 5 minutes)
+          for i in $(seq 1 30); do
+            sleep 10
+            STATUS=$(curl -s \
+              "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions/draft/package/operations/${OPERATION_ID}" \
+              -H "Authorization: ApiKey ${API_KEY}" \
+              -H "X-ClientID: ${CLIENT_ID}" \
+              | jq -r '.status')
+            echo "Poll attempt $i: status=$STATUS"
+            if [ "$STATUS" = "Succeeded" ]; then break; fi
+            if [ "$STATUS" = "Failed" ]; then
+              echo "::error::Edge Add-ons package validation failed"
+              exit 1
+            fi
+          done
+
+          if [ "$STATUS" != "Succeeded" ]; then
+            echo "::error::Edge Add-ons upload timed out"
+            exit 1
+          fi
+
+          # Submit for review
+          echo "Publishing submission..."
+          curl -s -X POST \
+            "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions" \
+            -H "Authorization: ApiKey ${API_KEY}" \
+            -H "X-ClientID: ${CLIENT_ID}" \
+            -H "Content-Type: application/json" \
+            -d '{}'
+          echo "Edge Add-ons submission published"

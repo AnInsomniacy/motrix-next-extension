@@ -34,7 +34,6 @@ entrypoints/
         ├── use-appearance.ts     # Theme and color scheme switching
         ├── use-connection-test.ts # RPC connection testing
         ├── use-diagnostics.ts    # Diagnostic log viewer
-        ├── use-enhanced-permissions.ts # Optional permissions toggle
         └── use-site-rules.ts     # Per-site interception rules CRUD
 
 lib/                             # Core logic — all services use dependency injection
@@ -50,7 +49,6 @@ lib/                             # Core logic — all services use dependency in
 │   ├── context-menu.ts          # Right-click "Download with Motrix Next"
 │   ├── download-bar.ts          # chrome.downloads.setUiOptions (Chrome 115+)
 │   ├── notification.ts          # Desktop notification builder
-│   ├── permission.ts            # Optional permissions grant/revoke
 │   ├── theme.ts                 # Material You theme resolution
 │   └── wake.ts                  # motrixnext:// protocol launcher
 ├── protocol/
@@ -303,14 +301,36 @@ TRANSLATIONS = {
 
 The release workflow (`.github/workflows/release.yml`) is triggered by `on: release: types: [published]` or manual `workflow_dispatch`.
 
-### How to Publish a Release
+### Dual-Track Release Model
 
-All code changes must be finalized before starting. Execute these three steps in strict order:
+| Track          | Version Example | Git Tag         | GitHub Release | Store Publishing           |
+| -------------- | --------------- | --------------- | -------------- | -------------------------- |
+| **Beta**       | `1.0.8-beta.1`  | `v1.0.8-beta.1` | Prerelease ✅  | None (local sideload only) |
+| **Production** | `1.0.8`         | `v1.0.8`        | Full release   | Chrome + Firefox + Edge    |
+
+The CI pipeline uses `github.event.release.prerelease` to gate store publishing.
+Prerelease tags produce GitHub Release artifacts only. Production releases automatically
+submit to all three browser extension stores.
+
+### How to Publish a Beta (Testing)
+
+```bash
+./scripts/bump-version.sh 1.0.8-beta.1
+./scripts/release.sh
+```
+
+On GitHub: create a Release, select the tag, **check "Set as a pre-release"**.
+CI builds zip artifacts and attaches them to the Release. No store submission.
+Download the zip and sideload via `chrome://extensions` for local testing.
+
+### How to Publish a Production Release
+
+All code changes must be finalized before starting. Execute in strict order:
 
 1. **Bump the version:**
 
    ```bash
-   ./scripts/bump-version.sh 1.0.6
+   ./scripts/bump-version.sh 1.0.8
    ```
 
    **Do not modify code after this step.** This updates `package.json`.
@@ -327,8 +347,26 @@ All code changes must be finalized before starting. Execute these three steps in
 3. **Generate Release Title and Notes** following the conventions below, output in two
    separate code blocks (title + body) so the user can copy-paste into the GitHub Release page.
 
-4. **User publishes on GitHub** — CI automatically runs quality gates, packages the `.zip`
-   for both Chromium and Firefox, and uploads them to the Release.
+4. **User publishes on GitHub** — do **not** check "Set as a pre-release".
+   CI automatically:
+   - Runs quality gates and packages `.zip` for Chromium and Firefox
+   - Uploads artifacts to the GitHub Release
+   - Publishes to Chrome Web Store, Firefox AMO (with source code), and Edge Add-ons
+
+### Store Publishing Details
+
+| Store            | Method                          | Secrets Required                                                                          |
+| ---------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
+| Chrome Web Store | `chrome-webstore-upload-cli`    | `CHROME_EXTENSION_ID`, `CHROME_CLIENT_ID`, `CHROME_CLIENT_SECRET`, `CHROME_REFRESH_TOKEN` |
+| Firefox AMO      | `web-ext sign --channel listed` | `FIREFOX_API_KEY`, `FIREFOX_API_SECRET`                                                   |
+| Edge Add-ons     | REST API v1.1 (curl)            | `EDGE_PRODUCT_ID`, `EDGE_CLIENT_ID`, `EDGE_API_KEY`                                       |
+
+**Firefox source code:** The CI pipeline automatically packages the repository via
+`git archive` and uploads it alongside the extension using `--upload-source-code`.
+This satisfies AMO's source code review requirement without exposing source in the GitHub Release.
+
+**Edge API Key rotation:** Edge API keys expire every 72 days. When the `publish-edge`
+job fails, regenerate credentials in Partner Center and update the GitHub Secret.
 
 ### Recovering from a Failed Release
 
@@ -406,7 +444,13 @@ Single job `quality-gate`:
 ### `release.yml` (Release Published + Manual Dispatch)
 
 1. **quality-gate job** — same 6 checks as CI
-2. **package job** — `pnpm zip` → upload `.zip` to GitHub Release (on publish) or Actions artifact (on dispatch)
+2. **package job** — `pnpm zip` / `pnpm zip:firefox` → upload `.zip` to GitHub Release (on publish) or Actions artifact (on dispatch)
+3. **publish-chrome job** — upload and auto-publish to Chrome Web Store (production releases only)
+4. **publish-firefox job** — build, package source code, sign and submit to AMO (production releases only)
+5. **publish-edge job** — upload via REST API and submit for review (production releases only)
+
+Jobs 3–5 are gated by `github.event_name == 'release' && !github.event.release.prerelease`.
+They are skipped for prerelease tags and manual workflow dispatches.
 
 ---
 
