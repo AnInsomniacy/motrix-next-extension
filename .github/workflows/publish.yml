@@ -316,7 +316,7 @@ jobs:
           echo "Publishing submission for review..."
           PUBLISH_BODY=$(mktemp)
           PUBLISH_STATUS=$(curl -s -o "$PUBLISH_BODY" -w "%{http_code}" -X POST \
-            "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions/draft/publish" \
+            "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions" \
             -H "Authorization: ApiKey ${API_KEY}" \
             -H "X-ClientID: ${CLIENT_ID}" \
             -H "Content-Type: application/json" \
