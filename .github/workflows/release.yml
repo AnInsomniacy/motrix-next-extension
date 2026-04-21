@@ -303,3 +303,62 @@ jobs:
             -d '{}')
           echo "$PUBLISH_RESPONSE" | head -5
           echo "Edge Add-ons submission published"
+
+  # ── Release Summary ─────────────────────────────────────────────
+  # Aggregates results from all jobs into a single GITHUB_STEP_SUMMARY table.
+  # Runs on every release trigger, even if upstream jobs fail or are skipped.
+
+  release-summary:
+    name: Release Summary
+    needs: [quality-gate, package, publish-chrome, publish-firefox, publish-edge]
+    runs-on: ubuntu-latest
+    if: always() && github.event_name == 'release'
+
+    steps:
+      - name: Generate release summary
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+          QG_RESULT: ${{ needs.quality-gate.result }}
+          PKG_RESULT: ${{ needs.package.result }}
+          CHROME_RESULT: ${{ needs.publish-chrome.result }}
+          FIREFOX_RESULT: ${{ needs.publish-firefox.result }}
+          EDGE_RESULT: ${{ needs.publish-edge.result }}
+        run: |
+          VERSION="${TAG#v}"
+
+          status_icon() {
+            case "$1" in
+              success) echo "✅ Success" ;;
+              failure) echo "❌ Failed" ;;
+              skipped) echo "⏭️ Skipped" ;;
+              *)       echo "❓ $1" ;;
+            esac
+          }
+
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            TRACK="Beta (prerelease)"
+          else
+            TRACK="Production"
+          fi
+
+          {
+            echo "## 📦 Release Summary"
+            echo ""
+            echo "**Version:** \`$VERSION\` · **Tag:** \`$TAG\` · **Track:** $TRACK"
+            echo ""
+            echo "### Pipeline"
+            echo ""
+            echo "| Stage | Result |"
+            echo "|-------|--------|"
+            echo "| Quality Gate | $(status_icon "$QG_RESULT") |"
+            echo "| Package (Chrome + Firefox) | $(status_icon "$PKG_RESULT") |"
+            echo ""
+            echo "### Store Publishing"
+            echo ""
+            echo "| Store | Result |"
+            echo "|-------|--------|"
+            echo "| Chrome Web Store | $(status_icon "$CHROME_RESULT") |"
+            echo "| Firefox AMO | $(status_icon "$FIREFOX_RESULT") |"
+            echo "| Edge Add-ons | $(status_icon "$EDGE_RESULT") |"
+          } >> "$GITHUB_STEP_SUMMARY"
