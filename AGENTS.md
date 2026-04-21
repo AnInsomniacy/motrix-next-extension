@@ -79,37 +79,11 @@ __tests__/
 ├── unit/                        # 28 isolated service test files
 └── integration/                 # End-to-end interception flow
 
-public/_locales/                 # Chrome i18n message bundles (26 languages)
-├── ar/messages.json             # Arabic
-├── bg/messages.json             # Bulgarian
-├── ca/messages.json             # Catalan
-├── de/messages.json             # German
-├── el/messages.json             # Greek
-├── en/messages.json             # English (reference locale)
-├── es/messages.json             # Spanish
-├── fa/messages.json             # Persian
-├── fr/messages.json             # French
-├── hu/messages.json             # Hungarian
-├── id/messages.json             # Indonesian
-├── it/messages.json             # Italian
-├── ja/messages.json             # Japanese
-├── ko/messages.json             # Korean
-├── nb/messages.json             # Norwegian Bokmål
-├── nl/messages.json             # Dutch
-├── pl/messages.json             # Polish
-├── pt_BR/messages.json          # Portuguese (Brazil)
-├── ro/messages.json             # Romanian
-├── ru/messages.json             # Russian
-├── th/messages.json             # Thai
-├── tr/messages.json             # Turkish
-├── uk/messages.json             # Ukrainian
-├── vi/messages.json             # Vietnamese
-├── zh_CN/messages.json          # Chinese Simplified
-└── zh_TW/messages.json          # Chinese Traditional
+public/_locales/                 # Chrome i18n message bundles (26 languages, see Section D)
 
 .github/workflows/
 ├── ci.yml                       # Quality gate: compile → test → lint → i18n → format → build
-└── release.yml                  # Package → upload to GitHub Release
+└── release.yml                  # Package → upload to GitHub Release → publish to stores
 ```
 
 ### A′. Download Filter Pipeline
@@ -239,43 +213,9 @@ public/_locales/ko/   # Korean
 ```python
 #!/usr/bin/env python3
 """Batch-update Chrome i18n locale files with native translations."""
-import json, os, sys
-
-LOCALES_DIR = os.path.join(os.path.dirname(__file__), "..", "public", "_locales")
-
-KEY_NAME = "new_key_name"
-DESCRIPTION = "Description for translators"
-PLACEHOLDERS = None  # or {"name": {"content": "$1", "example": "value"}}
-
-TRANSLATIONS = {
-    "ar":    "Arabic text",
-    "bg":    "Bulgarian text",
-    "ca":    "Catalan text",
-    "de":    "German text",
-    "el":    "Greek text",
-    "en":    "English text",
-    "es":    "Spanish text",
-    "fa":    "Persian text",
-    "fr":    "French text",
-    "hu":    "Hungarian text",
-    "id":    "Indonesian text",
-    "it":    "Italian text",
-    "ja":    "Japanese text",
-    "ko":    "Korean text",
-    "nb":    "Norwegian Bokmål text",
-    "nl":    "Dutch text",
-    "pl":    "Polish text",
-    "pt_BR": "Portuguese (Brazil) text",
-    "ro":    "Romanian text",
-    "ru":    "Russian text",
-    "th":    "Thai text",
-    "tr":    "Turkish text",
-    "uk":    "Ukrainian text",
-    "vi":    "Vietnamese text",
-    "zh_CN": "Simplified Chinese text",
-    "zh_TW": "Traditional Chinese text",
-}
-
+# Template: set KEY_NAME, DESCRIPTION, PLACEHOLDERS, and TRANSLATIONS dict
+# with all 26 locale codes (ar, bg, ca, de, el, en, es, fa, fr, hu, id, it,
+# ja, ko, nb, nl, pl, pt_BR, ro, ru, th, tr, uk, vi, zh_CN, zh_TW).
 # Script validates all 26 entries, builds Chrome i18n format, writes atomically.
 # Run: python3 scripts/batch-update-locales.py
 ```
@@ -395,34 +335,9 @@ git tag -d v1.0.6
 
 **Title format:** `v{VERSION} — {Short Description}`
 
-**Body template:**
-
-```markdown
-## What's Changed
-
-One-paragraph summary.
-
-### ✨ New
-
-- **Feature name** — description
-
-### 🛠 Improvements
-
-- Description
-
-### 🐛 Bug Fixes
-
-- Fixed specific issue
-
-### 📦 Install
-
-Two `.zip` packages are attached to each release:
-
-- **Chromium** (Chrome, Edge, Brave, Arc, etc.) — load via `chrome://extensions`
-- **Firefox** — load via `about:debugging` or submit to AMO
-```
-
-Omit empty sections. Patch releases: keep concise.
+**Body sections** (omit empty ones): `✨ New`, `🛠 Improvements`, `🐛 Bug Fixes`, `📦 Install`.
+Include a one-paragraph summary and install instructions for Chromium/Firefox zips.
+Patch releases: keep concise.
 
 ---
 
