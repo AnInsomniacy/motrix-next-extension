@@ -291,7 +291,13 @@ All code changes must be finalized before starting. Execute in strict order:
    CI automatically:
    - Runs quality gates and packages `.zip` for Chromium and Firefox
    - Uploads artifacts to the GitHub Release
-   - Publishes to Chrome Web Store, Firefox AMO (with source code), and Edge Add-ons
+
+5. **Publish to stores** — go to Actions → "Publish to Stores" → Run workflow.
+   Enter the version number or leave as `latest` to auto-detect. The workflow:
+   - Resolves the target tag and checks out the exact release code
+   - Runs the full quality gate against that tag
+   - Builds from source and publishes to Chrome Web Store, Firefox AMO, and Edge Add-ons
+   - Generates a summary report showing the status of each store
 
 ### Store Publishing Details
 
@@ -299,14 +305,18 @@ All code changes must be finalized before starting. Execute in strict order:
 | ---------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
 | Chrome Web Store | `chrome-webstore-upload-cli`    | `CHROME_EXTENSION_ID`, `CHROME_CLIENT_ID`, `CHROME_CLIENT_SECRET`, `CHROME_REFRESH_TOKEN` |
 | Firefox AMO      | `web-ext sign --channel listed` | `FIREFOX_API_KEY`, `FIREFOX_API_SECRET`                                                   |
-| Edge Add-ons     | REST API v1.1 (curl)            | `EDGE_PRODUCT_ID`, `EDGE_CLIENT_ID`, `EDGE_API_KEY`                                       |
+| Edge Add-ons     | REST API v1 (curl)              | `EDGE_PRODUCT_ID`, `EDGE_CLIENT_ID`, `EDGE_API_KEY`                                       |
 
-**Firefox source code:** The CI pipeline automatically packages the repository via
+**Firefox source code:** The publish pipeline automatically packages the repository via
 `git archive` and uploads it alongside the extension using `--upload-source-code`.
 This satisfies AMO's source code review requirement without exposing source in the GitHub Release.
 
 **Edge API Key rotation:** Edge API keys expire every 72 days. When the `publish-edge`
 job fails, regenerate credentials in Partner Center and update the GitHub Secret.
+
+**Store conflict handling:** Known conflicts (pending review, version exists, submission
+in review) exit 0 to keep CI green. The publish summary report shows the real outcome
+with ⚠️ warnings. Only genuine errors (auth failure, network) cause red CI.
 
 ### Recovering from a Failed Release
 
@@ -360,12 +370,15 @@ Single job `quality-gate`:
 
 1. **quality-gate job** — same 6 checks as CI
 2. **package job** — `pnpm zip` / `pnpm zip:firefox` → upload `.zip` to GitHub Release (on publish) or Actions artifact (on dispatch)
-3. **publish-chrome job** — upload and auto-publish to Chrome Web Store (production releases only)
-4. **publish-firefox job** — build, package source code, sign and submit to AMO (production releases only)
-5. **publish-edge job** — upload via REST API and submit for review (production releases only)
 
-Jobs 3–5 are gated by `github.event_name == 'release' && !github.event.release.prerelease`.
-They are skipped for prerelease tags and manual workflow dispatches.
+### `publish.yml` (Manual Dispatch Only)
+
+1. **resolve-version job** — resolves input (`latest` or explicit version) to a Git tag
+2. **quality-gate job** — full CI suite against the exact tag commit
+3. **publish-chrome job** — build from source → upload and auto-publish to Chrome Web Store
+4. **publish-firefox job** — build from source → package source code → sign and submit to AMO
+5. **publish-edge job** — build from source → upload via REST API → submit for review
+6. **publish-summary job** — aggregates results into a markdown table in Actions Summary
 
 ---
 
