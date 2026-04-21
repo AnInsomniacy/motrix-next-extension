@@ -1,14 +1,28 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ConnectionService, ConnectionStatus } from '@/lib/services/connection';
 
+import type { PingResponse, StatResponse } from '@/lib/api/desktop-client';
+
+/** Minimal shape that ConnectionService's constructor requires. */
+interface MockApiClient {
+  ping: () => Promise<PingResponse>;
+  getStat: () => Promise<StatResponse>;
+}
+
 /** Helper: build a mock client with both ping and getStat. */
 function mockClient(overrides: {
   ping?: ReturnType<typeof vi.fn>;
   getStat?: ReturnType<typeof vi.fn>;
-}) {
+}): MockApiClient {
   return {
-    ping: overrides.ping ?? vi.fn().mockResolvedValue({ status: 'ok', version: '3.7.3' }),
-    getStat: overrides.getStat ?? vi.fn().mockResolvedValue({ downloadSpeed: '0' }),
+    ping:
+      (overrides.ping as MockApiClient['ping'] | undefined) ??
+      vi.fn<() => Promise<PingResponse>>().mockResolvedValue({ status: 'ok', version: '3.7.3' }),
+    getStat:
+      (overrides.getStat as MockApiClient['getStat'] | undefined) ??
+      vi
+        .fn<() => Promise<StatResponse>>()
+        .mockResolvedValue({ downloadSpeed: '0' } as StatResponse),
   };
 }
 

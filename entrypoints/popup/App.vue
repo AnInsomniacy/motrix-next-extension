@@ -220,8 +220,8 @@ onUnmounted(() => {
                     {{
                       i18nSub(
                         'popup_error_timeout_hint',
-                        [String(connectionPort.value)],
-                        `Check your network or firewall settings. API port: ${connectionPort.value}`,
+                        [String(connectionPort)],
+                        `Check your network or firewall settings. API port: ${connectionPort}`,
                       )
                     }}
                   </p>
@@ -235,8 +235,8 @@ onUnmounted(() => {
                     {{
                       i18nSub(
                         'popup_error_unreachable_hint',
-                        [String(connectionPort.value)],
-                        `Make sure Motrix Next is running. API port: ${connectionPort.value}`,
+                        [String(connectionPort)],
+                        `Make sure Motrix Next is running. API port: ${connectionPort}`,
                       )
                     }}
                   </p>
