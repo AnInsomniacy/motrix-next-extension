@@ -378,8 +378,9 @@ One-paragraph summary.
 
 ### 📦 Install
 
-The `.zip` below works with all Chromium-based browsers.
-Install from store or load manually via `chrome://extensions`.
+Two `.zip` packages are attached to each release:
+- **Chromium** (Chrome, Edge, Brave, Arc, etc.) — load via `chrome://extensions`
+- **Firefox** — load via `about:debugging` or submit to AMO
 ```
 
 Omit empty sections. Patch releases: keep concise.
