@@ -115,6 +115,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: github.event_name == 'release' && !github.event.release.prerelease
+    outputs:
+      outcome: ${{ steps.upload.outputs.outcome }}
 
     steps:
       - uses: actions/checkout@v5
@@ -135,6 +137,7 @@ jobs:
         run: pnpm zip
 
       - name: Upload and publish to Chrome Web Store
+        id: upload
         env:
           EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
           CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
@@ -156,6 +159,7 @@ jobs:
           # Graceful exit: item is locked in pending review from a prior submission
           if echo "$OUTPUT" | grep -q "ITEM_NOT_UPDATABLE"; then
             echo "::warning::Chrome Web Store: item is pending review, skipping upload"
+            echo "outcome=skipped-pending-review" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -165,12 +169,16 @@ jobs:
             exit 1
           fi
 
+          echo "outcome=published" >> "$GITHUB_OUTPUT"
+
   publish-firefox:
     name: Publish to Firefox AMO
     needs: package
     runs-on: ubuntu-latest
     timeout-minutes: 15
     if: github.event_name == 'release' && !github.event.release.prerelease
+    outputs:
+      outcome: ${{ steps.sign.outputs.outcome }}
 
     steps:
       - uses: actions/checkout@v5
@@ -194,6 +202,7 @@ jobs:
         run: git archive --format=zip --output=source-code.zip HEAD
 
       - name: Sign and submit to AMO
+        id: sign
         run: |
           echo "Submitting to Firefox AMO (listed channel)..."
 
@@ -209,10 +218,12 @@ jobs:
           # Graceful exit: this version was already signed in a prior run
           if echo "$OUTPUT" | grep -q "already exists"; then
             echo "::warning::Firefox AMO: version already submitted, skipping"
+            echo "outcome=skipped-version-exists" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          exit $EXIT_CODE
+          if [ "$EXIT_CODE" -ne 0 ]; then exit $EXIT_CODE; fi
+          echo "outcome=published" >> "$GITHUB_OUTPUT"
 
   publish-edge:
     name: Publish to Edge Add-ons
@@ -220,6 +231,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: github.event_name == 'release' && !github.event.release.prerelease
+    outputs:
+      outcome: ${{ steps.upload.outputs.outcome }}
 
     steps:
       - uses: actions/checkout@v5
@@ -240,6 +253,7 @@ jobs:
         run: pnpm zip
 
       - name: Upload and publish to Edge Add-ons
+        id: upload
         env:
           PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
           CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
@@ -303,6 +317,7 @@ jobs:
             -d '{}')
           echo "$PUBLISH_RESPONSE" | head -5
           echo "Edge Add-ons submission published"
+          echo "outcome=published" >> "$GITHUB_OUTPUT"
 
   # ── Release Summary ─────────────────────────────────────────────
   # Aggregates results from all jobs into a single GITHUB_STEP_SUMMARY table.
@@ -322,17 +337,42 @@ jobs:
           QG_RESULT: ${{ needs.quality-gate.result }}
           PKG_RESULT: ${{ needs.package.result }}
           CHROME_RESULT: ${{ needs.publish-chrome.result }}
+          CHROME_OUTCOME: ${{ needs.publish-chrome.outputs.outcome }}
           FIREFOX_RESULT: ${{ needs.publish-firefox.result }}
+          FIREFOX_OUTCOME: ${{ needs.publish-firefox.outputs.outcome }}
           EDGE_RESULT: ${{ needs.publish-edge.result }}
+          EDGE_OUTCOME: ${{ needs.publish-edge.outputs.outcome }}
         run: |
           VERSION="${TAG#v}"
 
-          status_icon() {
+          # Map job result to icon for pipeline stages
+          pipeline_icon() {
             case "$1" in
-              success) echo "✅ Success" ;;
+              success) echo "✅ Passed" ;;
               failure) echo "❌ Failed" ;;
               skipped) echo "⏭️ Skipped" ;;
               *)       echo "❓ $1" ;;
+            esac
+          }
+
+          # Map job result + outcome to icon for store publishing
+          # result=skipped means the job condition was false (beta/dispatch)
+          # result=failure means the job exited non-zero (real error)
+          # result=success + outcome tells the real story
+          store_icon() {
+            local result="$1" outcome="$2"
+            case "$result" in
+              skipped) echo "⏭️ Not triggered" ;;
+              failure) echo "❌ Failed" ;;
+              success)
+                case "$outcome" in
+                  published)              echo "✅ Published" ;;
+                  skipped-pending-review)  echo "⚠️ Skipped (pending review)" ;;
+                  skipped-version-exists)  echo "⚠️ Skipped (version exists)" ;;
+                  *)                      echo "✅ Success" ;;
+                esac
+                ;;
+              *) echo "❓ $result" ;;
             esac
           }
 
@@ -351,14 +391,14 @@ jobs:
             echo ""
             echo "| Stage | Result |"
             echo "|-------|--------|"
-            echo "| Quality Gate | $(status_icon "$QG_RESULT") |"
-            echo "| Package (Chrome + Firefox) | $(status_icon "$PKG_RESULT") |"
+            echo "| Quality Gate | $(pipeline_icon "$QG_RESULT") |"
+            echo "| Package (Chrome + Firefox) | $(pipeline_icon "$PKG_RESULT") |"
             echo ""
             echo "### Store Publishing"
             echo ""
             echo "| Store | Result |"
             echo "|-------|--------|"
-            echo "| Chrome Web Store | $(status_icon "$CHROME_RESULT") |"
-            echo "| Firefox AMO | $(status_icon "$FIREFOX_RESULT") |"
-            echo "| Edge Add-ons | $(status_icon "$EDGE_RESULT") |"
+            echo "| Chrome Web Store | $(store_icon "$CHROME_RESULT" "$CHROME_OUTCOME") |"
+            echo "| Firefox AMO | $(store_icon "$FIREFOX_RESULT" "$FIREFOX_OUTCOME") |"
+            echo "| Edge Add-ons | $(store_icon "$EDGE_RESULT" "$EDGE_OUTCOME") |"
           } >> "$GITHUB_STEP_SUMMARY"
