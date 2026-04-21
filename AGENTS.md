@@ -379,6 +379,7 @@ One-paragraph summary.
 ### 📦 Install
 
 Two `.zip` packages are attached to each release:
+
 - **Chromium** (Chrome, Edge, Brave, Arc, etc.) — load via `chrome://extensions`
 - **Firefox** — load via `about:debugging` or submit to AMO
 ```
