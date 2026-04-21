@@ -263,25 +263,31 @@ jobs:
           echo "Uploading $ZIP_PATH to Edge Add-ons..."
 
           # Upload package to draft submission (API returns 202 with Location header)
-          RESPONSE=$(curl -i -s -X POST \
+          UPLOAD_HEADERS=$(mktemp)
+          UPLOAD_BODY=$(mktemp)
+          UPLOAD_STATUS=$(curl -s -o "$UPLOAD_BODY" -D "$UPLOAD_HEADERS" -w "%{http_code}" -X POST \
             "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions/draft/package" \
             -H "Authorization: ApiKey ${API_KEY}" \
             -H "X-ClientID: ${CLIENT_ID}" \
             -H "Content-Type: application/zip" \
             --data-binary "@${ZIP_PATH}")
 
-          echo "Upload response (headers):" 
-          echo "$RESPONSE" | head -20
+          echo "Upload HTTP status: $UPLOAD_STATUS"
+          cat "$UPLOAD_HEADERS" | head -10
+
+          if [ "$UPLOAD_STATUS" != "202" ]; then
+            echo "::error::Edge Add-ons upload failed (HTTP $UPLOAD_STATUS)"
+            cat "$UPLOAD_BODY"
+            exit 1
+          fi
 
           # Extract operation ID from Location header path using basename
-          LOCATION=$(echo "$RESPONSE" | grep -i "^location:" | awk '{print $2}' | tr -d '\r\n')
+          LOCATION=$(grep -i "^location:" "$UPLOAD_HEADERS" | awk '{print $2}' | tr -d '\r\n')
           OPERATION_ID=$(basename "$LOCATION")
           echo "Upload operation ID: $OPERATION_ID"
 
           if [ -z "$OPERATION_ID" ] || [ "$OPERATION_ID" = "/" ]; then
             echo "::error::Edge Add-ons: failed to extract operation ID from Location header"
-            echo "Full response:"
-            echo "$RESPONSE"
             exit 1
           fi
 
@@ -309,15 +315,30 @@ jobs:
 
           # Submit draft for review
           echo "Publishing submission for review..."
-          PUBLISH_RESPONSE=$(curl -i -s -X POST \
+          PUBLISH_BODY=$(mktemp)
+          PUBLISH_STATUS=$(curl -s -o "$PUBLISH_BODY" -w "%{http_code}" -X POST \
             "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions/draft/publish" \
             -H "Authorization: ApiKey ${API_KEY}" \
             -H "X-ClientID: ${CLIENT_ID}" \
             -H "Content-Type: application/json" \
             -d '{"notes":"Automated submission via CI/CD pipeline."}')
-          echo "$PUBLISH_RESPONSE" | head -5
-          echo "Edge Add-ons submission published"
-          echo "outcome=published" >> "$GITHUB_OUTPUT"
+
+          echo "Publish HTTP status: $PUBLISH_STATUS"
+          cat "$PUBLISH_BODY"
+
+          # 202 = accepted for review, 200 = also success
+          if [ "$PUBLISH_STATUS" = "202" ] || [ "$PUBLISH_STATUS" = "200" ]; then
+            echo "Edge Add-ons submission published for review"
+            echo "outcome=published" >> "$GITHUB_OUTPUT"
+          elif [ "$PUBLISH_STATUS" = "404" ]; then
+            # 404 = another submission is currently in review, blocking new publishes
+            echo "::warning::Edge Add-ons: cannot publish — another submission is in review"
+            echo "outcome=skipped-in-review" >> "$GITHUB_OUTPUT"
+            exit 0
+          else
+            echo "::error::Edge Add-ons publish failed (HTTP $PUBLISH_STATUS)"
+            exit 1
+          fi
 
   # ── Release Summary ─────────────────────────────────────────────
   # Aggregates results from all jobs into a single GITHUB_STEP_SUMMARY table.
@@ -369,6 +390,7 @@ jobs:
                   published)              echo "✅ Published" ;;
                   skipped-pending-review)  echo "⚠️ Skipped (pending review)" ;;
                   skipped-version-exists)  echo "⚠️ Skipped (version exists)" ;;
+                  skipped-in-review)       echo "⚠️ Skipped (in review)" ;;
                   *)                      echo "✅ Success" ;;
                 esac
                 ;;
