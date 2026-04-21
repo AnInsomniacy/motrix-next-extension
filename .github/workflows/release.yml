@@ -307,14 +307,14 @@ jobs:
             exit 1
           fi
 
-          # Submit for review
-          echo "Publishing submission..."
+          # Submit draft for review
+          echo "Publishing submission for review..."
           PUBLISH_RESPONSE=$(curl -i -s -X POST \
-            "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions" \
+            "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions/draft/publish" \
             -H "Authorization: ApiKey ${API_KEY}" \
             -H "X-ClientID: ${CLIENT_ID}" \
             -H "Content-Type: application/json" \
-            -d '{}')
+            -d '{"notes":"Automated submission via CI/CD pipeline."}')
           echo "$PUBLISH_RESPONSE" | head -5
           echo "Edge Add-ons submission published"
           echo "outcome=published" >> "$GITHUB_OUTPUT"
