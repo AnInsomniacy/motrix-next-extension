@@ -143,13 +143,27 @@ jobs:
         run: |
           ZIP_PATH=$(ls .output/*-chrome-mv3.zip)
           echo "Uploading $ZIP_PATH to Chrome Web Store..."
-          npx -y chrome-webstore-upload-cli upload \
+
+          OUTPUT=$(npx -y chrome-webstore-upload-cli upload \
             --source "$ZIP_PATH" \
             --extension-id "$EXTENSION_ID" \
             --client-id "$CLIENT_ID" \
             --client-secret "$CLIENT_SECRET" \
             --refresh-token "$REFRESH_TOKEN" \
-            --auto-publish
+            --auto-publish 2>&1) || true
+          echo "$OUTPUT"
+
+          # Graceful exit: item is locked in pending review from a prior submission
+          if echo "$OUTPUT" | grep -q "ITEM_NOT_UPDATABLE"; then
+            echo "::warning::Chrome Web Store: item is pending review, skipping upload"
+            exit 0
+          fi
+
+          # Any other upload failure is a real error
+          if echo "$OUTPUT" | grep -qi "FAILURE\|error"; then
+            echo "::error::Chrome Web Store upload failed"
+            exit 1
+          fi
 
   publish-firefox:
     name: Publish to Firefox AMO
@@ -182,12 +196,23 @@ jobs:
       - name: Sign and submit to AMO
         run: |
           echo "Submitting to Firefox AMO (listed channel)..."
-          npx -y web-ext sign \
+
+          EXIT_CODE=0
+          OUTPUT=$(npx -y web-ext sign \
             --source-dir .output/firefox-mv3 \
             --channel listed \
             --api-key "${{ secrets.FIREFOX_API_KEY }}" \
             --api-secret "${{ secrets.FIREFOX_API_SECRET }}" \
-            --upload-source-code source-code.zip
+            --upload-source-code source-code.zip 2>&1) || EXIT_CODE=$?
+          echo "$OUTPUT"
+
+          # Graceful exit: this version was already signed in a prior run
+          if echo "$OUTPUT" | grep -q "already exists"; then
+            echo "::warning::Firefox AMO: version already submitted, skipping"
+            exit 0
+          fi
+
+          exit $EXIT_CODE
 
   publish-edge:
     name: Publish to Edge Add-ons
@@ -223,45 +248,58 @@ jobs:
           ZIP_PATH=$(ls .output/*-chrome-mv3.zip)
           echo "Uploading $ZIP_PATH to Edge Add-ons..."
 
-          # Upload package to draft submission
-          RESPONSE_HEADERS=$(mktemp)
-          curl -s -D "$RESPONSE_HEADERS" -X POST \
+          # Upload package to draft submission (API returns 202 with Location header)
+          RESPONSE=$(curl -i -s -X POST \
             "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions/draft/package" \
             -H "Authorization: ApiKey ${API_KEY}" \
             -H "X-ClientID: ${CLIENT_ID}" \
             -H "Content-Type: application/zip" \
-            --data-binary "@${ZIP_PATH}"
+            --data-binary "@${ZIP_PATH}")
 
-          OPERATION_ID=$(grep -i "location:" "$RESPONSE_HEADERS" | sed 's/.*\///' | tr -d '\r\n')
+          echo "Upload response (headers):" 
+          echo "$RESPONSE" | head -20
+
+          # Extract operation ID from Location header path using basename
+          LOCATION=$(echo "$RESPONSE" | grep -i "^location:" | awk '{print $2}' | tr -d '\r\n')
+          OPERATION_ID=$(basename "$LOCATION")
           echo "Upload operation ID: $OPERATION_ID"
+
+          if [ -z "$OPERATION_ID" ] || [ "$OPERATION_ID" = "/" ]; then
+            echo "::error::Edge Add-ons: failed to extract operation ID from Location header"
+            echo "Full response:"
+            echo "$RESPONSE"
+            exit 1
+          fi
 
           # Poll until upload validation completes (max 5 minutes)
           for i in $(seq 1 30); do
             sleep 10
-            STATUS=$(curl -s \
+            POLL_RESPONSE=$(curl -s \
               "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions/draft/package/operations/${OPERATION_ID}" \
               -H "Authorization: ApiKey ${API_KEY}" \
-              -H "X-ClientID: ${CLIENT_ID}" \
-              | jq -r '.status')
+              -H "X-ClientID: ${CLIENT_ID}")
+            STATUS=$(echo "$POLL_RESPONSE" | jq -r '.status // empty')
             echo "Poll attempt $i: status=$STATUS"
             if [ "$STATUS" = "Succeeded" ]; then break; fi
             if [ "$STATUS" = "Failed" ]; then
               echo "::error::Edge Add-ons package validation failed"
+              echo "$POLL_RESPONSE" | jq .
               exit 1
             fi
           done
 
           if [ "$STATUS" != "Succeeded" ]; then
-            echo "::error::Edge Add-ons upload timed out"
+            echo "::error::Edge Add-ons upload timed out after 5 minutes"
             exit 1
           fi
 
           # Submit for review
           echo "Publishing submission..."
-          curl -s -X POST \
+          PUBLISH_RESPONSE=$(curl -i -s -X POST \
             "https://api.addons.microsoftedge.microsoft.com/v1/products/${PRODUCT_ID}/submissions" \
             -H "Authorization: ApiKey ${API_KEY}" \
             -H "X-ClientID: ${CLIENT_ID}" \
             -H "Content-Type: application/json" \
-            -d '{}'
+            -d '{}')
+          echo "$PUBLISH_RESPONSE" | head -5
           echo "Edge Add-ons submission published"
