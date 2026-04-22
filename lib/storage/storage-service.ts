@@ -12,7 +12,7 @@
  * chrome.storage.local import.
  */
 import { parseStorage, type ParsedStorage } from './schema';
-import { migrateStorage, type MigrationStorageApi } from './migration';
+import { migrateStorage, type MigrationStorageApi, type MigrationResult } from './migration';
 import type {
   ConnectionConfig,
   DownloadSettings,
@@ -28,6 +28,12 @@ export interface StorageApi {
   set: (items: Record<string, unknown>) => Promise<void>;
 }
 
+/** Result of a load() call — includes both parsed data and migration info. */
+export interface LoadResult {
+  readonly storage: ParsedStorage;
+  readonly migration: MigrationResult;
+}
+
 // ─── Service ────────────────────────────────────────────
 
 export class StorageService {
@@ -35,15 +41,16 @@ export class StorageService {
 
   /**
    * Load the entire storage snapshot, running migrations and schema
-   * validation. Returns fully typed, defaulted storage.
+   * validation. Returns fully typed, defaulted storage alongside
+   * migration metadata for diagnostic logging.
    */
-  async load(): Promise<ParsedStorage> {
+  async load(): Promise<LoadResult> {
     // Run migrations first (stamps _version if needed).
-    await migrateStorage(this.api as MigrationStorageApi);
+    const migration = await migrateStorage(this.api as MigrationStorageApi);
 
     // Read and validate.
     const raw = await this.api.get(null);
-    return parseStorage(raw);
+    return { storage: parseStorage(raw), migration };
   }
 
   /** Persist API connection configuration. */

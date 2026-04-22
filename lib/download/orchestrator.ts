@@ -44,6 +44,11 @@ export interface OrchestratorDeps {
    * deep link. Used only when both HTTP API and wake+retry fail.
    */
   openProtocolNewTask?: (url: string, referer: string, cookie: string) => Promise<void>;
+  /**
+   * Callback fired when all routing paths fail and the download is lost.
+   * The extension has already cancelled the browser download at this point.
+   */
+  onRouteFailed?: (info: { url: string; filename: string }) => void;
 }
 
 /** Shape of a browser DownloadItem as received from chrome.downloads events. */
@@ -143,6 +148,7 @@ export class DownloadOrchestrator {
         message: `No route to desktop for: ${displayName}`,
         context: { url: effectiveUrl },
       });
+      this.deps.onRouteFailed?.({ url: effectiveUrl, filename: displayName });
       return true; // Already cancelled — can't un-cancel
     }
 
@@ -208,7 +214,8 @@ export class DownloadOrchestrator {
         });
 
         // Wake → retry: try to start the desktop app and retry via HTTP
-        if (this.deps.wakeDesktop && this.deps.desktopClient) {
+        const settings = this.deps.getSettings();
+        if (settings.autoLaunchApp && this.deps.wakeDesktop && this.deps.desktopClient) {
           this.deps.diagnosticLog.append({
             level: 'info',
             code: 'download_wake_attempt',
@@ -242,9 +249,23 @@ export class DownloadOrchestrator {
               message: `Wake timed out for: ${displayName}`,
               context: { url },
             });
-          } catch {
-            // Wake+retry failed — fall through to deep-link
+          } catch (wakeError) {
+            // Wake or retry-after-wake failed — log and fall through to deep-link
+            this.deps.diagnosticLog.append({
+              level: 'warn',
+              code: 'download_fallback',
+              message: `Wake+retry failed, falling back to deep-link: ${wakeError instanceof Error ? wakeError.message : String(wakeError)}`,
+              context: { url },
+            });
           }
+        } else if (!settings.autoLaunchApp) {
+          // User disabled auto-launch — skip wake entirely
+          this.deps.diagnosticLog.append({
+            level: 'info',
+            code: 'download_fallback',
+            message: `autoLaunchApp disabled, skipping wake for: ${displayName}`,
+            context: { url },
+          });
         }
       }
     }

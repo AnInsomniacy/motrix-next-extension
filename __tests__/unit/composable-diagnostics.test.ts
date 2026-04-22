@@ -61,20 +61,20 @@ describe('useDiagnostics', () => {
   it('exportDiagnosticReport() triggers a file download with complete diagnostic data', async () => {
     const storage = mockStorageService();
     (storage.load as ReturnType<typeof vi.fn>).mockResolvedValue({
-      connection: { port: 16801, secret: 'my-secret' },
-      settings: {
-        enabled: true,
-        minFileSize: 0,
-        fallbackToBrowser: true,
-        hideDownloadBar: false,
-        notifyOnStart: true,
-        notifyOnComplete: false,
-        autoLaunchApp: true,
+      storage: {
+        connection: { port: 16801, secret: 'my-secret' },
+        settings: {
+          enabled: true,
+          minFileSize: 0,
+          hideDownloadBar: false,
+          autoLaunchApp: true,
+        },
+        siteRules: [{ id: 'r1', pattern: '*.github.com', action: 'always-intercept' }],
+        uiPrefs: { theme: 'system', colorScheme: 'amber', locale: 'auto' },
+        diagnosticLog: [createEvent({ id: 'e1' })],
+        _version: 2,
       },
-      siteRules: [{ id: 'r1', pattern: '*.github.com', action: 'always-intercept' }],
-      uiPrefs: { theme: 'system', colorScheme: 'amber', locale: 'auto' },
-      diagnosticLog: [createEvent({ id: 'e1' })],
-      _version: 1,
+      migration: { from: 2, to: 2, migrated: false },
     });
 
     // Mock browser APIs

@@ -15,7 +15,7 @@
 // ─── Version ────────────────────────────────────────────
 
 /** Current storage schema version. Bump this and add a migration entry. */
-export const STORAGE_VERSION = 1;
+export const STORAGE_VERSION = 2;
 
 // ─── Migration Definitions ─────────────────────────────
 
@@ -38,7 +38,37 @@ const MIGRATIONS: readonly Migration[] = [
     version: 1,
     up: (data) => ({ ...data, _version: 1 }),
   },
+  {
+    // v1 → v2: Remove deprecated download settings.
+    // notifyOnStart, notifyOnComplete, and fallbackToBrowser were empty-shell
+    // features (UI switches existed but business logic never consumed them).
+    // Desktop app handles all notification duties; browser fallback is not wanted.
+    // These fields must be stripped before DownloadSettingsSchema.strict() parse.
+    version: 2,
+    up: (data) => {
+      if (data.settings && typeof data.settings === 'object') {
+        const s = { ...(data.settings as Record<string, unknown>) };
+        delete s.notifyOnStart;
+        delete s.notifyOnComplete;
+        delete s.fallbackToBrowser;
+        return { ...data, settings: s, _version: 2 };
+      }
+      return { ...data, _version: 2 };
+    },
+  },
 ];
+
+// ─── Result Type ────────────────────────────────────────
+
+/** Describes what happened during migration, if anything. */
+export interface MigrationResult {
+  /** Schema version before migration ran. */
+  readonly from: number;
+  /** Schema version after migration ran. */
+  readonly to: number;
+  /** Whether any migration was actually applied (false = already current). */
+  readonly migrated: boolean;
+}
 
 // ─── Storage API Interface ──────────────────────────────
 
@@ -58,12 +88,14 @@ export interface MigrationStorageApi {
  *
  * @param api - Storage API (chrome.storage.local or mock)
  */
-export async function migrateStorage(api: MigrationStorageApi): Promise<void> {
+export async function migrateStorage(api: MigrationStorageApi): Promise<MigrationResult> {
   const raw = await api.get(null);
   const currentVersion = typeof raw._version === 'number' ? raw._version : 0;
 
   // Already at or ahead of current version — nothing to do.
-  if (currentVersion >= STORAGE_VERSION) return;
+  if (currentVersion >= STORAGE_VERSION) {
+    return { from: currentVersion, to: currentVersion, migrated: false };
+  }
 
   // Apply pending migrations sequentially.
   let snapshot: Record<string, unknown> = { ...raw };
@@ -77,4 +109,5 @@ export async function migrateStorage(api: MigrationStorageApi): Promise<void> {
   snapshot._version = STORAGE_VERSION;
 
   await api.set(snapshot);
+  return { from: currentVersion, to: STORAGE_VERSION, migrated: true };
 }

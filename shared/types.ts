@@ -74,10 +74,7 @@ export interface FilterStage {
 export interface DownloadSettings {
   enabled: boolean;
   minFileSize: number; // MB, 0 = no limit
-  fallbackToBrowser: boolean;
   hideDownloadBar: boolean;
-  notifyOnStart: boolean;
-  notifyOnComplete: boolean;
   autoLaunchApp: boolean;
 }
 
@@ -134,7 +131,10 @@ export type DiagnosticCode =
   | 'storage_persist_failed'
   | 'storage_migrated'
   | 'download_bar_error'
-  | 'tab_query_failed';
+  | 'tab_query_failed'
+  // ── Notification ───────────────────────────────────────
+  | 'notification_create_failed'
+  | 'download_route_failed';
 
 export type DiagnosticLevel = 'info' | 'warn' | 'error';
 

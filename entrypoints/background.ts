@@ -80,7 +80,7 @@ export default defineBackground(() => {
   // ─── Load config from storage on startup ──────────
   async function loadConfig(): Promise<void> {
     try {
-      const data = await storageService.load();
+      const { storage: data, migration } = await storageService.load();
       settings = data.settings;
       siteRules = data.siteRules;
       diagnosticLog.hydrate(data.diagnosticLog);
@@ -97,6 +97,14 @@ export default defineBackground(() => {
           ? resolveLocaleId(chrome.i18n.getUILanguage())
           : data.uiPrefs.locale;
       bgI18n.setLocale(effectiveLocale);
+
+      // Log migration result when a migration actually ran
+      if (migration.migrated) {
+        logInfo('storage_migrated', `Storage migrated: v${migration.from} → v${migration.to}`, {
+          from: migration.from,
+          to: migration.to,
+        });
+      }
 
       logInfo('config_loaded', 'Configuration loaded from storage', {
         port: data.connection.port,
@@ -204,6 +212,26 @@ export default defineBackground(() => {
           chrome.tabs.remove(tabId).catch(() => {});
         }, 30000);
       }
+    },
+    onRouteFailed: (info) => {
+      // This is the ONLY notification the extension should emit — the desktop
+      // app handles start/complete/error notifications.  The extension uniquely
+      // knows when a download was intercepted but never delivered.
+      const payload = NotificationService.buildFailedNotification(
+        info.filename,
+        'Could not reach Motrix Next',
+      );
+      try {
+        chrome.notifications.create(payload.id, payload.options);
+      } catch (e) {
+        logWarn(
+          'notification_create_failed',
+          `Notification create failed: ${e instanceof Error ? e.message : String(e)}`,
+        );
+      }
+      logError('download_route_failed', `All routing paths failed: ${info.filename}`, {
+        url: info.url,
+      });
     },
   });
 
@@ -390,8 +418,11 @@ export default defineBackground(() => {
     }
     if (changes.settings?.newValue) {
       settings = parseDownloadSettings(changes.settings.newValue);
-      void downloadBarService.apply({
-        hideDownloadBar: settings.hideDownloadBar,
+      void downloadBarService.apply({ hideDownloadBar: settings.hideDownloadBar }).catch((e) => {
+        logWarn(
+          'download_bar_error',
+          `Download bar update failed: ${e instanceof Error ? e.message : String(e)}`,
+        );
       });
     }
     if (changes.siteRules?.newValue) {
@@ -462,8 +493,11 @@ export default defineBackground(() => {
     // Register context menu after locale is loaded — fixes i18n timing
     registerContextMenus();
 
-    downloadBarService.apply({
-      hideDownloadBar: settings.hideDownloadBar,
+    downloadBarService.apply({ hideDownloadBar: settings.hideDownloadBar }).catch((e) => {
+      logWarn(
+        'download_bar_error',
+        `Download bar init failed: ${e instanceof Error ? e.message : String(e)}`,
+      );
     });
   });
 });

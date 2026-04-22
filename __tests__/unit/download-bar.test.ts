@@ -27,10 +27,10 @@ describe('DownloadBarService', () => {
       expect(setUiOptions).toHaveBeenCalledWith({ enabled: true });
     });
 
-    it('does not throw when setUiOptions fails (graceful degradation)', async () => {
+    it('throws when setUiOptions fails (caller handles graceful degradation)', async () => {
       setUiOptions.mockRejectedValueOnce(new Error('API not available'));
 
-      await expect(service.apply({ hideDownloadBar: true })).resolves.not.toThrow();
+      await expect(service.apply({ hideDownloadBar: true })).rejects.toThrow('API not available');
     });
   });
 });

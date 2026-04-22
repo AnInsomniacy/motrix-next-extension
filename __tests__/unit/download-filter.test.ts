@@ -16,10 +16,7 @@ import type { FilterContext, DownloadSettings, SiteRule } from '@/shared/types';
 const DEFAULT_SETTINGS: DownloadSettings = {
   enabled: true,
   minFileSize: 0,
-  fallbackToBrowser: true,
   hideDownloadBar: false,
-  notifyOnStart: true,
-  notifyOnComplete: false,
   autoLaunchApp: true,
 };
 

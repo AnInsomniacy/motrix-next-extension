@@ -11,18 +11,12 @@ import { NFormItem, NSwitch, NInputNumber, NDivider } from 'naive-ui';
 defineProps<{
   enabled: boolean;
   minFileSize: number;
-  fallbackToBrowser: boolean;
-  notifyOnStart: boolean;
-  notifyOnComplete: boolean;
   autoLaunchApp: boolean;
 }>();
 
 const emit = defineEmits<{
   'update:enabled': [value: boolean];
   'update:minFileSize': [value: number];
-  'update:fallbackToBrowser': [value: boolean];
-  'update:notifyOnStart': [value: boolean];
-  'update:notifyOnComplete': [value: boolean];
   'update:autoLaunchApp': [value: boolean];
 }>();
 
@@ -65,21 +59,6 @@ const { t: i18n } = useI18n();
 
     <NDivider />
 
-    <NFormItem :label="i18n('options_fallback_label', 'Fallback to Browser on Failure')">
-      <template #label>
-        <div class="label-group">
-          <span>{{ i18n('options_fallback_label', 'Fallback to Browser on Failure') }}</span>
-          <span class="label-hint">{{
-            i18n('options_fallback_desc', 'Resume download in browser if Motrix Next fails')
-          }}</span>
-        </div>
-      </template>
-      <NSwitch
-        :value="fallbackToBrowser"
-        @update:value="emit('update:fallbackToBrowser', $event)"
-      />
-    </NFormItem>
-
     <NFormItem :label="i18n('options_auto_launch_label', 'Auto-launch Motrix Next')">
       <template #label>
         <div class="label-group">
@@ -90,16 +69,6 @@ const { t: i18n } = useI18n();
         </div>
       </template>
       <NSwitch :value="autoLaunchApp" @update:value="emit('update:autoLaunchApp', $event)" />
-    </NFormItem>
-
-    <NDivider />
-
-    <NFormItem :label="i18n('options_notify_start_label', 'Notify on Download Start')">
-      <NSwitch :value="notifyOnStart" @update:value="emit('update:notifyOnStart', $event)" />
-    </NFormItem>
-
-    <NFormItem :label="i18n('options_notify_complete_label', 'Notify on Download Complete')">
-      <NSwitch :value="notifyOnComplete" @update:value="emit('update:notifyOnComplete', $event)" />
     </NFormItem>
   </div>
 </template>

@@ -101,14 +101,6 @@
     "message": "Pomijaj pliki mniejsze niż ten próg",
     "description": "Description text for minimum file size input"
   },
-  "options_fallback_label": {
-    "message": "Wróć do przeglądarki w razie błędu",
-    "description": "Toggle label for browser fallback"
-  },
-  "options_fallback_desc": {
-    "message": "Resume download in browser if Motrix Next fails",
-    "description": "Description text for the fallback toggle"
-  },
   "options_notify_label": {
     "message": "Powiadomienia",
     "description": "Toggle label for enabling notifications"
@@ -198,14 +190,6 @@
   "options_connection_success_prefix": {
     "message": "Connected · Motrix",
     "description": "Prefix for successful connection status"
-  },
-  "options_notify_start_label": {
-    "message": "Powiadom o rozpoczęciu pobierania",
-    "description": "Toggle label for start notifications"
-  },
-  "options_notify_complete_label": {
-    "message": "Powiadom o zakończeniu pobierania",
-    "description": "Toggle label for completion notifications"
   },
   "options_rules_empty": {
     "message": "Brak skonfigurowanych reguł.",

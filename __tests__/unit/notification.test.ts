@@ -2,46 +2,25 @@ import { describe, it, expect } from 'vitest';
 import { NotificationService } from '@/lib/services/notification';
 
 describe('NotificationService', () => {
-  describe('buildSentNotification', () => {
-    it('builds a notification for successful download send', () => {
-      const notif = NotificationService.buildSentNotification('archive.zip', 42);
-
-      expect(notif.id).toContain('sent-42');
-      expect(notif.options.type).toBe('basic');
-      expect(notif.options.message).toContain('archive.zip');
-    });
-  });
-
   describe('buildFailedNotification', () => {
-    it('builds a notification for failed download send', () => {
+    it('builds a notification for failed download routing', () => {
       const notif = NotificationService.buildFailedNotification(
         'archive.zip',
-        'Connection timeout',
+        'Could not reach Motrix Next',
       );
 
+      expect(notif.id).toMatch(/^failed-/);
       expect(notif.options.type).toBe('basic');
       expect(notif.options.message).toContain('archive.zip');
-    });
-  });
-
-  describe('buildFallbackNotification', () => {
-    it('builds a notification for browser fallback', () => {
-      const notif = NotificationService.buildFallbackNotification('archive.zip');
-
-      expect(notif.options.type).toBe('basic');
-      expect(notif.options.message).toContain('archive.zip');
+      expect(notif.options.message).toContain('Could not reach Motrix Next');
+      expect(notif.options.iconUrl).toBe('icon/128.png');
     });
   });
 
   describe('resolveClickAction', () => {
-    it('returns open-options for error notifications', () => {
+    it('returns open-options for failed notifications', () => {
       const action = NotificationService.resolveClickAction('failed-123');
       expect(action).toBe('open-options');
-    });
-
-    it('returns launch-app for sent notifications', () => {
-      const action = NotificationService.resolveClickAction('sent-42');
-      expect(action).toBe('launch-app');
     });
 
     it('returns none for unknown notification ids', () => {

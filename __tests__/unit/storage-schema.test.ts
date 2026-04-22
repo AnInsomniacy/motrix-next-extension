@@ -64,10 +64,7 @@ describe('parseDownloadSettings', () => {
     const input = {
       enabled: false,
       minFileSize: 10,
-      fallbackToBrowser: false,
       hideDownloadBar: true,
-      notifyOnStart: false,
-      notifyOnComplete: true,
       autoLaunchApp: false,
     };
     const result = parseDownloadSettings(input);
@@ -79,10 +76,7 @@ describe('parseDownloadSettings', () => {
     expect(result).toEqual({
       enabled: true,
       minFileSize: 0,
-      fallbackToBrowser: true,
       hideDownloadBar: false,
-      notifyOnStart: true,
-      notifyOnComplete: false,
       autoLaunchApp: true,
     });
   });
@@ -92,10 +86,7 @@ describe('parseDownloadSettings', () => {
     expect(result).toEqual({
       enabled: true,
       minFileSize: 0,
-      fallbackToBrowser: true,
       hideDownloadBar: false,
-      notifyOnStart: true,
-      notifyOnComplete: false,
       autoLaunchApp: true,
     });
   });
@@ -308,6 +299,9 @@ describe('parseDiagnosticEvents', () => {
     'storage_migrated',
     'download_bar_error',
     'tab_query_failed',
+    // Notification
+    'notification_create_failed',
+    'download_route_failed',
   ] as const)('accepts diagnostic code: %s', (code) => {
     const input = [{ id: 'e1', ts: 1, level: 'info', code, message: 'test' }];
     const result = parseDiagnosticEvents(input);
@@ -325,10 +319,7 @@ describe('parseStorage', () => {
     expect(result.settings).toEqual({
       enabled: true,
       minFileSize: 0,
-      fallbackToBrowser: true,
       hideDownloadBar: false,
-      notifyOnStart: true,
-      notifyOnComplete: false,
       autoLaunchApp: true,
     });
     expect(result.siteRules).toEqual([]);

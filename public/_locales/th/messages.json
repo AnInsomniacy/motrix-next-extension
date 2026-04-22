@@ -101,14 +101,6 @@
     "message": "ข้ามไฟล์ที่เล็กกว่าเกณฑ์นี้",
     "description": "Description text for minimum file size input"
   },
-  "options_fallback_label": {
-    "message": "กลับไปใช้เบราว์เซอร์เมื่อเกิดข้อผิดพลาด",
-    "description": "Toggle label for browser fallback"
-  },
-  "options_fallback_desc": {
-    "message": "Resume download in browser if Motrix Next fails",
-    "description": "Description text for the fallback toggle"
-  },
   "options_notify_label": {
     "message": "การแจ้งเตือน",
     "description": "Toggle label for enabling notifications"
@@ -198,14 +190,6 @@
   "options_connection_success_prefix": {
     "message": "Connected · Motrix",
     "description": "Prefix for successful connection status"
-  },
-  "options_notify_start_label": {
-    "message": "แจ้งเตือนเมื่อเริ่มดาวน์โหลด",
-    "description": "Toggle label for start notifications"
-  },
-  "options_notify_complete_label": {
-    "message": "แจ้งเตือนเมื่อดาวน์โหลดเสร็จ",
-    "description": "Toggle label for completion notifications"
   },
   "options_rules_empty": {
     "message": "ยังไม่ได้ตั้งค่ากฎ",

@@ -101,14 +101,6 @@
     "message": "略過小於此門檻的檔案",
     "description": "Description text for minimum file size input"
   },
-  "options_fallback_label": {
-    "message": "失敗時回退到瀏覽器",
-    "description": "Toggle label for browser fallback"
-  },
-  "options_fallback_desc": {
-    "message": "當 Motrix Next 失敗時回退到瀏覽器下載",
-    "description": "Description text for the fallback toggle"
-  },
   "options_notify_label": {
     "message": "通知",
     "description": "Toggle label for enabling notifications"
@@ -198,14 +190,6 @@
   "options_connection_success_prefix": {
     "message": "已連接 · Motrix",
     "description": "Prefix for successful connection status"
-  },
-  "options_notify_start_label": {
-    "message": "下載開始時通知",
-    "description": "Toggle label for start notifications"
-  },
-  "options_notify_complete_label": {
-    "message": "下載完成時通知",
-    "description": "Toggle label for completion notifications"
   },
   "options_rules_empty": {
     "message": "尚未設定規則。",

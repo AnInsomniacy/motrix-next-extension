@@ -25,11 +25,12 @@ export class DownloadBarService {
     this.api = api;
   }
 
+  /**
+   * Apply download bar visibility preference.
+   * Throws if the API is unavailable — caller should catch for
+   * graceful degradation and diagnostic logging.
+   */
   async apply(input: DownloadBarInput): Promise<void> {
-    try {
-      await this.api.setUiOptions({ enabled: !input.hideDownloadBar });
-    } catch {
-      // Graceful degradation: API may not be available on older Chrome versions
-    }
+    await this.api.setUiOptions({ enabled: !input.hideDownloadBar });
   }
 }

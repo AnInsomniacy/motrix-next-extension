@@ -28,7 +28,7 @@ export function useDiagnostics(storageService: StorageService) {
    * (except API secret), and the full diagnostic event log.
    */
   async function exportDiagnosticReport(): Promise<void> {
-    const data = await storageService.load();
+    const { storage: data } = await storageService.load();
 
     const report = {
       exportedAt: new Date().toISOString(),

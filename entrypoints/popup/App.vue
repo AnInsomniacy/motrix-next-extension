@@ -115,7 +115,7 @@ function launchApp(): void {
 async function toggleEnabled(): Promise<void> {
   enabled.value = !enabled.value;
   try {
-    const data = await storageService.load();
+    const { storage: data } = await storageService.load();
     await storageService.saveSettings({
       ...data.settings,
       enabled: enabled.value,
@@ -130,7 +130,7 @@ async function toggleEnabled(): Promise<void> {
 
 onMounted(async () => {
   storageService = new StorageService(chrome.storage.local);
-  const data = await storageService.load();
+  const { storage: data } = await storageService.load();
 
   // Hydrate interception toggle state
   enabled.value = data.settings.enabled;

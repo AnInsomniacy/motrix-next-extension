@@ -101,14 +101,6 @@
     "message": "跳过小于此阈值的文件",
     "description": "最小文件大小输入的说明文本"
   },
-  "options_fallback_label": {
-    "message": "失败时回退到浏览器下载",
-    "description": "浏览器回退开关"
-  },
-  "options_fallback_desc": {
-    "message": "当 Motrix Next 失败时回退到浏览器下载",
-    "description": "Description text for the fallback toggle"
-  },
   "options_notify_label": {
     "message": "通知",
     "description": "启用通知的开关"
@@ -198,14 +190,6 @@
   "options_connection_success_prefix": {
     "message": "已连接 · Motrix",
     "description": "Prefix for successful connection status"
-  },
-  "options_notify_start_label": {
-    "message": "下载开始时通知",
-    "description": "开始通知的开关标签"
-  },
-  "options_notify_complete_label": {
-    "message": "下载完成时通知",
-    "description": "完成通知的开关标签"
   },
   "options_rules_empty": {
     "message": "未配置规则。",

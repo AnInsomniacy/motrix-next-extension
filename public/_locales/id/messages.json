@@ -101,14 +101,6 @@
     "message": "Lewati file yang lebih kecil dari ambang batas ini",
     "description": "Description text for minimum file size input"
   },
-  "options_fallback_label": {
-    "message": "Kembali ke browser jika gagal",
-    "description": "Toggle label for browser fallback"
-  },
-  "options_fallback_desc": {
-    "message": "Resume download in browser if Motrix Next fails",
-    "description": "Description text for the fallback toggle"
-  },
   "options_notify_label": {
     "message": "Notifikasi",
     "description": "Toggle label for enabling notifications"
@@ -198,14 +190,6 @@
   "options_connection_success_prefix": {
     "message": "Connected · Motrix",
     "description": "Prefix for successful connection status"
-  },
-  "options_notify_start_label": {
-    "message": "Notifikasi saat unduhan dimulai",
-    "description": "Toggle label for start notifications"
-  },
-  "options_notify_complete_label": {
-    "message": "Notifikasi saat unduhan selesai",
-    "description": "Toggle label for completion notifications"
   },
   "options_rules_empty": {
     "message": "Belum ada aturan yang dikonfigurasi.",

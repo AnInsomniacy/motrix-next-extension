@@ -1,5 +1,3 @@
-export { CompletionTracker } from './completion-tracker';
-export type { CompletionTrackerDeps } from './completion-tracker';
 export { ConnectionService, ConnectionStatus } from './connection';
 export type { ConnectionResult } from './connection';
 export { ContextMenuService } from './context-menu';

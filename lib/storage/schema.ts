@@ -37,10 +37,7 @@ const DownloadSettingsSchema = z
   .object({
     enabled: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.enabled),
     minFileSize: z.number().min(0).default(DEFAULT_DOWNLOAD_SETTINGS.minFileSize),
-    fallbackToBrowser: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.fallbackToBrowser),
     hideDownloadBar: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar),
-    notifyOnStart: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.notifyOnStart),
-    notifyOnComplete: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.notifyOnComplete),
     autoLaunchApp: z.boolean().default(DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp),
   })
   .strict();
@@ -103,6 +100,9 @@ const DiagnosticCodeSchema = z.enum([
   'storage_migrated',
   'download_bar_error',
   'tab_query_failed',
+  // Notification
+  'notification_create_failed',
+  'download_route_failed',
 ]);
 
 const DiagnosticEventSchema = z.object({

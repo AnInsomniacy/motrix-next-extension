@@ -28,13 +28,14 @@ describe('StorageService.load', () => {
     const api = createMockApi({});
     const service = new StorageService(api);
 
-    const result = await service.load();
+    const { storage: result, migration } = await service.load();
 
     expect(result.connection).toEqual({ port: 16801, secret: '' });
     expect(result.settings.enabled).toBe(true);
     expect(result.siteRules).toEqual([]);
     expect(result.uiPrefs.theme).toBe('system');
     expect(result.diagnosticLog).toEqual([]);
+    expect(migration.migrated).toBe(true);
   });
 
   it('returns schema-validated data for valid storage', async () => {
@@ -44,20 +45,20 @@ describe('StorageService.load', () => {
       settings: {
         enabled: false,
         minFileSize: 5,
-        fallbackToBrowser: false,
         hideDownloadBar: true,
-        notifyOnStart: false,
-        notifyOnComplete: true,
       },
     });
     const service = new StorageService(api);
 
-    const result = await service.load();
+    const { storage: result, migration } = await service.load();
 
     expect(result.connection.port).toBe(9000);
     expect(result.connection.secret).toBe('test');
     expect(result.settings.enabled).toBe(false);
     expect(result.settings.minFileSize).toBe(5);
+    expect(migration.from).toBe(1);
+    expect(migration.to).toBe(2);
+    expect(migration.migrated).toBe(true);
   });
 
   it('returns defaults for corrupt storage without throwing', async () => {
@@ -67,7 +68,7 @@ describe('StorageService.load', () => {
     });
     const service = new StorageService(api);
 
-    const result = await service.load();
+    const { storage: result } = await service.load();
 
     // Should return defaults, not throw
     expect(result.connection.port).toBe(16801);
@@ -100,10 +101,7 @@ describe('StorageService.saveSettings', () => {
     const settings = {
       enabled: false,
       minFileSize: 10,
-      fallbackToBrowser: false,
       hideDownloadBar: true,
-      notifyOnStart: false,
-      notifyOnComplete: true,
       autoLaunchApp: false,
     };
 
