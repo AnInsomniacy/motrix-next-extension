@@ -76,7 +76,7 @@ Then load the unpacked extension:
 1. Navigate to `chrome://extensions` (or `edge://extensions`)
 2. Enable **Developer mode**
 3. Click **Load unpacked**
-4. Select the `.output/chrome-mv3` directory
+4. Select the `.output/chromium-mv3` directory
 
 **Firefox:**
 
@@ -173,22 +173,22 @@ motrix-next-extension/
 
 ### Scripts
 
-| Command              | Description                                         |
-| -------------------- | --------------------------------------------------- |
-| `pnpm dev`           | Start WXT dev server with hot reload (Chrome)       |
-| `pnpm dev:firefox`   | Start WXT dev server with hot reload (Firefox)      |
-| `pnpm build`         | Production build → `.output/chrome-mv3/`            |
-| `pnpm build:firefox` | Production build → `.output/firefox-mv3/`           |
-| `pnpm zip`           | Package Chrome build as `.zip` for store submission |
-| `pnpm zip:firefox`   | Package Firefox build as `.zip` for AMO submission  |
-| `pnpm zip:all`       | Package both Chrome and Firefox builds              |
-| `pnpm test`          | Run all unit and integration tests                  |
-| `pnpm test:watch`    | Run tests in watch mode                             |
-| `pnpm compile`       | TypeScript type checking (`vue-tsc --noEmit`)       |
-| `pnpm lint`          | ESLint (flat config, Vue 3 + TypeScript)            |
-| `pnpm lint:i18n`     | Validate i18n key consistency across all locales    |
-| `pnpm format`        | Auto-format all files with Prettier                 |
-| `pnpm format:check`  | Verify formatting without writing                   |
+| Command              | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| `pnpm dev`           | Start WXT dev server with hot reload (Chrome)         |
+| `pnpm dev:firefox`   | Start WXT dev server with hot reload (Firefox)        |
+| `pnpm build`         | Production build → `.output/chromium-mv3/`            |
+| `pnpm build:firefox` | Production build → `.output/firefox-mv3/`             |
+| `pnpm zip`           | Package Chromium build as `.zip` for store submission |
+| `pnpm zip:firefox`   | Package Firefox build as `.zip` for AMO submission    |
+| `pnpm zip:all`       | Package both Chrome and Firefox builds                |
+| `pnpm test`          | Run all unit and integration tests                    |
+| `pnpm test:watch`    | Run tests in watch mode                               |
+| `pnpm compile`       | TypeScript type checking (`vue-tsc --noEmit`)         |
+| `pnpm lint`          | ESLint (flat config, Vue 3 + TypeScript)              |
+| `pnpm lint:i18n`     | Validate i18n key consistency across all locales      |
+| `pnpm format`        | Auto-format all files with Prettier                   |
+| `pnpm format:check`  | Verify formatting without writing                     |
 
 ### Testing
 

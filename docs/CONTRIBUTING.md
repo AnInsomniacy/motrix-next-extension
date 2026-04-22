@@ -26,7 +26,7 @@ Load the unpacked extension:
 1. Navigate to `chrome://extensions`
 2. Enable **Developer mode**
 3. Click **Load unpacked**
-4. Select the `.output/chrome-mv3` directory
+4. Select the `.output/chromium-mv3` directory
 
 ## ✅ Code Quality
 

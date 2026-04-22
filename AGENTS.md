@@ -16,7 +16,7 @@
 | **UI**              | Naive UI + Tailwind CSS 4                       |
 | **Validation**      | Zod 4 (storage schemas)                         |
 | **Testing**         | Vitest (350 tests, DI-based — no browser mocks) |
-| **Build**           | Vite (via WXT) → `.output/chrome-mv3/`          |
+| **Build**           | Vite (via WXT) → `.output/chromium-mv3/`        |
 | **Package Manager** | pnpm 10                                         |
 
 ### Key File Paths
