@@ -16,7 +16,7 @@ mkdirSync(FIREFOX_PROFILE, { recursive: true });
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
   zip: {
-    artifactTemplate: '{{name}}-{{version}}-{{browser}}-mv3.zip',
+    artifactTemplate: '{{name}}-{{version}}-chromium-mv3.zip',
   },
   webExt: {
     // Reuse a persistent browser profile across dev restarts so that

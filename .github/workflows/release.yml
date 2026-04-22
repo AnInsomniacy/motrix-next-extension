@@ -56,7 +56,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - browser: chrome
+          - browser: chromium
             zip_cmd: pnpm zip
           - browser: firefox
             zip_cmd: pnpm zip:firefox

@@ -15,7 +15,7 @@
 | **Framework**       | WXT 0.20 (Manifest V3) + Vue 3 Composition API  |
 | **UI**              | Naive UI + Tailwind CSS 4                       |
 | **Validation**      | Zod 4 (storage schemas)                         |
-| **Testing**         | Vitest (335 tests, DI-based — no browser mocks) |
+| **Testing**         | Vitest (350 tests, DI-based — no browser mocks) |
 | **Build**           | Vite (via WXT) → `.output/chrome-mv3/`          |
 | **Package Manager** | pnpm 10                                         |
 
@@ -45,7 +45,6 @@ lib/                             # Core logic — all services use dependency in
 │   └── aria2-client.ts          # aria2 JSON-RPC 2.0 client with retry and auth
 ├── services/
 │   ├── connection.ts            # Heartbeat polling, connect/disconnect state
-│   ├── completion-tracker.ts    # Poll active tasks, detect completion, notify
 │   ├── context-menu.ts          # Right-click "Download with Motrix Next"
 │   ├── download-bar.ts          # chrome.downloads.setUiOptions (Chrome 115+)
 │   ├── notification.ts          # Desktop notification builder
@@ -83,7 +82,8 @@ public/_locales/                 # Chrome i18n message bundles (26 languages, se
 
 .github/workflows/
 ├── ci.yml                       # Quality gate: compile → test → lint → i18n → format → build
-└── release.yml                  # Package → upload to GitHub Release → publish to stores
+├── release.yml                  # Package → upload to GitHub Release
+└── publish.yml                  # Manual store publishing (Chrome, Firefox, Edge)
 ```
 
 ### A′. Download Filter Pipeline
@@ -423,7 +423,7 @@ Run these before committing changes:
 pnpm format           # Auto-format all files
 pnpm format:check     # Verify formatting (CI runs this)
 pnpm compile          # TypeScript type checking
-pnpm test             # Vitest — 335 unit + integration tests
+pnpm test             # Vitest — 350 unit + integration tests
 pnpm lint             # ESLint
 pnpm lint:i18n        # i18n key consistency across 26 locales
 pnpm build            # Production build

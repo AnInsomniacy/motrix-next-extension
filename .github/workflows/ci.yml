@@ -45,7 +45,7 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
-      - name: Build extension (Chrome)
+      - name: Build extension (Chromium)
         run: pnpm build
 
       - name: Build extension (Firefox)
