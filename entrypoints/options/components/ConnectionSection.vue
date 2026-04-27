@@ -93,7 +93,7 @@ const errorMessage = computed(() => {
           class="section__feedback section__feedback--ok"
         >
           <NIcon :size="16"><CheckmarkCircleOutline /></NIcon>
-          {{ i18n('options_connection_success_prefix', 'Connected · Motrix') }}
+          {{ i18n('options_connection_success_prefix', 'Connected · Motrix Next') }}
           <NTag size="small" round>v{{ version }}</NTag>
         </span>
         <span v-else-if="error" key="err" class="section__feedback section__feedback--err">

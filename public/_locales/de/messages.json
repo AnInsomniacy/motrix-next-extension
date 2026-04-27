@@ -188,7 +188,7 @@
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Connected · Motrix",
+    "message": "Verbunden · Motrix Next",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {

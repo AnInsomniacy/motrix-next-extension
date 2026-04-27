@@ -188,7 +188,7 @@
     "description": "测试连接时的按钮文字"
   },
   "options_connection_success_prefix": {
-    "message": "已连接 · Motrix",
+    "message": "已连接 · Motrix Next",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {

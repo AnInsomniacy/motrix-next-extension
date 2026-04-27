@@ -237,72 +237,40 @@ export default defineBackground(() => {
 
   // ─── Download interception ─────────────────────────────
   //
-  // Chrome: onDeterminingFilename — blocking event where Chrome holds the
-  // download in pending state until suggest() is called. Eliminates race.
+  // Unified path: onCreated fires for ALL downloads on all browsers.
+  // Pattern: detect → filter → cancel + erase → route to desktop.
   //
-  // Firefox: onCreated — non-blocking notification that a download started.
-  // We cancel + erase it immediately, then re-download via Motrix Next.
-  // This is the standard pattern used by all Firefox download managers.
+  // Why not onDeterminingFilename (Chrome-only)?
+  // Chrome skips onDeterminingFilename for navigation-to-download conversions
+  // when <a target="_blank"> has non-ASCII characters in href (issue #21).
+  // onCreated is the industry-standard interception mechanism used by
+  // NeatDownloadManager, Free Download Manager, and other MV3 extensions.
+  // It fires reliably for every download regardless of how it was initiated.
 
-  if (import.meta.env.FIREFOX) {
-    // Firefox path: onCreated fires after the download has been initiated.
-    // Cancel immediately, collect metadata, and send to Motrix Next.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (browser.downloads as any).onCreated.addListener((item: Record<string, unknown>) => {
-      void ensureConfigLoaded().then(async () => {
-        try {
-          await orchestrator.handleCreated({
-            id: item.id as number,
-            url: (item.url as string) ?? '',
-            finalUrl: (item.finalUrl as string) ?? (item.url as string) ?? '',
-            filename: (item.filename as string) ?? '',
-            fileSize: (item.fileSize as number) ?? -1,
-            mime: (item.mime as string) ?? '',
-            byExtensionId: item.byExtensionId as string | undefined,
-            state: (item.state as string) ?? 'in_progress',
-          });
-        } catch (e) {
-          logError(
-            'download_handler_error',
-            `Firefox download handler crashed: ${e instanceof Error ? e.message : String(e)}`,
-            {
-              url: (item.url as string) ?? '',
-            },
-          );
-        }
-      });
+  chrome.downloads.onCreated.addListener((item) => {
+    void ensureConfigLoaded().then(async () => {
+      try {
+        await orchestrator.handleCreated({
+          id: item.id,
+          url: item.url,
+          finalUrl: item.finalUrl ?? item.url,
+          filename: item.filename ?? '',
+          fileSize: item.fileSize ?? -1,
+          mime: item.mime ?? '',
+          byExtensionId: (item as unknown as Record<string, unknown>).byExtensionId as
+            | string
+            | undefined,
+          state: item.state ?? 'in_progress',
+        });
+      } catch (e) {
+        logError(
+          'download_handler_error',
+          `Download handler crashed: ${e instanceof Error ? e.message : String(e)}`,
+          { url: item.url },
+        );
+      }
     });
-  } else {
-    // Chrome path: onDeterminingFilename is a blocking event.
-    // Chrome holds the download in pending state until suggest() is called.
-    chrome.downloads.onDeterminingFilename.addListener((item, suggest) => {
-      void ensureConfigLoaded().then(async () => {
-        try {
-          const intercepted = await orchestrator.handleCreated({
-            id: item.id,
-            url: item.url,
-            finalUrl: item.finalUrl,
-            filename: item.filename,
-            fileSize: item.fileSize,
-            mime: item.mime,
-            byExtensionId: (item as unknown as Record<string, string>).byExtensionId,
-            state: item.state,
-          });
-          if (!intercepted) suggest();
-        } catch (e) {
-          logError(
-            'download_handler_error',
-            `Chrome download handler crashed: ${e instanceof Error ? e.message : String(e)}`,
-            {
-              url: item.url,
-            },
-          );
-          suggest(); // Error → let browser handle it
-        }
-      });
-      return true; // Will call suggest() asynchronously
-    });
-  }
+  });
 
   // Context menu — registration deferred (see loadConfig().then() below)
   // so that bgI18n has the user's locale loaded before reading the title.

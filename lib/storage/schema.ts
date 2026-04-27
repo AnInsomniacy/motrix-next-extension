@@ -18,6 +18,11 @@
  */
 import { z } from 'zod';
 
+// Zod 4 uses new Function() for JIT schema compilation by default.
+// MV3 CSP strictly forbids eval/new Function() in service workers and
+// extension pages. jitless mode uses a safe interpretation path instead.
+z.config({ jitless: true });
+
 import {
   DEFAULT_CONNECTION_CONFIG,
   DEFAULT_DOWNLOAD_SETTINGS,

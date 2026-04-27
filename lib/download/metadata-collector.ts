@@ -41,7 +41,7 @@ export class MetadataCollector {
   }
 
   /**
-   * Build Motrix-compatible header array from metadata.
+   * Build Motrix Next–compatible header array from metadata.
    * Returns headers like ["Cookie: ...", "Referer: ..."].
    */
   static buildHeaders(metadata: DownloadMetadata): string[] {

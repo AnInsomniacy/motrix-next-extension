@@ -1,5 +1,5 @@
 /**
- * @fileoverview HTTP client for the Motrix desktop app's embedded REST API.
+ * @fileoverview HTTP client for the Motrix Next desktop app's embedded REST API.
  *
  * Replaces the `motrixnext://` deep-link protocol for browser extension →
  * desktop communication. Communicates with the Axum HTTP server running
