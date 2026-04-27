@@ -140,6 +140,8 @@ describe('FileSizeStage', () => {
 // ─── Site Rule Stage ────────────────────────────────────
 
 describe('SiteRuleStage', () => {
+  // ── Existing behavior (must remain green) ──
+
   it('returns null when no rules match', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'other.com', action: 'always-skip' }];
     const stage = new SiteRuleStage(() => rules);
@@ -194,6 +196,121 @@ describe('SiteRuleStage', () => {
     expect(stage.name).toBe('site-rule');
     expect(typeof stage.evaluate).toBe('function');
     expect(stage.evaluate.length).toBe(2); // Only 2 params now
+  });
+
+  // ── Glob patterns via picomatch ──
+
+  it('matches mid-domain wildcard (*.lanzou*.com)', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: '*.lanzou*.com', action: 'always-skip' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({ tabUrl: 'https://www.lanzoux.com/download' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  it('does not match unrelated domain against mid-domain wildcard', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: '*.lanzou*.com', action: 'always-skip' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({ tabUrl: 'https://developer2.lanrar.com/file' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
+  });
+
+  it('matches private IP range pattern (192.168.*.*)', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: '192.168.*.*', action: 'always-skip' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({ tabUrl: 'https://192.168.1.100/files' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  it('does not match public IP against private IP pattern', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: '192.168.*.*', action: 'always-skip' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({ tabUrl: 'https://10.0.0.1/files' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
+  });
+
+  it('matches 10.* intranet range', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: '10.*.*.*', action: 'always-skip' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({ tabUrl: 'https://10.0.0.1/nas' });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  // ── Triple-hostname matching (tabUrl + url + finalUrl) ──
+
+  it('matches rule against download finalUrl when tabUrl does not match', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: '*.webgetstore.com', action: 'always-skip' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({
+      tabUrl: 'https://developer2.lanrar.com/page',
+      url: 'https://developer2.lanrar.com/file/abc',
+      finalUrl: 'https://zip1.webgetstore.com/file.zip',
+    });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  it('matches rule against download url when tabUrl does not match', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: '*.cdn.example.com', action: 'always-intercept' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({
+      tabUrl: 'https://example.com/page',
+      url: 'https://files.cdn.example.com/big.zip',
+      finalUrl: 'https://files.cdn.example.com/big.zip',
+    });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('intercept');
+  });
+
+  it('matches rule against tabUrl even when download url differs', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: 'trusted-site.com', action: 'always-intercept' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({
+      tabUrl: 'https://trusted-site.com/page',
+      url: 'https://cdn.other.com/file.zip',
+      finalUrl: 'https://cdn.other.com/file.zip',
+    });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('intercept');
+  });
+
+  it('deduplicates hostnames when tabUrl and url share same host', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: 'example.com', action: 'always-skip' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({
+      tabUrl: 'https://example.com/page',
+      url: 'https://example.com/file.zip',
+      finalUrl: 'https://example.com/file.zip',
+    });
+    // Should still work (dedup doesn't break matching)
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
+  });
+
+  it('returns null when no hostname matches across all three URLs', () => {
+    const rules: SiteRule[] = [
+      { id: '1', pattern: '*.blocked.com', action: 'always-skip' },
+    ];
+    const stage = new SiteRuleStage(() => rules);
+    const ctx = createContext({
+      tabUrl: 'https://pagehost.com/page',
+      url: 'https://downloadhost.com/file.zip',
+      finalUrl: 'https://cdnhost.com/file.zip',
+    });
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
   });
 });
 

@@ -16,7 +16,7 @@
 import { ref, provide, onMounted, onUnmounted, computed, watch } from 'vue';
 import { NConfigProvider, createDiscreteApi } from 'naive-ui';
 import { StorageService } from '@/lib/storage';
-import type { ConnectionConfig } from '@/shared/types';
+import type { ConnectionConfig, DiagnosticEvent } from '@/shared/types';
 import {
   DEFAULT_CONNECTION_CONFIG,
   DEFAULT_DOWNLOAD_SETTINGS,
@@ -197,6 +197,14 @@ onMounted(() => {
   void loadFromStorage().then(() => appearance.applyTheme());
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     appearance.applyTheme();
+  });
+
+  // Live-update diagnostic log when background service worker writes new events
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') return;
+    if (changes.diagnosticLog?.newValue) {
+      hydrateDiagnostics(changes.diagnosticLog.newValue as DiagnosticEvent[]);
+    }
   });
 });
 

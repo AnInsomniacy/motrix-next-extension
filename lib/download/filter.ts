@@ -6,6 +6,7 @@ import type {
   FilterStage,
 } from '@/shared/types';
 import { INTERCEPTABLE_SCHEMES } from '@/shared/constants';
+import picomatch from 'picomatch';
 
 // ─── Stages ─────────────────────────────────────────────
 
@@ -81,11 +82,12 @@ export class SiteRuleStage implements FilterStage {
     const rules = this.getRules();
     if (!rules.length) return null;
 
-    const hostname = this.extractHostname(ctx.tabUrl);
-    if (!hostname) return null;
+    const hostnames = this.collectHostnames(ctx);
+    if (!hostnames.length) return null;
 
     for (const rule of rules) {
-      if (this.matchPattern(hostname, rule.pattern)) {
+      const isMatch = picomatch(rule.pattern);
+      if (hostnames.some((h) => isMatch(h))) {
         switch (rule.action) {
           case 'always-intercept':
             return 'intercept';
@@ -100,20 +102,31 @@ export class SiteRuleStage implements FilterStage {
     return null;
   }
 
+  /**
+   * Collect unique hostnames from all relevant URLs.
+   *
+   * Checks tabUrl (page origin), url (initial download URL), and
+   * finalUrl (after redirects). Deduplicates to avoid redundant matching.
+   */
+  private collectHostnames(ctx: FilterContext): string[] {
+    const seen = new Set<string>();
+    const hostnames: string[] = [];
+    for (const rawUrl of [ctx.tabUrl, ctx.url, ctx.finalUrl]) {
+      const h = this.extractHostname(rawUrl);
+      if (h && !seen.has(h)) {
+        seen.add(h);
+        hostnames.push(h);
+      }
+    }
+    return hostnames;
+  }
+
   private extractHostname(url: string): string | null {
     try {
       return new URL(url).hostname;
     } catch {
       return null;
     }
-  }
-
-  private matchPattern(hostname: string, pattern: string): boolean {
-    if (pattern.startsWith('*.')) {
-      const suffix = pattern.slice(2);
-      return hostname === suffix || hostname.endsWith(`.${suffix}`);
-    }
-    return hostname === pattern;
   }
 }
 
