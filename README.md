@@ -31,18 +31,18 @@
 
 ## Features
 
-- **Download interception** — Automatically captures browser downloads and routes them through aria2 for multi-threaded acceleration
+- **Download interception** — Automatically captures browser downloads and routes them to Motrix Next for multi-threaded acceleration
 - **Smart filtering** — 6-stage pipeline: global toggle → self-trigger guard → URL scheme → per-site rules → minimum file size → final verdict
 - **Per-site rules** — Glob-pattern rules (e.g. `*.github.com`) to always intercept, always skip, or defer to global settings
 - **Context menu** — Right-click any link, image, audio, or video → "Download with Motrix Next"
 - **Magnet & torrent** — `magnet:` URIs and `.torrent` files are automatically captured and routed to aria2
 - **Cookie forwarding** — Best-effort cookie forwarding via optional enhanced permissions for authenticated downloads
 - **Real-time dashboard** — Popup shows live download/upload speeds, active/waiting/completed task counts
-- **Auto-launch** — Launches Motrix Next via `motrixnext://` protocol when not running, waits for RPC, then retries
+- **Auto-launch** — Launches Motrix Next via `motrixnext://` protocol when not running, waits for API, then retries
 - **Completion notifications** — Desktop notifications when downloads are sent and when they finish
 - **Download bar control** — Optionally hides Chrome's native download shelf (Chromium 115+, not available on Firefox)
 - **Dark mode** — System / Light / Dark with 10 Material You color schemes
-- **i18n** — Full English, Chinese (Simplified), and Japanese localization
+- **i18n** — 26 languages including English, Chinese, Japanese, Korean, French, German, Spanish, and more
 - **Diagnostics** — Built-in event log with severity levels and one-click export
 
 ## Installation
@@ -100,7 +100,7 @@ Then load the unpacked extension:
 
 <br>
 
-Yes. This extension sends downloads to the Motrix Next desktop app via aria2 JSON-RPC on `127.0.0.1:16800`. Without the desktop app running, the extension will show a "Disconnected" status and cannot process downloads.
+Yes. This extension sends downloads to the Motrix Next desktop app via its HTTP API on `127.0.0.1:16801`. Without the desktop app running, the extension will show a "Disconnected" status and cannot process downloads.
 
 </details>
 
@@ -127,8 +127,8 @@ No. This extension does **not** collect, store, or transmit any personal data. A
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) ≥ 18
-- [pnpm](https://pnpm.io/) ≥ 9
-- [Motrix Next](https://github.com/AnInsomniacy/motrix-next) desktop app running with RPC enabled
+- [pnpm](https://pnpm.io/) ≥ 10
+- [Motrix Next](https://github.com/AnInsomniacy/motrix-next) desktop app running
 
 ### Setup
 
@@ -152,22 +152,23 @@ pnpm zip
 motrix-next-extension/
 ├── entrypoints/                # Extension entry points
 │   ├── background.ts           #   Service worker — orchestrator, listeners, polling
-│   ├── popup/App.vue           #   Browser action popup — status, tasks, actions
+│   ├── content.ts              #   Content script — magnet link click interception
+│   ├── popup/App.vue           #   Browser action popup — status, speed, task dashboard
 │   └── options/App.vue         #   Full-page settings — connection, behavior, rules
 ├── lib/                        # Core logic (dependency-injected, fully testable)
+│   ├── api/                    #   Desktop HTTP API client (Axum REST)
 │   ├── download/               #   Interception orchestrator, 6-stage filter, metadata collector
-│   ├── rpc/                    #   aria2 JSON-RPC 2.0 client with retry and auth
-│   ├── services/               #   Completion tracker, notifications, permissions, theme
-│   ├── protocol/               #   motrixnext:// launcher and wake logic
+│   ├── services/               #   Connection, wake, context menu, notifications, download bar, theme
+│   ├── protocol/               #   motrixnext:// protocol URL builder
 │   └── storage/                #   Zod-validated schemas, migration framework, diagnostic log
 ├── shared/                     # Shared utilities
 │   ├── i18n/                   #   Compile-time i18n engine with positional placeholders
 │   ├── types.ts                #   TypeScript interfaces
 │   └── constants.ts            #   Default configs, timing constants
-├── __tests__/                  # 330 tests across 28 files
-│   ├── unit/                   #   27 isolated service test files
+├── __tests__/                  # 350 tests across 25 files
+│   ├── unit/                   #   24 isolated service test files
 │   └── integration/            #   End-to-end interception flow
-├── public/_locales/            # Chrome i18n message bundles (en, zh_CN, ja)
+├── public/_locales/            # Chrome i18n message bundles (26 languages)
 └── .github/workflows/ci.yml   # CI: compile → test → lint → i18n → format → build
 ```
 
