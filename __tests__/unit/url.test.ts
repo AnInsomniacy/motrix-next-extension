@@ -67,7 +67,7 @@ describe('extractFilenameFromUrl', () => {
 
   it('prefers filename* over filename when both present', () => {
     const cdValue =
-      "attachment; filename=\"fallback.txt\"; filename*=UTF-8''%E4%B8%AD%E6%96%87.txt";
+      'attachment; filename="fallback.txt"; filename*=UTF-8\'\'%E4%B8%AD%E6%96%87.txt';
     const url =
       'https://cdn.example.com/hash?' +
       'response-content-disposition=' +
@@ -90,8 +90,7 @@ describe('extractFilenameFromUrl', () => {
   });
 
   it('falls back to pathname when content-disposition param is malformed', () => {
-    const url =
-      'https://cdn.example.com/files/good.zip?response-content-disposition=garbage';
+    const url = 'https://cdn.example.com/files/good.zip?response-content-disposition=garbage';
     expect(extractFilenameFromUrl(url)).toBe('good.zip');
   });
 
@@ -100,4 +99,3 @@ describe('extractFilenameFromUrl', () => {
     expect(extractFilenameFromUrl(url)).toBe('normal.zip');
   });
 });
-
