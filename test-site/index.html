@@ -633,19 +633,20 @@
             </div>
           </div>
           <div class="card">
-            <div class="card__bar card__bar--info"></div>
+            <div class="card__bar card__bar--error"></div>
             <div class="card__body">
               <div class="card__row">
-                <span class="card__name">OSS presigned URL — Regular file (URI)</span>
-                <span class="card__meta">.ipsw · ~243 MB</span>
+                <span class="card__name">⚠ OSS hash path — Extensionless URI (Bug #23)</span>
+                <span class="card__meta">.bin · 100 MB</span>
               </div>
               <div class="card__desc">
-                Hash path + response-content-disposition with <code>filename*</code> (RFC 5987
-                UTF-8). Expected filename: <strong>cloud-firmware-restore.ipsw</strong>
+                Path has <strong>no file extension</strong> (like real Quark CDN).
+                Desktop triggers <code>resolve_filename</code> HEAD → wrong <code>.xml</code>.
+                Expected filename: <strong>cloud-speed-test.bin</strong>
               </div>
             </div>
             <div class="card__actions">
-              <a class="btn btn--primary" id="btn-oss-uri">↓ Download</a>
+              <a class="btn btn--primary" id="btn-oss-hashpath">↓ Download</a>
             </div>
           </div>
         </div>
@@ -729,12 +730,14 @@
         a.click();
       });
 
-      // Test 2: Regular file (URI) with filename* UTF-8 (RFC 5987)
-      document.getElementById('btn-oss-uri').addEventListener('click', () => {
-        const baseUrl =
-          'https://secure-appldnld.apple.com/iPhone/061-7481.20100202.4orot/iPhone1,1_3.1.3_7E18_Restore.ipsw';
-        const cdValue = "attachment; filename*=UTF-8''cloud-firmware-restore.ipsw";
-        const ossUrl = baseUrl + '?response-content-disposition=' + encodeURIComponent(cdValue);
+      // Test 2: Extensionless hash path (Bug #23 scenario)
+      // Cloud drive CDNs serve files from hash paths with no extension.
+      // The extension extracts the correct filename from the CD query param.
+      document.getElementById('btn-oss-hashpath').addEventListener('click', () => {
+        const baseUrl = 'https://speed.hetzner.de/100MB.bin';
+        const cdValue = "attachment; filename*=UTF-8''cloud-speed-test.bin";
+        const ossUrl =
+          baseUrl + '?response-content-disposition=' + encodeURIComponent(cdValue);
         const a = document.createElement('a');
         a.href = ossUrl;
         a.click();
