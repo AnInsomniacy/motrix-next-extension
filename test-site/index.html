@@ -637,12 +637,12 @@
             <div class="card__body">
               <div class="card__row">
                 <span class="card__name">⚠ OSS hash path — Extensionless URI (Bug #23)</span>
-                <span class="card__meta">.bin · 100 MB</span>
+                <span class="card__meta">.ipsw · ~243 MB</span>
               </div>
               <div class="card__desc">
-                Path has <strong>no file extension</strong> (like real Quark CDN).
-                Desktop triggers <code>resolve_filename</code> HEAD → wrong <code>.xml</code>.
-                Expected filename: <strong>cloud-speed-test.bin</strong>
+                Path has <strong>no file extension</strong> (like real Quark CDN). Desktop triggers
+                <code>resolve_filename</code> HEAD → wrong <code>.xml</code>. Expected filename:
+                <strong>cloud-speed-test.ipsw</strong>
               </div>
             </div>
             <div class="card__actions">
@@ -734,10 +734,10 @@
       // Cloud drive CDNs serve files from hash paths with no extension.
       // The extension extracts the correct filename from the CD query param.
       document.getElementById('btn-oss-hashpath').addEventListener('click', () => {
-        const baseUrl = 'https://speed.hetzner.de/100MB.bin';
-        const cdValue = "attachment; filename*=UTF-8''cloud-speed-test.bin";
-        const ossUrl =
-          baseUrl + '?response-content-disposition=' + encodeURIComponent(cdValue);
+        const baseUrl =
+          'https://secure-appldnld.apple.com/iPhone/061-7481.20100202.4orot/iPhone1,1_3.1.3_7E18_Restore.ipsw';
+        const cdValue = "attachment; filename*=UTF-8''cloud-speed-test.ipsw";
+        const ossUrl = baseUrl + '?response-content-disposition=' + encodeURIComponent(cdValue);
         const a = document.createElement('a');
         a.href = ossUrl;
         a.click();
