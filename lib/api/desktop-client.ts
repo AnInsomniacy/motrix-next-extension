@@ -127,7 +127,14 @@ export class DesktopApiClient {
     });
 
     if (!res.ok) {
-      throw new Error(`Add download failed: HTTP ${res.status}`);
+      let detail = '';
+      try {
+        const body = await res.text();
+        if (body) detail = ` — ${body.slice(0, 200)}`;
+      } catch {
+        /* ignore body read failure */
+      }
+      throw new Error(`Add download failed: HTTP ${res.status}${detail}`);
     }
     return res.json() as Promise<AddDownloadResponse>;
   }

@@ -115,7 +115,14 @@ export class DownloadOrchestrator {
         level: 'info',
         code: 'download_skipped',
         message: `Skipped by ${stageName ?? 'unknown'}: ${item.url}`,
-        context: { url: item.url, stage: stageName ?? 'unknown' },
+        context: {
+          url: item.url,
+          stage: stageName ?? 'unknown',
+          fileSize: item.fileSize,
+          mime: item.mime,
+          tabUrl,
+          ...(item.byExtensionId ? { byExtensionId: item.byExtensionId } : {}),
+        },
       });
       return false;
     }
@@ -128,6 +135,9 @@ export class DownloadOrchestrator {
         url: item.url,
         fileSize: item.fileSize,
         mime: item.mime,
+        tabUrl,
+        ...(item.filename ? { filename: item.filename } : {}),
+        ...(item.byExtensionId ? { byExtensionId: item.byExtensionId } : {}),
         ...(stageName ? { stage: stageName } : {}),
       },
     });
@@ -201,7 +211,13 @@ export class DownloadOrchestrator {
           level: 'info',
           code: 'download_routed',
           message: `Routed via HTTP API: ${displayName} (${response.action})`,
-          context: { url, action: response.action, hasCookie: cookie.length > 0 },
+          context: {
+            url,
+            filename: displayName,
+            action: response.action,
+            ...(response.gid ? { gid: response.gid } : {}),
+            hasCookie: cookie.length > 0,
+          },
         });
         return true;
       } catch (e) {
@@ -226,6 +242,13 @@ export class DownloadOrchestrator {
           try {
             const woke = await this.deps.wakeDesktop();
             if (woke) {
+              this.deps.diagnosticLog.append({
+                level: 'info',
+                code: 'wake_success',
+                message: `Desktop app woke successfully for: ${displayName}`,
+                context: { url },
+              });
+
               const retryResponse = await this.deps.desktopClient.addDownload({
                 url,
                 referer: referer || undefined,
@@ -237,7 +260,14 @@ export class DownloadOrchestrator {
                 level: 'info',
                 code: 'download_routed',
                 message: `Routed via HTTP API (after wake): ${displayName} (${retryResponse.action})`,
-                context: { url, action: retryResponse.action, hasCookie: cookie.length > 0 },
+                context: {
+                  url,
+                  filename: displayName,
+                  action: retryResponse.action,
+                  ...(retryResponse.gid ? { gid: retryResponse.gid } : {}),
+                  hasCookie: cookie.length > 0,
+                  afterWake: true,
+                },
               });
               return true;
             }
@@ -278,7 +308,7 @@ export class DownloadOrchestrator {
         level: 'info',
         code: 'download_routed',
         message: `Routed via deep-link: ${displayName}`,
-        context: { url, hasCookie: cookie.length > 0 },
+        context: { url, filename: displayName, hasCookie: cookie.length > 0 },
       });
       return true;
     }

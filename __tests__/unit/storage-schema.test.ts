@@ -270,16 +270,13 @@ describe('parseDiagnosticEvents', () => {
     'download_fallback',
     'download_failed',
     'download_routed',
-    'download_browser_redirect',
     'download_cancel_failed',
     'download_handler_error',
     // Wake lifecycle
     'download_wake_attempt',
-    'wake_initiated',
     'wake_success',
     'wake_timeout',
     // Cookie & permission
-    'cookie_permission_missing',
     'cookie_collect_failed',
     'permission_granted',
     'permission_revoked',

@@ -266,7 +266,12 @@ export default defineBackground(() => {
         logError(
           'download_handler_error',
           `Download handler crashed: ${e instanceof Error ? e.message : String(e)}`,
-          { url: item.url },
+          {
+            url: item.url,
+            fileSize: item.fileSize ?? -1,
+            mime: item.mime ?? '',
+            filename: item.filename ?? '',
+          },
         );
       }
     });
