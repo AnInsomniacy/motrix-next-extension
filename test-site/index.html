@@ -608,6 +608,82 @@
         </div>
       </section>
 
+      <!-- ── 7. Cloud Drive Simulation (#23) ───────────────────── -->
+      <section class="section">
+        <div class="section__header">
+          <span class="section__icon">☁️</span>
+          <h2 class="section__title">Cloud Drive Simulation (#23)</h2>
+          <span class="section__count">expect: correct filename</span>
+        </div>
+        <div class="card-list">
+          <div class="card">
+            <div class="card__bar card__bar--info"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">OSS presigned URL — Torrent file</span>
+                <span class="card__meta">.torrent · 27 KB</span>
+              </div>
+              <div class="card__desc">
+                Hash path + response-content-disposition with <code>filename</code>.
+                Expected display name: <strong>cloud-test-KNOPPIX.torrent</strong>
+              </div>
+            </div>
+            <div class="card__actions">
+              <a class="btn btn--primary" id="btn-oss-torrent">↓ Download</a>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__bar card__bar--info"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">OSS presigned URL — Regular file (URI)</span>
+                <span class="card__meta">.ipsw · ~243 MB</span>
+              </div>
+              <div class="card__desc">
+                Hash path + response-content-disposition with <code>filename*</code>
+                (RFC 5987 UTF-8).
+                Expected filename: <strong>cloud-firmware-restore.ipsw</strong>
+              </div>
+            </div>
+            <div class="card__actions">
+              <a class="btn btn--primary" id="btn-oss-uri">↓ Download</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 8. target="_blank" + Non-ASCII (#21) ──────────────── -->
+      <section class="section">
+        <div class="section__header">
+          <span class="section__icon">🔗</span>
+          <h2 class="section__title">target="_blank" + Non-ASCII (#21)</h2>
+          <span class="section__count">expect: intercepted</span>
+        </div>
+        <div class="card-list">
+          <div class="card">
+            <div class="card__bar card__bar--error"></div>
+            <div class="card__body">
+              <div class="card__row">
+                <span class="card__name">Bug #21 — target="_blank" with non-ASCII href</span>
+                <span class="card__meta">.ipsw · ~243 MB</span>
+              </div>
+              <div class="card__desc">
+                <code>&lt;a target="_blank"&gt;</code> with raw non-ASCII in
+                <code>href</code>. Must be intercepted via <code>onCreated</code>.
+              </div>
+            </div>
+            <div class="card__actions">
+              <a
+                class="btn btn--primary"
+                target="_blank"
+                href="https://secure-appldnld.apple.com/iPhone/061-7481.20100202.4orot/iPhone1,1_3.1.3_7E18_Restore.ipsw?display=测试"
+                >↓ Download</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- ── Footer ───────────────────────────────────────────── -->
       <footer class="footer">
         Motrix Next Extension · Download Test Suite · For development use only
@@ -639,6 +715,33 @@
         a.download = 'blob-test.bin';
         a.click();
         URL.revokeObjectURL(url);
+      });
+
+      // ── Cloud Drive Simulation (#23) ──
+      // OSS presigned URL with response-content-disposition
+
+      // Test 1: Torrent file with filename param (basic Content-Disposition)
+      document.getElementById('btn-oss-torrent').addEventListener('click', () => {
+        const baseUrl = location.origin + '/torrents/knoppix-v9.1-cd-en.torrent';
+        const cdValue = 'attachment; filename="cloud-test-KNOPPIX.torrent"';
+        const ossUrl =
+          baseUrl + '?response-content-disposition=' + encodeURIComponent(cdValue);
+        const a = document.createElement('a');
+        a.href = ossUrl;
+        a.click();
+      });
+
+      // Test 2: Regular file (URI) with filename* UTF-8 (RFC 5987)
+      document.getElementById('btn-oss-uri').addEventListener('click', () => {
+        const baseUrl =
+          'https://secure-appldnld.apple.com/iPhone/061-7481.20100202.4orot/iPhone1,1_3.1.3_7E18_Restore.ipsw';
+        const cdValue =
+          "attachment; filename*=UTF-8''cloud-firmware-restore.ipsw";
+        const ossUrl =
+          baseUrl + '?response-content-disposition=' + encodeURIComponent(cdValue);
+        const a = document.createElement('a');
+        a.href = ossUrl;
+        a.click();
       });
     </script>
   </body>
