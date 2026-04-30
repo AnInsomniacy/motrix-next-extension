@@ -87,13 +87,31 @@ export class DownloadOrchestrator {
   /**
    * Handle a download interception event.
    *
-   * Called from `onDeterminingFilename` — the download is suspended by Chrome
-   * until the caller invokes `suggest()`. No `pause()` is needed.
+   * Called from `onCreated` — fires for every new download item.
    *
    * @returns `true` if the download was intercepted (cancel called),
-   *          `false` if the browser should continue (caller calls suggest).
+   *          `false` if the browser should continue normally.
    */
   async handleCreated(item: DownloadItem): Promise<boolean> {
+    // ─── State guard ────────────────────────────
+    // Chrome may replay `onCreated` for interrupted or completed downloads
+    // after system reboots or Service Worker restarts. Only genuinely new
+    // downloads have state === 'in_progress'. Stale items (complete,
+    // interrupted) must be ignored to prevent historical download floods (#267).
+    if (item.state !== 'in_progress') {
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_skipped',
+        message: `Skipped stale download (state=${item.state}): ${item.url}`,
+        context: {
+          url: item.url,
+          state: item.state,
+          stage: 'state-guard',
+        },
+      });
+      return false;
+    }
+
     const settings = this.deps.getSettings();
     const tabUrl = await this.deps.getTabUrl();
 

@@ -168,6 +168,64 @@ describe('DownloadOrchestrator', () => {
     });
   });
 
+  // ─── handleCreated — state guard (#267) ─────────────────
+
+  describe('handleCreated — state guard against stale replay', () => {
+    it('skips downloads with state "complete" (Chrome history replay)', async () => {
+      const item = createMockDownloadItem({ state: 'complete' });
+
+      const intercepted = await orchestrator.handleCreated(item);
+
+      expect(intercepted).toBe(false);
+      expect(deps.downloads.cancel).not.toHaveBeenCalled();
+      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
+    });
+
+    it('skips downloads with state "interrupted" (resumed after reboot)', async () => {
+      const item = createMockDownloadItem({ state: 'interrupted' });
+
+      const intercepted = await orchestrator.handleCreated(item);
+
+      expect(intercepted).toBe(false);
+      expect(deps.downloads.cancel).not.toHaveBeenCalled();
+      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
+    });
+
+    it('logs download_skipped with state-guard stage for stale items', async () => {
+      const item = createMockDownloadItem({ state: 'complete' });
+
+      await orchestrator.handleCreated(item);
+
+      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'download_skipped',
+          context: expect.objectContaining({
+            state: 'complete',
+            stage: 'state-guard',
+          }),
+        }),
+      );
+    });
+
+    it('intercepts downloads with state "in_progress" (normal new download)', async () => {
+      const item = createMockDownloadItem({ state: 'in_progress' });
+
+      const intercepted = await orchestrator.handleCreated(item);
+
+      expect(intercepted).toBe(true);
+      expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
+    });
+
+    it('does not invoke getSettings or getTabUrl for stale items (fast path)', async () => {
+      const item = createMockDownloadItem({ state: 'complete' });
+
+      await orchestrator.handleCreated(item);
+
+      expect(deps.getSettings).not.toHaveBeenCalled();
+      expect(deps.getTabUrl).not.toHaveBeenCalled();
+    });
+  });
+
   // ─── handleCreated — skip conditions (preserved) ───────
 
   describe('handleCreated — skip conditions', () => {
@@ -238,6 +296,7 @@ describe('DownloadOrchestrator', () => {
       expect(intercepted).toBe(false);
     });
   });
+
 
   // ─── handleCreated — defensive fallback ────────────────
 
