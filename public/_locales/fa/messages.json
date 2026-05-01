@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "ارسال کوکی‌ها",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "برای دانلودهای احراز هویت‌شده، مجوزهای اختیاری کوکی و سایت را درخواست می‌کند",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "کوکی‌ها را برای دانلودهای احراز هویت‌شده ارسال می‌کند",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "برای پنهان کردن نوار دانلود مرورگر، مجوز رابط دانلود را بدهید.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "برای ارسال کوکی‌ها به Motrix Next، مجوزهای کوکی و سایت را بدهید.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

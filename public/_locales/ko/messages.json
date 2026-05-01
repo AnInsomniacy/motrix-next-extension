@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "쿠키 전달",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "인증된 다운로드를 위해 선택적 쿠키 및 사이트 권한을 요청합니다",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "인증된 다운로드를 위해 쿠키를 전달합니다",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "브라우저 다운로드 표시줄을 숨기려면 다운로드 UI 권한을 허용하세요.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "쿠키를 Motrix Next로 전달하려면 쿠키 및 사이트 권한을 허용하세요.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

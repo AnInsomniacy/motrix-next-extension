@@ -10,7 +10,7 @@ export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = {
   minFileSize: 0,
   hideDownloadBar: false,
   autoLaunchApp: true,
-  forwardCookies: false,
+  forwardCookies: true,
 } as const;
 
 export const DEFAULT_UI_PREFS: Readonly<UiPrefs> = {

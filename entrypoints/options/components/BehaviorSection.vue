@@ -95,10 +95,7 @@ const { t: i18n } = useI18n();
         <div class="label-group">
           <span>{{ i18n('options_forward_cookies_label', 'Forward Cookies') }}</span>
           <span class="label-hint">{{
-            i18n(
-              'options_forward_cookies_desc',
-              'Requests optional cookie and site permissions for authenticated downloads',
-            )
+            i18n('options_forward_cookies_desc', 'Forwards cookies for authenticated downloads')
           }}</span>
         </div>
       </template>

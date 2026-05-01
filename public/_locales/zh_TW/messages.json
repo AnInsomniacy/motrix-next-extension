@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "轉送 Cookie",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "為需要驗證的下載要求選用的 Cookie 與網站權限",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "為需要驗證的下載轉送 Cookie",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "請授予下載介面權限以隱藏瀏覽器下載列。",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "請授予 Cookie 與網站權限，以將 Cookie 轉送至 Motrix Next。",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

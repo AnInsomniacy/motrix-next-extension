@@ -29,9 +29,9 @@ When a browser download is initiated and intercepted by the Extension, it reads:
 
 This data is sent only to the Motrix Next HTTP API running on `127.0.0.1` (localhost) — **never to any external server**.
 
-### Cookies (Optional — User-Initiated Only)
+### Cookies
 
-If the user explicitly enables "Forward Cookies" and grants the optional cookie and site permissions in Settings:
+Cookie forwarding is enabled by default and uses the required cookie and site permissions declared by the Extension:
 
 - The Extension reads cookies for the download URL's domain
 - These cookies are forwarded to the local Motrix Next HTTP API
@@ -39,7 +39,7 @@ If the user explicitly enables "Forward Cookies" and grants the optional cookie 
 - **Cookies are never sent to any external server** — only to the locally running Motrix Next instance
 - Cookies are not included in `motrixnext://` protocol fallback URLs
 
-If the user does not grant this permission, no cookies are accessed.
+The user can disable cookie forwarding in Settings at any time.
 
 ### Local Storage
 
@@ -73,10 +73,10 @@ Where `{port}` is the user-configured API port (default: 16801).
 | `contextMenus`                             | Add "Download with Motrix Next" to the right-click menu                          |
 | `notifications`                            | Show desktop notifications for download events                                   |
 | `webRequest`                               | Read download response filename headers before delegated downloads are cancelled |
-| `cookies` _(optional)_                     | Forward cookies to local Motrix Next for authenticated downloads                 |
+| `cookies`                                  | Forward cookies to local Motrix Next for authenticated downloads                 |
 | `downloads.ui` _(optional)_                | Hide the browser download bar after interception                                 |
 | `http://127.0.0.1/*`, `http://localhost/*` | Communicate with the local Motrix Next HTTP API                                  |
-| `https://*/*`, `http://*/*` _(optional)_   | Read cookies and response filename headers for delegated downloads               |
+| `https://*/*`, `http://*/*`                | Read cookies and response filename headers for delegated downloads               |
 
 ## Third-Party Services
 

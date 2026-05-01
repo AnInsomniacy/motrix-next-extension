@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Cookie-k továbbítása",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Opcionális cookie- és webhelyengedélyeket kér hitelesített letöltésekhez",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Cookie-kat továbbít a hitelesített letöltésekhez",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Add meg a letöltési felület engedélyét a böngésző letöltési sávjának elrejtéséhez.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Add meg a cookie- és webhelyengedélyeket a cookie-k Motrix Next felé továbbításához.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

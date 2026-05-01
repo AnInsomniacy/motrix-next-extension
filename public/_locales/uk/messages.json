@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Передавати cookie",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Запитує необов’язкові дозволи cookie та сайтів для автентифікованих завантажень",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Передає cookie для автентифікованих завантажень",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Надайте дозвіл інтерфейсу завантажень, щоб приховати панель завантажень браузера.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Надайте дозволи cookie та сайтів, щоб передавати cookie до Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

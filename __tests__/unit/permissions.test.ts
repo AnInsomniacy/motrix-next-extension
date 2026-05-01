@@ -24,8 +24,23 @@ describe('PermissionService', () => {
     });
   });
 
-  it('requests cookie forwarding as one atomic runtime permission grant', async () => {
+  it('uses existing required cookie forwarding permissions without prompting', async () => {
     const api = createApi();
+    api.contains.mockResolvedValue(true);
+    const service = new PermissionService(api);
+
+    await expect(service.requestCookieForwardingAccess()).resolves.toBe(true);
+
+    expect(api.contains).toHaveBeenCalledWith({
+      permissions: ['cookies'],
+      origins: ['https://*/*', 'http://*/*'],
+    });
+    expect(api.request).not.toHaveBeenCalled();
+  });
+
+  it('falls back to one atomic runtime grant when cookie forwarding permissions are missing', async () => {
+    const api = createApi();
+    api.contains.mockResolvedValue(false);
     api.request.mockResolvedValue(true);
     const service = new PermissionService(api);
 

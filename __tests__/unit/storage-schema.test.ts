@@ -79,7 +79,7 @@ describe('parseDownloadSettings', () => {
       minFileSize: 0,
       hideDownloadBar: false,
       autoLaunchApp: true,
-      forwardCookies: false,
+      forwardCookies: true,
     });
   });
 
@@ -90,7 +90,7 @@ describe('parseDownloadSettings', () => {
       minFileSize: 0,
       hideDownloadBar: false,
       autoLaunchApp: true,
-      forwardCookies: false,
+      forwardCookies: true,
     });
   });
 
@@ -353,7 +353,7 @@ describe('parseStorage', () => {
       minFileSize: 0,
       hideDownloadBar: false,
       autoLaunchApp: true,
-      forwardCookies: false,
+      forwardCookies: true,
     });
     expect(result.siteRules).toEqual([]);
     expect(result.uiPrefs).toEqual({ theme: 'system', colorScheme: 'amber', locale: 'auto' });

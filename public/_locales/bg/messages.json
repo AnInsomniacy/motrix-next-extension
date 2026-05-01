@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Препращане на бисквитки",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Иска незадължителни разрешения за бисквитки и сайтове за удостоверени изтегляния",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Препраща бисквитки за удостоверени изтегляния",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Разрешете интерфейса за изтегляния, за да скриете лентата за изтегляния на браузъра.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Разрешете бисквитки и сайтове, за да препращате бисквитки към Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

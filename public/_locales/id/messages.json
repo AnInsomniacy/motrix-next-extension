@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Teruskan Cookie",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Meminta izin cookie dan situs opsional untuk unduhan terautentikasi",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Meneruskan cookie untuk unduhan terautentikasi",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Berikan izin UI unduhan untuk menyembunyikan bilah unduhan browser.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Berikan izin cookie dan situs untuk meneruskan cookie ke Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

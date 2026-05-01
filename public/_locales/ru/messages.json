@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Передавать cookie",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Запрашивает необязательные разрешения cookie и сайтов для загрузок с авторизацией",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Передает cookie для загрузок с авторизацией",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Разрешите интерфейс загрузок, чтобы скрыть панель загрузок браузера.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Разрешите cookie и сайты, чтобы передавать cookie в Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

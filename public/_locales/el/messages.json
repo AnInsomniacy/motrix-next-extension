@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Προώθηση cookies",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Ζητά προαιρετικές άδειες cookies και ιστότοπων για λήψεις με έλεγχο ταυτότητας",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Προωθεί cookies για λήψεις με έλεγχο ταυτότητας",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Παραχωρήστε την άδεια διεπαφής λήψεων για απόκρυψη της γραμμής λήψεων του προγράμματος περιήγησης.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Παραχωρήστε άδειες cookies και ιστότοπων για προώθηση cookies στο Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

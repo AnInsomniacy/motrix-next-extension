@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "إعادة توجيه ملفات تعريف الارتباط",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "يطلب أذونات ملفات تعريف الارتباط والمواقع الاختيارية للتنزيلات التي تتطلب تسجيل الدخول",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "يعيد توجيه ملفات تعريف الارتباط للتنزيلات التي تتطلب تسجيل الدخول",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "امنح إذن واجهة التنزيلات لإخفاء شريط تنزيلات المتصفح.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "امنح أذونات ملفات تعريف الارتباط والمواقع لإعادة توجيه ملفات تعريف الارتباط إلى Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

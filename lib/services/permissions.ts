@@ -23,7 +23,10 @@ export class PermissionService {
     return this.api.contains(COOKIE_FORWARDING_PERMISSION);
   }
 
-  requestCookieForwardingAccess(): Promise<boolean> {
+  async requestCookieForwardingAccess(): Promise<boolean> {
+    if (await this.hasCookieForwardingAccess()) {
+      return true;
+    }
     return this.api.request(COOKIE_FORWARDING_PERMISSION);
   }
 

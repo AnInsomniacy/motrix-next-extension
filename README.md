@@ -36,7 +36,7 @@
 - **Per-site rules** — Glob-pattern rules (e.g. `*.github.com`) to always intercept, always skip, or defer to global settings
 - **Context menu** — Right-click any link, image, audio, or video → "Download with Motrix Next"
 - **Magnet & torrent** — `magnet:` URIs and `.torrent` files are automatically captured and routed to aria2
-- **Cookie forwarding** — Optional cookie forwarding for authenticated downloads, enabled only after an explicit runtime permission grant
+- **Cookie forwarding** — Cookie forwarding is enabled by default for authenticated downloads and uses required cookie and site permissions
 - **Real-time dashboard** — Popup shows live download/upload speeds, active/waiting/completed task counts
 - **Auto-launch** — Launches Motrix Next via `motrixnext://` protocol when not running, waits for API, then retries
 - **Failure notifications** — Alerts when an intercepted download cannot be delivered to Motrix Next
@@ -109,7 +109,7 @@ Yes. This extension sends downloads to the Motrix Next desktop app via its HTTP 
 
 <br>
 
-The broad host permissions (`*://*/*`) are **optional** — only requested when you explicitly enable "Forward Cookies" in Settings. The `chrome.cookies.getAll()` API requires matching host permissions for the target domain, and since downloads can come from any site, the extension needs wildcard access to read cookies. The same grant also lets the extension read `Content-Disposition` filename headers for delegated downloads. Cookies and filenames are sent only to the Motrix Next API on `127.0.0.1`.
+The broad host permissions (`*://*/*`) are required so cookie forwarding works immediately for authenticated downloads from any site. The `chrome.cookies.getAll()` API requires matching host permissions for the target domain, and browser downloads can originate from any domain. The same access also lets the extension read `Content-Disposition` filename headers for delegated downloads. Cookies and filenames are sent only to the Motrix Next API on `127.0.0.1`.
 
 </details>
 

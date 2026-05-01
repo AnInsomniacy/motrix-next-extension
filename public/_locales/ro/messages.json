@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Redirecționează cookie-uri",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Solicită permisiuni opționale pentru cookie-uri și site-uri pentru descărcări autentificate",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Redirecționează cookie-uri pentru descărcări autentificate",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Acordă permisiunea pentru interfața de descărcări ca să ascunzi bara de descărcări a browserului.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Acordă permisiuni pentru cookie-uri și site-uri ca să redirecționezi cookie-uri către Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

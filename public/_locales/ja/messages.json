@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Cookie を転送",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "認証が必要なダウンロードのために任意の Cookie とサイト権限を要求します",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "認証が必要なダウンロードの Cookie を転送します",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "ブラウザーのダウンロードバーを非表示にするには、ダウンロード UI 権限を許可してください。",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Cookie を Motrix Next に転送するには、Cookie とサイトの権限を許可してください。",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

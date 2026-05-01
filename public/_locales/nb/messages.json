@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Videresend informasjonskapsler",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Ber om valgfrie informasjonskapsel- og nettstedstillatelser for autentiserte nedlastinger",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Videresender informasjonskapsler for autentiserte nedlastinger",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Gi tillatelse til nedlastingsgrensesnittet for å skjule nettleserens nedlastingslinje.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Gi informasjonskapsel- og nettstedstillatelser for å videresende informasjonskapsler til Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Transférer les cookies",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Demande les autorisations facultatives de cookies et de sites pour les téléchargements authentifiés",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Transfère les cookies pour les téléchargements authentifiés",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Accordez l’autorisation de l’interface de téléchargements pour masquer la barre de téléchargements du navigateur.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Accordez les autorisations de cookies et de sites pour transférer les cookies vers Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }

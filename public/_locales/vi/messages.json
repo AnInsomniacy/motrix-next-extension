@@ -418,11 +418,11 @@
   },
   "options_forward_cookies_label": {
     "message": "Chuyển tiếp cookie",
-    "description": "Label for the optional cookie forwarding setting."
+    "description": "Label for the cookie forwarding setting."
   },
   "options_forward_cookies_desc": {
-    "message": "Yêu cầu quyền cookie và trang web tùy chọn cho các lượt tải xuống đã xác thực",
-    "description": "Description for the optional cookie forwarding setting."
+    "message": "Chuyển tiếp cookie cho các lượt tải xuống đã xác thực",
+    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Cấp quyền giao diện tải xuống để ẩn thanh tải xuống của trình duyệt.",
@@ -430,6 +430,6 @@
   },
   "options_permission_cookies_denied": {
     "message": "Cấp quyền cookie và trang web để chuyển tiếp cookie tới Motrix Next.",
-    "description": "Toast shown when optional cookie forwarding permissions are denied."
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
   }
 }
