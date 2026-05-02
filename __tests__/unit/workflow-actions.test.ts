@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest';
 import {
   buildDecision,
   renderStoreStatusReport,
+  resolveEdgeStoreStatus,
   type StoreStatusRow,
 } from '../../scripts/actions/store-status';
 import { renderPublishSummary } from '../../scripts/actions/publish-summary';
@@ -108,6 +109,47 @@ describe('workflow action helpers', () => {
         errors: ['Privacy information is missing'],
       }),
     ).toEqual({ action: 'failed', failed: true, terminal: true });
+  });
+
+  test('keeps Edge publishing blocked while a submitted version is not live', () => {
+    expect(
+      resolveEdgeStoreStatus({
+        errorCode: '',
+        liveVersion: '1.1.6',
+        operationStatus: 'Succeeded',
+        operationVersion: '1.2.4',
+      }),
+    ).toEqual({
+      pendingVersion: '1.2.4',
+      reviewState: 'Submitted, not live yet',
+      canPublishNow: 'No',
+    });
+
+    expect(
+      resolveEdgeStoreStatus({
+        errorCode: '',
+        liveVersion: '1.2.4',
+        operationStatus: 'Succeeded',
+        operationVersion: '1.2.4',
+      }),
+    ).toEqual({
+      pendingVersion: '-',
+      reviewState: 'Published',
+      canPublishNow: 'Yes',
+    });
+
+    expect(
+      resolveEdgeStoreStatus({
+        errorCode: 'InProgressSubmission',
+        liveVersion: '1.1.6',
+        operationStatus: 'Failed',
+        operationVersion: '1.2.4',
+      }),
+    ).toEqual({
+      pendingVersion: '1.2.4',
+      reviewState: 'Submission in progress',
+      canPublishNow: 'No',
+    });
   });
 
   test('renders store status with the summary table before the decision', () => {

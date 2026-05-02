@@ -32,6 +32,15 @@ type StoreStatusReportInput = {
   stores: StoreStatusRow[];
 };
 
+type EdgeStoreStatusInput = {
+  errorCode: string;
+  liveVersion: string;
+  operationStatus: string;
+  operationVersion: string;
+};
+
+type EdgeStoreStatus = Pick<StoreStatusRow, 'pendingVersion' | 'reviewState' | 'canPublishNow'>;
+
 type ChromeConfig = {
   clientId: string;
   clientSecret: string;
@@ -414,9 +423,12 @@ async function checkEdge(edge: EdgeConfig): Promise<StoreStatusRow> {
   return {
     store: 'Edge Add-ons',
     liveVersion: liveVersion || 'Unavailable',
-    pendingVersion: edge.operationVersion || 'Tracked operation',
-    reviewState: mapEdgeState(status, errorCode),
-    canPublishNow: mapEdgeCanPublish(status, errorCode),
+    ...resolveEdgeStoreStatus({
+      errorCode,
+      liveVersion,
+      operationStatus: status,
+      operationVersion: edge.operationVersion,
+    }),
     rawStatus: [
       `operation.status=${status || 'unset'}`,
       errorCode ? `errorCode=${errorCode}` : '',
@@ -429,6 +441,37 @@ async function checkEdge(edge: EdgeConfig): Promise<StoreStatusRow> {
       .join(', '),
     notes: `Operation ${edge.operationId} checked.`,
   };
+}
+
+export function resolveEdgeStoreStatus(input: EdgeStoreStatusInput): EdgeStoreStatus {
+  const pendingVersion = resolveEdgePendingVersion(input.liveVersion, input.operationVersion);
+
+  if (input.operationStatus === 'Succeeded') {
+    if (pendingVersion === '-') {
+      return {
+        pendingVersion,
+        reviewState: 'Published',
+        canPublishNow: 'Yes',
+      };
+    }
+
+    return {
+      pendingVersion,
+      reviewState: 'Submitted, not live yet',
+      canPublishNow: 'No',
+    };
+  }
+
+  return {
+    pendingVersion,
+    reviewState: mapEdgeState(input.operationStatus, input.errorCode),
+    canPublishNow: mapEdgeCanPublish(input.operationStatus, input.errorCode),
+  };
+}
+
+function resolveEdgePendingVersion(liveVersion: string, operationVersion: string): string {
+  if (!operationVersion) return 'Tracked operation';
+  return operationVersion === liveVersion ? '-' : operationVersion;
 }
 
 async function getEdgePublicVersion(extensionId: string): Promise<string> {
