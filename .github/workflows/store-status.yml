@@ -25,13 +25,14 @@ jobs:
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_INPUT: ${{ inputs.release }}
         run: |
           set -euo pipefail
 
           INPUT="${RELEASE_INPUT:-latest}"
           if [ "$INPUT" = "latest" ]; then
-            TAG=$(gh release list --exclude-pre-releases --limit 1 --json tagName -q '.[0].tagName')
+            TAG=$(gh release list --repo "$GH_REPO" --exclude-pre-releases --limit 1 --json tagName -q '.[0].tagName')
             if [ -z "$TAG" ]; then
               echo "::error::No production GitHub Release found"
               exit 1
@@ -44,7 +45,7 @@ jobs:
             esac
           fi
 
-          RELEASE_JSON=$(gh release view "$TAG" --json isPrerelease,tagName)
+          RELEASE_JSON=$(gh release view "$TAG" --repo "$GH_REPO" --json isPrerelease,tagName)
           IS_PRERELEASE=$(echo "$RELEASE_JSON" | jq -r '.isPrerelease')
           if [ "$IS_PRERELEASE" = "true" ]; then
             echo "::error::$TAG is a prerelease. Store status only compares production releases."
