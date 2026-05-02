@@ -18,6 +18,26 @@ export type EdgeVariableUpdateInput = {
   version: string;
 };
 
+type EdgePublishOperation = {
+  errorCode: string;
+  errors: unknown;
+  message: string;
+  status: string;
+};
+
+type EdgePublishOperationAction =
+  | 'failed'
+  | 'pending'
+  | 'published'
+  | 'skipped-in-review'
+  | 'skipped-no-updates';
+
+type EdgePublishOperationDecision = {
+  action: EdgePublishOperationAction;
+  failed: boolean;
+  terminal: boolean;
+};
+
 export function extractOperationIdFromLocation(location: string): string {
   if (!location) {
     throw new Error('Edge Add-ons response did not include a Location header');
@@ -39,6 +59,35 @@ export function buildEdgeVariableUpdates(input: EdgeVariableUpdateInput): Record
   };
 }
 
+export function classifyEdgePublishOperation(
+  operation: EdgePublishOperation,
+): EdgePublishOperationDecision {
+  if (operation.status === 'Succeeded') {
+    return { action: 'published', failed: false, terminal: true };
+  }
+
+  if (operation.status === 'InProgress') {
+    return { action: 'pending', failed: false, terminal: false };
+  }
+
+  if (operation.status === 'Failed') {
+    switch (operation.errorCode) {
+      case 'InProgressSubmission':
+        return { action: 'skipped-in-review', failed: false, terminal: true };
+      case 'NoModulesUpdated':
+        return { action: 'skipped-no-updates', failed: false, terminal: true };
+      default:
+        return { action: 'failed', failed: true, terminal: true };
+    }
+  }
+
+  if (operation.message) {
+    return { action: 'failed', failed: true, terminal: true };
+  }
+
+  return { action: 'pending', failed: false, terminal: false };
+}
+
 export async function publishEdgeFromEnv(): Promise<void> {
   const productId = requiredEnv('EDGE_PRODUCT_ID');
   const clientId = requiredEnv('EDGE_CLIENT_ID');
@@ -55,8 +104,12 @@ export async function publishEdgeFromEnv(): Promise<void> {
   const publishOperationId = await submitForReview({ authHeaders, productId });
   if (!publishOperationId) return;
 
-  setOutput('outcome', 'published');
   setOutput('operation_id', publishOperationId);
+  const publishResult = await waitForPublishOperation({
+    authHeaders,
+    operationId: publishOperationId,
+    productId,
+  });
 
   const updates = buildEdgeVariableUpdates({
     operationId: publishOperationId,
@@ -65,10 +118,41 @@ export async function publishEdgeFromEnv(): Promise<void> {
     version,
   });
 
+  if (publishResult.decision.action === 'skipped-in-review') {
+    console.log('::warning::Edge Add-ons: another submission is currently in review');
+    await saveRepositoryVariables(updates);
+    setOutput('outcome', 'skipped-in-review');
+    return;
+  }
+
+  if (publishResult.decision.action === 'skipped-no-updates') {
+    console.log('::warning::Edge Add-ons: no publishable draft updates were found');
+    await saveRepositoryVariables(updates);
+    setOutput('outcome', 'skipped-no-updates');
+    return;
+  }
+
+  if (publishResult.decision.failed) {
+    throw new Error(
+      `Edge Add-ons publish operation failed: ${formatEdgeOperation(publishResult.operation)}`,
+    );
+  }
+
   const saved = await saveRepositoryVariables(updates);
   if (!saved) {
-    setOutput('outcome', 'published-state-not-saved');
+    setOutput(
+      'outcome',
+      publishResult.decision.action === 'pending'
+        ? 'published-state-pending-not-saved'
+        : 'published-state-not-saved',
+    );
+    return;
   }
+
+  setOutput(
+    'outcome',
+    publishResult.decision.action === 'pending' ? 'published-state-pending' : 'published',
+  );
 }
 
 async function uploadDraftPackage(input: {
@@ -161,6 +245,62 @@ async function submitForReview(input: {
     throw new Error('Edge Add-ons publish response did not include an operation id');
   }
   return bodyOperationId;
+}
+
+async function waitForPublishOperation(input: {
+  authHeaders: Record<string, string>;
+  operationId: string;
+  productId: string;
+}): Promise<{
+  decision: EdgePublishOperationDecision;
+  operation: EdgePublishOperation;
+}> {
+  let operation = emptyEdgePublishOperation();
+  for (let attempt = 1; attempt <= 30; attempt += 1) {
+    await sleep(10_000);
+    const response = await fetchJson(
+      `https://api.addons.microsoftedge.microsoft.com/v1/products/${input.productId}/submissions/operations/${input.operationId}`,
+      { headers: input.authHeaders },
+    );
+    operation = readEdgePublishOperation(response);
+    const decision = classifyEdgePublishOperation(operation);
+    console.log(`Publish operation attempt ${attempt}: ${formatEdgeOperation(operation)}`);
+    if (decision.terminal) return { decision, operation };
+  }
+
+  return {
+    decision: { action: 'pending', failed: false, terminal: false },
+    operation,
+  };
+}
+
+function readEdgePublishOperation(value: unknown): EdgePublishOperation {
+  return {
+    errorCode: stringField(value, 'errorCode') || stringField(value, 'ErrorCode'),
+    errors: isRecord(value) ? value.errors : null,
+    message: stringField(value, 'message') || stringField(value, 'Message'),
+    status: stringField(value, 'status') || stringField(value, 'Status'),
+  };
+}
+
+function emptyEdgePublishOperation(): EdgePublishOperation {
+  return { errorCode: '', errors: null, message: '', status: '' };
+}
+
+function formatEdgeOperation(operation: EdgePublishOperation): string {
+  return [
+    `status=${operation.status || 'unknown'}`,
+    operation.errorCode ? `errorCode=${operation.errorCode}` : '',
+    operation.message ? `message=${operation.message}` : '',
+    formatEdgeErrors(operation.errors),
+  ]
+    .filter(Boolean)
+    .join(', ');
+}
+
+function formatEdgeErrors(errors: unknown): string {
+  if (errors === null || errors === undefined) return '';
+  return `errors=${JSON.stringify(errors).slice(0, 500)}`;
 }
 
 async function saveRepositoryVariables(updates: Record<string, string>): Promise<boolean> {

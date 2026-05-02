@@ -22,12 +22,18 @@ export function storeResult(result: string, outcome: string): string {
       return 'Success';
     case 'published-state-not-saved':
       return 'Success, state not saved';
+    case 'published-state-pending':
+      return 'Success, status pending';
+    case 'published-state-pending-not-saved':
+      return 'Success, status pending, state not saved';
     case 'skipped-pending-review':
       return 'Skipped, pending review';
     case 'skipped-version-exists':
       return 'Skipped, version exists';
     case 'skipped-in-review':
       return 'Skipped, in review';
+    case 'skipped-no-updates':
+      return 'Skipped, no updates';
     default:
       return outcome || 'Success';
   }

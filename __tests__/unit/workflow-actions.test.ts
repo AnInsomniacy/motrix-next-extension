@@ -8,6 +8,7 @@ import {
 import { renderPublishSummary } from '../../scripts/actions/publish-summary';
 import {
   buildEdgeVariableUpdates,
+  classifyEdgePublishOperation,
   extractOperationIdFromLocation,
 } from '../../scripts/actions/publish-edge';
 import { normalizeReleaseInput } from '../../scripts/actions/resolve-release';
@@ -61,6 +62,52 @@ describe('workflow action helpers', () => {
     expect(report).toContain('| Firefox AMO | Success |');
     expect(report).toContain('| Edge Add-ons | Success, state not saved |');
     expect(report).not.toContain('Published or submitted');
+  });
+
+  test('renders non-failing Edge publish operation outcomes precisely', () => {
+    expect(renderPublishSummaryRow('published-state-pending')).toBe('Success, status pending');
+    expect(renderPublishSummaryRow('published-state-pending-not-saved')).toBe(
+      'Success, status pending, state not saved',
+    );
+    expect(renderPublishSummaryRow('skipped-no-updates')).toBe('Skipped, no updates');
+  });
+
+  test('classifies terminal Edge publish operation responses', () => {
+    expect(
+      classifyEdgePublishOperation({
+        status: 'Succeeded',
+        message: 'Successfully created submission with ID submission-123',
+        errorCode: '',
+        errors: null,
+      }),
+    ).toEqual({ action: 'published', failed: false, terminal: true });
+
+    expect(
+      classifyEdgePublishOperation({
+        status: 'Failed',
+        message: "Can't publish extension as your extension submission is in progress.",
+        errorCode: 'InProgressSubmission',
+        errors: null,
+      }),
+    ).toEqual({ action: 'skipped-in-review', failed: false, terminal: true });
+
+    expect(
+      classifyEdgePublishOperation({
+        status: 'Failed',
+        message: "Can't publish extension since there are no updates.",
+        errorCode: 'NoModulesUpdated',
+        errors: null,
+      }),
+    ).toEqual({ action: 'skipped-no-updates', failed: false, terminal: true });
+
+    expect(
+      classifyEdgePublishOperation({
+        status: 'Failed',
+        message: 'Extension cannot be published.',
+        errorCode: 'SubmissionValidationError',
+        errors: ['Privacy information is missing'],
+      }),
+    ).toEqual({ action: 'failed', failed: true, terminal: true });
   });
 
   test('renders store status with the summary table before the decision', () => {
@@ -126,3 +173,19 @@ describe('workflow action helpers', () => {
     );
   });
 });
+
+function renderPublishSummaryRow(edgeOutcome: string): string {
+  const report = renderPublishSummary({
+    chromeOutcome: 'published',
+    chromeResult: 'success',
+    edgeOutcome,
+    edgeResult: 'success',
+    firefoxOutcome: 'published',
+    firefoxResult: 'success',
+    qualityGateResult: 'success',
+    tag: 'v1.2.4',
+    version: '1.2.4',
+  });
+  const row = report.split('\n').find((line) => line.startsWith('| Edge Add-ons |'));
+  return row?.split('|')[2]?.trim() || '';
+}

@@ -408,15 +408,20 @@ async function checkEdge(edge: EdgeConfig): Promise<StoreStatusRow> {
     },
   );
   const status = stringField(operation, 'status') || stringField(operation, 'Status');
+  const message = stringField(operation, 'message') || stringField(operation, 'Message');
+  const errorCode = stringField(operation, 'errorCode') || stringField(operation, 'ErrorCode');
 
   return {
     store: 'Edge Add-ons',
     liveVersion: liveVersion || 'Unavailable',
     pendingVersion: edge.operationVersion || 'Tracked operation',
-    reviewState: mapEdgeState(status),
-    canPublishNow: status === 'InProgress' ? 'No' : status === 'Failed' ? 'Unknown' : 'Yes',
+    reviewState: mapEdgeState(status, errorCode),
+    canPublishNow: mapEdgeCanPublish(status, errorCode),
     rawStatus: [
       `operation.status=${status || 'unset'}`,
+      errorCode ? `errorCode=${errorCode}` : '',
+      message ? `message=${message}` : '',
+      formatEdgeErrors(isRecord(operation) ? operation.errors : null),
       edge.operationRunId ? `run=${edge.operationRunId}` : '',
       edge.operationSubmittedAt ? `submitted=${edge.operationSubmittedAt}` : '',
     ]
@@ -436,7 +441,14 @@ async function getEdgePublicVersion(extensionId: string): Promise<string> {
   return stringField(manifest, 'version');
 }
 
-function mapEdgeState(status: string): string {
+function mapEdgeState(status: string, errorCode = ''): string {
+  if (status === 'Failed' && errorCode === 'InProgressSubmission') {
+    return 'Submission in progress';
+  }
+  if (status === 'Failed' && errorCode === 'NoModulesUpdated') {
+    return 'No draft updates';
+  }
+
   switch (status) {
     case 'InProgress':
       return 'In progress';
@@ -447,6 +459,17 @@ function mapEdgeState(status: string): string {
     default:
       return status || 'Not tracked';
   }
+}
+
+function mapEdgeCanPublish(status: string, errorCode: string): 'Yes' | 'No' | 'Unknown' {
+  if (status === 'InProgress' || errorCode === 'InProgressSubmission') return 'No';
+  if (status === 'Failed') return 'Unknown';
+  return 'Yes';
+}
+
+function formatEdgeErrors(errors: unknown): string {
+  if (errors === null || errors === undefined) return '';
+  return `errors=${JSON.stringify(errors).slice(0, 500)}`;
 }
 
 function readManifestFromCrx(buffer: Buffer): unknown {
