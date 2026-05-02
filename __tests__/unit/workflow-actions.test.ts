@@ -5,6 +5,7 @@ import {
   renderStoreStatusReport,
   type StoreStatusRow,
 } from '../../scripts/actions/store-status';
+import { renderPublishSummary } from '../../scripts/actions/publish-summary';
 import {
   buildEdgeVariableUpdates,
   extractOperationIdFromLocation,
@@ -41,6 +42,25 @@ describe('workflow action helpers', () => {
       EDGE_LAST_OPERATION_SUBMITTED_AT: '2026-05-02T00:00:00.000Z',
       EDGE_LAST_OPERATION_VERSION: '1.2.3',
     });
+  });
+
+  test('renders successful store publish jobs as action-level success', () => {
+    const report = renderPublishSummary({
+      chromeOutcome: 'published',
+      chromeResult: 'success',
+      edgeOutcome: 'published-state-not-saved',
+      edgeResult: 'success',
+      firefoxOutcome: 'published',
+      firefoxResult: 'success',
+      qualityGateResult: 'success',
+      tag: 'v1.2.4',
+      version: '1.2.4',
+    });
+
+    expect(report).toContain('| Chrome Web Store | Success |');
+    expect(report).toContain('| Firefox AMO | Success |');
+    expect(report).toContain('| Edge Add-ons | Success, state not saved |');
+    expect(report).not.toContain('Published or submitted');
   });
 
   test('renders store status with the summary table before the decision', () => {

@@ -19,9 +19,9 @@ export function storeResult(result: string, outcome: string): string {
   if (result !== 'success') return result || 'Unknown';
   switch (outcome) {
     case 'published':
-      return 'Published or submitted';
+      return 'Success';
     case 'published-state-not-saved':
-      return 'Submitted, state not saved';
+      return 'Success, state not saved';
     case 'skipped-pending-review':
       return 'Skipped, pending review';
     case 'skipped-version-exists':
