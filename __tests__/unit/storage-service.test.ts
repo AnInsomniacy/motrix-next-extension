@@ -91,6 +91,24 @@ describe('StorageService.saveConnectionConfig', () => {
   });
 });
 
+// ─── updateConnectionConfig() ───────────────────────────
+
+describe('StorageService.updateConnectionConfig', () => {
+  it('patches connection config while preserving existing fields', async () => {
+    const api = createMockApi({
+      _version: 2,
+      connection: { port: 16801, secret: 'token' },
+    });
+    const service = new StorageService(api);
+
+    await service.updateConnectionConfig({ port: 16802 });
+
+    expect(api.set).toHaveBeenLastCalledWith({
+      connection: { port: 16802, secret: 'token' },
+    });
+  });
+});
+
 // ─── saveSettings() ─────────────────────────────────────
 
 describe('StorageService.saveSettings', () => {
@@ -108,6 +126,34 @@ describe('StorageService.saveSettings', () => {
     await service.saveSettings(settings);
 
     expect(api.set).toHaveBeenCalledWith({ settings });
+  });
+});
+
+// ─── updateSettings() ───────────────────────────────────
+
+describe('StorageService.updateSettings', () => {
+  it('patches download settings while preserving existing fields', async () => {
+    const api = createMockApi({
+      _version: 2,
+      settings: {
+        enabled: true,
+        hideDownloadBar: true,
+        autoLaunchApp: false,
+        forwardCookies: true,
+      },
+    });
+    const service = new StorageService(api);
+
+    await service.updateSettings({ enabled: false });
+
+    expect(api.set).toHaveBeenLastCalledWith({
+      settings: {
+        enabled: false,
+        hideDownloadBar: true,
+        autoLaunchApp: false,
+        forwardCookies: true,
+      },
+    });
   });
 });
 
@@ -137,6 +183,24 @@ describe('StorageService.saveUiPrefs', () => {
 
     expect(api.set).toHaveBeenCalledWith({
       uiPrefs: { theme: 'dark', colorScheme: 'space', locale: 'en' },
+    });
+  });
+});
+
+// ─── updateUiPrefs() ────────────────────────────────────
+
+describe('StorageService.updateUiPrefs', () => {
+  it('patches UI preferences while preserving existing fields', async () => {
+    const api = createMockApi({
+      _version: 2,
+      uiPrefs: { theme: 'dark', colorScheme: 'space', locale: 'en' },
+    });
+    const service = new StorageService(api);
+
+    await service.updateUiPrefs({ locale: 'zh_CN' });
+
+    expect(api.set).toHaveBeenLastCalledWith({
+      uiPrefs: { theme: 'dark', colorScheme: 'space', locale: 'zh_CN' },
     });
   });
 });

@@ -33,27 +33,23 @@ export function useAppearance(
     setTheme(uiTheme.value);
   }
 
-  function currentPrefs(): UiPrefs {
-    return { theme: uiTheme.value, colorScheme: uiColorScheme.value, locale: uiLocale.value };
-  }
-
   function handleThemeChange(value: string): void {
     const theme = value as UiPrefs['theme'];
     uiTheme.value = theme;
     setTheme(theme);
-    void storageService.saveUiPrefs({ ...currentPrefs(), theme });
+    void storageService.updateUiPrefs({ theme });
     applyTheme();
   }
 
   function handleColorSchemeChange(value: string): void {
     uiColorScheme.value = value;
     setColorSchemeId(value);
-    void storageService.saveUiPrefs({ ...currentPrefs(), colorScheme: value });
+    void storageService.updateUiPrefs({ colorScheme: value });
   }
 
   function handleLocaleChange(value: string): void {
     uiLocale.value = value;
-    void storageService.saveUiPrefs({ ...currentPrefs(), locale: value });
+    void storageService.updateUiPrefs({ locale: value });
   }
 
   function applyTheme(): void {

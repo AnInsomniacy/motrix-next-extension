@@ -17,7 +17,14 @@ import { ref, provide, onMounted, onUnmounted, computed, watch } from 'vue';
 import { browser } from 'wxt/browser';
 import { storage as wxtStorage } from '#imports';
 import { NConfigProvider, createDiscreteApi } from 'naive-ui';
-import { StorageService, createWxtStorageApi } from '@/lib/storage';
+import {
+  StorageService,
+  createWxtStorageApi,
+  parseConnectionConfig,
+  parseDownloadSettings,
+  parseSiteRules,
+  parseUiPrefs,
+} from '@/lib/storage';
 import { PermissionService } from '@/lib/services';
 import type { ConnectionConfig, DiagnosticEvent } from '@/shared/types';
 import {
@@ -94,17 +101,17 @@ const appearance = useAppearance(storageService, setTheme, (id) => {
 interface SettingsForm {
   port: number;
   secret: string;
-  enabled: boolean;
   hideDownloadBar: boolean;
   autoLaunchApp: boolean;
   forwardCookies: boolean;
 }
 
+const interceptionEnabled = ref(DEFAULT_DOWNLOAD_SETTINGS.enabled);
+
 function buildForm(): SettingsForm {
   return {
     port: DEFAULT_CONNECTION_CONFIG.port,
     secret: DEFAULT_CONNECTION_CONFIG.secret,
-    enabled: DEFAULT_DOWNLOAD_SETTINGS.enabled,
     hideDownloadBar: DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar,
     autoLaunchApp: DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp,
     forwardCookies: DEFAULT_DOWNLOAD_SETTINGS.forwardCookies,
@@ -132,12 +139,11 @@ const {
 } = usePreferenceForm<SettingsForm>({
   buildForm,
   persist: async (f) => {
-    await storageService.saveConnectionConfig({
+    await storageService.updateConnectionConfig({
       port: f.port,
       secret: f.secret,
     });
-    await storageService.saveSettings({
-      enabled: f.enabled,
+    await storageService.updateSettings({
       hideDownloadBar: f.hideDownloadBar,
       autoLaunchApp: f.autoLaunchApp,
       forwardCookies: f.forwardCookies,
@@ -159,6 +165,17 @@ async function handleSave(): Promise<void> {
 function handleReset(): void {
   rawReset();
   toast.info(i18n('options_discard', 'Discard'));
+}
+
+async function handleEnabledChange(value: boolean): Promise<void> {
+  const previous = interceptionEnabled.value;
+  interceptionEnabled.value = value;
+  try {
+    await storageService.updateSettings({ enabled: value });
+  } catch {
+    interceptionEnabled.value = previous;
+    toast.error(i18n('options_save_error', 'Failed to save settings'));
+  }
 }
 
 async function handleHideDownloadBarChange(value: boolean): Promise<void> {
@@ -216,6 +233,9 @@ const { connectionStatus, connectionVersion, connectionError, testingConnection,
 // ─── Extension Version ─────────────────────────────────────────────
 
 const extensionVersion = browser.runtime.getManifest().version;
+type StorageChangeListener = Parameters<typeof browser.storage.onChanged.addListener>[0];
+let stopThemeMediaListener: (() => void) | null = null;
+let stopStorageListener: (() => void) | null = null;
 
 // ─── Load from Storage ──────────────────────────────────────────────
 
@@ -225,7 +245,7 @@ async function loadFromStorage(): Promise<void> {
   // Hydrate dirty-tracked form (schema-validated, no casts)
   form.value.port = data.connection.port;
   form.value.secret = data.connection.secret;
-  form.value.enabled = data.settings.enabled;
+  interceptionEnabled.value = data.settings.enabled;
   form.value.hideDownloadBar =
     data.settings.hideDownloadBar &&
     (await permissionService.hasDownloadUiAccess().catch(() => false));
@@ -240,6 +260,32 @@ async function loadFromStorage(): Promise<void> {
   i18nCtx.setLocale(data.uiPrefs.locale);
   hydrateSiteRules(data.siteRules);
   hydrateDiagnostics(data.diagnosticLog);
+}
+
+function applyConnectionStorageChange(value: unknown): void {
+  const connection = parseConnectionConfig(value);
+  form.value.port = connection.port;
+  form.value.secret = connection.secret;
+}
+
+async function applySettingsStorageChange(value: unknown): Promise<void> {
+  const settings = parseDownloadSettings(value);
+  interceptionEnabled.value = settings.enabled;
+  if (isDirty.value) return;
+
+  form.value.hideDownloadBar =
+    settings.hideDownloadBar && (await permissionService.hasDownloadUiAccess().catch(() => false));
+  form.value.autoLaunchApp = settings.autoLaunchApp;
+  form.value.forwardCookies =
+    settings.forwardCookies &&
+    (await permissionService.hasCookieForwardingAccess().catch(() => false));
+}
+
+function applyUiPrefsStorageChange(value: unknown): void {
+  const prefs = parseUiPrefs(value);
+  appearance.hydrate(prefs);
+  i18nCtx.setLocale(prefs.locale);
+  appearance.applyTheme();
 }
 
 // ─── Lifecycle ──────────────────────────────────────────────────────
@@ -258,23 +304,57 @@ watch(isDirty, (dirty) => {
   }
 });
 
-onMounted(() => {
-  void loadFromStorage().then(() => appearance.applyTheme());
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+function bindThemeMediaChanges(): void {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const handleMediaChange = (): void => {
     appearance.applyTheme();
-  });
+  };
+  mediaQuery.addEventListener('change', handleMediaChange);
+  stopThemeMediaListener = () => mediaQuery.removeEventListener('change', handleMediaChange);
+}
 
-  // Live-update diagnostic log when background service worker writes new events
-  browser.storage.onChanged.addListener((changes, area) => {
+function bindStorageChanges(): void {
+  const handleStorageChange: StorageChangeListener = (changes, area) => {
     if (area !== 'local') return;
+
+    if (changes.connection?.newValue && !isDirty.value) {
+      applyConnectionStorageChange(changes.connection.newValue);
+      resetSnapshot();
+    }
+
+    if (changes.settings?.newValue) {
+      void applySettingsStorageChange(changes.settings.newValue).then(() => {
+        if (!isDirty.value) resetSnapshot();
+      });
+    }
+
+    if (changes.siteRules?.newValue) {
+      hydrateSiteRules(parseSiteRules(changes.siteRules.newValue));
+    }
+
+    if (changes.uiPrefs?.newValue) {
+      applyUiPrefsStorageChange(changes.uiPrefs.newValue);
+    }
+
     if (changes.diagnosticLog?.newValue) {
       hydrateDiagnostics(changes.diagnosticLog.newValue as DiagnosticEvent[]);
     }
-  });
+  };
+
+  browser.storage.onChanged.addListener(handleStorageChange);
+  stopStorageListener = () => browser.storage.onChanged.removeListener(handleStorageChange);
+}
+
+onMounted(() => {
+  void loadFromStorage().then(() => appearance.applyTheme());
+  bindThemeMediaChanges();
+  bindStorageChanges();
 });
 
 onUnmounted(() => {
   window.removeEventListener('beforeunload', onBeforeUnload);
+  stopThemeMediaListener?.();
+  stopStorageListener?.();
 });
 </script>
 
@@ -360,11 +440,11 @@ onUnmounted(() => {
               </h2>
               <div class="card">
                 <BehaviorSection
-                  :enabled="form.enabled"
+                  :enabled="interceptionEnabled"
                   :hide-download-bar="form.hideDownloadBar"
                   :auto-launch-app="form.autoLaunchApp"
                   :forward-cookies="form.forwardCookies"
-                  @update:enabled="form.enabled = $event"
+                  @update:enabled="handleEnabledChange"
                   @update:hide-download-bar="handleHideDownloadBarChange"
                   @update:auto-launch-app="form.autoLaunchApp = $event"
                   @update:forward-cookies="handleForwardCookiesChange"

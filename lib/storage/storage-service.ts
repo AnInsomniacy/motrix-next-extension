@@ -58,9 +58,21 @@ export class StorageService {
     await this.api.set({ connection: config });
   }
 
+  /** Patch API connection configuration without overwriting unrelated fields. */
+  async updateConnectionConfig(patch: Partial<ConnectionConfig>): Promise<void> {
+    const { storage } = await this.load();
+    await this.saveConnectionConfig({ ...storage.connection, ...patch });
+  }
+
   /** Persist download behavior settings. */
   async saveSettings(settings: DownloadSettings): Promise<void> {
     await this.api.set({ settings });
+  }
+
+  /** Patch download behavior settings without overwriting unrelated fields. */
+  async updateSettings(patch: Partial<DownloadSettings>): Promise<void> {
+    const { storage } = await this.load();
+    await this.saveSettings({ ...storage.settings, ...patch });
   }
 
   /** Persist site rules array. */
@@ -71,6 +83,12 @@ export class StorageService {
   /** Persist UI appearance preferences. */
   async saveUiPrefs(prefs: UiPrefs): Promise<void> {
     await this.api.set({ uiPrefs: prefs });
+  }
+
+  /** Patch UI preferences without overwriting unrelated fields. */
+  async updateUiPrefs(patch: Partial<UiPrefs>): Promise<void> {
+    const { storage } = await this.load();
+    await this.saveUiPrefs({ ...storage.uiPrefs, ...patch });
   }
 
   /** Persist diagnostic event log. */

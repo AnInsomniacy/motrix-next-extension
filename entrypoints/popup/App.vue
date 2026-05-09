@@ -18,7 +18,13 @@ import { ConnectionService, ConnectionStatus } from '@/lib/services';
 import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
 import { resolveThemeClass } from '@/lib/services';
 import type { ThemePreference } from '@/lib/services';
-import { StorageService, createWxtStorageApi } from '@/lib/storage';
+import {
+  StorageService,
+  createWxtStorageApi,
+  parseConnectionConfig,
+  parseDownloadSettings,
+  parseUiPrefs,
+} from '@/lib/storage';
 import type { StatResponse } from '@/lib/api/desktop-client';
 import { DEFAULT_CONNECTION_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
 import { useTheme } from '@/shared/use-theme';
@@ -50,9 +56,13 @@ const globalStat = ref<StatResponse | null>(null);
 const loading = ref(true);
 const enabled = ref(true);
 
+type StorageChangeListener = Parameters<typeof browser.storage.onChanged.addListener>[0];
+
 let apiClient: DesktopApiClient;
 let storageService: StorageService;
 let stopPolling: (() => void) | null = null;
+let stopThemeMediaListener: (() => void) | null = null;
+let stopStorageListener: (() => void) | null = null;
 
 // ─── Data Fetching ──────────────────────────────────────────────────
 
@@ -117,15 +127,54 @@ function launchApp(): void {
 async function toggleEnabled(): Promise<void> {
   enabled.value = !enabled.value;
   try {
-    const { storage: data } = await storageService.load();
-    await storageService.saveSettings({
-      ...data.settings,
-      enabled: enabled.value,
-    });
+    await storageService.updateSettings({ enabled: enabled.value });
   } catch {
     // Revert on failure — keep UI in sync with actual storage state.
     enabled.value = !enabled.value;
   }
+}
+
+function applyStoredTheme(theme: ThemePreference): void {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  document.documentElement.className = resolveThemeClass(theme, mediaQuery.matches);
+
+  stopThemeMediaListener?.();
+  const handleMediaChange = (
+    e: Parameters<typeof mediaQuery.addEventListener>[1] extends (event: infer Event) => void
+      ? Event
+      : never,
+  ): void => {
+    document.documentElement.className = resolveThemeClass(theme, e.matches);
+  };
+  mediaQuery.addEventListener('change', handleMediaChange);
+  stopThemeMediaListener = () => mediaQuery.removeEventListener('change', handleMediaChange);
+}
+
+function bindStorageChanges(): void {
+  const handleStorageChange: StorageChangeListener = (changes, area) => {
+    if (area !== 'local') return;
+
+    if (changes.settings?.newValue) {
+      enabled.value = parseDownloadSettings(changes.settings.newValue).enabled;
+    }
+
+    if (changes.connection?.newValue) {
+      const connection = parseConnectionConfig(changes.connection.newValue);
+      connectionPort.value = connection.port;
+      apiClient.updateConfig({ port: connection.port, secret: connection.secret });
+      void fetchData();
+    }
+
+    if (changes.uiPrefs?.newValue) {
+      const prefs = parseUiPrefs(changes.uiPrefs.newValue);
+      colorSchemeId.value = prefs.colorScheme;
+      i18nCtx.setLocale(prefs.locale);
+      applyStoredTheme(prefs.theme as ThemePreference);
+    }
+  };
+
+  browser.storage.onChanged.addListener(handleStorageChange);
+  stopStorageListener = () => browser.storage.onChanged.removeListener(handleStorageChange);
 }
 
 // ─── Lifecycle ──────────────────────────────────────────────────────
@@ -141,15 +190,12 @@ onMounted(async () => {
   const theme = data.uiPrefs.theme as ThemePreference;
   colorSchemeId.value = data.uiPrefs.colorScheme;
   i18nCtx.setLocale(data.uiPrefs.locale);
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  document.documentElement.className = resolveThemeClass(theme, mediaQuery.matches);
-  mediaQuery.addEventListener('change', (e) => {
-    document.documentElement.className = resolveThemeClass(theme, e.matches);
-  });
+  applyStoredTheme(theme);
 
   // Initialize API client with validated config
   connectionPort.value = data.connection.port;
   apiClient = new DesktopApiClient({ port: data.connection.port, secret: data.connection.secret });
+  bindStorageChanges();
 
   // Smart polling with exponential backoff + visibility awareness
   const poller = usePolling({
@@ -164,6 +210,8 @@ onMounted(async () => {
 
 onUnmounted(() => {
   stopPolling?.();
+  stopThemeMediaListener?.();
+  stopStorageListener?.();
 });
 </script>
 

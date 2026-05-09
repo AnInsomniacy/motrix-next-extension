@@ -8,9 +8,12 @@ function mockStorageService(): StorageService {
   return {
     load: vi.fn(),
     saveConnectionConfig: vi.fn().mockResolvedValue(undefined),
+    updateConnectionConfig: vi.fn().mockResolvedValue(undefined),
     saveSettings: vi.fn().mockResolvedValue(undefined),
+    updateSettings: vi.fn().mockResolvedValue(undefined),
     saveSiteRules: vi.fn().mockResolvedValue(undefined),
     saveUiPrefs: vi.fn().mockResolvedValue(undefined),
+    updateUiPrefs: vi.fn().mockResolvedValue(undefined),
     saveDiagnosticLog: vi.fn().mockResolvedValue(undefined),
   } as unknown as StorageService;
 }
@@ -44,7 +47,7 @@ describe('useAppearance', () => {
     expect(setColorSchemeId).toHaveBeenCalledWith('ocean-blue');
   });
 
-  it('handleThemeChange() updates theme, calls setTheme, and persists via StorageService', () => {
+  it('handleThemeChange() updates theme, calls setTheme, and persists a UI preference patch', () => {
     const storage = mockStorageService();
     const setTheme = vi.fn();
     const setColorSchemeId = vi.fn();
@@ -60,10 +63,10 @@ describe('useAppearance', () => {
     handleThemeChange('dark');
 
     expect(setTheme).toHaveBeenCalledWith('dark');
-    expect(storage.saveUiPrefs).toHaveBeenCalledWith(expect.objectContaining({ theme: 'dark' }));
+    expect(storage.updateUiPrefs).toHaveBeenCalledWith({ theme: 'dark' });
   });
 
-  it('handleColorSchemeChange() updates color scheme and persists via StorageService', () => {
+  it('handleColorSchemeChange() updates color scheme and persists a UI preference patch', () => {
     const storage = mockStorageService();
     const setTheme = vi.fn();
     const setColorSchemeId = vi.fn();
@@ -73,8 +76,18 @@ describe('useAppearance', () => {
     handleColorSchemeChange('midnight-purple');
 
     expect(setColorSchemeId).toHaveBeenCalledWith('midnight-purple');
-    expect(storage.saveUiPrefs).toHaveBeenCalledWith(
-      expect.objectContaining({ colorScheme: 'midnight-purple' }),
-    );
+    expect(storage.updateUiPrefs).toHaveBeenCalledWith({ colorScheme: 'midnight-purple' });
+  });
+
+  it('handleLocaleChange() persists only the locale patch', () => {
+    const storage = mockStorageService();
+    const setTheme = vi.fn();
+    const setColorSchemeId = vi.fn();
+
+    const { handleLocaleChange } = useAppearance(storage, setTheme, setColorSchemeId);
+
+    handleLocaleChange('zh_CN');
+
+    expect(storage.updateUiPrefs).toHaveBeenCalledWith({ locale: 'zh_CN' });
   });
 });
