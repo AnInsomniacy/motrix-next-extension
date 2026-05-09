@@ -139,12 +139,8 @@ function applyStoredTheme(theme: ThemePreference): void {
   document.documentElement.className = resolveThemeClass(theme, mediaQuery.matches);
 
   stopThemeMediaListener?.();
-  const handleMediaChange = (
-    e: Parameters<typeof mediaQuery.addEventListener>[1] extends (event: infer Event) => void
-      ? Event
-      : never,
-  ): void => {
-    document.documentElement.className = resolveThemeClass(theme, e.matches);
+  const handleMediaChange = (): void => {
+    document.documentElement.className = resolveThemeClass(theme, mediaQuery.matches);
   };
   mediaQuery.addEventListener('change', handleMediaChange);
   stopThemeMediaListener = () => mediaQuery.removeEventListener('change', handleMediaChange);
