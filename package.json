@@ -30,6 +30,7 @@
     "klona": "^2.0.6",
     "ky": "^2.0.2",
     "lettercoder": "^0.1.1",
+    "motion-v": "^2.2.1",
     "naive-ui": "^2.44.1",
     "picomatch": "^4.0.4",
     "sanitize-filename": "^1.6.4",

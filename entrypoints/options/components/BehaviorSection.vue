@@ -5,7 +5,8 @@
  * Toggle switches for controlling download interception behavior.
  * Uses Naive UI NSwitch, matching the desktop Basic.vue controls.
  */
-import { NCollapseTransition, NFormItem, NSwitch, NDivider } from 'naive-ui';
+import { NFormItem, NSwitch, NDivider } from 'naive-ui';
+import { motion } from 'motion-v';
 import type { InterceptionScope } from '@/shared/types';
 
 defineProps<{
@@ -43,7 +44,12 @@ const { t: i18n } = useI18n();
       <NSwitch :value="enabled" @update:value="emit('update:enabled', $event)" />
     </NFormItem>
 
-    <NCollapseTransition :show="enabled">
+    <motion.div
+      class="scope-panel-motion"
+      :initial="false"
+      :animate="enabled ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }"
+      :transition="{ duration: 0.22, ease: [0.2, 0, 0, 1] }"
+    >
       <div class="scope-panel">
         <NFormItem
           class="scope-panel__item"
@@ -120,7 +126,7 @@ const { t: i18n } = useI18n();
           />
         </NFormItem>
       </div>
-    </NCollapseTransition>
+    </motion.div>
 
     <NDivider />
 
@@ -190,10 +196,12 @@ const { t: i18n } = useI18n();
   font-weight: 400;
 }
 
-.scope-panel {
-  margin: 8px 0 16px;
-  padding: 0 0 0 18px;
+.scope-panel-motion {
   overflow: hidden;
+}
+
+.scope-panel {
+  padding: 8px 0 0 18px;
 }
 
 .scope-panel__item {
