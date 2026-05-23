@@ -26,7 +26,12 @@ import {
   parseUiPrefs,
 } from '@/lib/storage';
 import { PermissionService } from '@/lib/services';
-import type { ConnectionConfig, DiagnosticEvent, InterceptionScope } from '@/shared/types';
+import type {
+  ConnectionConfig,
+  DiagnosticEvent,
+  InterceptionScope,
+  MinimumFileSizeSettings,
+} from '@/shared/types';
 import {
   DEFAULT_CONNECTION_CONFIG,
   DEFAULT_DOWNLOAD_SETTINGS,
@@ -106,13 +111,13 @@ interface SettingsForm {
   hideDownloadBar: boolean;
   autoLaunchApp: boolean;
   forwardCookies: boolean;
+  minimumFileSize: MinimumFileSizeSettings;
 }
 
 const interceptionEnabled = ref(DEFAULT_DOWNLOAD_SETTINGS.enabled);
 const interceptionScope = ref<InterceptionScope>({
   ...DEFAULT_DOWNLOAD_SETTINGS.interceptionScope,
 });
-
 function buildForm(): SettingsForm {
   return {
     port: DEFAULT_CONNECTION_CONFIG.port,
@@ -120,6 +125,7 @@ function buildForm(): SettingsForm {
     hideDownloadBar: DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar,
     autoLaunchApp: DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp,
     forwardCookies: DEFAULT_DOWNLOAD_SETTINGS.forwardCookies,
+    minimumFileSize: { ...DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize },
   };
 }
 
@@ -152,6 +158,7 @@ const {
       hideDownloadBar: f.hideDownloadBar,
       autoLaunchApp: f.autoLaunchApp,
       forwardCookies: f.forwardCookies,
+      minimumFileSize: f.minimumFileSize,
     });
   },
   afterSave: () => {
@@ -192,6 +199,10 @@ async function handleInterceptionScopeChange(value: Partial<InterceptionScope>):
     interceptionScope.value = previous;
     toast.error(i18n('options_save_error', 'Failed to save settings'));
   }
+}
+
+function handleMinimumFileSizeChange(value: Partial<MinimumFileSizeSettings>): void {
+  form.value.minimumFileSize = { ...form.value.minimumFileSize, ...value };
 }
 
 async function handleHideDownloadBarChange(value: boolean): Promise<void> {
@@ -263,6 +274,7 @@ async function loadFromStorage(): Promise<void> {
   form.value.secret = data.connection.secret;
   interceptionEnabled.value = data.settings.enabled;
   interceptionScope.value = data.settings.interceptionScope;
+  form.value.minimumFileSize = data.settings.minimumFileSize;
   form.value.hideDownloadBar =
     data.settings.hideDownloadBar &&
     (await permissionService.hasDownloadUiAccess().catch(() => false));
@@ -291,6 +303,7 @@ async function applySettingsStorageChange(value: unknown): Promise<void> {
   interceptionScope.value = settings.interceptionScope;
   if (isDirty.value) return;
 
+  form.value.minimumFileSize = settings.minimumFileSize;
   form.value.hideDownloadBar =
     settings.hideDownloadBar && (await permissionService.hasDownloadUiAccess().catch(() => false));
   form.value.autoLaunchApp = settings.autoLaunchApp;
@@ -460,11 +473,13 @@ onUnmounted(() => {
                 <BehaviorSection
                   :enabled="interceptionEnabled"
                   :interception-scope="interceptionScope"
+                  :minimum-file-size="form.minimumFileSize"
                   :hide-download-bar="form.hideDownloadBar"
                   :auto-launch-app="form.autoLaunchApp"
                   :forward-cookies="form.forwardCookies"
                   @update:enabled="handleEnabledChange"
                   @update:scope="handleInterceptionScopeChange"
+                  @update:minimum-file-size="handleMinimumFileSizeChange"
                   @update:hide-download-bar="handleHideDownloadBarChange"
                   @update:auto-launch-app="form.autoLaunchApp = $event"
                   @update:forward-cookies="handleForwardCookiesChange"

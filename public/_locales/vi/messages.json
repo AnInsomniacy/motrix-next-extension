@@ -89,10 +89,6 @@
     "message": "Bật chặn tải xuống",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Tự động chặn tải xuống từ trình duyệt",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Thông báo",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Tự động khởi chạy Motrix Next",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Thử khởi chạy Motrix Next khi chưa chạy",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Đang chạy",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Ẩn thanh tải xuống của trình duyệt",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Yêu cầu quyền giao diện tải xuống tùy chọn trước khi thay đổi giao diện trình duyệt",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Chuyển tiếp cookie",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Chuyển tiếp cookie cho các lượt tải xuống đã xác thực",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Cấp quyền giao diện tải xuống để ẩn thanh tải xuống của trình duyệt.",
@@ -440,20 +424,24 @@
     "message": "Liên kết Thunder",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, tệp torrent và các lượt tải xuống thông thường của trình duyệt",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Kích thước tệp tối thiểu",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "Liên kết magnet: được mở từ trang web",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Kích thước (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "Liên kết ed2k: được mở từ trang web",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Kích thước không xác định",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "Liên kết thunder: được mở từ trang web",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Gửi tới Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Dùng trình tải xuống của trình duyệt",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

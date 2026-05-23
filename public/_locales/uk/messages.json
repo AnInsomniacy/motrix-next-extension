@@ -89,10 +89,6 @@
     "message": "Увімкнути перехоплення завантажень",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Автоматично перехоплювати завантаження браузера",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Сповіщення",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Автоматично запускати Motrix Next",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Спробувати запустити Motrix Next, коли він не запущений",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Активні",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Приховати панель завантажень браузера",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Запитує необов’язковий дозвіл інтерфейсу завантажень перед зміною інтерфейсу браузера",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Передавати cookie",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Передає cookie для автентифікованих завантажень",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Надайте дозвіл інтерфейсу завантажень, щоб приховати панель завантажень браузера.",
@@ -440,20 +424,24 @@
     "message": "Thunder-посилання",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, torrent-файли та звичайні завантаження браузера",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Мінімальний розмір файлу",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "Посилання magnet:, відкриті з вебсторінок",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Розмір (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "Посилання ed2k:, відкриті з вебсторінок",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Невідомий розмір",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "Посилання thunder:, відкриті з вебсторінок",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Надіслати до Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Використати завантажувач браузера",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

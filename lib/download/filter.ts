@@ -127,6 +127,34 @@ export class SiteRuleStage implements FilterStage {
 }
 
 /**
+ * Stage 6: Skip downloads smaller than the configured minimum size.
+ *
+ * Browser APIs expose unknown sizes as -1. Unknown sizes follow the explicit
+ * user preference instead of being guessed.
+ */
+export class MinimumFileSizeStage implements FilterStage {
+  readonly name = 'minimum-file-size';
+
+  evaluate(ctx: FilterContext, config: DownloadSettings): FilterVerdict | null {
+    const settings = config.minimumFileSize;
+    if (!settings.enabled || settings.sizeMb <= 0) return null;
+
+    const knownSize = this.resolveKnownSize(ctx);
+    if (knownSize === null) {
+      return settings.unknownSizeAction === 'skip' ? 'skip' : null;
+    }
+
+    return knownSize < settings.sizeMb * 1024 * 1024 ? 'skip' : null;
+  }
+
+  private resolveKnownSize(ctx: FilterContext): number | null {
+    if (ctx.totalBytes >= 0) return ctx.totalBytes;
+    if (ctx.fileSize >= 0) return ctx.fileSize;
+    return null;
+  }
+}
+
+/**
  * Stage: Skip downloads whose MIME type indicates a document rather than a file.
  *
  * Many cloud storage services (Lanzou, MediaFire, etc.) serve JavaScript-heavy
@@ -166,7 +194,7 @@ export class MimeTypeStage implements FilterStage {
  * Create the complete filter pipeline with all stages.
  *
  * Pipeline order:
- * 1. Enabled → 2. SelfTrigger → 3. InterceptionScope → 4. Scheme → 5. SiteRule → 6. MimeType
+ * 1. Enabled → 2. SelfTrigger → 3. InterceptionScope → 4. Scheme → 5. SiteRule → 6. MimeType → 7. MinimumFileSize
  *
  * @param getRules - Getter for current site rules (lazy evaluation)
  */
@@ -178,6 +206,7 @@ export function createFilterPipeline(getRules: () => SiteRule[]): FilterStage[] 
     new SchemeStage(),
     new SiteRuleStage(getRules),
     new MimeTypeStage(),
+    new MinimumFileSizeStage(),
   ];
 }
 

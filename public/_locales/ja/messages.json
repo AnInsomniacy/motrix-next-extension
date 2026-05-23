@@ -89,10 +89,6 @@
     "message": "ダウンロードの横取りを有効化",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "ブラウザのダウンロードを自動的に横取りする",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "通知",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Motrix Nextを自動起動",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "ダウンロード横取り時にMotrix Nextが未起動の場合、自動的に起動を試みる",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "アクティブ",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "ブラウザーのダウンロードバーを非表示",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "ブラウザー UI を変更する前に任意のダウンロード UI 権限を要求します",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Cookie を転送",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "認証が必要なダウンロードの Cookie を転送します",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "ブラウザーのダウンロードバーを非表示にするには、ダウンロード UI 権限を許可してください。",
@@ -440,20 +424,24 @@
     "message": "Thunder リンク",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP、HTTPS、FTP、torrent ファイル、通常のブラウザーダウンロード",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "最小ファイルサイズ",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "Web ページから開かれる magnet: リンク",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "サイズ (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "Web ページから開かれる ed2k: リンク",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "不明なサイズ",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "Web ページから開かれる thunder: リンク",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Motrix Next に送信",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "ブラウザーのダウンローダーを使用",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

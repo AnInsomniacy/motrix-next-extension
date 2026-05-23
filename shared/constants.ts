@@ -10,6 +10,11 @@ export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = {
   hideDownloadBar: false,
   autoLaunchApp: true,
   forwardCookies: true,
+  minimumFileSize: {
+    enabled: true,
+    sizeMb: 5,
+    unknownSizeAction: 'intercept',
+  },
   interceptionScope: {
     browserDownloads: true,
     magnet: true,
@@ -27,8 +32,11 @@ export const DEFAULT_UI_PREFS: Readonly<UiPrefs> = {
 /** Maximum number of diagnostic events to retain in storage. */
 export const MAX_DIAGNOSTIC_EVENTS = 100;
 
-/** HTTP timeout for API calls in milliseconds. */
-export const API_TIMEOUT_MS = 5000;
+/** Short timeout for local API reachability checks. */
+export const API_CONNECTIVITY_TIMEOUT_MS = 500;
+
+/** Timeout for API requests that perform real work. */
+export const API_REQUEST_TIMEOUT_MS = 5000;
 
 /** Number of retry attempts for failed API calls. */
 export const API_MAX_RETRIES = 1;

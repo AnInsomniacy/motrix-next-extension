@@ -89,10 +89,6 @@
     "message": "Ενεργοποίηση υποκλοπής λήψεων",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Αυτόματη υποκλοπή λήψεων του προγράμματος περιήγησης",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Ειδοποιήσεις",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Αυτόματη εκκίνηση Motrix Next",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Προσπάθεια εκκίνησης Motrix Next όταν δεν εκτελείται",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Ενεργές",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Απόκρυψη της γραμμής λήψεων του προγράμματος περιήγησης",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Ζητά την προαιρετική άδεια διεπαφής λήψεων πριν αλλάξει τη διεπαφή του προγράμματος περιήγησης",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Προώθηση cookies",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Προωθεί cookies για λήψεις με έλεγχο ταυτότητας",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Παραχωρήστε την άδεια διεπαφής λήψεων για απόκρυψη της γραμμής λήψεων του προγράμματος περιήγησης.",
@@ -440,20 +424,24 @@
     "message": "Σύνδεσμοι Thunder",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, αρχεία torrent και κανονικές λήψεις προγράμματος περιήγησης",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Ελάχιστο μέγεθος αρχείου",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "Σύνδεσμοι magnet: που ανοίγουν από ιστοσελίδες",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Μέγεθος (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "Σύνδεσμοι ed2k: που ανοίγουν από ιστοσελίδες",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Άγνωστο μέγεθος",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "Σύνδεσμοι thunder: που ανοίγουν από ιστοσελίδες",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Αποστολή στο Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Χρήση του διαχειριστή λήψεων του προγράμματος περιήγησης",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

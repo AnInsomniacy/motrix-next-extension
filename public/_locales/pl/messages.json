@@ -89,10 +89,6 @@
     "message": "Włącz przechwytywanie pobierań",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Automatycznie przechwytuj pobierania z przeglądarki",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Powiadomienia",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Automatycznie uruchamiaj Motrix Next",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Spróbuj uruchomić Motrix Next, gdy nie jest uruchomiony",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Aktywne",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Ukryj pasek pobierania przeglądarki",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Prosi o opcjonalne uprawnienie interfejsu pobierania przed zmianą interfejsu przeglądarki",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Przekazuj pliki cookie",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Przekazuje pliki cookie dla uwierzytelnionych pobrań",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Przyznaj uprawnienie interfejsu pobierania, aby ukryć pasek pobierania przeglądarki.",
@@ -440,20 +424,24 @@
     "message": "Linki Thunder",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, pliki torrent i zwykłe pobrania przeglądarki",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Minimalny rozmiar pliku",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "Linki magnet: otwierane ze stron internetowych",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Rozmiar (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "Linki ed2k: otwierane ze stron internetowych",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Nieznany rozmiar",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "Linki thunder: otwierane ze stron internetowych",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Wyślij do Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Użyj pobierania przeglądarki",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

@@ -121,6 +121,11 @@ describe('StorageService.saveSettings', () => {
       hideDownloadBar: true,
       autoLaunchApp: false,
       forwardCookies: true,
+      minimumFileSize: {
+        enabled: true,
+        sizeMb: 5,
+        unknownSizeAction: 'intercept' as const,
+      },
       interceptionScope: {
         browserDownloads: true,
         magnet: true,
@@ -146,6 +151,11 @@ describe('StorageService.updateSettings', () => {
         hideDownloadBar: true,
         autoLaunchApp: false,
         forwardCookies: true,
+        minimumFileSize: {
+          enabled: true,
+          sizeMb: 5,
+          unknownSizeAction: 'skip',
+        },
         interceptionScope: {
           browserDownloads: true,
           magnet: false,
@@ -164,6 +174,11 @@ describe('StorageService.updateSettings', () => {
         hideDownloadBar: true,
         autoLaunchApp: false,
         forwardCookies: true,
+        minimumFileSize: {
+          enabled: true,
+          sizeMb: 5,
+          unknownSizeAction: 'skip',
+        },
         interceptionScope: {
           browserDownloads: true,
           magnet: false,

@@ -8,6 +8,7 @@ import {
   SiteRuleStage,
   MimeTypeStage,
   InterceptionScopeStage,
+  MinimumFileSizeStage,
 } from '@/lib/download/filter';
 import type { FilterContext, DownloadSettings, SiteRule } from '@/shared/types';
 
@@ -18,6 +19,11 @@ const DEFAULT_SETTINGS: DownloadSettings = {
   hideDownloadBar: false,
   autoLaunchApp: true,
   forwardCookies: false,
+  minimumFileSize: {
+    enabled: false,
+    sizeMb: 0,
+    unknownSizeAction: 'intercept',
+  },
   interceptionScope: {
     browserDownloads: true,
     magnet: true,
@@ -32,6 +38,7 @@ function createContext(overrides?: Partial<FilterContext>): FilterContext {
     finalUrl: 'https://example.com/file.zip',
     filename: 'file.zip',
     fileSize: 10485760, // 10 MB
+    totalBytes: 10485760,
     mimeType: 'application/zip',
     tabUrl: 'https://example.com',
     ...overrides,
@@ -348,6 +355,51 @@ describe('MimeTypeStage', () => {
   });
 });
 
+// ─── Minimum File Size Stage ────────────────────────────
+
+describe('MinimumFileSizeStage', () => {
+  const stage = new MinimumFileSizeStage();
+  const enabledSettings: DownloadSettings = {
+    ...DEFAULT_SETTINGS,
+    minimumFileSize: {
+      enabled: true,
+      sizeMb: 5,
+      unknownSizeAction: 'intercept',
+    },
+  };
+
+  it('skips known downloads smaller than the configured threshold', () => {
+    const ctx = createContext({ totalBytes: 1 * 1024 * 1024, fileSize: 1 * 1024 * 1024 });
+
+    expect(stage.evaluate(ctx, enabledSettings)).toBe('skip');
+  });
+
+  it('uses fileSize when totalBytes is unknown', () => {
+    const ctx = createContext({ totalBytes: -1, fileSize: 1 * 1024 * 1024 });
+
+    expect(stage.evaluate(ctx, enabledSettings)).toBe('skip');
+  });
+
+  it('intercepts unknown-size downloads by default', () => {
+    const ctx = createContext({ totalBytes: -1, fileSize: -1 });
+
+    expect(stage.evaluate(ctx, enabledSettings)).toBeNull();
+  });
+
+  it('skips unknown-size downloads when configured to use the browser', () => {
+    const ctx = createContext({ totalBytes: -1, fileSize: -1 });
+    const settings: DownloadSettings = {
+      ...enabledSettings,
+      minimumFileSize: {
+        ...enabledSettings.minimumFileSize,
+        unknownSizeAction: 'skip',
+      },
+    };
+
+    expect(stage.evaluate(ctx, settings)).toBe('skip');
+  });
+});
+
 // ─── Full Pipeline ──────────────────────────────────────
 
 describe('evaluateFilterPipeline', () => {
@@ -397,15 +449,22 @@ describe('evaluateFilterPipeline', () => {
     expect(result.stageName).toBe('interception-scope');
   });
 
-  it('intercepts small files because size-based filtering was removed', () => {
+  it('skips small files when minimum file size filtering is enabled', () => {
     const stages = createFilterPipeline(() => []);
     const result = evaluateFilterPipeline(
-      createContext({ fileSize: 512 }), // 512 bytes
-      DEFAULT_SETTINGS,
+      createContext({ fileSize: 512, totalBytes: 512 }),
+      {
+        ...DEFAULT_SETTINGS,
+        minimumFileSize: {
+          enabled: true,
+          sizeMb: 1,
+          unknownSizeAction: 'intercept',
+        },
+      },
       stages,
     );
-    expect(result.verdict).toBe('intercept');
-    expect(result.stageName).toBeNull();
+    expect(result.verdict).toBe('skip');
+    expect(result.stageName).toBe('minimum-file-size');
   });
 
   it('returns skip with "site-rule" stageName when rule says always-skip', () => {

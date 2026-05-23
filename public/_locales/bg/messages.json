@@ -89,10 +89,6 @@
     "message": "Активиране на прехващане",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Автоматично прехващане на изтегляния от браузъра",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Известия",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Автоматично стартиране на Motrix Next",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Опит за стартиране на Motrix Next, когато не работи",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Активни",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Скриване на лентата за изтегляния на браузъра",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Иска незадължително разрешение за интерфейса за изтегляния, преди да променя браузъра",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Препращане на бисквитки",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Препраща бисквитки за удостоверени изтегляния",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Разрешете интерфейса за изтегляния, за да скриете лентата за изтегляния на браузъра.",
@@ -440,20 +424,24 @@
     "message": "Thunder връзки",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, torrent файлове и обикновени браузърни изтегляния",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Минимален размер на файла",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "magnet: връзки, отворени от уеб страници",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Размер (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "ed2k: връзки, отворени от уеб страници",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Неизвестен размер",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "thunder: връзки, отворени от уеб страници",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Изпрати към Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Използвай мениджъра за изтегляния на браузъра",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

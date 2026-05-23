@@ -89,10 +89,6 @@
     "message": "เปิดใช้งานการดักจับดาวน์โหลด",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "ดักจับการดาวน์โหลดจากเบราว์เซอร์โดยอัตโนมัติ",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "การแจ้งเตือน",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "เปิด Motrix Next โดยอัตโนมัติ",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "พยายามเปิด Motrix Next เมื่อไม่ได้ทำงาน",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "กำลังทำงาน",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "ซ่อนแถบดาวน์โหลดของเบราว์เซอร์",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "ขอสิทธิ์ UI ดาวน์โหลดแบบเลือกได้ก่อนเปลี่ยน UI ของเบราว์เซอร์",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "ส่งต่อคุกกี้",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "ส่งต่อคุกกี้สำหรับการดาวน์โหลดที่ต้องยืนยันตัวตน",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "อนุญาตสิทธิ์ UI ดาวน์โหลดเพื่อซ่อนแถบดาวน์โหลดของเบราว์เซอร์",
@@ -440,20 +424,24 @@
     "message": "ลิงก์ Thunder",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, ไฟล์ torrent และการดาวน์โหลดปกติของเบราว์เซอร์",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "ขนาดไฟล์ขั้นต่ำ",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "ลิงก์ magnet: ที่เปิดจากหน้าเว็บ",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "ขนาด (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "ลิงก์ ed2k: ที่เปิดจากหน้าเว็บ",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "ไม่ทราบขนาด",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "ลิงก์ thunder: ที่เปิดจากหน้าเว็บ",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "ส่งไปยัง Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "ใช้ตัวดาวน์โหลดของเบราว์เซอร์",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

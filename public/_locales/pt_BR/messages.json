@@ -89,10 +89,6 @@
     "message": "Ativar interceptação de downloads",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Interceptar automaticamente os downloads do navegador",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Notificações",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Iniciar Motrix Next automaticamente",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Tentar iniciar o Motrix Next quando não estiver em execução",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Ativos",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Ocultar a barra de downloads do navegador",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Solicita a permissão opcional da interface de downloads antes de alterar a interface do navegador",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Encaminhar cookies",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Encaminha cookies para downloads autenticados",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Conceda a permissão da interface de downloads para ocultar a barra de downloads do navegador.",
@@ -440,20 +424,24 @@
     "message": "Links Thunder",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, arquivos torrent e downloads normais do navegador",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Tamanho mínimo do arquivo",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "Links magnet: abertos a partir de páginas da web",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Tamanho (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "Links ed2k: abertos a partir de páginas da web",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Tamanho desconhecido",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "Links thunder: abertos a partir de páginas da web",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Enviar para o Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Usar o downloader do navegador",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

@@ -14,6 +14,7 @@ interface MockDownloadItem {
   finalUrl: string;
   filename: string;
   fileSize: number;
+  totalBytes: number;
   mime: string;
   byExtensionId?: string;
   state: string;
@@ -26,6 +27,7 @@ function createMockDownloadItem(overrides?: Partial<MockDownloadItem>): MockDown
     finalUrl: 'https://example.com/file.zip',
     filename: 'file.zip',
     fileSize: 10_000_000,
+    totalBytes: 10_000_000,
     mime: 'application/zip',
     state: 'in_progress',
     ...overrides,
@@ -361,17 +363,22 @@ describe('DownloadOrchestrator', () => {
       );
     });
 
-    it('routes small files because size-based filtering was removed', async () => {
-      const item = createMockDownloadItem({ fileSize: 1_000_000 }); // 1 MB
+    it('leaves small files in the browser when minimum file size filtering is enabled', async () => {
+      (deps.getSettings as ReturnType<typeof vi.fn>).mockReturnValue({
+        ...DEFAULT_DOWNLOAD_SETTINGS,
+        minimumFileSize: {
+          enabled: true,
+          sizeMb: 5,
+          unknownSizeAction: 'intercept',
+        },
+      } satisfies DownloadSettings);
+      const item = createMockDownloadItem({ fileSize: 1_000_000, totalBytes: 1_000_000 });
 
       const intercepted = await orchestrator.handleCreated(item);
 
-      expect(intercepted).toBe(true);
-      expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-      );
+      expect(intercepted).toBe(false);
+      expect(deps.downloads.cancel).not.toHaveBeenCalled();
+      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
     });
   });
 

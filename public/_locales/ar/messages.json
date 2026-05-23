@@ -89,10 +89,6 @@
     "message": "تفعيل اعتراض التنزيل",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "اعتراض تنزيلات المتصفح تلقائياً",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "الإشعارات",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "تشغيل Motrix Next تلقائياً",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "محاولة تشغيل Motrix Next عندما لا يكون قيد التشغيل",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "نشط",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "إخفاء شريط تنزيلات المتصفح",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "يطلب إذن واجهة التنزيل الاختياري قبل تغيير واجهة المتصفح",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "إعادة توجيه ملفات تعريف الارتباط",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "يعيد توجيه ملفات تعريف الارتباط للتنزيلات التي تتطلب تسجيل الدخول",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "امنح إذن واجهة التنزيلات لإخفاء شريط تنزيلات المتصفح.",
@@ -440,20 +424,24 @@
     "message": "روابط Thunder",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP وHTTPS وFTP وملفات التورنت والتنزيلات العادية في المتصفح",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "الحد الأدنى لحجم الملف",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "روابط magnet: المفتوحة من صفحات الويب",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "الحجم (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "روابط ed2k: المفتوحة من صفحات الويب",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "حجم غير معروف",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "روابط thunder: المفتوحة من صفحات الويب",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "إرسال إلى Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "استخدام مدير تنزيلات المتصفح",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

@@ -66,6 +66,11 @@ describe('parseDownloadSettings', () => {
       hideDownloadBar: true,
       autoLaunchApp: false,
       forwardCookies: true,
+      minimumFileSize: {
+        enabled: true,
+        sizeMb: 5,
+        unknownSizeAction: 'skip',
+      },
       interceptionScope: {
         browserDownloads: false,
         magnet: true,
@@ -84,6 +89,11 @@ describe('parseDownloadSettings', () => {
       hideDownloadBar: false,
       autoLaunchApp: true,
       forwardCookies: true,
+      minimumFileSize: {
+        enabled: true,
+        sizeMb: 5,
+        unknownSizeAction: 'intercept',
+      },
       interceptionScope: {
         browserDownloads: true,
         magnet: true,
@@ -100,6 +110,11 @@ describe('parseDownloadSettings', () => {
       hideDownloadBar: false,
       autoLaunchApp: true,
       forwardCookies: true,
+      minimumFileSize: {
+        enabled: true,
+        sizeMb: 5,
+        unknownSizeAction: 'intercept',
+      },
       interceptionScope: {
         browserDownloads: true,
         magnet: true,
@@ -133,6 +148,11 @@ describe('parseDownloadSettings', () => {
       hideDownloadBar: true,
       autoLaunchApp: false,
       forwardCookies: true,
+      minimumFileSize: {
+        enabled: true,
+        sizeMb: 5,
+        unknownSizeAction: 'intercept',
+      },
       interceptionScope: {
         browserDownloads: true,
         magnet: true,
@@ -368,6 +388,11 @@ describe('parseStorage', () => {
       hideDownloadBar: false,
       autoLaunchApp: true,
       forwardCookies: true,
+      minimumFileSize: {
+        enabled: true,
+        sizeMb: 5,
+        unknownSizeAction: 'intercept',
+      },
       interceptionScope: {
         browserDownloads: true,
         magnet: true,
@@ -399,6 +424,11 @@ describe('parseStorage', () => {
       hideDownloadBar: false,
       autoLaunchApp: true,
       forwardCookies: true,
+      minimumFileSize: {
+        enabled: true,
+        sizeMb: 5,
+        unknownSizeAction: 'intercept',
+      },
       interceptionScope: {
         browserDownloads: true,
         magnet: true,
@@ -433,6 +463,11 @@ describe('parseStorage', () => {
       hideDownloadBar: true,
       autoLaunchApp: false,
       forwardCookies: true,
+      minimumFileSize: {
+        enabled: true,
+        sizeMb: 5,
+        unknownSizeAction: 'intercept',
+      },
       interceptionScope: {
         browserDownloads: false,
         magnet: false,

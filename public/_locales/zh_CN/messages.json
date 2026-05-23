@@ -89,10 +89,6 @@
     "message": "启用下载拦截",
     "description": "启用/禁用下载拦截的开关"
   },
-  "options_enabled_desc": {
-    "message": "自动拦截浏览器下载任务",
-    "description": "拦截开关的说明文本"
-  },
   "options_notify_label": {
     "message": "通知",
     "description": "启用通知的开关"
@@ -352,10 +348,6 @@
     "message": "自动启动 Motrix Next",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "拦截下载时如果 Motrix Next 未运行，自动尝试启动",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "活跃",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "隐藏浏览器下载栏",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "更改浏览器界面前会请求可选的下载界面权限",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "转发 Cookie",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "为需要登录的下载转发 Cookie",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "请授予下载界面权限以隐藏浏览器下载栏。",
@@ -425,35 +409,39 @@
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
-    "message": "浏览器下载",
+    "message": "常规下载（HTTP / HTTPS / FTP / Torrent）",
     "description": "Label for the browser download interception scope toggle."
   },
   "options_scope_magnet_label": {
-    "message": "磁力链接",
+    "message": "磁力链接（magnet:）",
     "description": "Label for the magnet link interception scope toggle."
   },
   "options_scope_ed2k_label": {
-    "message": "ED2K 链接",
+    "message": "ED2K 链接（ed2k:）",
     "description": "Label for the ED2K link interception scope toggle."
   },
   "options_scope_thunder_label": {
-    "message": "迅雷链接",
+    "message": "迅雷链接（thunder:）",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP、HTTPS、FTP、种子文件和普通浏览器下载",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "小文件过滤",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "网页中打开的 magnet: 链接",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "文件小于",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "网页中打开的 ed2k: 链接",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "大小未知时",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "网页中打开的 thunder: 链接",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "交给 Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "交给浏览器",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

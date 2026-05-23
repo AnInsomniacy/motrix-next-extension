@@ -12,11 +12,30 @@ import {
   type AddDownloadResponse,
   type PingResponse,
 } from '@/lib/api/desktop-client';
+import { API_CONNECTIVITY_TIMEOUT_MS, API_REQUEST_TIMEOUT_MS } from '@/shared/constants';
 
 function firstRequest(): Request {
   const [input] = vi.mocked(fetch).mock.calls[0]!;
   expect(input).toBeInstanceOf(Request);
   return input as Request;
+}
+
+function captureFirstRequest(): Promise<Request> {
+  return new Promise((resolve) => {
+    vi.spyOn(globalThis, 'fetch').mockImplementationOnce((input: RequestInfo | URL) => {
+      expect(input).toBeInstanceOf(Request);
+      resolve(input as Request);
+      return new Promise<Response>(() => {});
+    });
+  });
+}
+
+async function expectAbortAfter(request: Request, timeoutMs: number): Promise<void> {
+  expect(request.signal.aborted).toBe(false);
+  await vi.advanceTimersByTimeAsync(timeoutMs - 1);
+  expect(request.signal.aborted).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
+  expect(request.signal.aborted).toBe(true);
 }
 
 async function readJsonBody(request: Request): Promise<unknown> {
@@ -34,6 +53,7 @@ describe('DesktopApiClient', () => {
   beforeEach(() => {
     client = new DesktopApiClient(defaultConfig);
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   // ── Configuration ──────────────────────────────────────────
@@ -97,6 +117,20 @@ describe('DesktopApiClient', () => {
       );
 
       await expect(client.ping()).rejects.toThrow();
+    });
+
+    it('uses the short connectivity timeout', async () => {
+      vi.useFakeTimers();
+      try {
+        const requestPromise = captureFirstRequest();
+
+        void client.ping().catch(() => {});
+        const request = await requestPromise;
+
+        await expectAbortAfter(request, API_CONNECTIVITY_TIMEOUT_MS);
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 
@@ -176,6 +210,20 @@ describe('DesktopApiClient', () => {
       await expect(client.addDownload(request)).rejects.toThrow(
         'Cannot connect to Motrix Next API',
       );
+    });
+
+    it('keeps the longer request timeout for submitted downloads', async () => {
+      vi.useFakeTimers();
+      try {
+        const requestPromise = captureFirstRequest();
+
+        void client.addDownload(request).catch(() => {});
+        const sent = await requestPromise;
+
+        await expectAbortAfter(sent, API_REQUEST_TIMEOUT_MS);
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 

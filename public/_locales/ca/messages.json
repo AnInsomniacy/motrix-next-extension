@@ -89,10 +89,6 @@
     "message": "Activar intercepció de descàrregues",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Interceptar automàticament les descàrregues del navegador",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Notificacions",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Iniciar Motrix Next automàticament",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Intentar iniciar Motrix Next quan no estigui en execució",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Actives",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Amaga la barra de baixades del navegador",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Demana el permís opcional de la interfície de baixades abans de canviar la interfície del navegador",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Reenvia les galetes",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Reenvia galetes per a baixades autenticades",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Concedeix el permís de la interfície de baixades per amagar la barra de baixades del navegador.",
@@ -440,20 +424,24 @@
     "message": "Enllaços Thunder",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, fitxers torrent i baixades normals del navegador",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Mida mínima del fitxer",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "Enllaços magnet: oberts des de pàgines web",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Mida (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "Enllaços ed2k: oberts des de pàgines web",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Mida desconeguda",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "Enllaços thunder: oberts des de pàgines web",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Envia a Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Usa el gestor de baixades del navegador",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

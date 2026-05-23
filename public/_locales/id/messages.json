@@ -89,10 +89,6 @@
     "message": "Aktifkan intersepsi unduhan",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Intersepsi otomatis unduhan browser",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Notifikasi",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Jalankan Motrix Next otomatis",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Coba jalankan Motrix Next saat tidak berjalan",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Aktif",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Sembunyikan Bilah Unduhan Browser",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Meminta izin UI unduhan opsional sebelum mengubah UI browser",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Teruskan Cookie",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Meneruskan cookie untuk unduhan terautentikasi",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Berikan izin UI unduhan untuk menyembunyikan bilah unduhan browser.",
@@ -440,20 +424,24 @@
     "message": "Tautan Thunder",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, file torrent, dan unduhan browser biasa",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Ukuran File Minimum",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "Tautan magnet: yang dibuka dari halaman web",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Ukuran (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "Tautan ed2k: yang dibuka dari halaman web",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Ukuran Tidak Diketahui",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "Tautan thunder: yang dibuka dari halaman web",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Kirim ke Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Gunakan pengunduh browser",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

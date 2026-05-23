@@ -89,10 +89,6 @@
     "message": "İndirme yakalamayı etkinleştir",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Tarayıcı indirmelerini otomatik olarak yakala",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Bildirimler",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Motrix Next'i otomatik başlat",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Çalışmıyorken Motrix Next'i başlatmayı dene",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Etkin",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Tarayıcı indirme çubuğunu gizle",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Tarayıcı arayüzünü değiştirmeden önce isteğe bağlı indirme arayüzü izni ister",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Çerezleri ilet",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Kimlik doğrulamalı indirmeler için çerezleri iletir",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Tarayıcı indirme çubuğunu gizlemek için indirme arayüzü izni verin.",
@@ -440,20 +424,24 @@
     "message": "Thunder Bağlantıları",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, torrent dosyaları ve normal tarayıcı indirmeleri",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Minimum Dosya Boyutu",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "Web sayfalarından açılan magnet: bağlantıları",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Boyut (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "Web sayfalarından açılan ed2k: bağlantıları",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Bilinmeyen Boyut",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "Web sayfalarından açılan thunder: bağlantıları",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Motrix Next’e Gönder",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Tarayıcı indiricisini kullan",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

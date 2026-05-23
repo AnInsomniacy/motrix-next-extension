@@ -89,10 +89,6 @@
     "message": "Download-onderschepping inschakelen",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "Browserdownloads automatisch onderscheppen",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "Meldingen",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Motrix Next automatisch starten",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "Probeer Motrix Next te starten wanneer het niet draait",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "Actief",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "Downloadbalk van browser verbergen",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "Vraagt optionele toestemming voor de downloadinterface voordat de browserinterface wordt gewijzigd",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "Cookies doorsturen",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "Stuurt cookies door voor geverifieerde downloads",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "Ge toestemming voor de downloadinterface om de downloadbalk van de browser te verbergen.",
@@ -440,20 +424,24 @@
     "message": "Thunderlinks",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, torrentbestanden en normale browserdownloads",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "Minimale bestandsgrootte",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "magnet:-links geopend vanaf webpagina’s",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "Grootte (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "ed2k:-links geopend vanaf webpagina’s",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "Onbekende grootte",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "thunder:-links geopend vanaf webpagina’s",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Naar Motrix Next sturen",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "Browserdownloader gebruiken",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

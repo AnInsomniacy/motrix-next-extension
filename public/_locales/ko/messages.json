@@ -89,10 +89,6 @@
     "message": "다운로드 가로채기 활성화",
     "description": "Toggle label for enabling/disabling download interception"
   },
-  "options_enabled_desc": {
-    "message": "브라우저 다운로드를 자동으로 가로챕니다",
-    "description": "Description text for the interception toggle"
-  },
   "options_notify_label": {
     "message": "알림",
     "description": "Toggle label for enabling notifications"
@@ -352,10 +348,6 @@
     "message": "Motrix Next 자동 실행",
     "description": "Toggle label for auto-launching app on download interception"
   },
-  "options_auto_launch_desc": {
-    "message": "실행 중이 아닐 때 Motrix Next 실행 시도",
-    "description": "Description for auto-launch toggle"
-  },
   "popup_stat_active": {
     "message": "활성",
     "description": "Task count label: currently downloading"
@@ -404,17 +396,9 @@
     "message": "브라우저 다운로드 표시줄 숨기기",
     "description": "Label for the optional browser download bar hiding setting."
   },
-  "options_hide_download_bar_desc": {
-    "message": "브라우저 UI를 변경하기 전에 선택적 다운로드 UI 권한을 요청합니다",
-    "description": "Description for the optional browser download bar hiding setting."
-  },
   "options_forward_cookies_label": {
     "message": "쿠키 전달",
     "description": "Label for the cookie forwarding setting."
-  },
-  "options_forward_cookies_desc": {
-    "message": "인증된 다운로드를 위해 쿠키를 전달합니다",
-    "description": "Description for the cookie forwarding setting."
   },
   "options_permission_download_ui_denied": {
     "message": "브라우저 다운로드 표시줄을 숨기려면 다운로드 UI 권한을 허용하세요.",
@@ -440,20 +424,24 @@
     "message": "Thunder 링크",
     "description": "Label for the Thunder link interception scope toggle."
   },
-  "options_scope_browser_downloads_desc": {
-    "message": "HTTP, HTTPS, FTP, torrent 파일 및 일반 브라우저 다운로드",
-    "description": "Description for the browser download interception scope toggle."
+  "options_min_size_label": {
+    "message": "최소 파일 크기",
+    "description": "Label for the minimum file size setting."
   },
-  "options_scope_magnet_desc": {
-    "message": "웹 페이지에서 열린 magnet: 링크",
-    "description": "Description for the magnet link interception scope toggle."
+  "options_min_size_value_label": {
+    "message": "크기 (MB)",
+    "description": "Label for the minimum file size numeric input."
   },
-  "options_scope_ed2k_desc": {
-    "message": "웹 페이지에서 열린 ed2k: 링크",
-    "description": "Description for the ED2K link interception scope toggle."
+  "options_min_size_unknown_label": {
+    "message": "알 수 없는 크기",
+    "description": "Label for the unknown file size behavior selector."
   },
-  "options_scope_thunder_desc": {
-    "message": "웹 페이지에서 열린 thunder: 링크",
-    "description": "Description for the Thunder link interception scope toggle."
+  "options_min_size_unknown_intercept": {
+    "message": "Motrix Next로 보내기",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "브라우저 다운로더 사용",
+    "description": "Option label for leaving unknown-size downloads in the browser."
   }
 }

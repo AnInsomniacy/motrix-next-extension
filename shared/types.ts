@@ -57,6 +57,7 @@ export interface FilterContext {
   finalUrl: string;
   filename: string;
   fileSize: number; // -1 = unknown
+  totalBytes: number; // -1 = unknown
   mimeType: string;
   tabUrl: string;
   byExtensionId?: string;
@@ -76,7 +77,14 @@ export interface DownloadSettings {
   hideDownloadBar: boolean;
   autoLaunchApp: boolean;
   forwardCookies: boolean;
+  minimumFileSize: MinimumFileSizeSettings;
   interceptionScope: InterceptionScope;
+}
+
+export interface MinimumFileSizeSettings {
+  enabled: boolean;
+  sizeMb: number;
+  unknownSizeAction: 'intercept' | 'skip';
 }
 
 export interface InterceptionScope {

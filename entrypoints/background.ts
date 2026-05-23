@@ -373,6 +373,7 @@ export default defineBackground(() => {
           finalUrl: item.finalUrl ?? item.url,
           filename: item.filename ?? '',
           fileSize: item.fileSize ?? -1,
+          totalBytes: item.totalBytes ?? item.fileSize ?? -1,
           mime: item.mime ?? '',
           byExtensionId: (item as unknown as Record<string, unknown>).byExtensionId as
             | string
@@ -387,6 +388,7 @@ export default defineBackground(() => {
           {
             url: item.url,
             fileSize: item.fileSize ?? -1,
+            totalBytes: item.totalBytes ?? item.fileSize ?? -1,
             mime: item.mime ?? '',
             filename: item.filename ?? '',
           },

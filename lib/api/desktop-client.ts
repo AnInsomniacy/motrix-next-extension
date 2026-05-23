@@ -14,7 +14,11 @@
  */
 import ky, { HTTPError, TimeoutError, type KyInstance, type Options as KyOptions } from 'ky';
 import { z } from 'zod';
-import { API_MAX_RETRIES, API_TIMEOUT_MS } from '@/shared/constants';
+import {
+  API_CONNECTIVITY_TIMEOUT_MS,
+  API_MAX_RETRIES,
+  API_REQUEST_TIMEOUT_MS,
+} from '@/shared/constants';
 import { ApiAuthError, ApiError, ApiTimeoutError, ApiUnreachableError } from '@/shared/errors';
 
 z.config({ jitless: true });
@@ -129,7 +133,7 @@ export class DesktopApiClient {
   private createHttpClient(): KyInstance {
     return ky.create({
       prefix: this.baseUrl,
-      timeout: API_TIMEOUT_MS,
+      timeout: API_REQUEST_TIMEOUT_MS,
       retry: {
         limit: API_MAX_RETRIES,
         methods: ['get', 'post'],
@@ -147,11 +151,15 @@ export class DesktopApiClient {
       const payload = await this.http(path, options).json<unknown>();
       return schema.parse(payload);
     } catch (error) {
-      throw await this.normalizeError(error, label);
+      throw await this.normalizeError(
+        error,
+        label,
+        typeof options.timeout === 'number' ? options.timeout : API_REQUEST_TIMEOUT_MS,
+      );
     }
   }
 
-  private async normalizeError(error: unknown, label: string): Promise<unknown> {
+  private async normalizeError(error: unknown, label: string, timeoutMs: number): Promise<unknown> {
     if (error instanceof HTTPError) {
       const status = error.response.status;
       const detail = await this.readErrorDetail(error.response);
@@ -162,7 +170,7 @@ export class DesktopApiClient {
     }
 
     if (error instanceof TimeoutError) {
-      return new ApiTimeoutError(API_TIMEOUT_MS);
+      return new ApiTimeoutError(timeoutMs);
     }
 
     if (error instanceof Error && error.message.includes('network error')) {
@@ -190,7 +198,14 @@ export class DesktopApiClient {
    * @throws on network error or non-200 response.
    */
   async ping(): Promise<PingResponse> {
-    return this.parseJson('ping', PingResponseSchema, {}, 'Ping');
+    return this.parseJson(
+      'ping',
+      PingResponseSchema,
+      {
+        timeout: API_CONNECTIVITY_TIMEOUT_MS,
+      },
+      'Ping',
+    );
   }
 
   /**

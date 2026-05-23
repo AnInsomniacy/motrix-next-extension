@@ -69,6 +69,7 @@ export interface DownloadItem {
   finalUrl: string;
   filename: string;
   fileSize: number;
+  totalBytes: number;
   mime: string;
   byExtensionId?: string;
   state: string;
@@ -206,6 +207,7 @@ export class DownloadOrchestrator {
       finalUrl: item.finalUrl,
       filename: item.filename,
       fileSize: item.fileSize,
+      totalBytes: item.totalBytes,
       mimeType: item.mime,
       tabUrl,
       byExtensionId: item.byExtensionId,
@@ -222,6 +224,7 @@ export class DownloadOrchestrator {
           url: item.url,
           stage: stageName ?? 'unknown',
           fileSize: item.fileSize,
+          totalBytes: item.totalBytes,
           mime: item.mime,
           tabUrl,
           ...(item.byExtensionId ? { byExtensionId: item.byExtensionId } : {}),
@@ -237,6 +240,7 @@ export class DownloadOrchestrator {
       context: {
         url: item.url,
         fileSize: item.fileSize,
+        totalBytes: item.totalBytes,
         mime: item.mime,
         tabUrl,
         ...(item.filename ? { filename: item.filename } : {}),

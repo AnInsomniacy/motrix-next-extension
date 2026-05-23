@@ -64,6 +64,22 @@ const InterceptionScopeSchema = z.object({
     .default(DEFAULT_DOWNLOAD_SETTINGS.interceptionScope.thunder),
 });
 
+const MinimumFileSizeSchema = z.object({
+  enabled: z
+    .boolean()
+    .catch(DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize.enabled)
+    .default(DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize.enabled),
+  sizeMb: z
+    .number()
+    .min(0)
+    .catch(DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize.sizeMb)
+    .default(DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize.sizeMb),
+  unknownSizeAction: z
+    .enum(['intercept', 'skip'])
+    .catch(DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize.unknownSizeAction)
+    .default(DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize.unknownSizeAction),
+});
+
 const DownloadSettingsSchema = z.object({
   enabled: z
     .boolean()
@@ -81,6 +97,9 @@ const DownloadSettingsSchema = z.object({
     .boolean()
     .catch(DEFAULT_DOWNLOAD_SETTINGS.forwardCookies)
     .default(DEFAULT_DOWNLOAD_SETTINGS.forwardCookies),
+  minimumFileSize: MinimumFileSizeSchema.catch(DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize).default(
+    DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize,
+  ),
   interceptionScope: InterceptionScopeSchema.catch(
     DEFAULT_DOWNLOAD_SETTINGS.interceptionScope,
   ).default(DEFAULT_DOWNLOAD_SETTINGS.interceptionScope),
