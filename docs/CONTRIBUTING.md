@@ -76,10 +76,7 @@ The extension uses Chrome's native i18n system with `messages.json` files under 
 
 ### Adding or Modifying Keys
 
-1. Add or modify keys through `scripts/batch-update-locales.py` so all 26 locale files are updated together:
-   ```bash
-   python3 scripts/batch-update-locales.py
-   ```
+1. Add or modify keys with a temporary batch helper in the operating system's temporary directory so all 26 locale files are updated together.
 2. Keep English (`en`) as the reference message and provide translations for every supported locale.
 3. Follow the Chrome i18n format:
    ```json

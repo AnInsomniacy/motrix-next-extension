@@ -130,7 +130,7 @@ Follow this exact checklist:
 3. **`lib/storage/schema.ts`** — Add the field to the Zod schema with `.default()` matching the constant
 4. **`lib/storage/storage-service.ts`** — Add typed getter/setter if the key is accessed individually
 5. **`parseStorage()` in `schema.ts`** — Ensure the new field is included in the composite parse
-6. **All 26 locale files** — Add i18n label keys. **Must use batch Python script** (see Section D)
+6. **All 26 locale files** — Add i18n label keys. Use a temporary batch helper outside the repository when changing many files.
 7. **UI binding** — Wire into the appropriate Options page section
 8. **Tests** — Add parse tests in `__tests__/unit/storage-schema.test.ts`
 
@@ -165,7 +165,7 @@ Follow this exact checklist:
 
 ### Rules
 
-1. **NEVER edit locale files manually one by one.** Always use the batch Python script.
+1. **NEVER edit locale files manually one by one.** Use a temporary batch helper outside the repository when changing many files.
 2. **Always update all 26 locales** when adding or modifying keys. Partial updates are not accepted.
 3. English (`en`) is the reference locale — validate this first.
 4. Run `pnpm lint:i18n` after every change to verify consistency across all 26 locales.
@@ -206,19 +206,14 @@ public/_locales/ko/   # Korean
 }
 ```
 
-### Batch Update Script
+### Batch Locale Updates
 
-**Must use `scripts/batch-update-locales.py`** to add or modify i18n keys. This ensures all 26 locales are updated atomically and no locale is missed.
+Use a one-off batch helper in the operating system's temporary directory to add, modify, or delete i18n keys across all 26 locales. This keeps locale changes atomic without leaving task-specific code in the project.
 
-```python
-#!/usr/bin/env python3
-"""Batch-update Chrome i18n locale files with native translations."""
-# Template: set KEY_NAME, DESCRIPTION, PLACEHOLDERS, and TRANSLATIONS dict
-# with all 26 locale codes (ar, bg, ca, de, el, en, es, fa, fr, hu, id, it,
-# ja, ko, nb, nl, pl, pt_BR, ro, ru, th, tr, uk, vi, zh_CN, zh_TW).
-# Script validates all 26 entries, builds Chrome i18n format, writes atomically.
-# Run: python3 scripts/batch-update-locales.py
-```
+Only reusable project scripts belong in `scripts/`. One-off helpers, generated caches,
+scratch files, and temporary automation outputs must stay outside the repository in the
+platform's standard temporary directory. Never commit them, and never leave task-specific payloads in
+reusable scripts after the operation is complete.
 
 > **Critical:** After running, verify with `pnpm lint:i18n` — key inconsistencies will surface here.
 
