@@ -1,6 +1,6 @@
 # Privacy Policy — Motrix Next Extension
 
-**Last updated:** May 1, 2026
+**Last updated:** May 27, 2026
 
 ## Overview
 
@@ -27,6 +27,20 @@ When a browser download is initiated and intercepted by the Extension, it reads:
 - **HTTP Referer** — to include with the task submission when available
 
 This data is sent only to the Motrix Next HTTP API running on `127.0.0.1` (localhost) — **never to any external server**.
+
+### Request Context
+
+When request header forwarding is enabled, the Extension reads a limited allowlist of request
+headers for intercepted downloads, such as User-Agent, Accept, language, client hints, fetch
+metadata, DNT, and Origin. This helps the local Motrix Next desktop application reproduce
+browser-authenticated downloads more accurately.
+
+The Extension does not forward Host, Connection, Content-Length, Transfer-Encoding, Range,
+Proxy headers, conditional request headers, or Cookie through request header forwarding. Cookies
+are handled separately as described below. Request header forwarding can be disabled in Settings.
+
+Request context is sent only to the local Motrix Next HTTP API running on `127.0.0.1`
+(localhost) — **never to any external server**.
 
 ### Cookies
 
@@ -65,17 +79,17 @@ Where `{port}` is the user-configured API port (default: 24110).
 
 ## Permissions Explained
 
-| Permission                                 | Why It's Needed                                                                  |
-| ------------------------------------------ | -------------------------------------------------------------------------------- |
-| `downloads`                                | Intercept, cancel, and erase browser downloads that are delegated to Motrix Next |
-| `storage`                                  | Save user settings, site rules, and diagnostic logs locally                      |
-| `contextMenus`                             | Add "Download with Motrix Next" to the right-click menu                          |
-| `notifications`                            | Show desktop notifications for download events                                   |
-| `webRequest`                               | Read download response filename headers before delegated downloads are cancelled |
-| `cookies`                                  | Forward cookies to local Motrix Next for authenticated downloads                 |
-| `downloads.ui` _(optional)_                | Hide the browser download bar after interception                                 |
-| `http://127.0.0.1/*`, `http://localhost/*` | Communicate with the local Motrix Next HTTP API                                  |
-| `https://*/*`, `http://*/*`                | Read cookies and response filename headers for delegated downloads               |
+| Permission                                 | Why It's Needed                                                                     |
+| ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| `downloads`                                | Intercept, cancel, and erase browser downloads that are delegated to Motrix Next    |
+| `storage`                                  | Save user settings, site rules, and diagnostic logs locally                         |
+| `contextMenus`                             | Add "Download with Motrix Next" to the right-click menu                             |
+| `notifications`                            | Show desktop notifications for download events                                      |
+| `webRequest`                               | Read filtered request headers and filename response headers for delegated downloads |
+| `cookies`                                  | Forward cookies to local Motrix Next for authenticated downloads                    |
+| `downloads.ui` _(optional)_                | Hide the browser download bar after interception                                    |
+| `http://127.0.0.1/*`, `http://localhost/*` | Communicate with the local Motrix Next HTTP API                                     |
+| `https://*/*`, `http://*/*`                | Read cookies and request/response metadata for delegated downloads                  |
 
 ## Third-Party Services
 
