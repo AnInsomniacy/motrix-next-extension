@@ -70,7 +70,7 @@
     "description": "Button to navigate to settings when connection fails"
   },
   "options_title": {
-    "message": "Motrix Next Extension · सेटिंग्स",
+    "message": "Motrix Next Extension · एक्सटेंशन सेटिंग्स",
     "description": "Options page title"
   },
   "options_section_connection": {
@@ -168,7 +168,7 @@
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "Extension सेटिंग्स",
+    "message": "एक्सटेंशन सेटिंग्स",
     "description": "Options page header subtitle"
   },
   "options_testing_connection": {
