@@ -33,7 +33,7 @@ Displays a brief desktop notification when an intercepted download cannot be del
 ### `webRequest`
 
 ```
-Observes request and response headers for downloads that are already being intercepted through the downloads API. Request headers are filtered to a strict allowlist and forwarded only to the local Motrix Next API so the desktop app can reproduce browser-authenticated downloads more accurately. Response headers are used to read Content-Disposition filenames before the browser download is cancelled. The extension does not modify, block, redirect, or transmit remote requests to any external service.
+Observes request and response headers for downloads that are already being intercepted through the downloads API. Request headers are filtered to a strict allowlist and forwarded only to the local Motrix Next API so the desktop app can reproduce browser-authenticated downloads more accurately. Users can disable request header forwarding in Settings. Response headers are used to read Content-Disposition filenames before the browser download is cancelled. The extension does not modify, block, redirect, or transmit remote requests to any external service.
 ```
 
 ## Required Host Permissions

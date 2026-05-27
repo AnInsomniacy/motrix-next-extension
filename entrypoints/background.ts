@@ -343,6 +343,7 @@ export default defineBackground(() => {
     const addListener = (extraInfoSpec: string[]) => {
       browserWithWebRequest.webRequest?.onBeforeSendHeaders?.addListener(
         (details): undefined => {
+          if (!settings.forwardRequestHeaders) return undefined;
           const context = captureRequestHeaderContext({
             url: details.url,
             requestHeaders: details.requestHeaders,
@@ -446,10 +447,12 @@ export default defineBackground(() => {
             | undefined,
           state: item.state ?? 'in_progress',
           referrer: item.referrer ?? '',
-          requestHeaderContext: requestHeaderContexts.match({
-            url: item.url,
-            finalUrl: item.finalUrl ?? item.url,
-          }),
+          requestHeaderContext: settings.forwardRequestHeaders
+            ? requestHeaderContexts.match({
+                url: item.url,
+                finalUrl: item.finalUrl ?? item.url,
+              })
+            : undefined,
         });
       } catch (e) {
         logError(

@@ -65,6 +65,7 @@ describe('parseDownloadSettings', () => {
       enabled: false,
       hideDownloadBar: true,
       autoLaunchApp: false,
+      forwardRequestHeaders: false,
       forwardCookies: true,
       minimumFileSize: {
         enabled: true,
@@ -88,6 +89,7 @@ describe('parseDownloadSettings', () => {
       enabled: true,
       hideDownloadBar: false,
       autoLaunchApp: true,
+      forwardRequestHeaders: true,
       forwardCookies: true,
       minimumFileSize: {
         enabled: true,
@@ -109,6 +111,7 @@ describe('parseDownloadSettings', () => {
       enabled: true,
       hideDownloadBar: false,
       autoLaunchApp: true,
+      forwardRequestHeaders: true,
       forwardCookies: true,
       minimumFileSize: {
         enabled: true,
@@ -139,6 +142,7 @@ describe('parseDownloadSettings', () => {
       enabled: false,
       hideDownloadBar: true,
       autoLaunchApp: false,
+      forwardRequestHeaders: false,
       forwardCookies: true,
       unknown: 42,
     });
@@ -147,6 +151,7 @@ describe('parseDownloadSettings', () => {
       enabled: false,
       hideDownloadBar: true,
       autoLaunchApp: false,
+      forwardRequestHeaders: false,
       forwardCookies: true,
       minimumFileSize: {
         enabled: true,
@@ -387,6 +392,7 @@ describe('parseStorage', () => {
       enabled: true,
       hideDownloadBar: false,
       autoLaunchApp: true,
+      forwardRequestHeaders: true,
       forwardCookies: true,
       minimumFileSize: {
         enabled: true,
@@ -423,6 +429,7 @@ describe('parseStorage', () => {
       enabled: false,
       hideDownloadBar: false,
       autoLaunchApp: true,
+      forwardRequestHeaders: true,
       forwardCookies: true,
       minimumFileSize: {
         enabled: true,
@@ -445,6 +452,7 @@ describe('parseStorage', () => {
         enabled: false,
         hideDownloadBar: true,
         autoLaunchApp: false,
+        forwardRequestHeaders: false,
         forwardCookies: true,
         interceptionScope: {
           browserDownloads: false,
@@ -462,6 +470,7 @@ describe('parseStorage', () => {
       enabled: false,
       hideDownloadBar: true,
       autoLaunchApp: false,
+      forwardRequestHeaders: false,
       forwardCookies: true,
       minimumFileSize: {
         enabled: true,

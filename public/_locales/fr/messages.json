@@ -396,6 +396,10 @@
     "message": "Masquer la barre de téléchargements du navigateur",
     "description": "Label for the optional browser download bar hiding setting."
   },
+  "options_forward_request_headers_label": {
+    "message": "Transférer les en-têtes de requête",
+    "description": "Label for the request header forwarding setting."
+  },
   "options_forward_cookies_label": {
     "message": "Transférer les cookies",
     "description": "Label for the cookie forwarding setting."

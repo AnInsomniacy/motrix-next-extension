@@ -396,6 +396,10 @@
     "message": "ซ่อนแถบดาวน์โหลดของเบราว์เซอร์",
     "description": "Label for the optional browser download bar hiding setting."
   },
+  "options_forward_request_headers_label": {
+    "message": "ส่งต่อส่วนหัวคำขอ",
+    "description": "Label for the request header forwarding setting."
+  },
   "options_forward_cookies_label": {
     "message": "ส่งต่อคุกกี้",
     "description": "Label for the cookie forwarding setting."

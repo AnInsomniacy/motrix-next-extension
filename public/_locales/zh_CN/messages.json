@@ -396,6 +396,10 @@
     "message": "隐藏浏览器下载栏",
     "description": "Label for the optional browser download bar hiding setting."
   },
+  "options_forward_request_headers_label": {
+    "message": "转发请求头",
+    "description": "Label for the request header forwarding setting."
+  },
   "options_forward_cookies_label": {
     "message": "转发 Cookie",
     "description": "Label for the cookie forwarding setting."

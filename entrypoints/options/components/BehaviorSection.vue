@@ -16,6 +16,7 @@ defineProps<{
   minimumFileSize: MinimumFileSizeSettings;
   hideDownloadBar: boolean;
   autoLaunchApp: boolean;
+  forwardRequestHeaders: boolean;
   forwardCookies: boolean;
 }>();
 
@@ -25,6 +26,7 @@ const emit = defineEmits<{
   'update:minimumFileSize': [value: Partial<MinimumFileSizeSettings>];
   'update:hideDownloadBar': [value: boolean];
   'update:autoLaunchApp': [value: boolean];
+  'update:forwardRequestHeaders': [value: boolean];
   'update:forwardCookies': [value: boolean];
 }>();
 
@@ -155,6 +157,13 @@ const unknownSizeOptions = computed(() => [
 
     <NFormItem :label="i18n('options_auto_launch_label', 'Auto-launch Motrix Next')">
       <NSwitch :value="autoLaunchApp" @update:value="emit('update:autoLaunchApp', $event)" />
+    </NFormItem>
+
+    <NFormItem :label="i18n('options_forward_request_headers_label', 'Forward Request Headers')">
+      <NSwitch
+        :value="forwardRequestHeaders"
+        @update:value="emit('update:forwardRequestHeaders', $event)"
+      />
     </NFormItem>
 
     <NFormItem :label="i18n('options_forward_cookies_label', 'Forward Cookies')">

@@ -110,6 +110,7 @@ interface SettingsForm {
   secret: string;
   hideDownloadBar: boolean;
   autoLaunchApp: boolean;
+  forwardRequestHeaders: boolean;
   forwardCookies: boolean;
   minimumFileSize: MinimumFileSizeSettings;
 }
@@ -124,6 +125,7 @@ function buildForm(): SettingsForm {
     secret: DEFAULT_CONNECTION_CONFIG.secret,
     hideDownloadBar: DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar,
     autoLaunchApp: DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp,
+    forwardRequestHeaders: DEFAULT_DOWNLOAD_SETTINGS.forwardRequestHeaders,
     forwardCookies: DEFAULT_DOWNLOAD_SETTINGS.forwardCookies,
     minimumFileSize: { ...DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize },
   };
@@ -157,6 +159,7 @@ const {
     await storageService.updateSettings({
       hideDownloadBar: f.hideDownloadBar,
       autoLaunchApp: f.autoLaunchApp,
+      forwardRequestHeaders: f.forwardRequestHeaders,
       forwardCookies: f.forwardCookies,
       minimumFileSize: f.minimumFileSize,
     });
@@ -279,6 +282,7 @@ async function loadFromStorage(): Promise<void> {
     data.settings.hideDownloadBar &&
     (await permissionService.hasDownloadUiAccess().catch(() => false));
   form.value.autoLaunchApp = data.settings.autoLaunchApp;
+  form.value.forwardRequestHeaders = data.settings.forwardRequestHeaders;
   form.value.forwardCookies =
     data.settings.forwardCookies &&
     (await permissionService.hasCookieForwardingAccess().catch(() => false));
@@ -307,6 +311,7 @@ async function applySettingsStorageChange(value: unknown): Promise<void> {
   form.value.hideDownloadBar =
     settings.hideDownloadBar && (await permissionService.hasDownloadUiAccess().catch(() => false));
   form.value.autoLaunchApp = settings.autoLaunchApp;
+  form.value.forwardRequestHeaders = settings.forwardRequestHeaders;
   form.value.forwardCookies =
     settings.forwardCookies &&
     (await permissionService.hasCookieForwardingAccess().catch(() => false));
@@ -476,12 +481,14 @@ onUnmounted(() => {
                   :minimum-file-size="form.minimumFileSize"
                   :hide-download-bar="form.hideDownloadBar"
                   :auto-launch-app="form.autoLaunchApp"
+                  :forward-request-headers="form.forwardRequestHeaders"
                   :forward-cookies="form.forwardCookies"
                   @update:enabled="handleEnabledChange"
                   @update:scope="handleInterceptionScopeChange"
                   @update:minimum-file-size="handleMinimumFileSizeChange"
                   @update:hide-download-bar="handleHideDownloadBarChange"
                   @update:auto-launch-app="form.autoLaunchApp = $event"
+                  @update:forward-request-headers="form.forwardRequestHeaders = $event"
                   @update:forward-cookies="handleForwardCookiesChange"
                 />
                 <SettingsActionBar :is-dirty="isDirty" @save="handleSave" @discard="handleReset" />

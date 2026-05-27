@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS: DownloadSettings = {
   enabled: true,
   hideDownloadBar: false,
   autoLaunchApp: true,
+  forwardRequestHeaders: true,
   forwardCookies: false,
   minimumFileSize: {
     enabled: false,

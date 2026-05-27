@@ -120,6 +120,7 @@ describe('StorageService.saveSettings', () => {
       enabled: false,
       hideDownloadBar: true,
       autoLaunchApp: false,
+      forwardRequestHeaders: true,
       forwardCookies: true,
       minimumFileSize: {
         enabled: true,
@@ -150,6 +151,7 @@ describe('StorageService.updateSettings', () => {
         enabled: true,
         hideDownloadBar: true,
         autoLaunchApp: false,
+        forwardRequestHeaders: true,
         forwardCookies: true,
         minimumFileSize: {
           enabled: true,
@@ -173,6 +175,7 @@ describe('StorageService.updateSettings', () => {
         enabled: false,
         hideDownloadBar: true,
         autoLaunchApp: false,
+        forwardRequestHeaders: true,
         forwardCookies: true,
         minimumFileSize: {
           enabled: true,

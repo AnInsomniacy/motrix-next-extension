@@ -9,6 +9,7 @@ export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = {
   enabled: true,
   hideDownloadBar: false,
   autoLaunchApp: true,
+  forwardRequestHeaders: true,
   forwardCookies: true,
   minimumFileSize: {
     enabled: true,

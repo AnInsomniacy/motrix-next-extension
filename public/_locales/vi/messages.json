@@ -396,6 +396,10 @@
     "message": "Ẩn thanh tải xuống của trình duyệt",
     "description": "Label for the optional browser download bar hiding setting."
   },
+  "options_forward_request_headers_label": {
+    "message": "Chuyển tiếp tiêu đề yêu cầu",
+    "description": "Label for the request header forwarding setting."
+  },
   "options_forward_cookies_label": {
     "message": "Chuyển tiếp cookie",
     "description": "Label for the cookie forwarding setting."

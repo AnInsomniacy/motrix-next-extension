@@ -396,6 +396,10 @@
     "message": "Ascunde bara de descărcări a browserului",
     "description": "Label for the optional browser download bar hiding setting."
   },
+  "options_forward_request_headers_label": {
+    "message": "Redirecționează antetele cererii",
+    "description": "Label for the request header forwarding setting."
+  },
   "options_forward_cookies_label": {
     "message": "Redirecționează cookie-uri",
     "description": "Label for the cookie forwarding setting."

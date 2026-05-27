@@ -93,6 +93,10 @@ const DownloadSettingsSchema = z.object({
     .boolean()
     .catch(DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp)
     .default(DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp),
+  forwardRequestHeaders: z
+    .boolean()
+    .catch(DEFAULT_DOWNLOAD_SETTINGS.forwardRequestHeaders)
+    .default(DEFAULT_DOWNLOAD_SETTINGS.forwardRequestHeaders),
   forwardCookies: z
     .boolean()
     .catch(DEFAULT_DOWNLOAD_SETTINGS.forwardCookies)

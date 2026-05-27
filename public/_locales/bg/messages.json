@@ -396,6 +396,10 @@
     "message": "Скриване на лентата за изтегляния на браузъра",
     "description": "Label for the optional browser download bar hiding setting."
   },
+  "options_forward_request_headers_label": {
+    "message": "Препращане на заглавки на заявки",
+    "description": "Label for the request header forwarding setting."
+  },
   "options_forward_cookies_label": {
     "message": "Препращане на бисквитки",
     "description": "Label for the cookie forwarding setting."

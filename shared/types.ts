@@ -81,6 +81,7 @@ export interface DownloadSettings {
   enabled: boolean;
   hideDownloadBar: boolean;
   autoLaunchApp: boolean;
+  forwardRequestHeaders: boolean;
   forwardCookies: boolean;
   minimumFileSize: MinimumFileSizeSettings;
   interceptionScope: InterceptionScope;

@@ -396,6 +396,10 @@
     "message": "Скрыть панель загрузок браузера",
     "description": "Label for the optional browser download bar hiding setting."
   },
+  "options_forward_request_headers_label": {
+    "message": "Передавать заголовки запроса",
+    "description": "Label for the request header forwarding setting."
+  },
   "options_forward_cookies_label": {
     "message": "Передавать cookie",
     "description": "Label for the cookie forwarding setting."

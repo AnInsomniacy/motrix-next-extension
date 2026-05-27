@@ -396,6 +396,10 @@
     "message": "Böngésző letöltési sávjának elrejtése",
     "description": "Label for the optional browser download bar hiding setting."
   },
+  "options_forward_request_headers_label": {
+    "message": "Kérésfejlécek továbbítása",
+    "description": "Label for the request header forwarding setting."
+  },
   "options_forward_cookies_label": {
     "message": "Cookie-k továbbítása",
     "description": "Label for the cookie forwarding setting."
