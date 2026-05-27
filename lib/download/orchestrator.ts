@@ -12,6 +12,11 @@ import type { DesktopApiClient } from '@/lib/api/desktop-client';
 import { ApiAuthError } from '@/shared/errors';
 import { isCookieCollectableUrl } from '@/lib/services/magnet-interception';
 import type { RequestHeaderContext, RequestHeaderMatchReason } from './request-context';
+import type {
+  DuplicateDownloadGuard,
+  DuplicateDownloadReservation,
+  DuplicateDownloadInput,
+} from './duplicate-guard';
 
 // ─── Dependency Interface ───────────────────────────────
 
@@ -40,6 +45,7 @@ export interface OrchestratorDeps {
   filenameMetadata?: {
     resolve: (item: DownloadItem) => Promise<FilenameMetadata | undefined>;
   };
+  duplicateGuard?: DuplicateDownloadGuard;
   /**
    * HTTP API client for direct communication with the desktop app.
    * When available and reachable, this is the primary download submission path.
@@ -61,6 +67,7 @@ export interface OrchestratorDeps {
    * The extension has already cancelled the browser download at this point.
    */
   onRouteFailed?: (info: { url: string; filename: string }) => void;
+  onDuplicateBlocked?: () => void;
 }
 
 /** Shape of a browser DownloadItem as received from chrome.downloads events. */
@@ -246,6 +253,38 @@ export class DownloadOrchestrator {
       return false;
     }
 
+    // Stop the native browser download as soon as the filter has committed to
+    // interception. Metadata collection and desktop routing can be slower on
+    // some browsers, especially when cookie forwarding is enabled.
+    const effectiveUrl = item.finalUrl || item.url;
+
+    const duplicateDecision = this.reserveDuplicateDownload({
+      url: item.url,
+      finalUrl: item.finalUrl,
+      filename: item.filename,
+      fileSize: item.fileSize,
+      totalBytes: item.totalBytes,
+      mime: item.mime,
+    });
+    if (duplicateDecision.blocked) {
+      await this.safeCancel(item.id);
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_duplicate_blocked',
+        message: `Duplicate download blocked: ${effectiveUrl}`,
+        context: {
+          url: effectiveUrl,
+          fileSize: item.fileSize,
+          totalBytes: item.totalBytes,
+          mime: item.mime,
+          tabUrl,
+          shouldNotify: duplicateDecision.shouldNotify,
+        },
+      });
+      if (duplicateDecision.shouldNotify) this.deps.onDuplicateBlocked?.();
+      return true;
+    }
+
     this.deps.diagnosticLog.append({
       level: 'info',
       code: 'download_intercepted',
@@ -262,10 +301,6 @@ export class DownloadOrchestrator {
       },
     });
 
-    // Stop the native browser download as soon as the filter has committed to
-    // interception. Metadata collection and desktop routing can be slower on
-    // some browsers, especially when cookie forwarding is enabled.
-    const effectiveUrl = item.finalUrl || item.url;
     await this.safeCancel(item.id);
 
     // ─── Route to desktop app ───────────────────
@@ -288,6 +323,7 @@ export class DownloadOrchestrator {
       item.requestHeaderDiagnostics,
     );
     if (!routed) {
+      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
       // Both paths failed — can't route to desktop
       this.deps.diagnosticLog.append({
         level: 'warn',
@@ -299,6 +335,7 @@ export class DownloadOrchestrator {
       return true; // Already cancelled — can't un-cancel
     }
 
+    this.deps.duplicateGuard?.commit(duplicateDecision.reservation);
     return true;
   }
 
@@ -314,6 +351,25 @@ export class DownloadOrchestrator {
       ? resolveFilenameHint(url, { filename: extractedFilename, source: 'url' })
       : undefined;
     const displayName = filenameHint || url.split('/').pop() || 'download';
+    const duplicateDecision = this.reserveDuplicateDownload({
+      url,
+      finalUrl: url,
+      filename: displayName,
+      fileSize: -1,
+      totalBytes: -1,
+      mime: '',
+    });
+    if (duplicateDecision.blocked) {
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_duplicate_blocked',
+        message: `Duplicate download blocked: ${url}`,
+        context: { url, shouldNotify: duplicateDecision.shouldNotify },
+      });
+      if (duplicateDecision.shouldNotify) this.deps.onDuplicateBlocked?.();
+      return 'duplicate-blocked';
+    }
+
     const cookie = await this.collectCookies(url);
 
     const routed = await this.sendToDesktop(
@@ -326,11 +382,13 @@ export class DownloadOrchestrator {
       'url',
     );
     if (!routed) {
+      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
       throw new Error(
         'Desktop app routing unavailable: neither HTTP API nor protocol handler provided',
       );
     }
 
+    this.deps.duplicateGuard?.commit(duplicateDecision.reservation);
     return 'routed-to-desktop';
   }
 
@@ -544,6 +602,16 @@ export class DownloadOrchestrator {
       ...(diagnostics?.source ? { headerMatchSource: diagnostics.source } : {}),
       ...(diagnostics?.ageMs !== undefined ? { headerAgeMs: diagnostics.ageMs } : {}),
     };
+  }
+
+  private reserveDuplicateDownload(
+    input: DuplicateDownloadInput,
+  ):
+    | { blocked: true; shouldNotify: boolean }
+    | { blocked: false; reservation?: DuplicateDownloadReservation } {
+    return this.deps.duplicateGuard
+      ? this.deps.duplicateGuard.reserve(input, this.deps.getSettings().duplicateGuard)
+      : { blocked: false };
   }
 
   private buildDeepLinkHeaderLogContext(diagnostics: RequestHeaderDiagnostics | undefined): {

@@ -40,9 +40,9 @@ const sections = [
   {
     id: 'behavior',
     icon: SettingsOutline,
-    label: () => t('options_section_behavior', 'Behavior'),
+    label: () => t('options_section_behavior', 'Download'),
   },
-  { id: 'rules', icon: ListOutline, label: () => t('options_section_rules', 'Site Rules') },
+  { id: 'rules', icon: ListOutline, label: () => t('options_section_rules', 'Rules') },
   {
     id: 'appearance',
     icon: ColorPaletteOutline,

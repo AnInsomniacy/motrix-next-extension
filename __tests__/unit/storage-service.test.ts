@@ -122,6 +122,10 @@ describe('StorageService.saveSettings', () => {
       autoLaunchApp: false,
       forwardRequestHeaders: true,
       forwardCookies: true,
+      duplicateGuard: {
+        enabled: true,
+        windowSeconds: 10,
+      },
       minimumFileSize: {
         enabled: true,
         sizeMb: 5,
@@ -153,6 +157,10 @@ describe('StorageService.updateSettings', () => {
         autoLaunchApp: false,
         forwardRequestHeaders: true,
         forwardCookies: true,
+        duplicateGuard: {
+          enabled: true,
+          windowSeconds: 10,
+        },
         minimumFileSize: {
           enabled: true,
           sizeMb: 5,
@@ -177,6 +185,10 @@ describe('StorageService.updateSettings', () => {
         autoLaunchApp: false,
         forwardRequestHeaders: true,
         forwardCookies: true,
+        duplicateGuard: {
+          enabled: true,
+          windowSeconds: 10,
+        },
         minimumFileSize: {
           enabled: true,
           sizeMb: 5,

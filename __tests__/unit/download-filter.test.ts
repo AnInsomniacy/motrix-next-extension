@@ -20,6 +20,10 @@ const DEFAULT_SETTINGS: DownloadSettings = {
   autoLaunchApp: true,
   forwardRequestHeaders: true,
   forwardCookies: false,
+  duplicateGuard: {
+    enabled: true,
+    windowSeconds: 10,
+  },
   minimumFileSize: {
     enabled: false,
     sizeMb: 0,

@@ -82,7 +82,7 @@
     "description": "Button to test the API connection"
   },
   "options_section_behavior": {
-    "message": "Hành vi tải xuống",
+    "message": "Tai xuong",
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
@@ -94,8 +94,8 @@
     "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
-    "message": "Quy tắc trang web",
-    "description": "Settings section for per-site download rules"
+    "message": "Quy tac",
+    "description": "Settings section for download routing rules"
   },
   "options_add_rule": {
     "message": "Thêm quy tắc",
@@ -447,5 +447,33 @@
   "options_min_size_unknown_skip": {
     "message": "Dùng trình tải xuống của trình duyệt",
     "description": "Option label for leaving unknown-size downloads in the browser."
+  },
+  "options_duplicate_guard_label": {
+    "message": "Bảo vệ tải xuống trùng lặp",
+    "description": "Label for the duplicate download guard setting."
+  },
+  "options_duplicate_guard_window_label": {
+    "message": "Cửa sổ bảo vệ",
+    "description": "Label for the duplicate download guard time window input."
+  },
+  "notification_duplicate_guard_title": {
+    "message": "Đã gửi tác vụ",
+    "description": "Notification title shown when a duplicate download is blocked."
+  },
+  "notification_duplicate_guard_body": {
+    "message": "Đã bỏ qua yêu cầu trùng lặp",
+    "description": "Notification body shown when a duplicate download is blocked."
+  },
+  "options_privacy_section_label": {
+    "message": "Quyen rieng tu",
+    "description": "Subsection label for privacy-related download forwarding settings."
+  },
+  "options_download_handling_section_label": {
+    "message": "Xu ly tai xuong",
+    "description": "Subsection label for browser and desktop download handling settings."
+  },
+  "options_site_rules_label": {
+    "message": "Quy tac trang web",
+    "description": "Subsection label for per-site download rules."
   }
 }

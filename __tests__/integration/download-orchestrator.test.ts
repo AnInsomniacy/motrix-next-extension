@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DownloadOrchestrator } from '@/lib/download/orchestrator';
 import type { DownloadItem, OrchestratorDeps } from '@/lib/download/orchestrator';
+import { DuplicateDownloadGuard } from '@/lib/download/duplicate-guard';
 import type { DownloadSettings, SiteRule } from '@/shared/types';
 import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 import { DesktopApiClient } from '@/lib/api/desktop-client';
@@ -260,6 +261,34 @@ describe('DownloadOrchestrator', () => {
 
       expect(cookies.getAll).toHaveBeenCalled();
       expect(calls).toEqual(['cancel', 'cookies']);
+    });
+
+    it('cancels and skips repeated downloads inside the duplicate guard window', async () => {
+      const desktopClient = new DesktopApiClient({ port: 24110, secret: 'secret' });
+      const addDownload = vi
+        .spyOn(desktopClient, 'addDownload')
+        .mockResolvedValue({ action: 'queued' });
+      const guardedDeps = createMockDeps({
+        desktopClient,
+        openProtocolNewTask: undefined,
+        duplicateGuard: new DuplicateDownloadGuard(() => 1_000),
+        onDuplicateBlocked: vi.fn(),
+      });
+      const orch = new DownloadOrchestrator(guardedDeps);
+
+      await orch.handleCreated(createMockDownloadItem({ id: 1 }));
+      const blocked = await orch.handleCreated(createMockDownloadItem({ id: 2 }));
+
+      expect(blocked).toBe(true);
+      expect(addDownload).toHaveBeenCalledTimes(1);
+      expect(guardedDeps.downloads.cancel).toHaveBeenCalledWith(2);
+      expect(guardedDeps.onDuplicateBlocked).toHaveBeenCalledTimes(1);
+      expect(guardedDeps.diagnosticLog.append).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: 'download_duplicate_blocked',
+          level: 'info',
+        }),
+      );
     });
 
     it('cancels the browser download before routing to the desktop app', async () => {

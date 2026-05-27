@@ -82,7 +82,7 @@
     "description": "Button to test the API connection"
   },
   "options_section_behavior": {
-    "message": "Συμπεριφορά λήψης",
+    "message": "Λήψη",
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
@@ -94,8 +94,8 @@
     "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
-    "message": "Κανόνες ιστοτόπου",
-    "description": "Settings section for per-site download rules"
+    "message": "Κανόνες",
+    "description": "Settings section for download routing rules"
   },
   "options_add_rule": {
     "message": "Προσθήκη κανόνα",
@@ -447,5 +447,33 @@
   "options_min_size_unknown_skip": {
     "message": "Χρήση του διαχειριστή λήψεων του προγράμματος περιήγησης",
     "description": "Option label for leaving unknown-size downloads in the browser."
+  },
+  "options_duplicate_guard_label": {
+    "message": "Προστασία διπλών λήψεων",
+    "description": "Label for the duplicate download guard setting."
+  },
+  "options_duplicate_guard_window_label": {
+    "message": "Παράθυρο προστασίας",
+    "description": "Label for the duplicate download guard time window input."
+  },
+  "notification_duplicate_guard_title": {
+    "message": "Η εργασία υποβλήθηκε",
+    "description": "Notification title shown when a duplicate download is blocked."
+  },
+  "notification_duplicate_guard_body": {
+    "message": "Το διπλό αίτημα παραλείφθηκε",
+    "description": "Notification body shown when a duplicate download is blocked."
+  },
+  "options_privacy_section_label": {
+    "message": "Απόρρητο",
+    "description": "Subsection label for privacy-related download forwarding settings."
+  },
+  "options_download_handling_section_label": {
+    "message": "Χειρισμός λήψεων",
+    "description": "Subsection label for browser and desktop download handling settings."
+  },
+  "options_site_rules_label": {
+    "message": "Κανόνες ιστότοπων",
+    "description": "Subsection label for per-site download rules."
   }
 }

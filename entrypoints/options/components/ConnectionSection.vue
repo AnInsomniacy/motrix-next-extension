@@ -54,7 +54,7 @@ const errorMessage = computed(() => {
 <template>
   <div class="section">
     <div class="section__grid">
-      <NFormItem :label="i18n('options_api_port_label', 'API Port')">
+      <NFormItem :show-feedback="false" :label="i18n('options_api_port_label', 'API Port')">
         <NInputNumber
           :value="port"
           :min="1024"
@@ -65,7 +65,7 @@ const errorMessage = computed(() => {
           "
         />
       </NFormItem>
-      <NFormItem :label="i18n('options_api_secret_label', 'API Secret')">
+      <NFormItem :show-feedback="false" :label="i18n('options_api_secret_label', 'API Secret')">
         <NInput
           :value="secret"
           type="password"
@@ -119,7 +119,7 @@ const errorMessage = computed(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 16px;
 }
 
 .section__feedback {

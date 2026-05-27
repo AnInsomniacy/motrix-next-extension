@@ -84,7 +84,7 @@ const { t: i18n } = useI18n();
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 0 0;
+  padding: 20px 0 0;
   border-top: 1px solid var(--color-outline-variant);
   margin-top: 20px;
 }

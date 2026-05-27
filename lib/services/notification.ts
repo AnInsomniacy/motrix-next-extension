@@ -31,6 +31,21 @@ export class NotificationService {
     };
   }
 
+  static buildDuplicateDownloadNotification(
+    title = 'Task submitted',
+    message = 'Duplicate request skipped',
+  ): NotificationPayload {
+    return {
+      id: `duplicate-download-${Date.now()}`,
+      options: {
+        type: 'basic',
+        title,
+        message,
+        iconUrl: 'icon/128.png',
+      },
+    };
+  }
+
   /**
    * Determine what action to take when a notification is clicked.
    */

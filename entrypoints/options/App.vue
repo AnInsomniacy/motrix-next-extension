@@ -28,6 +28,7 @@ import {
 import { PermissionService } from '@/lib/services';
 import type {
   ConnectionConfig,
+  DuplicateDownloadGuardSettings,
   DiagnosticEvent,
   InterceptionScope,
   MinimumFileSizeSettings,
@@ -50,7 +51,7 @@ import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
 import OptionsNav from './components/OptionsNav.vue';
 import ConnectionSection from './components/ConnectionSection.vue';
 import BehaviorSection from './components/BehaviorSection.vue';
-import SiteRulesSection from './components/SiteRulesSection.vue';
+import RulesSection from './components/RulesSection.vue';
 import AppearanceSection from './components/AppearanceSection.vue';
 import DiagnosticsSection from './components/DiagnosticsSection.vue';
 import SettingsActionBar from './components/SettingsActionBar.vue';
@@ -112,6 +113,7 @@ interface SettingsForm {
   autoLaunchApp: boolean;
   forwardRequestHeaders: boolean;
   forwardCookies: boolean;
+  duplicateGuard: DuplicateDownloadGuardSettings;
   minimumFileSize: MinimumFileSizeSettings;
 }
 
@@ -127,6 +129,7 @@ function buildForm(): SettingsForm {
     autoLaunchApp: DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp,
     forwardRequestHeaders: DEFAULT_DOWNLOAD_SETTINGS.forwardRequestHeaders,
     forwardCookies: DEFAULT_DOWNLOAD_SETTINGS.forwardCookies,
+    duplicateGuard: { ...DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard },
     minimumFileSize: { ...DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize },
   };
 }
@@ -161,6 +164,7 @@ const {
       autoLaunchApp: f.autoLaunchApp,
       forwardRequestHeaders: f.forwardRequestHeaders,
       forwardCookies: f.forwardCookies,
+      duplicateGuard: f.duplicateGuard,
       minimumFileSize: f.minimumFileSize,
     });
   },
@@ -206,6 +210,10 @@ async function handleInterceptionScopeChange(value: Partial<InterceptionScope>):
 
 function handleMinimumFileSizeChange(value: Partial<MinimumFileSizeSettings>): void {
   form.value.minimumFileSize = { ...form.value.minimumFileSize, ...value };
+}
+
+function handleDuplicateGuardChange(value: Partial<DuplicateDownloadGuardSettings>): void {
+  form.value.duplicateGuard = { ...form.value.duplicateGuard, ...value };
 }
 
 async function handleHideDownloadBarChange(value: boolean): Promise<void> {
@@ -278,6 +286,7 @@ async function loadFromStorage(): Promise<void> {
   interceptionEnabled.value = data.settings.enabled;
   interceptionScope.value = data.settings.interceptionScope;
   form.value.minimumFileSize = data.settings.minimumFileSize;
+  form.value.duplicateGuard = data.settings.duplicateGuard;
   form.value.hideDownloadBar =
     data.settings.hideDownloadBar &&
     (await permissionService.hasDownloadUiAccess().catch(() => false));
@@ -315,6 +324,7 @@ async function applySettingsStorageChange(value: unknown): Promise<void> {
   form.value.forwardCookies =
     settings.forwardCookies &&
     (await permissionService.hasCookieForwardingAccess().catch(() => false));
+  form.value.duplicateGuard = settings.duplicateGuard;
 }
 
 function applyUiPrefsStorageChange(value: unknown): void {
@@ -472,20 +482,18 @@ onUnmounted(() => {
             <!-- Behavior -->
             <div v-else-if="activeSection === 'behavior'" key="behavior" class="section-wrapper">
               <h2 class="section-title">
-                {{ i18n('options_section_behavior', 'Download Behavior') }}
+                {{ i18n('options_section_behavior', 'Download') }}
               </h2>
               <div class="card">
                 <BehaviorSection
                   :enabled="interceptionEnabled"
                   :interception-scope="interceptionScope"
-                  :minimum-file-size="form.minimumFileSize"
                   :hide-download-bar="form.hideDownloadBar"
                   :auto-launch-app="form.autoLaunchApp"
                   :forward-request-headers="form.forwardRequestHeaders"
                   :forward-cookies="form.forwardCookies"
                   @update:enabled="handleEnabledChange"
                   @update:scope="handleInterceptionScopeChange"
-                  @update:minimum-file-size="handleMinimumFileSizeChange"
                   @update:hide-download-bar="handleHideDownloadBarChange"
                   @update:auto-launch-app="form.autoLaunchApp = $event"
                   @update:forward-request-headers="form.forwardRequestHeaders = $event"
@@ -495,11 +503,20 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <!-- Site Rules -->
+            <!-- Rules -->
             <div v-else-if="activeSection === 'rules'" key="rules" class="section-wrapper">
-              <h2 class="section-title">{{ i18n('options_section_rules', 'Site Rules') }}</h2>
+              <h2 class="section-title">{{ i18n('options_section_rules', 'Rules') }}</h2>
               <div class="card">
-                <SiteRulesSection :rules="siteRules" @add="addRule" @remove="removeRule" />
+                <RulesSection
+                  :duplicate-guard="form.duplicateGuard"
+                  :minimum-file-size="form.minimumFileSize"
+                  :site-rules="siteRules"
+                  @update:duplicate-guard="handleDuplicateGuardChange"
+                  @update:minimum-file-size="handleMinimumFileSizeChange"
+                  @add-site-rule="addRule"
+                  @remove-site-rule="removeRule"
+                />
+                <SettingsActionBar :is-dirty="isDirty" @save="handleSave" @discard="handleReset" />
               </div>
             </div>
 

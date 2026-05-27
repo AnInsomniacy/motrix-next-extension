@@ -1,6 +1,7 @@
 import { browser, type Browser } from 'wxt/browser';
 import { storage as wxtStorage } from '#imports';
 import { DownloadOrchestrator } from '@/lib/download';
+import { DuplicateDownloadGuard } from '@/lib/download/duplicate-guard';
 import { DownloadFilenameGate, type SuggestedFilename } from '@/lib/download/filename-gate';
 import { DownloadFilenameMetadataStore } from '@/lib/download/filename-metadata';
 import {
@@ -70,6 +71,7 @@ export default defineBackground(() => {
   const filenameMetadata = new DownloadFilenameMetadataStore();
   const requestHeaderContexts = new RequestHeaderContextStore();
   const filenameGate = new DownloadFilenameGate();
+  const duplicateDownloadGuard = new DuplicateDownloadGuard();
 
   const storageService = new StorageService(createWxtStorageApi(wxtStorage));
   const permissionService = new PermissionService({
@@ -242,6 +244,7 @@ export default defineBackground(() => {
     getSiteRules: () => siteRules,
     getTabUrl,
     filenameMetadata,
+    duplicateGuard: duplicateDownloadGuard,
     desktopClient,
     wakeDesktop: async () =>
       wakeService.wakeAndWaitForApi({
@@ -301,6 +304,20 @@ export default defineBackground(() => {
       logError('download_route_failed', `All routing paths failed: ${info.filename}`, {
         url: info.url,
       });
+    },
+    onDuplicateBlocked: () => {
+      const payload = NotificationService.buildDuplicateDownloadNotification(
+        bgI18n.t('notification_duplicate_guard_title', 'Task submitted'),
+        bgI18n.t('notification_duplicate_guard_body', 'Duplicate request skipped'),
+      );
+      try {
+        browser.notifications.create(payload.id, payload.options);
+      } catch (e) {
+        logWarn(
+          'notification_create_failed',
+          `Notification create failed: ${e instanceof Error ? e.message : String(e)}`,
+        );
+      }
     },
   });
 

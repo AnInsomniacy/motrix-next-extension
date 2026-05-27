@@ -67,6 +67,10 @@ describe('parseDownloadSettings', () => {
       autoLaunchApp: false,
       forwardRequestHeaders: false,
       forwardCookies: true,
+      duplicateGuard: {
+        enabled: false,
+        windowSeconds: 25,
+      },
       minimumFileSize: {
         enabled: true,
         sizeMb: 5,
@@ -91,6 +95,10 @@ describe('parseDownloadSettings', () => {
       autoLaunchApp: true,
       forwardRequestHeaders: true,
       forwardCookies: true,
+      duplicateGuard: {
+        enabled: true,
+        windowSeconds: 10,
+      },
       minimumFileSize: {
         enabled: true,
         sizeMb: 5,
@@ -113,6 +121,10 @@ describe('parseDownloadSettings', () => {
       autoLaunchApp: true,
       forwardRequestHeaders: true,
       forwardCookies: true,
+      duplicateGuard: {
+        enabled: true,
+        windowSeconds: 10,
+      },
       minimumFileSize: {
         enabled: true,
         sizeMb: 5,
@@ -153,6 +165,10 @@ describe('parseDownloadSettings', () => {
       autoLaunchApp: false,
       forwardRequestHeaders: false,
       forwardCookies: true,
+      duplicateGuard: {
+        enabled: true,
+        windowSeconds: 10,
+      },
       minimumFileSize: {
         enabled: true,
         sizeMb: 5,
@@ -344,6 +360,7 @@ describe('parseDiagnosticEvents', () => {
     'download_fallback',
     'download_failed',
     'download_routed',
+    'download_duplicate_blocked',
     'download_cancel_failed',
     'download_handler_error',
     'request_headers_listener_ready',
@@ -397,6 +414,10 @@ describe('parseStorage', () => {
       autoLaunchApp: true,
       forwardRequestHeaders: true,
       forwardCookies: true,
+      duplicateGuard: {
+        enabled: true,
+        windowSeconds: 10,
+      },
       minimumFileSize: {
         enabled: true,
         sizeMb: 5,
@@ -434,6 +455,10 @@ describe('parseStorage', () => {
       autoLaunchApp: true,
       forwardRequestHeaders: true,
       forwardCookies: true,
+      duplicateGuard: {
+        enabled: true,
+        windowSeconds: 10,
+      },
       minimumFileSize: {
         enabled: true,
         sizeMb: 5,
@@ -475,6 +500,10 @@ describe('parseStorage', () => {
       autoLaunchApp: false,
       forwardRequestHeaders: false,
       forwardCookies: true,
+      duplicateGuard: {
+        enabled: true,
+        windowSeconds: 10,
+      },
       minimumFileSize: {
         enabled: true,
         sizeMb: 5,

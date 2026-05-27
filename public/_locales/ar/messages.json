@@ -82,7 +82,7 @@
     "description": "Button to test the API connection"
   },
   "options_section_behavior": {
-    "message": "سلوك التنزيل",
+    "message": "التنزيل",
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
@@ -94,8 +94,8 @@
     "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
-    "message": "قواعد المواقع",
-    "description": "Settings section for per-site download rules"
+    "message": "القواعد",
+    "description": "Settings section for download routing rules"
   },
   "options_add_rule": {
     "message": "إضافة قاعدة",
@@ -447,5 +447,33 @@
   "options_min_size_unknown_skip": {
     "message": "استخدام مدير تنزيلات المتصفح",
     "description": "Option label for leaving unknown-size downloads in the browser."
+  },
+  "options_duplicate_guard_label": {
+    "message": "حارس التنزيلات المكررة",
+    "description": "Label for the duplicate download guard setting."
+  },
+  "options_duplicate_guard_window_label": {
+    "message": "نافذة الحماية",
+    "description": "Label for the duplicate download guard time window input."
+  },
+  "notification_duplicate_guard_title": {
+    "message": "تم إرسال المهمة",
+    "description": "Notification title shown when a duplicate download is blocked."
+  },
+  "notification_duplicate_guard_body": {
+    "message": "تم تخطي الطلب المكرر",
+    "description": "Notification body shown when a duplicate download is blocked."
+  },
+  "options_privacy_section_label": {
+    "message": "الخصوصية",
+    "description": "Subsection label for privacy-related download forwarding settings."
+  },
+  "options_download_handling_section_label": {
+    "message": "معالجة التنزيل",
+    "description": "Subsection label for browser and desktop download handling settings."
+  },
+  "options_site_rules_label": {
+    "message": "قواعد المواقع",
+    "description": "Subsection label for per-site download rules."
   }
 }

@@ -17,6 +17,18 @@ describe('NotificationService', () => {
     });
   });
 
+  describe('buildDuplicateDownloadNotification', () => {
+    it('builds a notification for blocked duplicate downloads', () => {
+      const notif = NotificationService.buildDuplicateDownloadNotification();
+
+      expect(notif.id).toMatch(/^duplicate-download-/);
+      expect(notif.options.type).toBe('basic');
+      expect(notif.options.title).toBe('Task submitted');
+      expect(notif.options.message).toBe('Duplicate request skipped');
+      expect(notif.options.iconUrl).toBe('icon/128.png');
+    });
+  });
+
   describe('resolveClickAction', () => {
     it('returns open-options for failed notifications', () => {
       const action = NotificationService.resolveClickAction('failed-123');

@@ -11,6 +11,10 @@ export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = {
   autoLaunchApp: true,
   forwardRequestHeaders: true,
   forwardCookies: true,
+  duplicateGuard: {
+    enabled: true,
+    windowSeconds: 10,
+  },
   minimumFileSize: {
     enabled: true,
     sizeMb: 5,

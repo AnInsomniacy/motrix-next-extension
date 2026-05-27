@@ -83,8 +83,14 @@ export interface DownloadSettings {
   autoLaunchApp: boolean;
   forwardRequestHeaders: boolean;
   forwardCookies: boolean;
+  duplicateGuard: DuplicateDownloadGuardSettings;
   minimumFileSize: MinimumFileSizeSettings;
   interceptionScope: InterceptionScope;
+}
+
+export interface DuplicateDownloadGuardSettings {
+  enabled: boolean;
+  windowSeconds: number;
 }
 
 export interface MinimumFileSizeSettings {
@@ -125,6 +131,7 @@ export type DiagnosticCode =
   | 'download_fallback'
   | 'download_failed'
   | 'download_routed'
+  | 'download_duplicate_blocked'
   | 'download_cancel_failed'
   | 'download_handler_error'
   | 'request_headers_listener_ready'

@@ -80,6 +80,20 @@ const MinimumFileSizeSchema = z.object({
     .default(DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize.unknownSizeAction),
 });
 
+const DuplicateDownloadGuardSchema = z.object({
+  enabled: z
+    .boolean()
+    .catch(DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard.enabled)
+    .default(DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard.enabled),
+  windowSeconds: z
+    .number()
+    .int()
+    .min(1)
+    .max(300)
+    .catch(DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard.windowSeconds)
+    .default(DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard.windowSeconds),
+});
+
 const DownloadSettingsSchema = z.object({
   enabled: z
     .boolean()
@@ -101,6 +115,9 @@ const DownloadSettingsSchema = z.object({
     .boolean()
     .catch(DEFAULT_DOWNLOAD_SETTINGS.forwardCookies)
     .default(DEFAULT_DOWNLOAD_SETTINGS.forwardCookies),
+  duplicateGuard: DuplicateDownloadGuardSchema.catch(
+    DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard,
+  ).default(DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard),
   minimumFileSize: MinimumFileSizeSchema.catch(DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize).default(
     DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize,
   ),
@@ -139,6 +156,7 @@ const DiagnosticCodeSchema = z.enum([
   'download_fallback',
   'download_failed',
   'download_routed',
+  'download_duplicate_blocked',
   'download_cancel_failed',
   'download_handler_error',
   'request_headers_listener_ready',

@@ -29,9 +29,13 @@ const { t: i18n } = useI18n();
 </script>
 
 <template>
-  <div class="section">
+  <div class="settings-section">
     <!-- Theme Mode -->
-    <NFormItem :label="i18n('options_section_appearance', 'Theme')">
+    <NFormItem
+      class="settings-row"
+      :show-feedback="false"
+      :label="i18n('options_section_appearance', 'Theme')"
+    >
       <NRadioGroup
         :value="theme"
         size="medium"
@@ -60,7 +64,11 @@ const { t: i18n } = useI18n();
 
     <!-- Color Scheme Picker -->
     <!-- Ref: desktop Basic.vue L575-598 -->
-    <NFormItem :label="i18n('options_color_scheme', 'Color Scheme')">
+    <NFormItem
+      class="settings-row"
+      :show-feedback="false"
+      :label="i18n('options_color_scheme', 'Color Scheme')"
+    >
       <div class="color-scheme-picker">
         <NTooltip v-for="scheme in COLOR_SCHEMES" :key="scheme.id">
           <template #trigger>

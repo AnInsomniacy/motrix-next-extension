@@ -82,7 +82,7 @@
     "description": "Button to test the API connection"
   },
   "options_section_behavior": {
-    "message": "พฤติกรรมการดาวน์โหลด",
+    "message": "ดาวน์โหลด",
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
@@ -94,8 +94,8 @@
     "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
-    "message": "กฎเว็บไซต์",
-    "description": "Settings section for per-site download rules"
+    "message": "กฎ",
+    "description": "Settings section for download routing rules"
   },
   "options_add_rule": {
     "message": "เพิ่มกฎ",
@@ -447,5 +447,33 @@
   "options_min_size_unknown_skip": {
     "message": "ใช้ตัวดาวน์โหลดของเบราว์เซอร์",
     "description": "Option label for leaving unknown-size downloads in the browser."
+  },
+  "options_duplicate_guard_label": {
+    "message": "ตัวป้องกันการดาวน์โหลดซ้ำ",
+    "description": "Label for the duplicate download guard setting."
+  },
+  "options_duplicate_guard_window_label": {
+    "message": "ช่วงเวลาป้องกัน",
+    "description": "Label for the duplicate download guard time window input."
+  },
+  "notification_duplicate_guard_title": {
+    "message": "ส่งงานแล้ว",
+    "description": "Notification title shown when a duplicate download is blocked."
+  },
+  "notification_duplicate_guard_body": {
+    "message": "ข้ามคำขอซ้ำแล้ว",
+    "description": "Notification body shown when a duplicate download is blocked."
+  },
+  "options_privacy_section_label": {
+    "message": "ความเป็นส่วนตัว",
+    "description": "Subsection label for privacy-related download forwarding settings."
+  },
+  "options_download_handling_section_label": {
+    "message": "การจัดการดาวน์โหลด",
+    "description": "Subsection label for browser and desktop download handling settings."
+  },
+  "options_site_rules_label": {
+    "message": "กฎของเว็บไซต์",
+    "description": "Subsection label for per-site download rules."
   }
 }

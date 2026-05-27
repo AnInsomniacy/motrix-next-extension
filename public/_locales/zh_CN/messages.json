@@ -82,8 +82,8 @@
     "description": "Button to test the API connection"
   },
   "options_section_behavior": {
-    "message": "下载行为",
-    "description": "下载拦截行为设置区域"
+    "message": "下载",
+    "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
     "message": "启用下载拦截",
@@ -94,8 +94,8 @@
     "description": "启用通知的开关"
   },
   "options_section_rules": {
-    "message": "站点规则",
-    "description": "按站点下载规则设置区域"
+    "message": "规则",
+    "description": "Settings section for download routing rules"
   },
   "options_add_rule": {
     "message": "添加规则",
@@ -447,5 +447,33 @@
   "options_min_size_unknown_skip": {
     "message": "交给浏览器",
     "description": "Option label for leaving unknown-size downloads in the browser."
+  },
+  "options_duplicate_guard_label": {
+    "message": "重复下载拦截",
+    "description": "Label for the duplicate download guard setting."
+  },
+  "options_duplicate_guard_window_label": {
+    "message": "拦截间隔",
+    "description": "Label for the duplicate download guard time window input."
+  },
+  "notification_duplicate_guard_title": {
+    "message": "任务已提交",
+    "description": "Notification title shown when a duplicate download is blocked."
+  },
+  "notification_duplicate_guard_body": {
+    "message": "重复请求已跳过",
+    "description": "Notification body shown when a duplicate download is blocked."
+  },
+  "options_privacy_section_label": {
+    "message": "隐私",
+    "description": "Subsection label for privacy-related download forwarding settings."
+  },
+  "options_download_handling_section_label": {
+    "message": "下载处理",
+    "description": "Subsection label for browser and desktop download handling settings."
+  },
+  "options_site_rules_label": {
+    "message": "站点规则",
+    "description": "Subsection label for per-site download rules."
   }
 }
