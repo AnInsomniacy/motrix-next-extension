@@ -59,6 +59,11 @@ declare module 'locale:fr' {
   export default messages;
 }
 
+declare module 'locale:hi' {
+  const messages: ChromeMessages;
+  export default messages;
+}
+
 declare module 'locale:hu' {
   const messages: ChromeMessages;
   export default messages;

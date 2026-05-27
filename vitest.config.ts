@@ -24,6 +24,7 @@ export default defineConfig({
       'locale:es': resolve(__dirname, 'public/_locales/es/messages.json'),
       'locale:fa': resolve(__dirname, 'public/_locales/fa/messages.json'),
       'locale:fr': resolve(__dirname, 'public/_locales/fr/messages.json'),
+      'locale:hi': resolve(__dirname, 'public/_locales/hi/messages.json'),
       'locale:hu': resolve(__dirname, 'public/_locales/hu/messages.json'),
       'locale:id': resolve(__dirname, 'public/_locales/id/messages.json'),
       'locale:it': resolve(__dirname, 'public/_locales/it/messages.json'),

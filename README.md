@@ -42,7 +42,7 @@
 - **Failure notifications** — Alerts when an intercepted download cannot be delivered to Motrix Next
 - **Download bar control** — Optionally hides Chrome's native download shelf (Chromium 115+, not available on Firefox)
 - **Dark mode** — System / Light / Dark with 10 Material You color schemes
-- **i18n** — 26 languages including English, Chinese, Japanese, Korean, French, German, Spanish, and more
+- **i18n** — 27 languages including English, Hindi, Chinese, Japanese, Korean, French, German, Spanish, and more
 - **Diagnostics** — Built-in event log with severity levels and one-click export
 
 ## Installation
@@ -168,7 +168,7 @@ motrix-next-extension/
 ├── __tests__/                  # 350 tests across 25 files
 │   ├── unit/                   #   24 isolated service test files
 │   └── integration/            #   End-to-end interception flow
-├── public/_locales/            # Chrome i18n message bundles (26 languages)
+├── public/_locales/            # Chrome i18n message bundles (27 languages)
 └── .github/workflows/ci.yml   # CI: compile → test → lint → i18n → format → build
 ```
 

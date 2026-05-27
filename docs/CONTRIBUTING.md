@@ -68,15 +68,39 @@ The extension uses Chrome's native i18n system with `messages.json` files under 
 
 ### Supported Locales
 
-| Locale               | Directory                             |
-| -------------------- | ------------------------------------- |
-| English              | `public/_locales/en/messages.json`    |
-| Chinese (Simplified) | `public/_locales/zh_CN/messages.json` |
-| Japanese             | `public/_locales/ja/messages.json`    |
+| Locale                | Directory                             |
+| --------------------- | ------------------------------------- |
+| Arabic                | `public/_locales/ar/messages.json`    |
+| Bulgarian             | `public/_locales/bg/messages.json`    |
+| Catalan               | `public/_locales/ca/messages.json`    |
+| German                | `public/_locales/de/messages.json`    |
+| Greek                 | `public/_locales/el/messages.json`    |
+| English               | `public/_locales/en/messages.json`    |
+| Spanish               | `public/_locales/es/messages.json`    |
+| Persian               | `public/_locales/fa/messages.json`    |
+| French                | `public/_locales/fr/messages.json`    |
+| Hindi                 | `public/_locales/hi/messages.json`    |
+| Hungarian             | `public/_locales/hu/messages.json`    |
+| Indonesian            | `public/_locales/id/messages.json`    |
+| Italian               | `public/_locales/it/messages.json`    |
+| Japanese              | `public/_locales/ja/messages.json`    |
+| Korean                | `public/_locales/ko/messages.json`    |
+| Norwegian Bokmål      | `public/_locales/nb/messages.json`    |
+| Dutch                 | `public/_locales/nl/messages.json`    |
+| Polish                | `public/_locales/pl/messages.json`    |
+| Portuguese (Brazil)   | `public/_locales/pt_BR/messages.json` |
+| Romanian              | `public/_locales/ro/messages.json`    |
+| Russian               | `public/_locales/ru/messages.json`    |
+| Thai                  | `public/_locales/th/messages.json`    |
+| Turkish               | `public/_locales/tr/messages.json`    |
+| Ukrainian             | `public/_locales/uk/messages.json`    |
+| Vietnamese            | `public/_locales/vi/messages.json`    |
+| Chinese (Simplified)  | `public/_locales/zh_CN/messages.json` |
+| Chinese (Traditional) | `public/_locales/zh_TW/messages.json` |
 
 ### Adding or Modifying Keys
 
-1. Add or modify keys with a temporary batch helper in the operating system's temporary directory so all 26 locale files are updated together.
+1. Add or modify keys with a temporary batch helper in the operating system's temporary directory so all 27 locale files are updated together.
 2. Keep English (`en`) as the reference message and provide translations for every supported locale.
 3. Follow the Chrome i18n format:
    ```json
@@ -90,7 +114,7 @@ The extension uses Chrome's native i18n system with `messages.json` files under 
    ```bash
    pnpm lint:i18n
    ```
-6. Every PR that adds or modifies i18n keys **must update all 26 locales**. Partial updates will not be accepted.
+6. Every PR that adds or modifies i18n keys **must update all 27 locales**. Partial updates will not be accepted.
 
 ### Adding a New Language
 
@@ -128,7 +152,7 @@ How to split a large change:
 | ---------------------------------------- | ----------------------------------------------------------------------------------- |
 | "Add download history feature" (800 LOC) | PR 1: storage schema + tests → PR 2: history service + tests → PR 3: UI integration |
 | "Add feature + fix lint + update config" | PR 1: lint/config fixes → PR 2: the feature                                         |
-| "Update i18n for 3 features"             | One PR per feature, each updating all 3 locales                                     |
+| "Update i18n for 3 features"             | One PR per feature, each updating all supported locales                             |
 
 ### Before you start
 

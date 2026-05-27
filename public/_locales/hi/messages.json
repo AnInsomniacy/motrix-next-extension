@@ -1,0 +1,479 @@
+{
+  "ext_name": {
+    "message": "Motrix Next Extension",
+    "description": "Extension display name"
+  },
+  "ext_description": {
+    "message": "ब्राउज़र डाउनलोड Motrix Next को भेजें — aria2 से संचालित आधुनिक डाउनलोड मैनेजर",
+    "description": "Extension description shown in browser and web store"
+  },
+  "popup_status_connected": {
+    "message": "कनेक्टेड",
+    "description": "Connection status badge when API is reachable"
+  },
+  "popup_status_disconnected": {
+    "message": "डिस्कनेक्टेड",
+    "description": "Connection status badge when API is unreachable"
+  },
+  "popup_status_not_configured": {
+    "message": "कॉन्फ़िगर नहीं किया गया",
+    "description": "Connection status badge when API secret is empty"
+  },
+  "popup_speed_download": {
+    "message": "↓ $speed$",
+    "description": "Download speed indicator",
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_speed_upload": {
+    "message": "↑ $speed$",
+    "description": "Upload speed indicator",
+    "placeholders": {
+      "speed": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_no_active_tasks": {
+    "message": "कोई सक्रिय डाउनलोड नहीं",
+    "description": "Message when there are no active download tasks"
+  },
+  "popup_action_pause_all": {
+    "message": "सभी रोकें",
+    "description": "Button to pause all active downloads"
+  },
+  "popup_action_resume_all": {
+    "message": "सभी फिर शुरू करें",
+    "description": "Button to resume all paused downloads"
+  },
+  "popup_action_settings": {
+    "message": "सेटिंग्स",
+    "description": "Button to open the options page"
+  },
+  "popup_action_launch": {
+    "message": "Motrix Next शुरू करें",
+    "description": "Button to launch the desktop app when disconnected"
+  },
+  "popup_action_open": {
+    "message": "Motrix Next खोलें",
+    "description": "Button to focus the desktop app when already connected"
+  },
+  "popup_error_unreachable": {
+    "message": "Motrix Next से कनेक्ट नहीं हो सका",
+    "description": "Error message when API is unreachable"
+  },
+  "popup_error_check_settings": {
+    "message": "सेटिंग्स जांचें",
+    "description": "Button to navigate to settings when connection fails"
+  },
+  "options_title": {
+    "message": "Motrix Next Extension · सेटिंग्स",
+    "description": "Options page title"
+  },
+  "options_section_connection": {
+    "message": "कनेक्शन",
+    "description": "Settings section for API connection"
+  },
+  "options_test_connection": {
+    "message": "कनेक्शन जांचें",
+    "description": "Button to test the API connection"
+  },
+  "options_section_behavior": {
+    "message": "डाउनलोड",
+    "description": "Settings section for download interception behavior"
+  },
+  "options_enabled_label": {
+    "message": "डाउनलोड इंटरसेप्शन सक्षम करें",
+    "description": "Toggle label for enabling/disabling download interception"
+  },
+  "options_notify_label": {
+    "message": "सूचनाएं",
+    "description": "Toggle label for enabling notifications"
+  },
+  "options_section_rules": {
+    "message": "नियम",
+    "description": "Settings section for download routing rules"
+  },
+  "options_add_rule": {
+    "message": "नियम जोड़ें",
+    "description": "Button to add a new site rule"
+  },
+  "options_section_appearance": {
+    "message": "दिखावट",
+    "description": "Settings section for theme"
+  },
+  "options_theme_system": {
+    "message": "सिस्टम",
+    "description": "Theme option: follow system preference"
+  },
+  "options_theme_light": {
+    "message": "लाइट",
+    "description": "Theme option: light mode"
+  },
+  "options_theme_dark": {
+    "message": "डार्क",
+    "description": "Theme option: dark mode"
+  },
+  "options_section_diagnostics": {
+    "message": "निदान",
+    "description": "Settings section for diagnostic event log"
+  },
+  "notification_sent_title": {
+    "message": "Motrix Next को भेजा गया",
+    "description": "Notification title when download is sent"
+  },
+  "notification_sent_body": {
+    "message": "$filename$ अब डाउनलोड हो रहा है",
+    "description": "Notification body when download is sent",
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
+  },
+  "notification_failed_title": {
+    "message": "डाउनलोड विफल",
+    "description": "Notification title when download send fails"
+  },
+  "notification_fallback_title": {
+    "message": "ब्राउज़र पर वापस",
+    "description": "Notification title when falling back to browser download"
+  },
+  "context_menu_download": {
+    "message": "Motrix Next से डाउनलोड करें",
+    "description": "Context menu item for downloading a link with Motrix Next"
+  },
+  "popup_title": {
+    "message": "Motrix Next",
+    "description": "Popup header title"
+  },
+  "popup_speed_active_count": {
+    "message": "$count$ सक्रिय",
+    "description": "Number of active downloads in speed bar",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_error_hint": {
+    "message": "सुनिश्चित करें कि Motrix Next चल रहा है और API सक्षम है।",
+    "description": "Hint shown when connection fails"
+  },
+  "options_header_title": {
+    "message": "Motrix Next",
+    "description": "Options page header title"
+  },
+  "options_header_subtitle": {
+    "message": "Extension सेटिंग्स",
+    "description": "Options page header subtitle"
+  },
+  "options_testing_connection": {
+    "message": "जांच हो रही है...",
+    "description": "Button text while testing connection"
+  },
+  "options_connection_success_prefix": {
+    "message": "कनेक्टेड · Motrix Next",
+    "description": "Prefix for successful connection status"
+  },
+  "options_rules_empty": {
+    "message": "कोई नियम कॉन्फ़िगर नहीं है।",
+    "description": "Placeholder when no site rules exist"
+  },
+  "options_diagnostics_export": {
+    "message": "निदान रिपोर्ट एक्सपोर्ट करें",
+    "description": "Button to export full diagnostic report as JSON file"
+  },
+  "options_diagnostics_clear": {
+    "message": "लॉग साफ करें",
+    "description": "Button to clear diagnostic log"
+  },
+  "options_diagnostics_empty": {
+    "message": "कोई निदान इवेंट नहीं।",
+    "description": "Placeholder when diagnostic log is empty"
+  },
+  "options_footer": {
+    "message": "Motrix Next Extension v$version$",
+    "description": "Footer text with version number",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "notification_complete_title": {
+    "message": "डाउनलोड पूरा हुआ",
+    "description": "Title for download completion notification"
+  },
+  "options_save": {
+    "message": "सहेजें",
+    "description": "Save button in action bar"
+  },
+  "options_discard": {
+    "message": "छोड़ें",
+    "description": "Discard button in action bar"
+  },
+  "options_save_success": {
+    "message": "सेटिंग्स सहेजी गईं",
+    "description": "Toast after saving settings successfully"
+  },
+  "options_save_error": {
+    "message": "सेटिंग्स सहेजने में विफल",
+    "description": "Toast when saving settings fails"
+  },
+  "options_unsaved_title": {
+    "message": "सहेजे नहीं गए बदलाव",
+    "description": "Dialog title when leaving with unsaved changes"
+  },
+  "options_unsaved_message": {
+    "message": "आपके बदलाव सहेजे नहीं गए हैं। छोड़ने से पहले सहेजें?",
+    "description": "Dialog body when leaving with unsaved changes"
+  },
+  "options_changes_indicator": {
+    "message": "सहेजे नहीं गए बदलाव",
+    "description": "Indicator text showing there are unsaved modifications"
+  },
+  "options_color_scheme": {
+    "message": "रंग योजना",
+    "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "एम्बर गोल्ड",
+    "description": "Amber Gold color scheme"
+  },
+  "options_color_scheme_space": {
+    "message": "स्पेस ब्लू",
+    "description": "Space Blue color scheme"
+  },
+  "options_color_scheme_mint": {
+    "message": "मिंट ग्रीन",
+    "description": "Mint Green color scheme"
+  },
+  "options_color_scheme_rose": {
+    "message": "रोज रेड",
+    "description": "Rose Red color scheme"
+  },
+  "options_color_scheme_aurora": {
+    "message": "ऑरोरा पर्पल",
+    "description": "Aurora Purple color scheme"
+  },
+  "options_color_scheme_coral": {
+    "message": "कोरल ऑरेंज",
+    "description": "Coral Orange color scheme"
+  },
+  "options_color_scheme_glacier": {
+    "message": "ग्लेशियर सायन",
+    "description": "Glacier Cyan color scheme"
+  },
+  "options_color_scheme_evergreen": {
+    "message": "एवरग्रीन",
+    "description": "Evergreen color scheme"
+  },
+  "options_color_scheme_graphite": {
+    "message": "ग्रेफाइट ग्रे",
+    "description": "Graphite Grey color scheme"
+  },
+  "options_color_scheme_sakura": {
+    "message": "साकुरा पिंक",
+    "description": "Sakura Pink color scheme"
+  },
+  "error_unknown": {
+    "message": "अज्ञात त्रुटि हुई",
+    "description": "Fallback error message"
+  },
+  "options_rule_always_intercept": {
+    "message": "हमेशा इंटरसेप्ट करें",
+    "description": "Site rule action: always intercept downloads"
+  },
+  "options_rule_always_skip": {
+    "message": "हमेशा छोड़ें",
+    "description": "Site rule action: never intercept downloads"
+  },
+  "options_rule_use_global": {
+    "message": "ग्लोबल सेटिंग उपयोग करें",
+    "description": "Site rule action: follow the global setting"
+  },
+  "task_name_unknown": {
+    "message": "अज्ञात",
+    "description": "Fallback name when a task filename cannot be resolved"
+  },
+  "popup_error_auth": {
+    "message": "API secret मेल नहीं खाता",
+    "description": "Popup banner title when API secret is incorrect"
+  },
+  "popup_error_auth_hint": {
+    "message": "जांचें कि Settings में API secret आपके Motrix Next कॉन्फ़िगरेशन से मेल खाता है।",
+    "description": "Popup banner hint for API auth error"
+  },
+  "popup_error_timeout": {
+    "message": "कनेक्शन समय समाप्त",
+    "description": "Popup banner title when API connection times out"
+  },
+  "popup_error_timeout_hint": {
+    "message": "अपना नेटवर्क या firewall सेटिंग्स जांचें। API port: $1",
+    "description": "Popup banner hint for timeout error, $1 = port number",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "29110"
+      }
+    }
+  },
+  "popup_error_unreachable_hint": {
+    "message": "सुनिश्चित करें कि Motrix Next चल रहा है। API port: $1",
+    "description": "Popup banner hint for unreachable error, $1 = port number",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "29110"
+      }
+    }
+  },
+  "options_section_language": {
+    "message": "भाषा",
+    "description": "Settings section for interface language"
+  },
+  "options_locale_auto": {
+    "message": "स्वचालित",
+    "description": "Language option: follow browser language"
+  },
+  "options_locale_auto_desc": {
+    "message": "ब्राउज़र भाषा का अनुसरण करें",
+    "description": "Description for auto language option"
+  },
+  "options_auto_launch_label": {
+    "message": "Motrix Next अपने आप शुरू करें",
+    "description": "Toggle label for auto-launching app on download interception"
+  },
+  "popup_stat_active": {
+    "message": "सक्रिय",
+    "description": "Task count label: currently downloading"
+  },
+  "popup_stat_waiting": {
+    "message": "प्रतीक्षा में",
+    "description": "Task count label: queued for download"
+  },
+  "popup_stat_stopped": {
+    "message": "पूर्ण",
+    "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "इंटरसेप्ट चालू",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "रुका हुआ",
+    "description": "Label next to the interception toggle when inactive"
+  },
+  "options_api_port_label": {
+    "message": "API Port",
+    "description": "Label for the API port input"
+  },
+  "options_api_secret_label": {
+    "message": "API Secret",
+    "description": "Label for the API secret input"
+  },
+  "options_api_secret_placeholder": {
+    "message": "डेस्कटॉप ऐप से पेस्ट करें",
+    "description": "Placeholder text for API secret input"
+  },
+  "error_api_unreachable": {
+    "message": "Motrix Next से कनेक्ट नहीं हो सका",
+    "description": "Error when the API endpoint is unreachable"
+  },
+  "error_api_auth": {
+    "message": "API secret गलत है",
+    "description": "Error when the API secret does not match"
+  },
+  "error_api_timeout": {
+    "message": "कनेक्शन समय समाप्त",
+    "description": "Error when the API connection times out"
+  },
+  "options_hide_download_bar_label": {
+    "message": "ब्राउज़र डाउनलोड बार छिपाएं",
+    "description": "Label for the optional browser download bar hiding setting."
+  },
+  "options_forward_request_headers_label": {
+    "message": "Request Headers फॉरवर्ड करें",
+    "description": "Label for the request header forwarding setting."
+  },
+  "options_forward_cookies_label": {
+    "message": "Cookies फॉरवर्ड करें",
+    "description": "Label for the cookie forwarding setting."
+  },
+  "options_permission_download_ui_denied": {
+    "message": "ब्राउज़र डाउनलोड बार छिपाने के लिए download UI अनुमति दें।",
+    "description": "Toast shown when the optional downloads.ui permission is denied."
+  },
+  "options_permission_cookies_denied": {
+    "message": "Cookies को Motrix Next तक फॉरवर्ड करने के लिए cookie और site अनुमतियां दें।",
+    "description": "Toast shown when cookie forwarding permissions are unavailable."
+  },
+  "options_scope_browser_downloads_label": {
+    "message": "सामान्य डाउनलोड (HTTP / HTTPS / FTP / Torrent)",
+    "description": "Label for the browser download interception scope toggle."
+  },
+  "options_scope_magnet_label": {
+    "message": "Magnet Links (magnet:)",
+    "description": "Label for the magnet link interception scope toggle."
+  },
+  "options_scope_ed2k_label": {
+    "message": "ED2K Links (ed2k:)",
+    "description": "Label for the ED2K link interception scope toggle."
+  },
+  "options_scope_thunder_label": {
+    "message": "Thunder Links (thunder:)",
+    "description": "Label for the Thunder link interception scope toggle."
+  },
+  "options_min_size_label": {
+    "message": "छोटी फ़ाइल फ़िल्टर",
+    "description": "Label for the minimum file size setting."
+  },
+  "options_min_size_value_label": {
+    "message": "फ़ाइल इससे छोटी हो",
+    "description": "Label for the minimum file size numeric input."
+  },
+  "options_min_size_unknown_label": {
+    "message": "जब आकार अज्ञात हो",
+    "description": "Label for the unknown file size behavior selector."
+  },
+  "options_min_size_unknown_intercept": {
+    "message": "Motrix Next को स्थानांतरित करें",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
+  },
+  "options_min_size_unknown_skip": {
+    "message": "ब्राउज़र को स्थानांतरित करें",
+    "description": "Option label for leaving unknown-size downloads in the browser."
+  },
+  "options_duplicate_guard_label": {
+    "message": "डुप्लिकेट डाउनलोड गार्ड",
+    "description": "Label for the duplicate download guard setting."
+  },
+  "options_duplicate_guard_window_label": {
+    "message": "गार्ड विंडो",
+    "description": "Label for the duplicate download guard time window input."
+  },
+  "notification_duplicate_guard_title": {
+    "message": "कार्य भेजा गया",
+    "description": "Notification title shown when a duplicate download is blocked."
+  },
+  "notification_duplicate_guard_body": {
+    "message": "डुप्लिकेट अनुरोध छोड़ा गया",
+    "description": "Notification body shown when a duplicate download is blocked."
+  },
+  "options_privacy_section_label": {
+    "message": "गोपनीयता",
+    "description": "Subsection label for privacy-related download forwarding settings."
+  },
+  "options_download_handling_section_label": {
+    "message": "डाउनलोड हैंडलिंग",
+    "description": "Subsection label for browser and desktop download handling settings."
+  },
+  "options_site_rules_label": {
+    "message": "साइट नियम",
+    "description": "Subsection label for per-site download rules."
+  }
+}

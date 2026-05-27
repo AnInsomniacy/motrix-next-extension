@@ -21,6 +21,7 @@ import enRaw from 'locale:en';
 import esRaw from 'locale:es';
 import faRaw from 'locale:fa';
 import frRaw from 'locale:fr';
+import hiRaw from 'locale:hi';
 import huRaw from 'locale:hu';
 import idRaw from 'locale:id';
 import itRaw from 'locale:it';
@@ -77,6 +78,7 @@ export const SUPPORTED_LOCALES: readonly LocaleEntry[] = [
   { id: 'es', endonym: 'Español', exonym: 'Spanish' },
   { id: 'fa', endonym: 'فارسی', exonym: 'Persian' },
   { id: 'fr', endonym: 'Français', exonym: 'French' },
+  { id: 'hi', endonym: 'हिन्दी', exonym: 'Hindi' },
   { id: 'hu', endonym: 'Magyar', exonym: 'Hungarian' },
   { id: 'id', endonym: 'Indonesia', exonym: 'Indonesian' },
   { id: 'it', endonym: 'Italiano', exonym: 'Italian' },
@@ -136,6 +138,7 @@ export const DICTIONARIES: Record<string, Record<string, string>> = {
   es: flatten(esRaw as ChromeMessages),
   fa: flatten(faRaw as ChromeMessages),
   fr: flatten(frRaw as ChromeMessages),
+  hi: flatten(hiRaw as ChromeMessages),
   hu: flatten(huRaw as ChromeMessages),
   id: flatten(idRaw as ChromeMessages),
   it: flatten(itRaw as ChromeMessages),

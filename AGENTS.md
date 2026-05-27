@@ -61,7 +61,7 @@ lib/                             # Core logic — all services use dependency in
 shared/
 ├── i18n/
 │   ├── engine.ts                # Compile-time i18n with positional $placeholder$ support
-│   ├── dictionaries.ts          # Locale module registry (26 languages)
+│   ├── dictionaries.ts          # Locale module registry (27 languages)
 │   └── locale-modules.d.ts      # Virtual module type declarations for locale:* imports
 ├── types.ts                     # TypeScript interfaces (RpcConfig, DownloadSettings, etc.)
 ├── constants.ts                 # Default configs, timing constants, URL schemes
@@ -78,7 +78,7 @@ __tests__/
 ├── unit/                        # 28 isolated service test files
 └── integration/                 # End-to-end interception flow
 
-public/_locales/                 # Chrome i18n message bundles (26 languages, see Section D)
+public/_locales/                 # Chrome i18n message bundles (27 languages, see Section D)
 
 .github/workflows/
 ├── ci.yml                       # Quality gate: compile → test → lint → i18n → format → build
@@ -130,7 +130,7 @@ Follow this exact checklist:
 3. **`lib/storage/schema.ts`** — Add the field to the Zod schema with `.default()` matching the constant
 4. **`lib/storage/storage-service.ts`** — Add typed getter/setter if the key is accessed individually
 5. **`parseStorage()` in `schema.ts`** — Ensure the new field is included in the composite parse
-6. **All 26 locale files** — Add i18n label keys. Use a temporary batch helper outside the repository when changing many files.
+6. **All 27 locale files** — Add i18n label keys. Use a temporary batch helper outside the repository when changing many files.
 7. **UI binding** — Wire into the appropriate Options page section
 8. **Tests** — Add parse tests in `__tests__/unit/storage-schema.test.ts`
 
@@ -166,11 +166,11 @@ Follow this exact checklist:
 ### Rules
 
 1. **NEVER edit locale files manually one by one.** Use a temporary batch helper outside the repository when changing many files.
-2. **Always update all 26 locales** when adding or modifying keys. Partial updates are not accepted.
+2. **Always update all 27 locales** when adding or modifying keys. Partial updates are not accepted.
 3. English (`en`) is the reference locale — validate this first.
-4. Run `pnpm lint:i18n` after every change to verify consistency across all 26 locales.
+4. Run `pnpm lint:i18n` after every change to verify consistency across all 27 locales.
 
-### 26 Locale Directories
+### 27 Locale Directories
 
 ```
 public/_locales/ar/   # Arabic          public/_locales/nb/      # Norwegian Bokmål
@@ -182,9 +182,10 @@ public/_locales/en/   # English (ref)   public/_locales/ru/      # Russian
 public/_locales/es/   # Spanish         public/_locales/th/      # Thai
 public/_locales/fa/   # Persian         public/_locales/tr/      # Turkish
 public/_locales/fr/   # French          public/_locales/uk/      # Ukrainian
-public/_locales/hu/   # Hungarian       public/_locales/vi/      # Vietnamese
-public/_locales/id/   # Indonesian      public/_locales/zh_CN/   # Chinese Simplified
-public/_locales/it/   # Italian         public/_locales/zh_TW/   # Chinese Traditional
+public/_locales/hi/   # Hindi           public/_locales/vi/      # Vietnamese
+public/_locales/hu/   # Hungarian       public/_locales/zh_CN/   # Chinese Simplified
+public/_locales/id/   # Indonesian      public/_locales/zh_TW/   # Chinese Traditional
+public/_locales/it/   # Italian
 public/_locales/ja/   # Japanese
 public/_locales/ko/   # Korean
 ```
@@ -208,7 +209,7 @@ public/_locales/ko/   # Korean
 
 ### Batch Locale Updates
 
-Use a one-off batch helper in the operating system's temporary directory to add, modify, or delete i18n keys across all 26 locales. This keeps locale changes atomic without leaving task-specific code in the project.
+Use a one-off batch helper in the operating system's temporary directory to add, modify, or delete i18n keys across all 27 locales. This keeps locale changes atomic without leaving task-specific code in the project.
 
 Only reusable project scripts belong in `scripts/`. One-off helpers, generated caches,
 scratch files, and temporary automation outputs must stay outside the repository in the
@@ -220,7 +221,7 @@ reusable scripts after the operation is complete.
 ### Adding a New Language
 
 1. Create `public/_locales/{code}/messages.json` (copy `en` as template)
-2. Translate all 106 message keys
+2. Translate all 110 message keys
 3. Register the locale in `shared/i18n/dictionaries.ts` (import + `SUPPORTED_LOCALES` entry + `DICTIONARIES` entry)
 4. Add a `locale:{code}` alias in `vitest.config.ts`
 5. Add a `declare module 'locale:{code}'` block in `shared/i18n/locale-modules.d.ts`
@@ -450,7 +451,7 @@ pnpm format:check     # Verify formatting (CI runs this)
 pnpm compile          # TypeScript type checking
 pnpm test             # Vitest — 350 unit + integration tests
 pnpm lint             # ESLint
-pnpm lint:i18n        # i18n key consistency across 26 locales
+pnpm lint:i18n        # i18n key consistency across 27 locales
 pnpm build            # Production build
 pnpm zip              # Package for store submission
 ```
