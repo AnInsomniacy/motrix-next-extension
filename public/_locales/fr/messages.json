@@ -216,6 +216,10 @@
     "message": "Annuler",
     "description": "Discard button in action bar"
   },
+  "options_discard_success": {
+    "message": "Modifications restaurées",
+    "description": "Toast after discarding unsaved settings changes"
+  },
   "options_save_success": {
     "message": "Paramètres enregistrés",
     "description": "Toast after saving settings successfully"
@@ -485,7 +489,7 @@
     "description": "Label for the file extension list input."
   },
   "options_file_extension_list_placeholder": {
-    "message": "jpg, png, txt",
+    "message": "Ajouter une extension",
     "description": "Placeholder for the file extension list input."
   },
   "options_file_extension_listed_action_label": {

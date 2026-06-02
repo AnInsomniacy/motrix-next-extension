@@ -16,7 +16,7 @@ import type {
   SiteRule,
 } from '@/shared/types';
 import { useI18n } from '@/shared/i18n/engine';
-import { normalizeFileExtension, normalizeFileExtensionList } from '@/shared/file-extension-rule';
+import { normalizeFileExtensionList } from '@/shared/file-extension-rule';
 import SiteRulesSection from './SiteRulesSection.vue';
 
 defineProps<{
@@ -57,10 +57,6 @@ const extensionActionOptions = computed(() => [
     value: 'skip',
   },
 ]);
-
-function normalizeDynamicTag(value: string): string {
-  return normalizeFileExtension(value) ?? '';
-}
 </script>
 
 <template>
@@ -137,9 +133,8 @@ function normalizeDynamicTag(value: string): string {
             >
               <NDynamicTags
                 :value="fileExtensionRule.extensions"
-                :on-create="normalizeDynamicTag"
                 :input-props="{
-                  placeholder: i18n('options_file_extension_list_placeholder', 'jpg, png, txt'),
+                  placeholder: i18n('options_file_extension_list_placeholder', 'Add extension'),
                 }"
                 style="max-width: 420px"
                 @update:value="

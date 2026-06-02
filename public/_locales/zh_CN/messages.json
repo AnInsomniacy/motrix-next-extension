@@ -216,6 +216,10 @@
     "message": "放弃",
     "description": "操作栏放弃按钮"
   },
+  "options_discard_success": {
+    "message": "已还原更改",
+    "description": "Toast after discarding unsaved settings changes"
+  },
   "options_save_success": {
     "message": "设置已保存",
     "description": "保存成功的提示"
@@ -485,7 +489,7 @@
     "description": "Label for the file extension list input."
   },
   "options_file_extension_list_placeholder": {
-    "message": "jpg, png, txt",
+    "message": "添加后缀名",
     "description": "Placeholder for the file extension list input."
   },
   "options_file_extension_listed_action_label": {

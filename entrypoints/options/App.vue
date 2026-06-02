@@ -189,7 +189,7 @@ async function handleSave(): Promise<void> {
 
 function handleReset(): void {
   rawReset();
-  toast.info(i18n('options_discard', 'Discard'));
+  toast.info(i18n('options_discard_success', 'Changes restored'));
 }
 
 async function handleEnabledChange(value: boolean): Promise<void> {
