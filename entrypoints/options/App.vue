@@ -316,7 +316,7 @@ async function exportSettingsBackup(): Promise<void> {
       includeConnectionSecret: includeConnectionSecretInBackup.value,
     });
     const date = new Date().toISOString().slice(0, 10);
-    downloadJson(`motrix-next-extension-settings-${date}.json`, backup);
+    downloadJson(`motrix-next-extension-settings-backup-${date}.json`, backup);
     toast.success(i18n('options_settings_backup_exported', 'Backup exported'));
   } catch {
     toast.error(i18n('options_settings_backup_export_error', 'Failed to export backup'));
