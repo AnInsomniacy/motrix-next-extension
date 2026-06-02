@@ -523,5 +523,41 @@
   "options_factory_reset_ready": {
     "message": "الإعدادات الافتراضية جاهزة للحفظ",
     "description": "Toast shown after default settings are staged for saving."
+  },
+  "options_section_maintenance": {
+    "message": "الصيانة",
+    "description": "Settings section for maintenance actions."
+  },
+  "options_settings_backup_title": {
+    "message": "نسخة احتياطية للإعدادات",
+    "description": "Maintenance section title for settings backup."
+  },
+  "options_settings_backup_export": {
+    "message": "تصدير الإعدادات",
+    "description": "Button to export settings backup."
+  },
+  "options_settings_backup_import": {
+    "message": "استيراد الإعدادات",
+    "description": "Button to import settings backup."
+  },
+  "options_settings_backup_exported": {
+    "message": "تم تصدير النسخة الاحتياطية",
+    "description": "Toast shown after settings backup export starts."
+  },
+  "options_settings_backup_export_error": {
+    "message": "فشل تصدير النسخة الاحتياطية",
+    "description": "Toast shown when settings backup export fails."
+  },
+  "options_settings_backup_imported": {
+    "message": "تم استيراد الإعدادات. راجعها ثم احفظ.",
+    "description": "Toast shown after settings backup is staged for saving."
+  },
+  "options_settings_backup_invalid": {
+    "message": "ملف النسخة الاحتياطية غير صالح",
+    "description": "Toast shown when selected settings backup is invalid."
+  },
+  "options_settings_backup_include_secret": {
+    "message": "تصدير مفتاح API",
+    "description": "Switch label for including the API secret in exported settings backups."
   }
 }

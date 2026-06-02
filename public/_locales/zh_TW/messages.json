@@ -523,5 +523,41 @@
   "options_factory_reset_ready": {
     "message": "預設值待儲存",
     "description": "Toast shown after default settings are staged for saving."
+  },
+  "options_section_maintenance": {
+    "message": "維護",
+    "description": "Settings section for maintenance actions."
+  },
+  "options_settings_backup_title": {
+    "message": "設定備份",
+    "description": "Maintenance section title for settings backup."
+  },
+  "options_settings_backup_export": {
+    "message": "匯出設定",
+    "description": "Button to export settings backup."
+  },
+  "options_settings_backup_import": {
+    "message": "匯入設定",
+    "description": "Button to import settings backup."
+  },
+  "options_settings_backup_exported": {
+    "message": "備份已匯出",
+    "description": "Toast shown after settings backup export starts."
+  },
+  "options_settings_backup_export_error": {
+    "message": "備份匯出失敗",
+    "description": "Toast shown when settings backup export fails."
+  },
+  "options_settings_backup_imported": {
+    "message": "設定已匯入，請檢查後儲存。",
+    "description": "Toast shown after settings backup is staged for saving."
+  },
+  "options_settings_backup_invalid": {
+    "message": "備份檔案無效",
+    "description": "Toast shown when selected settings backup is invalid."
+  },
+  "options_settings_backup_include_secret": {
+    "message": "匯出 API 密鑰",
+    "description": "Switch label for including the API secret in exported settings backups."
   }
 }

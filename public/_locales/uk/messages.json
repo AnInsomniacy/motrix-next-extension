@@ -523,5 +523,41 @@
   "options_factory_reset_ready": {
     "message": "Типові значення готові до збереження",
     "description": "Toast shown after default settings are staged for saving."
+  },
+  "options_section_maintenance": {
+    "message": "Обслуговування",
+    "description": "Settings section for maintenance actions."
+  },
+  "options_settings_backup_title": {
+    "message": "Резервна копія налаштувань",
+    "description": "Maintenance section title for settings backup."
+  },
+  "options_settings_backup_export": {
+    "message": "Експортувати налаштування",
+    "description": "Button to export settings backup."
+  },
+  "options_settings_backup_import": {
+    "message": "Імпортувати налаштування",
+    "description": "Button to import settings backup."
+  },
+  "options_settings_backup_exported": {
+    "message": "Резервну копію експортовано",
+    "description": "Toast shown after settings backup export starts."
+  },
+  "options_settings_backup_export_error": {
+    "message": "Не вдалося експортувати копію",
+    "description": "Toast shown when settings backup export fails."
+  },
+  "options_settings_backup_imported": {
+    "message": "Налаштування імпортовано. Перевірте та збережіть.",
+    "description": "Toast shown after settings backup is staged for saving."
+  },
+  "options_settings_backup_invalid": {
+    "message": "Недійсний файл копії",
+    "description": "Toast shown when selected settings backup is invalid."
+  },
+  "options_settings_backup_include_secret": {
+    "message": "Експортувати секрет API",
+    "description": "Switch label for including the API secret in exported settings backups."
   }
 }

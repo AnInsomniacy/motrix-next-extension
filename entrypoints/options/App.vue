@@ -23,6 +23,8 @@ import {
   parseDownloadSettings,
   parseSiteRules,
   parseUiPrefs,
+  createSettingsBackup,
+  parseSettingsBackup,
   type StorageSnapshot,
 } from '@/lib/storage';
 import { PermissionService } from '@/lib/services';
@@ -57,7 +59,7 @@ import ConnectionSection from './components/ConnectionSection.vue';
 import BehaviorSection from './components/BehaviorSection.vue';
 import RulesSection from './components/RulesSection.vue';
 import AppearanceSection from './components/AppearanceSection.vue';
-import DiagnosticsSection from './components/DiagnosticsSection.vue';
+import MaintenanceSection from './components/MaintenanceSection.vue';
 import SettingsActionBar from './components/SettingsActionBar.vue';
 import LanguageSection from './components/LanguageSection.vue';
 
@@ -174,6 +176,8 @@ const interceptionScope = ref<InterceptionScope>({
   ...DEFAULT_DOWNLOAD_SETTINGS.interceptionScope,
 });
 const factoryResetPending = ref(false);
+const backupImportPending = ref(false);
+const includeConnectionSecretInBackup = ref(true);
 function buildForm(): SettingsForm {
   return {
     port: DEFAULT_CONNECTION_CONFIG.port,
@@ -212,6 +216,13 @@ const {
     if (factoryResetPending.value) {
       await storageService.saveSnapshot(createStorageSnapshotFromState(f));
       factoryResetPending.value = false;
+      backupImportPending.value = false;
+      return;
+    }
+
+    if (backupImportPending.value) {
+      await storageService.saveSnapshot(createStorageSnapshotFromState(f));
+      backupImportPending.value = false;
       return;
     }
 
@@ -233,7 +244,9 @@ const {
     toast.success(i18n('options_save_success', 'Settings saved'));
   },
 });
-const hasPendingChanges = computed(() => isDirty.value || factoryResetPending.value);
+const hasSnapshotPendingChanges = computed(
+  () => isDirty.value || factoryResetPending.value || backupImportPending.value,
+);
 
 async function handleSave(): Promise<void> {
   try {
@@ -246,6 +259,10 @@ async function handleSave(): Promise<void> {
 function handleReset(): void {
   if (factoryResetPending.value) {
     factoryResetPending.value = false;
+    backupImportPending.value = false;
+    void loadFromStorage().then(() => appearance.applyTheme());
+  } else if (backupImportPending.value) {
+    backupImportPending.value = false;
     void loadFromStorage().then(() => appearance.applyTheme());
   } else {
     rawReset();
@@ -255,27 +272,83 @@ function handleReset(): void {
 
 function stageFactoryReset(): void {
   const defaults = createDefaultStorageSnapshot();
-
-  form.value.port = defaults.connection.port;
-  form.value.secret = defaults.connection.secret;
-  interceptionEnabled.value = defaults.settings.enabled;
-  interceptionScope.value = defaults.settings.interceptionScope;
-  form.value.hideDownloadBar = defaults.settings.hideDownloadBar;
-  form.value.autoLaunchApp = defaults.settings.autoLaunchApp;
-  form.value.forwardRequestHeaders = defaults.settings.forwardRequestHeaders;
-  form.value.forwardCookies = defaults.settings.forwardCookies;
-  form.value.duplicateGuard = defaults.settings.duplicateGuard;
-  form.value.minimumFileSize = defaults.settings.minimumFileSize;
-  form.value.fileExtensionRule = defaults.settings.fileExtensionRule;
-
-  appearance.hydrate(defaults.uiPrefs);
-  i18nCtx.setLocale(defaults.uiPrefs.locale);
-  hydrateSiteRules(defaults.siteRules);
-  hydrateDiagnostics(defaults.diagnosticLog);
-  appearance.applyTheme();
-
+  stageStorageSnapshot(defaults);
   factoryResetPending.value = true;
+  backupImportPending.value = false;
   toast.info(i18n('options_factory_reset_ready', 'Defaults ready to save'));
+}
+
+function stageStorageSnapshot(snapshot: StorageSnapshot): void {
+  form.value.port = snapshot.connection.port;
+  form.value.secret = snapshot.connection.secret;
+  interceptionEnabled.value = snapshot.settings.enabled;
+  interceptionScope.value = snapshot.settings.interceptionScope;
+  form.value.hideDownloadBar = snapshot.settings.hideDownloadBar;
+  form.value.autoLaunchApp = snapshot.settings.autoLaunchApp;
+  form.value.forwardRequestHeaders = snapshot.settings.forwardRequestHeaders;
+  form.value.forwardCookies = snapshot.settings.forwardCookies;
+  form.value.duplicateGuard = snapshot.settings.duplicateGuard;
+  form.value.minimumFileSize = snapshot.settings.minimumFileSize;
+  form.value.fileExtensionRule = snapshot.settings.fileExtensionRule;
+
+  appearance.hydrate(snapshot.uiPrefs);
+  i18nCtx.setLocale(snapshot.uiPrefs.locale);
+  hydrateSiteRules(snapshot.siteRules);
+  hydrateDiagnostics(snapshot.diagnosticLog);
+  appearance.applyTheme();
+}
+
+function downloadJson(filename: string, data: unknown): void {
+  const json = JSON.stringify(data, null, 2);
+  const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(json)}`;
+  const a = document.createElement('a');
+  a.href = dataUri;
+  a.download = filename;
+  a.click();
+}
+
+async function exportSettingsBackup(): Promise<void> {
+  try {
+    const snapshot = createStorageSnapshotFromState(form.value);
+    const backup = createSettingsBackup(snapshot, {
+      extensionVersion,
+      includeConnectionSecret: includeConnectionSecretInBackup.value,
+    });
+    const date = new Date().toISOString().slice(0, 10);
+    downloadJson(`motrix-next-settings-${date}.json`, backup);
+    toast.success(i18n('options_settings_backup_exported', 'Backup exported'));
+  } catch {
+    toast.error(i18n('options_settings_backup_export_error', 'Failed to export backup'));
+  }
+}
+
+async function readFileText(file: globalThis.File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new globalThis.FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+        return;
+      }
+      reject(new Error('Invalid file content'));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read file'));
+    reader.readAsText(file);
+  });
+}
+
+async function importSettingsBackup(file: globalThis.File): Promise<void> {
+  try {
+    const snapshot = parseSettingsBackup(await readFileText(file), {
+      currentSecret: form.value.secret,
+    });
+    stageStorageSnapshot({ ...snapshot, diagnosticLog: diagnosticEvents.value });
+    backupImportPending.value = true;
+    factoryResetPending.value = false;
+    toast.info(i18n('options_settings_backup_imported', 'Settings imported. Review and save.'));
+  } catch {
+    toast.error(i18n('options_settings_backup_invalid', 'Invalid backup file'));
+  }
 }
 
 function handleThemeChange(value: string): void {
@@ -506,12 +579,12 @@ function applyUiPrefsStorageChange(value: unknown): void {
 // ─── Lifecycle ──────────────────────────────────────────────────────
 
 function onBeforeUnload(e: globalThis.BeforeUnloadEvent): void {
-  if (hasPendingChanges.value) {
+  if (hasSnapshotPendingChanges.value) {
     e.preventDefault();
   }
 }
 
-watch(hasPendingChanges, (dirty) => {
+watch(hasSnapshotPendingChanges, (dirty) => {
   if (dirty) {
     window.addEventListener('beforeunload', onBeforeUnload);
   } else {
@@ -531,7 +604,7 @@ function bindThemeMediaChanges(): void {
 function bindStorageChanges(): void {
   const handleStorageChange: StorageChangeListener = (changes, area) => {
     if (area !== 'local') return;
-    if (factoryResetPending.value) return;
+    if (factoryResetPending.value || backupImportPending.value) return;
 
     if (changes.connection?.newValue && !isDirty.value) {
       applyConnectionStorageChange(changes.connection.newValue);
@@ -720,27 +793,31 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <!-- Diagnostics -->
+            <!-- Maintenance -->
             <div
               v-else-if="activeSection === 'diagnostics'"
-              key="diagnostics"
+              key="maintenance"
               class="section-wrapper"
             >
               <h2 class="section-title">
-                {{ i18n('options_section_diagnostics', 'Diagnostics') }}
+                {{ i18n('options_section_maintenance', 'Maintenance') }}
               </h2>
               <div class="card">
-                <DiagnosticsSection
+                <MaintenanceSection
                   :events="diagnosticEvents"
-                  @clear="handleClearDiagnosticLog"
-                  @export="exportDiagnosticReport"
+                  :include-connection-secret="includeConnectionSecretInBackup"
+                  @export-settings="exportSettingsBackup"
+                  @import-settings="importSettingsBackup"
+                  @update-include-connection-secret="includeConnectionSecretInBackup = $event"
                   @reset-settings="stageFactoryReset"
+                  @clear-diagnostics="handleClearDiagnosticLog"
+                  @export-diagnostics="exportDiagnosticReport"
                 />
               </div>
             </div>
           </Transition>
           <SettingsActionBar
-            :is-dirty="hasPendingChanges"
+            :is-dirty="hasSnapshotPendingChanges"
             @save="handleSave"
             @discard="handleReset"
           />

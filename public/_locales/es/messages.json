@@ -523,5 +523,41 @@
   "options_factory_reset_ready": {
     "message": "Valores predeterminados listos para guardar",
     "description": "Toast shown after default settings are staged for saving."
+  },
+  "options_section_maintenance": {
+    "message": "Mantenimiento",
+    "description": "Settings section for maintenance actions."
+  },
+  "options_settings_backup_title": {
+    "message": "Copia de ajustes",
+    "description": "Maintenance section title for settings backup."
+  },
+  "options_settings_backup_export": {
+    "message": "Exportar ajustes",
+    "description": "Button to export settings backup."
+  },
+  "options_settings_backup_import": {
+    "message": "Importar ajustes",
+    "description": "Button to import settings backup."
+  },
+  "options_settings_backup_exported": {
+    "message": "Copia exportada",
+    "description": "Toast shown after settings backup export starts."
+  },
+  "options_settings_backup_export_error": {
+    "message": "No se pudo exportar la copia",
+    "description": "Toast shown when settings backup export fails."
+  },
+  "options_settings_backup_imported": {
+    "message": "Ajustes importados. Revisa y guarda.",
+    "description": "Toast shown after settings backup is staged for saving."
+  },
+  "options_settings_backup_invalid": {
+    "message": "Archivo de copia no valido",
+    "description": "Toast shown when selected settings backup is invalid."
+  },
+  "options_settings_backup_include_secret": {
+    "message": "Exportar clave API",
+    "description": "Switch label for including the API secret in exported settings backups."
   }
 }

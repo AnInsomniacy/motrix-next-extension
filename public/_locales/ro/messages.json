@@ -523,5 +523,41 @@
   "options_factory_reset_ready": {
     "message": "Valorile implicite sunt gata de salvat",
     "description": "Toast shown after default settings are staged for saving."
+  },
+  "options_section_maintenance": {
+    "message": "Intretinere",
+    "description": "Settings section for maintenance actions."
+  },
+  "options_settings_backup_title": {
+    "message": "Copie setari",
+    "description": "Maintenance section title for settings backup."
+  },
+  "options_settings_backup_export": {
+    "message": "Exporta setarile",
+    "description": "Button to export settings backup."
+  },
+  "options_settings_backup_import": {
+    "message": "Importa setarile",
+    "description": "Button to import settings backup."
+  },
+  "options_settings_backup_exported": {
+    "message": "Copia a fost exportata",
+    "description": "Toast shown after settings backup export starts."
+  },
+  "options_settings_backup_export_error": {
+    "message": "Exportul copiei a esuat",
+    "description": "Toast shown when settings backup export fails."
+  },
+  "options_settings_backup_imported": {
+    "message": "Setarile au fost importate. Verifica si salveaza.",
+    "description": "Toast shown after settings backup is staged for saving."
+  },
+  "options_settings_backup_invalid": {
+    "message": "Fisier de copie invalid",
+    "description": "Toast shown when selected settings backup is invalid."
+  },
+  "options_settings_backup_include_secret": {
+    "message": "Exportă secretul API",
+    "description": "Switch label for including the API secret in exported settings backups."
   }
 }

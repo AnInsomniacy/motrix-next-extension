@@ -523,5 +523,41 @@
   "options_factory_reset_ready": {
     "message": "Standaardwaarden klaar om op te slaan",
     "description": "Toast shown after default settings are staged for saving."
+  },
+  "options_section_maintenance": {
+    "message": "Onderhoud",
+    "description": "Settings section for maintenance actions."
+  },
+  "options_settings_backup_title": {
+    "message": "Back-up van instellingen",
+    "description": "Maintenance section title for settings backup."
+  },
+  "options_settings_backup_export": {
+    "message": "Instellingen exporteren",
+    "description": "Button to export settings backup."
+  },
+  "options_settings_backup_import": {
+    "message": "Instellingen importeren",
+    "description": "Button to import settings backup."
+  },
+  "options_settings_backup_exported": {
+    "message": "Back-up geexporteerd",
+    "description": "Toast shown after settings backup export starts."
+  },
+  "options_settings_backup_export_error": {
+    "message": "Back-up exporteren mislukt",
+    "description": "Toast shown when settings backup export fails."
+  },
+  "options_settings_backup_imported": {
+    "message": "Instellingen geimporteerd. Controleer en sla op.",
+    "description": "Toast shown after settings backup is staged for saving."
+  },
+  "options_settings_backup_invalid": {
+    "message": "Ongeldig back-upbestand",
+    "description": "Toast shown when selected settings backup is invalid."
+  },
+  "options_settings_backup_include_secret": {
+    "message": "API-geheim exporteren",
+    "description": "Switch label for including the API secret in exported settings backups."
   }
 }

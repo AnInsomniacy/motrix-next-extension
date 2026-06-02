@@ -13,7 +13,7 @@ import {
   ListOutline,
   ColorPaletteOutline,
   GlobeOutline,
-  BugOutline,
+  ConstructOutline,
 } from '@vicons/ionicons5';
 import { useI18n } from '@/shared/i18n/engine';
 
@@ -55,8 +55,8 @@ const sections = [
   },
   {
     id: 'diagnostics',
-    icon: BugOutline,
-    label: () => t('options_section_diagnostics', 'Diagnostics'),
+    icon: ConstructOutline,
+    label: () => t('options_section_maintenance', 'Maintenance'),
   },
 ];
 </script>

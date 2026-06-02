@@ -523,5 +523,41 @@
   "options_factory_reset_ready": {
     "message": "기본값을 저장할 준비가 되었습니다",
     "description": "Toast shown after default settings are staged for saving."
+  },
+  "options_section_maintenance": {
+    "message": "유지 관리",
+    "description": "Settings section for maintenance actions."
+  },
+  "options_settings_backup_title": {
+    "message": "설정 백업",
+    "description": "Maintenance section title for settings backup."
+  },
+  "options_settings_backup_export": {
+    "message": "설정 내보내기",
+    "description": "Button to export settings backup."
+  },
+  "options_settings_backup_import": {
+    "message": "설정 가져오기",
+    "description": "Button to import settings backup."
+  },
+  "options_settings_backup_exported": {
+    "message": "백업을 내보냈습니다",
+    "description": "Toast shown after settings backup export starts."
+  },
+  "options_settings_backup_export_error": {
+    "message": "백업 내보내기 실패",
+    "description": "Toast shown when settings backup export fails."
+  },
+  "options_settings_backup_imported": {
+    "message": "설정을 가져왔습니다. 검토 후 저장하세요.",
+    "description": "Toast shown after settings backup is staged for saving."
+  },
+  "options_settings_backup_invalid": {
+    "message": "유효하지 않은 백업 파일",
+    "description": "Toast shown when selected settings backup is invalid."
+  },
+  "options_settings_backup_include_secret": {
+    "message": "API 비밀키 내보내기",
+    "description": "Switch label for including the API secret in exported settings backups."
   }
 }

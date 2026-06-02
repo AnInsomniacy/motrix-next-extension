@@ -523,5 +523,41 @@
   "options_factory_reset_ready": {
     "message": "Значения по умолчанию готовы к сохранению",
     "description": "Toast shown after default settings are staged for saving."
+  },
+  "options_section_maintenance": {
+    "message": "Обслуживание",
+    "description": "Settings section for maintenance actions."
+  },
+  "options_settings_backup_title": {
+    "message": "Резервная копия настроек",
+    "description": "Maintenance section title for settings backup."
+  },
+  "options_settings_backup_export": {
+    "message": "Экспорт настроек",
+    "description": "Button to export settings backup."
+  },
+  "options_settings_backup_import": {
+    "message": "Импорт настроек",
+    "description": "Button to import settings backup."
+  },
+  "options_settings_backup_exported": {
+    "message": "Резервная копия экспортирована",
+    "description": "Toast shown after settings backup export starts."
+  },
+  "options_settings_backup_export_error": {
+    "message": "Не удалось экспортировать копию",
+    "description": "Toast shown when settings backup export fails."
+  },
+  "options_settings_backup_imported": {
+    "message": "Настройки импортированы. Проверьте и сохраните.",
+    "description": "Toast shown after settings backup is staged for saving."
+  },
+  "options_settings_backup_invalid": {
+    "message": "Недопустимый файл копии",
+    "description": "Toast shown when selected settings backup is invalid."
+  },
+  "options_settings_backup_include_secret": {
+    "message": "Экспортировать секрет API",
+    "description": "Switch label for including the API secret in exported settings backups."
   }
 }

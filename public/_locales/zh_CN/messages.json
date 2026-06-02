@@ -523,5 +523,41 @@
   "options_factory_reset_ready": {
     "message": "默认值待保存",
     "description": "Toast shown after default settings are staged for saving."
+  },
+  "options_section_maintenance": {
+    "message": "维护",
+    "description": "Settings section for maintenance actions."
+  },
+  "options_settings_backup_title": {
+    "message": "设置备份",
+    "description": "Maintenance section title for settings backup."
+  },
+  "options_settings_backup_export": {
+    "message": "导出设置",
+    "description": "Button to export settings backup."
+  },
+  "options_settings_backup_import": {
+    "message": "导入设置",
+    "description": "Button to import settings backup."
+  },
+  "options_settings_backup_exported": {
+    "message": "备份已导出",
+    "description": "Toast shown after settings backup export starts."
+  },
+  "options_settings_backup_export_error": {
+    "message": "备份导出失败",
+    "description": "Toast shown when settings backup export fails."
+  },
+  "options_settings_backup_imported": {
+    "message": "设置已导入，请检查后保存。",
+    "description": "Toast shown after settings backup is staged for saving."
+  },
+  "options_settings_backup_invalid": {
+    "message": "备份文件无效",
+    "description": "Toast shown when selected settings backup is invalid."
+  },
+  "options_settings_backup_include_secret": {
+    "message": "导出 API 密钥",
+    "description": "Switch label for including the API secret in exported settings backups."
   }
 }
