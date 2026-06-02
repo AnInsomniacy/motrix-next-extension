@@ -62,6 +62,7 @@ import AppearanceSection from './components/AppearanceSection.vue';
 import MaintenanceSection from './components/MaintenanceSection.vue';
 import SettingsActionBar from './components/SettingsActionBar.vue';
 import LanguageSection from './components/LanguageSection.vue';
+import NextLogo from '@/shared/components/NextLogo.vue';
 
 // ─── Theme + Color Scheme ───────────────────────────────────────────
 
@@ -660,31 +661,7 @@ onUnmounted(() => {
       <header class="options-header">
         <div class="options-header__brand">
           <div class="options-header__icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="18" viewBox="0 0 40 18">
-              <rect
-                x="0.5"
-                y="0.5"
-                width="39"
-                height="17"
-                rx="4"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1"
-                opacity="0.6"
-              />
-              <text
-                x="20"
-                y="13"
-                fill="currentColor"
-                font-family="Arial, Helvetica, sans-serif"
-                font-weight="900"
-                font-size="10"
-                text-anchor="middle"
-                letter-spacing="1"
-              >
-                NEXT
-              </text>
-            </svg>
+            <NextLogo />
           </div>
           <div>
             <h1 class="options-header__title">

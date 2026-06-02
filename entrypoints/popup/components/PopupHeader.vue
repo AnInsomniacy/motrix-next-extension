@@ -16,6 +16,7 @@ import { NIcon, NSwitch } from 'naive-ui';
 import { SettingsOutline } from '@vicons/ionicons5';
 import { ConnectionStatus } from '@/lib/services';
 import { useI18n } from '@/shared/i18n/engine';
+import NextLogo from '@/shared/components/NextLogo.vue';
 
 const props = defineProps<{
   status: ConnectionStatus;
@@ -34,37 +35,7 @@ const { t: i18n } = useI18n();
 <template>
   <header class="popup-header">
     <div class="popup-header__brand">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="40"
-        height="18"
-        viewBox="0 0 40 18"
-        class="popup-header__logo"
-      >
-        <rect
-          x="0.5"
-          y="0.5"
-          width="39"
-          height="17"
-          rx="4"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1"
-          opacity="0.5"
-        />
-        <text
-          x="20"
-          y="13"
-          fill="currentColor"
-          font-family="Arial, Helvetica, sans-serif"
-          font-weight="900"
-          font-size="10"
-          text-anchor="middle"
-          letter-spacing="1"
-        >
-          NEXT
-        </text>
-      </svg>
+      <NextLogo class="popup-header__logo" />
       <span
         class="popup-header__badge"
         :class="status === 'connected' ? 'popup-header__badge--ok' : 'popup-header__badge--err'"
@@ -130,7 +101,7 @@ const { t: i18n } = useI18n();
 }
 
 .popup-header__logo {
-  color: var(--color-on-surface);
+  color: var(--color-primary);
   flex-shrink: 0;
 }
 
