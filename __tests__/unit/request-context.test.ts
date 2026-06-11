@@ -31,7 +31,7 @@ describe('request header context', () => {
     });
   });
 
-  it('drops forbidden transport, cache, proxy, range, authorization, and cookie headers', () => {
+  it('captures Cookie separately and keeps it out of forwarded request headers', () => {
     const context = captureRequestHeaderContext({
       url: 'https://cdn.example.com/file.zip',
       requestHeaders: [
@@ -43,12 +43,13 @@ describe('request header context', () => {
         { name: 'Proxy-Authorization', value: 'secret' },
         { name: 'If-None-Match', value: 'abc' },
         { name: 'Authorization', value: 'Bearer secret' },
-        { name: 'Cookie', value: 'sid=secret' },
+        { name: 'Cookie', value: 'xf_session=abc; cf_clearance=ok' },
         { name: 'Accept', value: '*/*' },
       ],
     });
 
     expect(context?.requestHeaders).toEqual([{ name: 'Accept', value: '*/*' }]);
+    expect(context?.cookie).toBe('xf_session=abc; cf_clearance=ok');
     expect(context?.userAgent).toBeUndefined();
   });
 
@@ -76,7 +77,11 @@ describe('request header context', () => {
       ],
     });
 
-    expect(context).toBeNull();
+    expect(context).toEqual(
+      expect.objectContaining({
+        cookie: 'sid=secret',
+      }),
+    );
   });
 
   it('matches finalUrl before url and consumes the matched context', () => {

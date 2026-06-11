@@ -309,13 +309,14 @@ export class DownloadOrchestrator {
     const filenameHint = resolvedFilename.filename;
     const filenameSource = resolvedFilename.source;
     const displayName = filenameHint || extractFilenameFromUrl(effectiveUrl) || UNRESOLVED_FILENAME;
-    const cookie = await this.collectCookies(effectiveUrl);
+    const cookieResult = await this.resolveCookieHeader(effectiveUrl, item.requestHeaderContext);
 
     const routed = await this.sendToDesktop(
       effectiveUrl,
       effectiveUrl,
       tabUrl,
-      cookie,
+      cookieResult.value,
+      cookieResult.source,
       displayName,
       filenameHint,
       filenameSource,
@@ -370,13 +371,14 @@ export class DownloadOrchestrator {
       return 'duplicate-blocked';
     }
 
-    const cookie = await this.collectCookies(url);
+    const cookieResult = await this.resolveCookieHeader(url);
 
     const routed = await this.sendToDesktop(
       url,
       undefined,
       tabUrl,
-      cookie,
+      cookieResult.value,
+      cookieResult.source,
       displayName,
       filenameHint,
       'url',
@@ -403,6 +405,7 @@ export class DownloadOrchestrator {
     finalUrl: string | undefined,
     referer: string,
     cookie: string,
+    cookieSource: string,
     displayName: string,
     filenameHint?: string,
     filenameSource: string = 'none',
@@ -440,6 +443,7 @@ export class DownloadOrchestrator {
             action: response.action,
             ...(response.gid ? { gid: response.gid } : {}),
             hasCookie: cookie.length > 0,
+            cookieSource,
             ...headerLogContext,
           },
         });
@@ -508,6 +512,7 @@ export class DownloadOrchestrator {
                   action: retryResponse.action,
                   ...(retryResponse.gid ? { gid: retryResponse.gid } : {}),
                   hasCookie: cookie.length > 0,
+                  cookieSource,
                   ...headerLogContext,
                   afterWake: true,
                 },
@@ -572,6 +577,7 @@ export class DownloadOrchestrator {
           filename: displayName,
           filenameSource,
           hasCookie: false,
+          cookieSource: 'none',
           ...this.buildDeepLinkHeaderLogContext(requestHeaderDiagnostics),
         },
       });
@@ -680,6 +686,21 @@ export class DownloadOrchestrator {
       });
       return ''; // Graceful degradation — never block the download
     }
+  }
+
+  private async resolveCookieHeader(
+    url: string,
+    requestHeaderContext?: RequestHeaderContext,
+  ): Promise<{ value: string; source: string }> {
+    if (!this.deps.getSettings().forwardCookies) {
+      return { value: '', source: 'disabled' };
+    }
+    const captured = requestHeaderContext?.cookie?.trim();
+    if (captured) {
+      return { value: captured, source: 'request-header' };
+    }
+    const collected = await this.collectCookies(url);
+    return { value: collected, source: collected ? 'cookies-api' : 'none' };
   }
 
   private async resolveFilenameMetadata(item: DownloadItem): Promise<FilenameMetadata | undefined> {

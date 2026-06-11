@@ -956,6 +956,44 @@ describe('DownloadOrchestrator', () => {
       expect(routedCall).toBeDefined();
       expect((routedCall![0] as { context: { hasCookie: boolean } }).context.hasCookie).toBe(true);
     });
+
+    it('prefers the captured browser Cookie header over cookies API reconstruction', async () => {
+      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const addDownload = vi
+        .spyOn(desktopClient, 'addDownload')
+        .mockResolvedValue({ action: 'queued' });
+      const getAll = vi.fn().mockResolvedValue([{ name: 'xf_session', value: 'abc' }]);
+      const cookieDeps = createMockDeps({
+        desktopClient,
+        openProtocolNewTask: undefined,
+        getSettings: vi.fn().mockReturnValue({
+          ...DEFAULT_DOWNLOAD_SETTINGS,
+          forwardCookies: true,
+        } satisfies DownloadSettings),
+        cookies: { getAll },
+      });
+      const orch = new DownloadOrchestrator(cookieDeps);
+
+      await orch.handleCreated(
+        createMockDownloadItem({
+          requestHeaderContext: {
+            url: 'https://spigotmc.org/download',
+            createdAt: 1000,
+            cookie: 'xf_session=abc; cf_clearance=ok',
+            requestHeaders: [],
+          },
+        }),
+      );
+
+      expect(getAll).not.toHaveBeenCalled();
+      expect(addDownload).toHaveBeenCalledWith({
+        url: 'https://example.com/file.zip',
+        finalUrl: 'https://example.com/file.zip',
+        referer: 'https://example.com/page',
+        cookie: 'xf_session=abc; cf_clearance=ok',
+        filename: 'file.zip',
+      });
+    });
   });
 
   // ─── sendUrl — unified deep-link routing ───────────────

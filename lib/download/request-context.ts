@@ -10,6 +10,7 @@ export interface RawRequestHeader {
 export interface RequestHeaderContext {
   url: string;
   createdAt: number;
+  cookie?: string;
   referer?: string;
   userAgent?: string;
   requestHeaders: RequestHeader[];
@@ -55,11 +56,11 @@ const CANONICAL_REQUEST_HEADERS = new Map<string, string>([
 
 const USER_AGENT_HEADER = 'user-agent';
 const REFERER_HEADER = 'referer';
+const COOKIE_HEADER = 'cookie';
 const FORBIDDEN_HEADER_NAMES = new Set([
   'authorization',
   'connection',
   'content-length',
-  'cookie',
   'host',
   'range',
   'transfer-encoding',
@@ -94,6 +95,7 @@ function cloneContext(context: RequestHeaderContext): RequestHeaderContext {
   return {
     url: context.url,
     createdAt: context.createdAt,
+    ...(context.cookie ? { cookie: context.cookie } : {}),
     ...(context.referer ? { referer: context.referer } : {}),
     ...(context.userAgent ? { userAgent: context.userAgent } : {}),
     requestHeaders: context.requestHeaders.map((header) => ({ ...header })),
@@ -108,6 +110,7 @@ export function captureRequestHeaderContext(
   input: CaptureRequestHeaderContextInput,
 ): RequestHeaderContext | null {
   const requestHeaders: RequestHeader[] = [];
+  let cookie: string | undefined;
   let userAgent: string | undefined;
   let referer: string | undefined;
 
@@ -119,6 +122,11 @@ export function captureRequestHeaderContext(
 
     const value = sanitizeHeaderValue(header.value);
     if (!value) continue;
+
+    if (normalizedName === COOKIE_HEADER) {
+      cookie = value;
+      continue;
+    }
 
     if (normalizedName === USER_AGENT_HEADER) {
       userAgent = value;
@@ -136,13 +144,14 @@ export function captureRequestHeaderContext(
     requestHeaders.push({ name: canonicalName, value });
   }
 
-  if (!userAgent && !referer && requestHeaders.length === 0) {
+  if (!cookie && !userAgent && !referer && requestHeaders.length === 0) {
     return null;
   }
 
   return {
     url: input.url,
     createdAt: input.now ?? Date.now(),
+    ...(cookie ? { cookie } : {}),
     ...(referer ? { referer } : {}),
     ...(userAgent ? { userAgent } : {}),
     requestHeaders,
