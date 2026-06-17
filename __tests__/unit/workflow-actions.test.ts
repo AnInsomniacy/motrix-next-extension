@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
 
 import {
@@ -23,11 +25,21 @@ import {
 } from '../../scripts/actions/publish-edge';
 import { normalizeReleaseInput } from '../../scripts/actions/resolve-release';
 
+const root = resolve(import.meta.dirname ?? '.', '..', '..');
+
 describe('workflow action helpers', () => {
   test('normalizes production release inputs and rejects prerelease versions', () => {
     expect(normalizeReleaseInput('1.2.3')).toBe('v1.2.3');
     expect(normalizeReleaseInput('v1.2.3')).toBe('v1.2.3');
     expect(() => normalizeReleaseInput('1.2.3-beta.1')).toThrow('production SemVer');
+  });
+
+  test('runs split-checkout publish scripts with workflow checkout tooling', () => {
+    const workflow = readFileSync(resolve(root, '.github/workflows/publish.yml'), 'utf-8');
+
+    expect(workflow).toContain('working-directory: workflow');
+    expect(workflow).toContain('../workflow/node_modules/.bin/tsx');
+    expect(workflow).not.toContain('run: pnpm exec tsx ../workflow/scripts/actions/publish-');
   });
 
   test('extracts Edge operation ids from API Location headers', () => {
@@ -166,8 +178,6 @@ describe('workflow action helpers', () => {
         sourceCodePath: 'source-code.zip',
       }),
     ).toEqual([
-      'exec',
-      'web-ext',
       'sign',
       '--source-dir',
       '.output/firefox-mv3',

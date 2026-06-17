@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { join } from 'node:path';
 
 import {
   fetchJson,
@@ -40,8 +41,6 @@ export function decideFirefoxPublishAction(
 
 export function buildFirefoxSignArgs(input: FirefoxSignArgsInput): string[] {
   return [
-    'exec',
-    'web-ext',
     'sign',
     '--source-dir',
     input.sourceDir,
@@ -74,7 +73,7 @@ export async function publishFirefoxFromEnv(): Promise<void> {
   }
 
   const output = runCommand(
-    'pnpm',
+    getWorkflowBinary('web-ext'),
     buildFirefoxSignArgs({
       apiKey,
       apiSecret,
@@ -87,6 +86,11 @@ export async function publishFirefoxFromEnv(): Promise<void> {
     throw new Error(`Firefox AMO signing failed: ${output.output.slice(0, 500)}`);
   }
   setOutput('outcome', 'published');
+}
+
+function getWorkflowBinary(name: string): string {
+  const runtimeDir = optionalEnv('ACTIONS_RUNTIME_DIR') || '.';
+  return join(runtimeDir, 'node_modules', '.bin', name);
 }
 
 async function getFirefoxVersions(slug: string, authHeader: string): Promise<unknown[]> {

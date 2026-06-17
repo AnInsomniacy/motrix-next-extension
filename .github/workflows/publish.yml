@@ -82,6 +82,10 @@ jobs:
         with:
           working-directory: source
 
+      - uses: ./workflow/.github/actions/setup-node-pnpm
+        with:
+          working-directory: workflow
+
       - name: Build and package (Chromium)
         working-directory: source
         run: pnpm zip
@@ -96,7 +100,8 @@ jobs:
           CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           VERSION: ${{ needs.resolve-version.outputs.version }}
-        run: pnpm exec tsx ../workflow/scripts/actions/publish-chrome.ts
+          ACTIONS_RUNTIME_DIR: ../workflow
+        run: ../workflow/node_modules/.bin/tsx ../workflow/scripts/actions/publish-chrome.ts
 
   publish-firefox:
     name: Publish to Firefox AMO
@@ -121,6 +126,10 @@ jobs:
         with:
           working-directory: source
 
+      - uses: ./workflow/.github/actions/setup-node-pnpm
+        with:
+          working-directory: workflow
+
       - name: Build (Firefox)
         working-directory: source
         run: pnpm build:firefox
@@ -137,7 +146,8 @@ jobs:
           FIREFOX_API_SECRET: ${{ secrets.FIREFOX_API_SECRET }}
           FIREFOX_ADDON_SLUG: ${{ vars.FIREFOX_ADDON_SLUG }}
           VERSION: ${{ needs.resolve-version.outputs.version }}
-        run: pnpm exec tsx ../workflow/scripts/actions/publish-firefox.ts
+          ACTIONS_RUNTIME_DIR: ../workflow
+        run: ../workflow/node_modules/.bin/tsx ../workflow/scripts/actions/publish-firefox.ts
 
   publish-edge:
     name: Publish to Edge Add-ons
@@ -162,6 +172,10 @@ jobs:
         with:
           working-directory: source
 
+      - uses: ./workflow/.github/actions/setup-node-pnpm
+        with:
+          working-directory: workflow
+
       - name: Build and package (Chromium)
         working-directory: source
         run: pnpm zip
@@ -178,7 +192,8 @@ jobs:
           EDGE_LAST_OPERATION_ID: ${{ vars.EDGE_LAST_OPERATION_ID }}
           EDGE_LAST_OPERATION_VERSION: ${{ vars.EDGE_LAST_OPERATION_VERSION }}
           VERSION: ${{ needs.resolve-version.outputs.version }}
-        run: pnpm exec tsx ../workflow/scripts/actions/publish-edge.ts
+          ACTIONS_RUNTIME_DIR: ../workflow
+        run: ../workflow/node_modules/.bin/tsx ../workflow/scripts/actions/publish-edge.ts
 
   publish-summary:
     name: Publish Summary
