@@ -28,7 +28,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_INPUT: ${{ inputs.release }}
-        run: npx tsx scripts/actions/resolve-release.ts
+        run: pnpm exec tsx scripts/actions/resolve-release.ts
 
       - name: Generate store status report
         env:
@@ -50,4 +50,4 @@ jobs:
           EDGE_LAST_OPERATION_VERSION: ${{ vars.EDGE_LAST_OPERATION_VERSION }}
           EDGE_LAST_OPERATION_RUN_ID: ${{ vars.EDGE_LAST_OPERATION_RUN_ID }}
           EDGE_LAST_OPERATION_SUBMITTED_AT: ${{ vars.EDGE_LAST_OPERATION_SUBMITTED_AT }}
-        run: npx tsx scripts/actions/store-status.ts
+        run: pnpm exec tsx scripts/actions/store-status.ts

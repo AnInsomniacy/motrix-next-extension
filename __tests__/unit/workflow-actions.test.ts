@@ -8,7 +8,16 @@ import {
 } from '../../scripts/actions/store-status';
 import { renderPublishSummary } from '../../scripts/actions/publish-summary';
 import {
+  decideChromePublishAction,
+  readChromeStoreStatus,
+} from '../../scripts/actions/publish-chrome';
+import {
+  buildFirefoxSignArgs,
+  decideFirefoxPublishAction,
+} from '../../scripts/actions/publish-firefox';
+import {
   buildEdgeVariableUpdates,
+  decideEdgePreflightAction,
   classifyEdgePublishOperation,
   extractOperationIdFromLocation,
 } from '../../scripts/actions/publish-edge';
@@ -71,6 +80,127 @@ describe('workflow action helpers', () => {
       'Success, status pending, state not saved',
     );
     expect(renderPublishSummaryRow('skipped-no-updates')).toBe('Skipped, no updates');
+  });
+
+  test('skips Chrome publishing when the target version is already live', () => {
+    const status = readChromeStoreStatus({
+      publishedItemRevisionStatus: {
+        state: 'PUBLISHED',
+        distributionChannels: [{ crxVersion: '1.3.2', deployPercentage: 100 }],
+      },
+      submittedItemRevisionStatus: {
+        state: 'PUBLISHED',
+        distributionChannels: [{ crxVersion: '1.3.2', deployPercentage: 100 }],
+      },
+    });
+
+    expect(decideChromePublishAction(status, '1.3.2')).toEqual({
+      action: 'skip',
+      outcome: 'skipped-version-exists',
+      reason: 'Chrome Web Store already has version 1.3.2 live',
+    });
+  });
+
+  test('skips Chrome publishing when the target version is already submitted', () => {
+    const status = readChromeStoreStatus({
+      publishedItemRevisionStatus: {
+        state: 'PUBLISHED',
+        distributionChannels: [{ crxVersion: '1.3.1', deployPercentage: 100 }],
+      },
+      submittedItemRevisionStatus: {
+        state: 'PENDING_REVIEW',
+        distributionChannels: [{ crxVersion: '1.3.2', deployPercentage: 100 }],
+      },
+    });
+
+    expect(decideChromePublishAction(status, '1.3.2')).toEqual({
+      action: 'skip',
+      outcome: 'skipped-pending-review',
+      reason: 'Chrome Web Store already has version 1.3.2 submitted as PENDING_REVIEW',
+    });
+  });
+
+  test('blocks Chrome publishing while another version is under review', () => {
+    const status = readChromeStoreStatus({
+      publishedItemRevisionStatus: {
+        state: 'PUBLISHED',
+        distributionChannels: [{ crxVersion: '1.3.1', deployPercentage: 100 }],
+      },
+      submittedItemRevisionStatus: {
+        state: 'PENDING_REVIEW',
+        distributionChannels: [{ crxVersion: '1.3.3', deployPercentage: 100 }],
+      },
+    });
+
+    expect(decideChromePublishAction(status, '1.3.2')).toEqual({
+      action: 'skip',
+      outcome: 'skipped-pending-review',
+      reason: 'Chrome Web Store has version 1.3.3 submitted as PENDING_REVIEW',
+    });
+  });
+
+  test('skips Firefox publishing when the target version already exists', () => {
+    expect(
+      decideFirefoxPublishAction(
+        [
+          {
+            version: '1.3.2',
+            file: { status: 'unreviewed' },
+          },
+        ],
+        '1.3.2',
+      ),
+    ).toEqual({
+      action: 'skip',
+      outcome: 'skipped-version-exists',
+      reason: 'Firefox AMO already has version 1.3.2',
+    });
+  });
+
+  test('uses web-ext without waiting for AMO approval', () => {
+    expect(
+      buildFirefoxSignArgs({
+        apiKey: 'api-key',
+        apiSecret: 'api-secret',
+        sourceDir: '.output/firefox-mv3',
+        sourceCodePath: 'source-code.zip',
+      }),
+    ).toEqual([
+      'exec',
+      'web-ext',
+      'sign',
+      '--source-dir',
+      '.output/firefox-mv3',
+      '--channel',
+      'listed',
+      '--api-key',
+      'api-key',
+      '--api-secret',
+      'api-secret',
+      '--upload-source-code',
+      'source-code.zip',
+      '--approval-timeout',
+      '0',
+    ]);
+  });
+
+  test('skips Edge publishing when the tracked target submission is still active', () => {
+    expect(
+      decideEdgePreflightAction(
+        {
+          status: 'InProgress',
+          message: '',
+          errorCode: '',
+          errors: null,
+        },
+        '1.3.2',
+        '1.3.2',
+      ),
+    ).toEqual({
+      action: 'skip',
+      outcome: 'skipped-in-review',
+      reason: 'Edge Add-ons already has version 1.3.2 submitted as InProgress',
+    });
   });
 
   test('classifies terminal Edge publish operation responses', () => {

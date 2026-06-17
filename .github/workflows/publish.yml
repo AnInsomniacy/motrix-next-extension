@@ -32,7 +32,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_INPUT: ${{ inputs.version }}
-        run: npx tsx scripts/actions/resolve-release.ts
+        run: pnpm exec tsx scripts/actions/resolve-release.ts
 
   quality-gate:
     name: Quality Gate
@@ -95,7 +95,8 @@ jobs:
           CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
           CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
-        run: npx tsx ../workflow/scripts/actions/publish-chrome.ts
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+        run: pnpm exec tsx ../workflow/scripts/actions/publish-chrome.ts
 
   publish-firefox:
     name: Publish to Firefox AMO
@@ -134,7 +135,9 @@ jobs:
         env:
           FIREFOX_API_KEY: ${{ secrets.FIREFOX_API_KEY }}
           FIREFOX_API_SECRET: ${{ secrets.FIREFOX_API_SECRET }}
-        run: npx tsx ../workflow/scripts/actions/publish-firefox.ts
+          FIREFOX_ADDON_SLUG: ${{ vars.FIREFOX_ADDON_SLUG }}
+          VERSION: ${{ needs.resolve-version.outputs.version }}
+        run: pnpm exec tsx ../workflow/scripts/actions/publish-firefox.ts
 
   publish-edge:
     name: Publish to Edge Add-ons
@@ -172,8 +175,10 @@ jobs:
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
           REPO_VARIABLES_TOKEN: ${{ secrets.REPO_VARIABLES_TOKEN }}
+          EDGE_LAST_OPERATION_ID: ${{ vars.EDGE_LAST_OPERATION_ID }}
+          EDGE_LAST_OPERATION_VERSION: ${{ vars.EDGE_LAST_OPERATION_VERSION }}
           VERSION: ${{ needs.resolve-version.outputs.version }}
-        run: npx tsx ../workflow/scripts/actions/publish-edge.ts
+        run: pnpm exec tsx ../workflow/scripts/actions/publish-edge.ts
 
   publish-summary:
     name: Publish Summary
@@ -197,4 +202,4 @@ jobs:
           FIREFOX_OUTCOME: ${{ needs.publish-firefox.outputs.outcome }}
           EDGE_RESULT: ${{ needs.publish-edge.result }}
           EDGE_OUTCOME: ${{ needs.publish-edge.outputs.outcome }}
-        run: npx tsx scripts/actions/publish-summary.ts
+        run: pnpm exec tsx scripts/actions/publish-summary.ts

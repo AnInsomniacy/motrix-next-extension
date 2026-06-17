@@ -24,7 +24,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "lint:i18n": "npx tsx scripts/lint-i18n.ts",
+    "lint:i18n": "tsx scripts/lint-i18n.ts",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
@@ -54,11 +54,13 @@
     "happy-dom": "^20.8.9",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.3.0",
+    "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.58.0",
     "unplugin-vue-components": "^32.0.0",
     "vitest": "^4.1.2",
     "vue-tsc": "^3.2.5",
+    "web-ext": "^10.4.0",
     "wxt": "^0.20.20"
   }
 }

@@ -38,6 +38,12 @@ type EdgePublishOperationDecision = {
   terminal: boolean;
 };
 
+type EdgePreflightDecision = {
+  action: 'publish' | 'skip';
+  outcome: string;
+  reason: string;
+};
+
 export function extractOperationIdFromLocation(location: string): string {
   if (!location) {
     throw new Error('Edge Add-ons response did not include a Location header');
@@ -88,6 +94,42 @@ export function classifyEdgePublishOperation(
   return { action: 'pending', failed: false, terminal: false };
 }
 
+export function decideEdgePreflightAction(
+  operation: EdgePublishOperation,
+  operationVersion: string,
+  targetVersion: string,
+): EdgePreflightDecision {
+  if (operationVersion !== targetVersion) {
+    return { action: 'publish', outcome: 'published', reason: 'Edge Add-ons can accept upload' };
+  }
+
+  if (operation.status === 'InProgress') {
+    return {
+      action: 'skip',
+      outcome: 'skipped-in-review',
+      reason: `Edge Add-ons already has version ${targetVersion} submitted as InProgress`,
+    };
+  }
+
+  if (operation.status === 'Succeeded') {
+    return {
+      action: 'skip',
+      outcome: 'skipped-version-exists',
+      reason: `Edge Add-ons already has version ${targetVersion} submitted`,
+    };
+  }
+
+  if (operation.status === 'Failed' && operation.errorCode === 'InProgressSubmission') {
+    return {
+      action: 'skip',
+      outcome: 'skipped-in-review',
+      reason: `Edge Add-ons already has version ${targetVersion} submitted as InProgressSubmission`,
+    };
+  }
+
+  return { action: 'publish', outcome: 'published', reason: 'Edge Add-ons can accept upload' };
+}
+
 export async function publishEdgeFromEnv(): Promise<void> {
   const productId = requiredEnv('EDGE_PRODUCT_ID');
   const clientId = requiredEnv('EDGE_CLIENT_ID');
@@ -98,6 +140,23 @@ export async function publishEdgeFromEnv(): Promise<void> {
     Authorization: `ApiKey ${apiKey}`,
     'X-ClientID': clientId,
   };
+  const preflight = await fetchTrackedPublishOperation({
+    authHeaders,
+    operationId: optionalEnv('EDGE_LAST_OPERATION_ID'),
+    productId,
+  });
+  if (preflight) {
+    const decision = decideEdgePreflightAction(
+      preflight,
+      optionalEnv('EDGE_LAST_OPERATION_VERSION'),
+      version,
+    );
+    if (decision.action === 'skip') {
+      console.log(`::notice::${decision.reason}`);
+      setOutput('outcome', decision.outcome);
+      return;
+    }
+  }
 
   const uploadOperationId = await uploadDraftPackage({ authHeaders, productId, zipPath });
   await waitForPackageValidation({ authHeaders, operationId: uploadOperationId, productId });
@@ -272,6 +331,19 @@ async function waitForPublishOperation(input: {
     decision: { action: 'pending', failed: false, terminal: false },
     operation,
   };
+}
+
+async function fetchTrackedPublishOperation(input: {
+  authHeaders: Record<string, string>;
+  operationId: string;
+  productId: string;
+}): Promise<EdgePublishOperation | undefined> {
+  if (!configured(input.operationId)) return undefined;
+  const response = await fetchJson(
+    `https://api.addons.microsoftedge.microsoft.com/v1/products/${input.productId}/submissions/operations/${input.operationId}`,
+    { headers: input.authHeaders },
+  );
+  return readEdgePublishOperation(response);
 }
 
 function readEdgePublishOperation(value: unknown): EdgePublishOperation {
