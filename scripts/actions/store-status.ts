@@ -14,6 +14,7 @@ import {
   requiredEnv,
   stringField,
 } from './workflow-utils';
+import { isBlockingChromeSubmissionState } from './publish-chrome';
 
 export type StoreStatusRow = {
   store: string;
@@ -211,10 +212,12 @@ async function checkChrome(chrome: ChromeConfig): Promise<StoreStatusRow> {
     isRecord(status) ? status.submittedItemRevisionStatus : undefined,
   );
   const liveVersion = published.version || publicVersion || 'Unavailable';
+  const hasBlockingSubmission =
+    Boolean(submitted.version) && isBlockingChromeSubmissionState(submitted.state);
   const pendingVersion =
-    submitted.version && submitted.version !== liveVersion ? submitted.version : '-';
+    hasBlockingSubmission && submitted.version !== liveVersion ? submitted.version : '-';
   const reviewState = mapChromeState(submitted.state || published.state);
-  const canPublishNow = submitted.version && submitted.state !== 'PUBLISHED' ? 'No' : 'Yes';
+  const canPublishNow = hasBlockingSubmission ? 'No' : 'Yes';
 
   return {
     store: 'Chrome Web Store',
@@ -307,7 +310,7 @@ async function checkFirefox(firefox: FirefoxConfig): Promise<StoreStatusRow> {
     ? await getFirefoxVersions(firefox.slug, authHeader, 'all_without_unlisted')
     : publicVersions;
   const latest = versions[0];
-  const pending = versions.find((version) => firefoxStatus(version) !== 'public');
+  const pending = versions.find((version) => isActiveFirefoxReviewStatus(firefoxStatus(version)));
   const liveVersion = stringField(publicLive, 'version') || 'Unavailable';
   const pendingVersion =
     stringField(pending, 'version') && stringField(pending, 'version') !== liveVersion
@@ -364,6 +367,10 @@ function createAmoJwt(firefox: FirefoxConfig): string {
 function firefoxStatus(version: unknown): string {
   const file = isRecord(version) ? version.file : undefined;
   return stringField(file, 'status');
+}
+
+export function isActiveFirefoxReviewStatus(status: string): boolean {
+  return status === 'unreviewed' || status === 'awaiting-review';
 }
 
 function mapFirefoxState(status: string): string {

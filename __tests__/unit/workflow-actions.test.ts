@@ -4,6 +4,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import {
   buildDecision,
+  isActiveFirefoxReviewStatus,
   renderStoreStatusReport,
   resolveEdgeStoreStatus,
   type StoreStatusRow,
@@ -11,6 +12,7 @@ import {
 import { renderPublishSummary } from '../../scripts/actions/publish-summary';
 import {
   decideChromePublishAction,
+  isBlockingChromeSubmissionState,
   readChromeStoreStatus,
 } from '../../scripts/actions/publish-chrome';
 import {
@@ -173,6 +175,15 @@ describe('workflow action helpers', () => {
       });
     },
   );
+
+  test('classifies terminal Chrome submissions and historical Firefox files as non-blocking', () => {
+    expect(isBlockingChromeSubmissionState('CANCELLED')).toBe(false);
+    expect(isBlockingChromeSubmissionState('REJECTED')).toBe(false);
+    expect(isBlockingChromeSubmissionState('PENDING_REVIEW')).toBe(true);
+    expect(isActiveFirefoxReviewStatus('disabled')).toBe(false);
+    expect(isActiveFirefoxReviewStatus('unreviewed')).toBe(true);
+    expect(isActiveFirefoxReviewStatus('awaiting-review')).toBe(true);
+  });
 
   test('skips Firefox publishing when the target version already exists', () => {
     expect(

@@ -38,6 +38,10 @@ type ChromePublishDecision = {
 
 const NON_BLOCKING_SUBMISSION_STATES = new Set(['PUBLISHED', 'CANCELLED', 'REJECTED']);
 
+export function isBlockingChromeSubmissionState(state: string): boolean {
+  return !NON_BLOCKING_SUBMISSION_STATES.has(state);
+}
+
 export function readChromeStoreStatus(value: unknown): ChromeStoreStatus {
   return {
     lastAsyncUploadState: stringField(value, 'lastAsyncUploadState'),
@@ -60,7 +64,7 @@ export function decideChromePublishAction(
 
   const hasBlockingSubmission =
     Boolean(status.submitted.version) &&
-    !NON_BLOCKING_SUBMISSION_STATES.has(status.submitted.state);
+    isBlockingChromeSubmissionState(status.submitted.state);
 
   if (status.submitted.version === targetVersion && hasBlockingSubmission) {
     return {
