@@ -152,6 +152,28 @@ describe('workflow action helpers', () => {
     });
   });
 
+  test.each(['CANCELLED', 'REJECTED'])(
+    'allows Chrome publishing after a submission is %s',
+    (state) => {
+      const status = readChromeStoreStatus({
+        publishedItemRevisionStatus: {
+          state: 'PUBLISHED',
+          distributionChannels: [{ crxVersion: '1.3.2', deployPercentage: 100 }],
+        },
+        submittedItemRevisionStatus: {
+          state,
+          distributionChannels: [{ crxVersion: '1.3.3', deployPercentage: 100 }],
+        },
+      });
+
+      expect(decideChromePublishAction(status, '1.3.4')).toEqual({
+        action: 'publish',
+        outcome: 'published',
+        reason: 'Chrome Web Store can accept upload',
+      });
+    },
+  );
+
   test('skips Firefox publishing when the target version already exists', () => {
     expect(
       decideFirefoxPublishAction(

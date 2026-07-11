@@ -36,6 +36,8 @@ type ChromePublishDecision = {
   reason: string;
 };
 
+const NON_BLOCKING_SUBMISSION_STATES = new Set(['PUBLISHED', 'CANCELLED', 'REJECTED']);
+
 export function readChromeStoreStatus(value: unknown): ChromeStoreStatus {
   return {
     lastAsyncUploadState: stringField(value, 'lastAsyncUploadState'),
@@ -56,7 +58,11 @@ export function decideChromePublishAction(
     };
   }
 
-  if (status.submitted.version === targetVersion && status.submitted.state !== 'PUBLISHED') {
+  const hasBlockingSubmission =
+    Boolean(status.submitted.version) &&
+    !NON_BLOCKING_SUBMISSION_STATES.has(status.submitted.state);
+
+  if (status.submitted.version === targetVersion && hasBlockingSubmission) {
     return {
       action: 'skip',
       outcome: 'skipped-pending-review',
@@ -64,7 +70,7 @@ export function decideChromePublishAction(
     };
   }
 
-  if (status.submitted.version && status.submitted.state !== 'PUBLISHED') {
+  if (hasBlockingSubmission) {
     return {
       action: 'skip',
       outcome: 'skipped-pending-review',
