@@ -96,9 +96,12 @@ describe('DesktopApiClient', () => {
     });
 
     it('throws on network error', async () => {
-      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('fetch failed'));
+      const fetchSpy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockRejectedValue(new TypeError('fetch failed'));
 
       await expect(client.ping()).rejects.toThrow('Cannot connect to Motrix Next API');
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
 
     it('throws on non-200 response', async () => {

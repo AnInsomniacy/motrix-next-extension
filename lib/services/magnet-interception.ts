@@ -1,4 +1,5 @@
 export type ExternalProtocol = 'magnet' | 'ed2k' | 'thunder';
+export type ExternalProtocolDisposition = 'handled' | 'browser';
 
 export interface ExternalProtocolLink {
   protocol: ExternalProtocol;
@@ -7,7 +8,8 @@ export interface ExternalProtocolLink {
 
 export interface ExternalProtocolClickHandlerDeps {
   shouldIntercept: (link: ExternalProtocolLink) => boolean;
-  sendProtocol: (link: ExternalProtocolLink) => void;
+  sendProtocol: (link: ExternalProtocolLink) => Promise<ExternalProtocolDisposition>;
+  openInBrowser: (url: string) => void;
 }
 
 const EXTERNAL_PROTOCOLS: readonly ExternalProtocol[] = ['magnet', 'ed2k', 'thunder'];
@@ -29,7 +31,12 @@ export function createExternalProtocolClickHandler(deps: ExternalProtocolClickHa
 
     event.preventDefault();
     event.stopPropagation();
-    deps.sendProtocol(link);
+    void deps
+      .sendProtocol(link)
+      .then((disposition) => {
+        if (disposition === 'browser') deps.openInBrowser(link.url);
+      })
+      .catch(() => {});
   };
 }
 

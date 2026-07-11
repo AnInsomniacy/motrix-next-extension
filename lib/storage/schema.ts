@@ -123,7 +123,7 @@ const DesktopUnavailableSchema = z.object({
   startupTimeoutSeconds: z
     .number()
     .int()
-    .min(3)
+    .min(1)
     .max(60)
     .catch(DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable.startupTimeoutSeconds)
     .default(DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable.startupTimeoutSeconds),

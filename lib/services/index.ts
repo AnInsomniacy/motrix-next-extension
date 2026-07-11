@@ -10,6 +10,7 @@ export { createExternalProtocolClickHandler, isExternalProtocol } from './magnet
 export type {
   ExternalProtocol,
   ExternalProtocolClickHandlerDeps,
+  ExternalProtocolDisposition,
   ExternalProtocolLink,
 } from './magnet-interception';
 export { NotificationService } from './notification';

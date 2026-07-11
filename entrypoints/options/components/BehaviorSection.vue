@@ -187,7 +187,7 @@ const unavailableActionOptions = computed(() => [
           >
             <NInputNumber
               :value="desktopUnavailable.startupTimeoutSeconds"
-              :min="3"
+              :min="1"
               :max="60"
               :step="1"
               style="width: 132px"

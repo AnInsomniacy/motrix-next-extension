@@ -68,8 +68,6 @@ function createDesktopClient(reachable = true, secret = 'secret'): DesktopApiCli
 function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): OrchestratorDeps {
   return {
     downloads: {
-      pause: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
-      resume: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
       cancel: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
       erase: vi.fn<(query: { id: number }) => Promise<void>>().mockResolvedValue(undefined),
     },
@@ -77,6 +75,9 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
       append: vi.fn(),
     },
     getSettings: vi.fn().mockReturnValue({
+      ...DEFAULT_DOWNLOAD_SETTINGS,
+    } satisfies DownloadSettings),
+    getLatestSettings: vi.fn().mockResolvedValue({
       ...DEFAULT_DOWNLOAD_SETTINGS,
     } satisfies DownloadSettings),
     getSiteRules: vi.fn().mockReturnValue([] as SiteRule[]),
@@ -171,7 +172,18 @@ describe('DownloadOrchestrator', () => {
     it('leaves the Firefox response untouched when the desktop API is unavailable', async () => {
       const desktopClient = createDesktopClient(false);
       const addDownload = vi.spyOn(desktopClient, 'addDownload');
-      const responseDeps = createMockDeps({ desktopClient });
+      const browserSettings = {
+        ...DEFAULT_DOWNLOAD_SETTINGS,
+        desktopUnavailable: {
+          ...DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable,
+          action: 'browser' as const,
+        },
+      } satisfies DownloadSettings;
+      const responseDeps = createMockDeps({
+        desktopClient,
+        getSettings: vi.fn().mockReturnValue(browserSettings),
+        getLatestSettings: vi.fn().mockResolvedValue(browserSettings),
+      });
       const orch = new DownloadOrchestrator(responseDeps);
 
       const intercepted = await orch.handleResponse(createMockDownloadCandidate());
@@ -630,8 +642,6 @@ describe('DownloadOrchestrator', () => {
       const errorDeps = createMockDeps({
         desktopClient,
         downloads: {
-          pause: vi.fn().mockResolvedValue(undefined),
-          resume: vi.fn().mockResolvedValue(undefined),
           cancel: vi.fn().mockRejectedValue(new Error('Download already gone')),
           erase: vi.fn().mockResolvedValue(undefined),
         },

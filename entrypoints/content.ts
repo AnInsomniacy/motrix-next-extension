@@ -1,5 +1,9 @@
 import { browser } from 'wxt/browser';
-import { createExternalProtocolClickHandler, type ExternalProtocol } from '@/lib/services';
+import {
+  createExternalProtocolClickHandler,
+  type ExternalProtocol,
+  type ExternalProtocolDisposition,
+} from '@/lib/services';
 import { parseDownloadSettings } from '@/lib/storage';
 import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 import type { InterceptionScope } from '@/shared/types';
@@ -22,27 +26,49 @@ export default defineContentScript({
     let interceptionEnabled = DEFAULT_DOWNLOAD_SETTINGS.enabled;
     let interceptionScope: InterceptionScope = { ...DEFAULT_DOWNLOAD_SETTINGS.interceptionScope };
 
-    async function refreshInterceptionState(): Promise<void> {
-      const data = await browser.storage.local.get('settings');
-      const settings = parseDownloadSettings(data.settings);
+    function applyInterceptionSettings(value: unknown): void {
+      const settings = parseDownloadSettings(value);
       interceptionEnabled = settings.enabled;
       interceptionScope = settings.interceptionScope;
+    }
+
+    async function refreshInterceptionState(): Promise<void> {
+      const data = await browser.storage.local.get('settings');
+      applyInterceptionSettings(data.settings);
     }
 
     void refreshInterceptionState();
 
     browser.storage.onChanged.addListener((changes, area) => {
       if (area !== 'local' || !changes.settings) return;
-      const settings = parseDownloadSettings(changes.settings.newValue);
-      interceptionEnabled = settings.enabled;
-      interceptionScope = settings.interceptionScope;
+      applyInterceptionSettings(changes.settings.newValue);
     });
 
     const handleProtocolClick = createExternalProtocolClickHandler({
       shouldIntercept: (link) => interceptionEnabled && interceptionScope[link.protocol],
-      sendProtocol: ({ protocol, url }: { protocol: ExternalProtocol; url: string }) => {
-        void browser.runtime.sendMessage({ type: 'HANDLE_EXTERNAL_PROTOCOL', protocol, url });
+      sendProtocol: async ({
+        protocol,
+        url,
+      }: {
+        protocol: ExternalProtocol;
+        url: string;
+      }): Promise<ExternalProtocolDisposition> => {
+        const response: unknown = await browser.runtime.sendMessage({
+          type: 'HANDLE_EXTERNAL_PROTOCOL',
+          protocol,
+          url,
+        });
+        if (
+          response !== null &&
+          typeof response === 'object' &&
+          'disposition' in response &&
+          response.disposition === 'browser'
+        ) {
+          return 'browser';
+        }
+        return 'handled';
       },
+      openInBrowser: (url) => window.location.assign(url),
     });
 
     // Use capturing phase to intercept before any page-level handlers

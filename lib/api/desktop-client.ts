@@ -207,6 +207,7 @@ export class DesktopApiClient {
       PingResponseSchema,
       {
         timeout: API_CONNECTIVITY_TIMEOUT_MS,
+        retry: 0,
       },
       'Ping',
     );

@@ -5,13 +5,10 @@ import type { DownloadSettings } from '@/shared/types';
 const BROWSER_FALLBACK_TTL_MS = 30_000;
 
 export interface AutomaticHandoffDeps {
-  downloads: {
-    pause: (id: number) => Promise<void>;
-    resume: (id: number) => Promise<void>;
-  };
   desktopClient?: Pick<DesktopApiClient, 'isReachable'>;
   wakeDesktop?: (timeoutMs: number) => Promise<boolean>;
   getSettings: () => DownloadSettings;
+  getLatestSettings: () => Promise<DownloadSettings>;
   diagnosticLog: {
     append: (event: DiagnosticInput) => void;
   };
@@ -27,20 +24,27 @@ export class AutomaticDownloadHandoff {
 
   constructor(private readonly deps: AutomaticHandoffDeps) {}
 
-  async ensureDesktopAvailable(url: string): Promise<boolean> {
-    const settings = this.deps.getSettings();
-    if (this.deps.desktopClient && (await this.deps.desktopClient.isReachable())) {
-      return true;
-    }
-
-    if (settings.desktopUnavailable.action === 'browser' || !this.deps.wakeDesktop) {
+  async resolveSettings(url: string): Promise<DownloadSettings> {
+    try {
+      return await this.deps.getLatestSettings();
+    } catch (e) {
       this.deps.diagnosticLog.append({
-        level: 'info',
+        level: 'warn',
         code: 'download_fallback',
-        message: `Continuing in browser because Motrix Next is unavailable: ${url}`,
-        context: { url, target: 'browser' },
+        message: `Using cached settings because current settings could not be loaded: ${e instanceof Error ? e.message : String(e)}`,
+        context: { url },
       });
-      return false;
+      return this.deps.getSettings();
+    }
+  }
+
+  async isDesktopReachable(): Promise<boolean> {
+    return this.deps.desktopClient ? this.deps.desktopClient.isReachable() : false;
+  }
+
+  async activateDesktop(url: string, settings: DownloadSettings): Promise<boolean> {
+    if (!this.deps.wakeDesktop) {
+      return this.deps.desktopClient ? this.deps.desktopClient.isReachable() : false;
     }
 
     const timeoutMs = settings.desktopUnavailable.startupTimeoutSeconds * 1000;
@@ -58,8 +62,8 @@ export class AutomaticDownloadHandoff {
       this.deps.diagnosticLog.append({
         level: 'warn',
         code: 'download_fallback',
-        message: `Continuing in browser because Motrix Next could not be started: ${e instanceof Error ? e.message : String(e)}`,
-        context: { url, target: 'browser' },
+        message: `Motrix Next could not be started: ${e instanceof Error ? e.message : String(e)}`,
+        context: { url, target: 'discard' },
       });
       return false;
     }
@@ -81,34 +85,6 @@ export class AutomaticDownloadHandoff {
       context: { url, timeoutMs },
     });
     return false;
-  }
-
-  async pauseBrowserDownload(id: number): Promise<boolean> {
-    try {
-      await this.deps.downloads.pause(id);
-      return true;
-    } catch (e) {
-      this.deps.diagnosticLog.append({
-        level: 'warn',
-        code: 'download_fallback',
-        message: `Continuing in browser because download ${id} could not be paused: ${e instanceof Error ? e.message : String(e)}`,
-        context: { downloadId: id, target: 'browser' },
-      });
-      return false;
-    }
-  }
-
-  async resumeBrowserDownload(id: number): Promise<void> {
-    try {
-      await this.deps.downloads.resume(id);
-    } catch (e) {
-      this.deps.diagnosticLog.append({
-        level: 'warn',
-        code: 'download_handler_error',
-        message: `Browser download ${id} could not be resumed: ${e instanceof Error ? e.message : String(e)}`,
-        context: { downloadId: id },
-      });
-    }
   }
 
   rememberBrowserFallback(url: string): void {

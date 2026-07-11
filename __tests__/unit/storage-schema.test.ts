@@ -166,6 +166,14 @@ describe('parseDownloadSettings', () => {
     expect(result).not.toHaveProperty('unknown');
   });
 
+  it('accepts a one-second desktop startup timeout', () => {
+    const result = parseDownloadSettings({
+      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 1 },
+    });
+
+    expect(result.desktopUnavailable.startupTimeoutSeconds).toBe(1);
+  });
+
   it('preserves valid sibling fields when one setting is corrupt', () => {
     const result = parseDownloadSettings({
       enabled: false,

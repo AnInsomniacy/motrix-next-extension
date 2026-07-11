@@ -11,7 +11,7 @@
  * DI: accepts a StorageApi interface for testability — no direct
  * chrome.storage.local import.
  */
-import { parseStorage, type ParsedStorage } from './schema';
+import { parseDownloadSettings, parseStorage, type ParsedStorage } from './schema';
 import type {
   ConnectionConfig,
   DownloadSettings,
@@ -61,6 +61,12 @@ export class StorageService {
   async load(): Promise<ParsedStorage> {
     const raw = await this.api.get(null);
     return parseStorage(raw);
+  }
+
+  /** Load the latest persisted download settings. */
+  async loadSettings(): Promise<DownloadSettings> {
+    const raw = await this.api.get(['settings']);
+    return parseDownloadSettings(raw.settings);
   }
 
   /** Persist API connection configuration. */

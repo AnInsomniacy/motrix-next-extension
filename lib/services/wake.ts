@@ -10,7 +10,7 @@
  *   - Check API FIRST before opening protocol (avoids unnecessary tab)
  *   - The protocol tab stays open while waiting for user confirmation
  *     and is closed after success or timeout
- *   - Concurrent callers share a single wake attempt (dedup via promise)
+ *   - Each caller owns its launch and timeout lifecycle
  *   - Exceptions from checkApi are treated as "not reachable" (keep polling)
  *   - No dependency on Chrome APIs — all I/O is injected for testability
  */
@@ -48,9 +48,6 @@ const DEFAULT_POLL_INTERVAL_MS = 500;
  *   if (woke) { // retry download submission }
  */
 export class WakeService {
-  /** Shared promise for deduplicating concurrent wake attempts. */
-  private inflight: Promise<boolean> | null = null;
-
   /**
    * Try to wake the app and wait for API.
    *
@@ -60,22 +57,10 @@ export class WakeService {
    * 3. Poll checkApi() until it returns true or maxWaitMs expires.
    * 4. On success, close the protocol tab automatically.
    *
-   * Concurrent calls share the same wake attempt — only one protocol
-   * tab is ever opened for overlapping requests.
-   *
    * @returns true if API became reachable, false if timed out.
    */
   async wakeAndWaitForApi(deps: WakeDeps): Promise<boolean> {
-    // If another wake is already in progress, piggyback on it.
-    if (this.inflight) return this.inflight;
-
-    this.inflight = this.doWake(deps);
-
-    try {
-      return await this.inflight;
-    } finally {
-      this.inflight = null;
-    }
+    return this.doWake(deps);
   }
 
   // ─── Internal ───────────────────────────────────────

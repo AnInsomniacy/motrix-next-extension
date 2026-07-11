@@ -90,27 +90,21 @@ describe('WakeService', () => {
     expect(checkApi).toHaveBeenCalledTimes(3);
   });
 
-  it('deduplicates concurrent wake calls (single protocol launch)', async () => {
+  it('starts an independent protocol launch for each concurrent wake request', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    let callCount = 0;
-    const checkApi = vi.fn().mockImplementation(async () => {
-      callCount++;
-      return callCount >= 3;
-    });
+    const checkApi = vi.fn().mockResolvedValue(false);
 
-    const deps = { openProtocol, checkApi, maxWaitMs: 10000, pollIntervalMs: 50 };
+    const deps = { openProtocol, checkApi, maxWaitMs: 50, pollIntervalMs: 10 };
 
-    // Fire two concurrent wake requests
     const [r1, r2] = await Promise.all([
       service.wakeAndWaitForApi(deps),
       service.wakeAndWaitForApi(deps),
     ]);
 
-    expect(r1).toBe(true);
-    expect(r2).toBe(true);
-    // Protocol should only be opened once despite two concurrent callers
-    expect(openProtocol).toHaveBeenCalledTimes(1);
+    expect(r1).toBe(false);
+    expect(r2).toBe(false);
+    expect(openProtocol).toHaveBeenCalledTimes(2);
   });
 
   it('resets state after completion so subsequent calls work', async () => {

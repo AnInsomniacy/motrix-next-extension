@@ -24,14 +24,12 @@ import { AutomaticDownloadHandoff } from './automatic-handoff';
 /**
  * Minimal dependency interface for the download orchestrator.
  *
- * Automatic browser downloads use the HTTP API and preserve the native
- * download until the desktop app accepts the task. Explicit user commands
- * may use the protocol deep-link when the API is unavailable.
+ * Automatic browser downloads either remain entirely in the browser or are
+ * cancelled before routing to the desktop app. Explicit user commands may use
+ * the protocol deep-link when the API is unavailable.
  */
 export interface OrchestratorDeps {
   downloads: {
-    pause: (id: number) => Promise<void>;
-    resume: (id: number) => Promise<void>;
     cancel: (id: number) => Promise<void>;
     erase: (query: { id: number }) => Promise<void>;
   };
@@ -43,6 +41,7 @@ export interface OrchestratorDeps {
     append: (event: DiagnosticInput) => void;
   };
   getSettings: () => DownloadSettings;
+  getLatestSettings: () => Promise<DownloadSettings>;
   getSiteRules: () => SiteRule[];
   filenameMetadata?: {
     resolve: (item: DownloadItem) => Promise<FilenameMetadata | undefined>;
@@ -176,8 +175,8 @@ function resolveBestFilenameHint(
  * Central download interception orchestrator.
  *
  * Automatic flow:
- *   filter → confirm desktop availability → pause browser download →
- *   submit to desktop → cancel browser download, or resume on failure
+ *   filter → resolve unavailable policy → cancel browser download when
+ *   intercepting → activate desktop if required → submit to desktop
  *
  * Explicit flow:
  *   submit through HTTP → wake and retry → protocol deep-link
@@ -264,14 +263,25 @@ export class DownloadOrchestrator {
       return true;
     }
 
-    if (!(await this.automaticHandoff.ensureDesktopAvailable(effectiveUrl))) {
-      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
-      return false;
-    }
-
-    if (!(await this.automaticHandoff.pauseBrowserDownload(item.id))) {
-      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
-      return false;
+    const settings = await this.automaticHandoff.resolveSettings(effectiveUrl);
+    if (settings.desktopUnavailable.action === 'browser') {
+      if (!(await this.automaticHandoff.isDesktopReachable())) {
+        this.deps.duplicateGuard?.release(duplicateDecision.reservation);
+        this.deps.diagnosticLog.append({
+          level: 'info',
+          code: 'download_fallback',
+          message: `Continuing in browser because Motrix Next is unavailable: ${effectiveUrl}`,
+          context: { url: effectiveUrl, target: 'browser' },
+        });
+        return false;
+      }
+      await this.safeCancel(item.id);
+    } else {
+      await this.safeCancel(item.id);
+      if (!(await this.automaticHandoff.activateDesktop(effectiveUrl, settings))) {
+        this.deps.duplicateGuard?.release(duplicateDecision.reservation);
+        return true;
+      }
     }
 
     // ─── Route to desktop app ───────────────────
@@ -297,17 +307,15 @@ export class DownloadOrchestrator {
     );
     if (!routed) {
       this.deps.duplicateGuard?.release(duplicateDecision.reservation);
-      await this.automaticHandoff.resumeBrowserDownload(item.id);
       this.deps.diagnosticLog.append({
         level: 'warn',
-        code: 'download_fallback',
-        message: `Continuing in browser after desktop routing failed: ${displayName}`,
-        context: { url: effectiveUrl, target: 'browser' },
+        code: 'download_failed',
+        message: `Discarded after desktop routing failed: ${displayName}`,
+        context: { url: effectiveUrl, target: 'discard' },
       });
-      return false;
+      return true;
     }
 
-    await this.safeCancel(item.id);
     this.deps.duplicateGuard?.commit(duplicateDecision.reservation);
     this.deps.diagnosticLog.append({
       level: 'info',
@@ -329,7 +337,8 @@ export class DownloadOrchestrator {
 
   /**
    * Route a Firefox attachment response before Firefox opens its save dialog.
-   * The response is cancelled only after the desktop API acknowledges it.
+   * Browser mode keeps the response when desktop routing is unavailable.
+   * Launch mode cancels it when startup or routing fails.
    */
   async handleResponse(item: DownloadCandidate, metadata?: FilenameMetadata): Promise<boolean> {
     const filterResult = this.evaluateCandidate(item);
@@ -337,9 +346,14 @@ export class DownloadOrchestrator {
     const { tabUrl } = filterResult;
 
     const effectiveUrl = item.finalUrl || item.url;
-    if (!(await this.automaticHandoff.ensureDesktopAvailable(effectiveUrl))) {
-      this.automaticHandoff.rememberBrowserFallback(effectiveUrl);
-      return false;
+    const settings = await this.automaticHandoff.resolveSettings(effectiveUrl);
+    if (settings.desktopUnavailable.action === 'browser') {
+      if (!(await this.automaticHandoff.isDesktopReachable())) {
+        this.automaticHandoff.rememberBrowserFallback(effectiveUrl);
+        return false;
+      }
+    } else if (!(await this.automaticHandoff.activateDesktop(effectiveUrl, settings))) {
+      return true;
     }
 
     const duplicateDecision = this.reserveDuplicateDownload({
@@ -381,14 +395,13 @@ export class DownloadOrchestrator {
       );
     } catch (e) {
       this.deps.duplicateGuard?.release(duplicateDecision.reservation);
-      this.automaticHandoff.rememberBrowserFallback(effectiveUrl);
       this.deps.diagnosticLog.append({
         level: e instanceof ApiAuthError ? 'error' : 'warn',
         code: e instanceof ApiAuthError ? 'api_auth_failed' : 'download_fallback',
         message: `Firefox response routing failed: ${e instanceof Error ? e.message : String(e)}`,
         context: { url: effectiveUrl },
       });
-      return false;
+      return true;
     }
 
     this.deps.duplicateGuard?.commit(duplicateDecision.reservation);
@@ -455,7 +468,11 @@ export class DownloadOrchestrator {
    * @returns `'routed-to-desktop'` sentinel on success
    * @throws when no routing path is available
    */
-  async sendUrl(url: string, tabUrl: string): Promise<string> {
+  async sendUrl(
+    url: string,
+    tabUrl: string,
+    options: { allowWake?: boolean; allowProtocol?: boolean } = {},
+  ): Promise<string> {
     const extractedFilename = extractFilenameFromUrl(url) ?? '';
     const filenameHint = extractedFilename
       ? resolveFilenameHint(url, { filename: extractedFilename, source: 'url' })
@@ -491,6 +508,12 @@ export class DownloadOrchestrator {
       displayName,
       filenameHint,
       'url',
+      undefined,
+      undefined,
+      {
+        allowWake: options.allowWake ?? true,
+        allowProtocol: options.allowProtocol ?? true,
+      },
     );
     if (!routed) {
       this.deps.duplicateGuard?.release(duplicateDecision.reservation);

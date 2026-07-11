@@ -77,6 +77,22 @@ describe('StorageService.load', () => {
   });
 });
 
+describe('StorageService.loadSettings', () => {
+  it('loads only the latest persisted settings', async () => {
+    const api = createMockApi({
+      settings: {
+        desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
+      },
+    });
+    const service = new StorageService(api);
+
+    const settings = await service.loadSettings();
+
+    expect(settings.desktopUnavailable.action).toBe('browser');
+    expect(api.get).toHaveBeenCalledWith(['settings']);
+  });
+});
+
 // ─── saveConnectionConfig() ─────────────────────────────
 
 describe('StorageService.saveConnectionConfig', () => {

@@ -121,9 +121,17 @@ export default defineBackground(() => {
   const wakeService = new WakeService();
 
   // ─── Load config from storage on startup ──────────
+  let configRevision = 0;
+
   async function loadConfig(): Promise<void> {
     try {
-      const data = await storageService.load();
+      let data: Awaited<ReturnType<StorageService['load']>>;
+      let loadRevision: number;
+      do {
+        loadRevision = configRevision;
+        data = await storageService.load();
+      } while (loadRevision !== configRevision);
+
       settings = data.settings;
       siteRules = data.siteRules;
       diagnosticLog.hydrate(data.diagnosticLog);
@@ -159,10 +167,19 @@ export default defineBackground(() => {
   // storage.onChanged keeps config in sync after the initial load,
   // so we only need to read from storage once per cold start.
   let configLoaded = false;
+  let configLoadPromise: Promise<void> | null = null;
   async function ensureConfigLoaded(): Promise<void> {
     if (configLoaded) return;
-    await loadConfig();
-    configLoaded = true;
+    if (!configLoadPromise) {
+      configLoadPromise = loadConfig()
+        .then(() => {
+          configLoaded = true;
+        })
+        .finally(() => {
+          configLoadPromise = null;
+        });
+    }
+    await configLoadPromise;
   }
 
   // ─── Persist diagnostic log to storage ────────────
@@ -188,8 +205,6 @@ export default defineBackground(() => {
   // ─── Orchestrator ───────────────────────────────────
   const orchestrator = new DownloadOrchestrator({
     downloads: {
-      pause: (id) => browser.downloads.pause(id),
-      resume: (id) => browser.downloads.resume(id),
       cancel: (id) => browser.downloads.cancel(id),
       erase: (query) => browser.downloads.erase(query).then(() => {}),
     },
@@ -213,6 +228,11 @@ export default defineBackground(() => {
       },
     },
     getSettings: () => settings,
+    getLatestSettings: async () => {
+      const latestSettings = await storageService.loadSettings();
+      settings = latestSettings;
+      return latestSettings;
+    },
     getSiteRules: () => siteRules,
     filenameMetadata,
     duplicateGuard: duplicateDownloadGuard,
@@ -548,7 +568,7 @@ export default defineBackground(() => {
     })();
   });
 
-  // Context menu — registration deferred (see loadConfig().then() below)
+  // Context menu registration waits for the initial configuration load
   // so that bgI18n has the user's locale loaded before reading the title.
   function registerContextMenus(): void {
     const menuItems = ContextMenuService.buildMenuItems();
@@ -591,7 +611,7 @@ export default defineBackground(() => {
       pageUrl: info.pageUrl ?? '',
     });
 
-    void loadConfig().then(async () => {
+    void ensureConfigLoaded().then(async () => {
       try {
         const tabUrl = info.pageUrl ?? '';
         await orchestrator.sendUrl(rawUrl, tabUrl);
@@ -607,50 +627,53 @@ export default defineBackground(() => {
     });
   });
 
+  async function handleExternalProtocolMessage(
+    protocolMessage: ExternalProtocolMessage,
+  ): Promise<{ disposition: 'handled' | 'browser' }> {
+    await ensureConfigLoaded();
+    if (!settings.enabled || !settings.interceptionScope[protocolMessage.protocol]) {
+      return { disposition: 'browser' };
+    }
+
+    const browserMode = settings.desktopUnavailable.action === 'browser';
+    if (browserMode && !(await desktopClient.isReachable())) {
+      logInfo('download_skipped', `Continued protocol in browser: ${protocolMessage.url}`, {
+        url: protocolMessage.url,
+        protocol: protocolMessage.protocol,
+        stage: 'desktop-unavailable',
+      });
+      return { disposition: 'browser' };
+    }
+
+    logInfo('protocol_intercepted', `External protocol intercepted: ${protocolMessage.url}`, {
+      url: protocolMessage.url,
+      protocol: protocolMessage.protocol,
+    });
+
+    try {
+      await orchestrator.sendUrl(
+        protocolMessage.url,
+        '',
+        browserMode ? { allowWake: false, allowProtocol: false } : undefined,
+      );
+      return { disposition: 'handled' };
+    } catch (e) {
+      logError(
+        'download_failed',
+        `Protocol download failed: ${e instanceof Error ? e.message : String(e)}`,
+        {
+          url: protocolMessage.url,
+          protocol: protocolMessage.protocol,
+        },
+      );
+      return { disposition: browserMode ? 'browser' : 'handled' };
+    }
+  }
+
   // External protocol link interception from content script
   browser.runtime.onMessage.addListener((msg) => {
     const protocolMessage = parseExternalProtocolMessage(msg);
-    if (protocolMessage) {
-      void loadConfig().then(async () => {
-        if (!settings.enabled) {
-          logInfo(
-            'download_skipped',
-            `Skipped protocol while interception is paused: ${protocolMessage.url}`,
-            {
-              url: protocolMessage.url,
-              stage: 'enabled',
-            },
-          );
-          return;
-        }
-        if (!settings.interceptionScope[protocolMessage.protocol]) {
-          logInfo('download_skipped', `Skipped protocol by scope: ${protocolMessage.url}`, {
-            url: protocolMessage.url,
-            protocol: protocolMessage.protocol,
-            stage: 'interception-scope',
-          });
-          return;
-        }
-
-        logInfo('protocol_intercepted', `External protocol intercepted: ${protocolMessage.url}`, {
-          url: protocolMessage.url,
-          protocol: protocolMessage.protocol,
-        });
-
-        try {
-          await orchestrator.sendUrl(protocolMessage.url, '');
-        } catch (e) {
-          logError(
-            'download_failed',
-            `Protocol download failed: ${e instanceof Error ? e.message : String(e)}`,
-            {
-              url: protocolMessage.url,
-              protocol: protocolMessage.protocol,
-            },
-          );
-        }
-      });
-    }
+    return protocolMessage ? handleExternalProtocolMessage(protocolMessage) : undefined;
   });
 
   // Storage change listener — update config with schema validation
@@ -658,6 +681,9 @@ export default defineBackground(() => {
     if (area !== 'local') return;
 
     const changedKeys = Object.keys(changes);
+    if (changes.connection || changes.settings || changes.siteRules || changes.uiPrefs) {
+      configRevision += 1;
+    }
 
     if (changes.connection?.newValue) {
       const conn = parseConnectionConfig(changes.connection.newValue);
