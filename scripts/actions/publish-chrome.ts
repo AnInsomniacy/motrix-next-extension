@@ -63,8 +63,7 @@ export function decideChromePublishAction(
   }
 
   const hasBlockingSubmission =
-    Boolean(status.submitted.version) &&
-    isBlockingChromeSubmissionState(status.submitted.state);
+    Boolean(status.submitted.version) && isBlockingChromeSubmissionState(status.submitted.state);
 
   if (status.submitted.version === targetVersion && hasBlockingSubmission) {
     return {
