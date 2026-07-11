@@ -69,9 +69,8 @@ export interface OrchestratorDeps {
   onDuplicateBlocked?: () => void;
 }
 
-/** Shape of a browser DownloadItem as received from chrome.downloads events. */
-export interface DownloadItem {
-  id: number;
+/** Download data shared by browser download and Firefox response interception. */
+export interface DownloadCandidate {
   url: string;
   finalUrl: string;
   filename: string;
@@ -79,10 +78,15 @@ export interface DownloadItem {
   totalBytes: number;
   mime: string;
   byExtensionId?: string;
-  state: string;
   referrer?: string;
   requestHeaderContext?: RequestHeaderContext;
   requestHeaderDiagnostics?: RequestHeaderDiagnostics;
+}
+
+/** Shape of a browser DownloadItem as received from chrome.downloads events. */
+export interface DownloadItem extends DownloadCandidate {
+  id: number;
+  state: string;
 }
 
 const GENERIC_FILENAME_HINTS = new Set(['download', UNRESOLVED_FILENAME]);
@@ -216,40 +220,9 @@ export class DownloadOrchestrator {
       return false;
     }
 
-    const settings = this.deps.getSettings();
-    const tabUrl = item.requestHeaderContext?.referer || item.referrer || '';
-
-    // ─── Filter ─────────────────────────────────
-    const ctx: FilterContext = {
-      url: item.url,
-      finalUrl: item.finalUrl,
-      filename: item.filename,
-      fileSize: item.fileSize,
-      totalBytes: item.totalBytes,
-      mimeType: item.mime,
-      tabUrl,
-      byExtensionId: item.byExtensionId,
-    };
-
-    const { verdict, stageName } = evaluateFilterPipeline(ctx, settings, this.filterStages);
-
-    if (verdict === 'skip') {
-      this.deps.diagnosticLog.append({
-        level: 'info',
-        code: 'download_skipped',
-        message: `Skipped by ${stageName ?? 'unknown'}: ${item.url}`,
-        context: {
-          url: item.url,
-          stage: stageName ?? 'unknown',
-          fileSize: item.fileSize,
-          totalBytes: item.totalBytes,
-          mime: item.mime,
-          tabUrl,
-          ...(item.byExtensionId ? { byExtensionId: item.byExtensionId } : {}),
-        },
-      });
-      return false;
-    }
+    const filterResult = this.evaluateCandidate(item);
+    if (!filterResult) return false;
+    const { tabUrl, stageName } = filterResult;
 
     // Stop the native browser download as soon as the filter has committed to
     // interception. Metadata collection and desktop routing can be slower on
@@ -339,6 +312,125 @@ export class DownloadOrchestrator {
   }
 
   /**
+   * Route a Firefox attachment response before Firefox opens its save dialog.
+   * The response is cancelled only after the desktop API acknowledges it.
+   */
+  async handleResponse(item: DownloadCandidate, metadata?: FilenameMetadata): Promise<boolean> {
+    const filterResult = this.evaluateCandidate(item);
+    if (!filterResult) return false;
+    const { tabUrl } = filterResult;
+
+    const desktopClient = this.deps.desktopClient;
+    if (!desktopClient || !(await desktopClient.isReachable())) return false;
+
+    const effectiveUrl = item.finalUrl || item.url;
+    const duplicateDecision = this.reserveDuplicateDownload({
+      url: item.url,
+      finalUrl: item.finalUrl,
+      filename: item.filename,
+      fileSize: item.fileSize,
+      totalBytes: item.totalBytes,
+      mime: item.mime,
+    });
+    if (duplicateDecision.blocked) {
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_duplicate_blocked',
+        message: `Duplicate download blocked: ${effectiveUrl}`,
+        context: { url: effectiveUrl, shouldNotify: duplicateDecision.shouldNotify },
+      });
+      if (duplicateDecision.shouldNotify) this.deps.onDuplicateBlocked?.();
+      return true;
+    }
+
+    const resolvedFilename = resolveBestFilenameHint(effectiveUrl, metadata, item.filename);
+    const filenameHint = resolvedFilename.filename;
+    const displayName = filenameHint || extractFilenameFromUrl(effectiveUrl) || UNRESOLVED_FILENAME;
+    const cookieResult = await this.resolveCookieHeader(effectiveUrl, item.requestHeaderContext);
+
+    try {
+      await this.submitToDesktopApi(
+        effectiveUrl,
+        effectiveUrl,
+        tabUrl,
+        cookieResult.value,
+        cookieResult.source,
+        displayName,
+        filenameHint,
+        resolvedFilename.source,
+        item.requestHeaderContext,
+        item.requestHeaderDiagnostics,
+      );
+    } catch (e) {
+      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
+      this.deps.diagnosticLog.append({
+        level: e instanceof ApiAuthError ? 'error' : 'warn',
+        code: e instanceof ApiAuthError ? 'api_auth_failed' : 'download_fallback',
+        message: `Firefox response routing failed: ${e instanceof Error ? e.message : String(e)}`,
+        context: { url: effectiveUrl },
+      });
+      return false;
+    }
+
+    this.deps.duplicateGuard?.commit(duplicateDecision.reservation);
+    this.deps.diagnosticLog.append({
+      level: 'info',
+      code: 'download_intercepted',
+      message: `Intercepted: ${item.url}`,
+      context: {
+        url: item.url,
+        fileSize: item.fileSize,
+        totalBytes: item.totalBytes,
+        mime: item.mime,
+        tabUrl,
+        ...(item.filename ? { filename: item.filename } : {}),
+      },
+    });
+    return true;
+  }
+
+  private evaluateCandidate(
+    item: DownloadCandidate,
+  ): { tabUrl: string; stageName: string | null } | null {
+    const tabUrl = item.requestHeaderContext?.referer || item.referrer || '';
+    const ctx: FilterContext = {
+      url: item.url,
+      finalUrl: item.finalUrl,
+      filename: item.filename,
+      fileSize: item.fileSize,
+      totalBytes: item.totalBytes,
+      mimeType: item.mime,
+      tabUrl,
+      byExtensionId: item.byExtensionId,
+    };
+    const { verdict, stageName } = evaluateFilterPipeline(
+      ctx,
+      this.deps.getSettings(),
+      this.filterStages,
+    );
+
+    if (verdict === 'skip') {
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_skipped',
+        message: `Skipped by ${stageName ?? 'unknown'}: ${item.url}`,
+        context: {
+          url: item.url,
+          stage: stageName ?? 'unknown',
+          fileSize: item.fileSize,
+          totalBytes: item.totalBytes,
+          mime: item.mime,
+          tabUrl,
+          ...(item.byExtensionId ? { byExtensionId: item.byExtensionId } : {}),
+        },
+      });
+      return null;
+    }
+
+    return { tabUrl, stageName };
+  }
+
+  /**
    * Send a URL to the desktop app (e.g. from context menu or magnet interception).
    *
    * @returns `'routed-to-desktop'` sentinel on success
@@ -418,33 +510,18 @@ export class DownloadOrchestrator {
     // Primary: HTTP API
     if (this.deps.desktopClient) {
       try {
-        const response = await this.deps.desktopClient.addDownload({
+        await this.submitToDesktopApi(
           url,
-          finalUrl: finalUrl || undefined,
-          referer: referer || undefined,
-          cookie: cookie || undefined,
-          ...(filenameHint ? { filename: filenameHint } : {}),
-          ...(requestHeaderContext?.userAgent ? { userAgent: requestHeaderContext.userAgent } : {}),
-          ...(requestHeaderContext?.requestHeaders.length
-            ? { requestHeaders: requestHeaderContext.requestHeaders }
-            : {}),
-        });
-
-        this.deps.diagnosticLog.append({
-          level: 'info',
-          code: 'download_routed',
-          message: `Routed via HTTP API: ${displayName} (${response.action})`,
-          context: {
-            url,
-            filename: displayName,
-            filenameSource,
-            action: response.action,
-            ...(response.gid ? { gid: response.gid } : {}),
-            hasCookie: cookie.length > 0,
-            cookieSource,
-            ...headerLogContext,
-          },
-        });
+          finalUrl,
+          referer,
+          cookie,
+          cookieSource,
+          displayName,
+          filenameHint,
+          filenameSource,
+          requestHeaderContext,
+          requestHeaderDiagnostics,
+        );
         return true;
       } catch (e) {
         if (e instanceof ApiAuthError) {
@@ -485,36 +562,19 @@ export class DownloadOrchestrator {
                 context: { url, ...headerLogContext },
               });
 
-              const retryResponse = await this.deps.desktopClient.addDownload({
+              await this.submitToDesktopApi(
                 url,
-                finalUrl: finalUrl || undefined,
-                referer: referer || undefined,
-                cookie: cookie || undefined,
-                ...(filenameHint ? { filename: filenameHint } : {}),
-                ...(requestHeaderContext?.userAgent
-                  ? { userAgent: requestHeaderContext.userAgent }
-                  : {}),
-                ...(requestHeaderContext?.requestHeaders.length
-                  ? { requestHeaders: requestHeaderContext.requestHeaders }
-                  : {}),
-              });
-
-              this.deps.diagnosticLog.append({
-                level: 'info',
-                code: 'download_routed',
-                message: `Routed via HTTP API (after wake): ${displayName} (${retryResponse.action})`,
-                context: {
-                  url,
-                  filename: displayName,
-                  filenameSource,
-                  action: retryResponse.action,
-                  ...(retryResponse.gid ? { gid: retryResponse.gid } : {}),
-                  hasCookie: cookie.length > 0,
-                  cookieSource,
-                  ...headerLogContext,
-                  afterWake: true,
-                },
-              });
+                finalUrl,
+                referer,
+                cookie,
+                cookieSource,
+                displayName,
+                filenameHint,
+                filenameSource,
+                requestHeaderContext,
+                requestHeaderDiagnostics,
+                true,
+              );
               return true;
             }
 
@@ -583,6 +643,51 @@ export class DownloadOrchestrator {
     }
 
     return false;
+  }
+
+  private async submitToDesktopApi(
+    url: string,
+    finalUrl: string | undefined,
+    referer: string,
+    cookie: string,
+    cookieSource: string,
+    displayName: string,
+    filenameHint?: string,
+    filenameSource: string = 'none',
+    requestHeaderContext?: RequestHeaderContext,
+    requestHeaderDiagnostics?: RequestHeaderDiagnostics,
+    afterWake = false,
+  ): Promise<void> {
+    if (!this.deps.desktopClient) throw new Error('Desktop API unavailable');
+
+    const response = await this.deps.desktopClient.addDownload({
+      url,
+      finalUrl: finalUrl || undefined,
+      referer: referer || undefined,
+      cookie: cookie || undefined,
+      ...(filenameHint ? { filename: filenameHint } : {}),
+      ...(requestHeaderContext?.userAgent ? { userAgent: requestHeaderContext.userAgent } : {}),
+      ...(requestHeaderContext?.requestHeaders.length
+        ? { requestHeaders: requestHeaderContext.requestHeaders }
+        : {}),
+    });
+
+    this.deps.diagnosticLog.append({
+      level: 'info',
+      code: 'download_routed',
+      message: `Routed via HTTP API${afterWake ? ' (after wake)' : ''}: ${displayName} (${response.action})`,
+      context: {
+        url,
+        filename: displayName,
+        filenameSource,
+        action: response.action,
+        ...(response.gid ? { gid: response.gid } : {}),
+        hasCookie: cookie.length > 0,
+        cookieSource,
+        ...this.buildHeaderLogContext(requestHeaderContext, requestHeaderDiagnostics),
+        ...(afterWake ? { afterWake: true } : {}),
+      },
+    });
   }
 
   private buildHeaderLogContext(

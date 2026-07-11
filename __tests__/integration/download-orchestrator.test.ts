@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DownloadOrchestrator } from '@/lib/download/orchestrator';
-import type { DownloadItem, OrchestratorDeps } from '@/lib/download/orchestrator';
+import type {
+  DownloadCandidate,
+  DownloadItem,
+  OrchestratorDeps,
+} from '@/lib/download/orchestrator';
 import { DuplicateDownloadGuard } from '@/lib/download/duplicate-guard';
 import type { DownloadSettings, SiteRule } from '@/shared/types';
 import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
@@ -47,6 +51,11 @@ function createMockDownloadItem(overrides?: Partial<MockDownloadItem>): Download
     referrer: 'https://example.com/page',
     ...overrides,
   };
+}
+
+function createMockDownloadCandidate(overrides?: Partial<DownloadCandidate>): DownloadCandidate {
+  const { id: _id, state: _state, ...candidate } = createMockDownloadItem();
+  return { ...candidate, ...overrides };
 }
 
 // ─── Mock Dependencies ──────────────────────────────────
@@ -478,6 +487,43 @@ describe('DownloadOrchestrator', () => {
       expect(noDeps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({ code: 'download_fallback', level: 'warn' }),
       );
+    });
+  });
+
+  describe('handleResponse — Firefox pre-download routing', () => {
+    it('cancels the response only after the desktop API accepts the download', async () => {
+      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      vi.spyOn(desktopClient, 'isReachable').mockResolvedValue(true);
+      const addDownload = vi
+        .spyOn(desktopClient, 'addDownload')
+        .mockResolvedValue({ action: 'queued' });
+      const responseDeps = createMockDeps({ desktopClient });
+      const orch = new DownloadOrchestrator(responseDeps);
+
+      const intercepted = await orch.handleResponse(createMockDownloadCandidate(), {
+        filename: 'file.zip',
+        source: 'content-disposition',
+      });
+
+      expect(intercepted).toBe(true);
+      expect(addDownload).toHaveBeenCalledTimes(1);
+      expect(responseDeps.downloads.cancel).not.toHaveBeenCalled();
+      expect(responseDeps.openProtocolNewTask).not.toHaveBeenCalled();
+    });
+
+    it('leaves the Firefox response untouched when the desktop API is unavailable', async () => {
+      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      vi.spyOn(desktopClient, 'isReachable').mockResolvedValue(false);
+      const addDownload = vi.spyOn(desktopClient, 'addDownload');
+      const responseDeps = createMockDeps({ desktopClient });
+      const orch = new DownloadOrchestrator(responseDeps);
+
+      const intercepted = await orch.handleResponse(createMockDownloadCandidate());
+
+      expect(intercepted).toBe(false);
+      expect(addDownload).not.toHaveBeenCalled();
+      expect(responseDeps.downloads.cancel).not.toHaveBeenCalled();
+      expect(responseDeps.openProtocolNewTask).not.toHaveBeenCalled();
     });
   });
 

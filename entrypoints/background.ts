@@ -1,6 +1,6 @@
 import { browser, type Browser } from 'wxt/browser';
 import { storage as wxtStorage } from '#imports';
-import { DownloadOrchestrator } from '@/lib/download';
+import { DownloadOrchestrator, parseFirefoxDownloadResponse } from '@/lib/download';
 import { DuplicateDownloadGuard } from '@/lib/download/duplicate-guard';
 import { DownloadFilenameMetadataStore } from '@/lib/download/filename-metadata';
 import {
@@ -291,7 +291,15 @@ export default defineBackground(() => {
   });
 
   type WebRequestHeader = { name?: string; value?: string };
-  type WebRequestHeadersDetails = { url: string; responseHeaders?: WebRequestHeader[] };
+  type WebRequestHeadersDetails = {
+    url: string;
+    method: string;
+    type: string;
+    statusCode: number;
+    originUrl?: string;
+    documentUrl?: string;
+    responseHeaders?: WebRequestHeader[];
+  };
   type WebRequestBeforeSendHeadersDetails = { url: string; requestHeaders?: WebRequestHeader[] };
   type WebRequestApi = {
     onBeforeSendHeaders?: {
@@ -303,21 +311,24 @@ export default defineBackground(() => {
     };
     onHeadersReceived?: {
       addListener: (
-        callback: (details: WebRequestHeadersDetails) => void,
-        filter: { urls: string[] },
+        callback: (
+          details: WebRequestHeadersDetails,
+        ) => void | { cancel?: boolean } | Promise<void | { cancel?: boolean }>,
+        filter: { urls: string[]; types?: string[] },
         extraInfoSpec?: string[],
       ) => void;
     };
   };
+  // WXT's cross-browser type omits Firefox's Promise-returning blocking listener contract.
+  const webRequest = (browser as unknown as { webRequest?: WebRequestApi }).webRequest;
 
   function registerRequestHeaderContextListener(): void {
-    const browserWithWebRequest = browser as typeof browser & { webRequest?: WebRequestApi };
     const requestHeaderBrowser: RequestHeaderBrowser = import.meta.env.FIREFOX
       ? 'firefox'
       : 'chromium';
 
     const addListener = (extraInfoSpec: string[]): boolean => {
-      const listener = browserWithWebRequest.webRequest?.onBeforeSendHeaders;
+      const listener = webRequest?.onBeforeSendHeaders;
       if (!listener) return false;
 
       listener.addListener(
@@ -405,9 +416,9 @@ export default defineBackground(() => {
   }
 
   function registerFilenameMetadataListeners(): void {
-    const browserWithWebRequest = browser as typeof browser & { webRequest?: WebRequestApi };
+    if (import.meta.env.FIREFOX) return;
     try {
-      browserWithWebRequest.webRequest?.onHeadersReceived?.addListener(
+      webRequest?.onHeadersReceived?.addListener(
         (details): undefined => {
           if (!settings.enabled || !settings.interceptionScope.browserDownloads) return undefined;
           const contentDisposition = details.responseHeaders?.find(
@@ -429,13 +440,71 @@ export default defineBackground(() => {
     }
   }
 
+  function registerFirefoxResponseInterception(): void {
+    if (!import.meta.env.FIREFOX) return;
+
+    try {
+      webRequest?.onHeadersReceived?.addListener(
+        async (details): Promise<void | { cancel: true }> => {
+          await ensureConfigLoaded();
+          const parsed = parseFirefoxDownloadResponse(details);
+          if (!parsed) return;
+
+          const headerMatch = settings.forwardRequestHeaders
+            ? requestHeaderContexts.peek({ url: parsed.item.url, finalUrl: parsed.item.finalUrl })
+            : {
+                matched: false,
+                reason: 'disabled' as const,
+                context: undefined,
+                source: undefined,
+                ageMs: undefined,
+              };
+          const intercepted = await orchestrator.handleResponse(
+            {
+              ...parsed.item,
+              requestHeaderContext: headerMatch.context,
+              requestHeaderDiagnostics: {
+                enabled: settings.forwardRequestHeaders,
+                matched: headerMatch.matched,
+                reason: headerMatch.reason,
+                ...(headerMatch.source ? { source: headerMatch.source } : {}),
+                ...(headerMatch.ageMs !== undefined ? { ageMs: headerMatch.ageMs } : {}),
+              },
+            },
+            parsed.metadata,
+          );
+          if (!intercepted) return;
+
+          if (settings.forwardRequestHeaders && headerMatch.matched) {
+            requestHeaderContexts.match({
+              url: parsed.item.url,
+              finalUrl: parsed.item.finalUrl,
+            });
+          }
+          return { cancel: true };
+        },
+        {
+          urls: ['http://*/*', 'https://*/*'],
+          types: ['main_frame', 'sub_frame'],
+        },
+        ['blocking', 'responseHeaders'],
+      );
+    } catch (e) {
+      logWarn(
+        'download_fallback',
+        `Firefox response interception unavailable: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    }
+  }
+
   registerRequestHeaderContextListener();
   registerFilenameMetadataListeners();
+  registerFirefoxResponseInterception();
 
   // ─── Download interception ─────────────────────────────
   //
-  // Unified path: onCreated fires for ALL downloads on all browsers.
-  // Pattern: detect → filter → cancel + erase → route to desktop.
+  // Chromium uses onCreated. Firefox uses blocking response interception for
+  // attachment responses and retains onCreated for unsupported response shapes.
   //
   // Why not onDeterminingFilename (Chrome-only)?
   // Registering that listener makes Chromium ignore filenames supplied by

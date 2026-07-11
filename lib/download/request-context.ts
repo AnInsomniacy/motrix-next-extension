@@ -174,6 +174,17 @@ export class RequestHeaderContextStore {
   }
 
   match(input: { url: string; finalUrl?: string }): RequestHeaderMatchResult {
+    return this.findMatch(input, true);
+  }
+
+  peek(input: { url: string; finalUrl?: string }): RequestHeaderMatchResult {
+    return this.findMatch(input, false);
+  }
+
+  private findMatch(
+    input: { url: string; finalUrl?: string },
+    consume: boolean,
+  ): RequestHeaderMatchResult {
     const now = this.now();
     const candidates: Array<{ url: string; source: RequestHeaderMatchSource }> = [];
     if (input.finalUrl) candidates.push({ url: input.finalUrl, source: 'finalUrl' });
@@ -194,7 +205,7 @@ export class RequestHeaderContextStore {
         continue;
       }
 
-      this.consume(context);
+      if (consume) this.consume(context);
       return {
         matched: true,
         reason: 'matched',

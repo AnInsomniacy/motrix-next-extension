@@ -136,6 +136,21 @@ describe('request header context', () => {
     });
   });
 
+  it('peeks without consuming request headers needed by a later fallback', () => {
+    const store = new RequestHeaderContextStore(() => 1000, 30_000, 16);
+    const context = captureRequestHeaderContext({
+      url: 'https://cdn.example.com/file.zip',
+      now: 1000,
+      requestHeaders: [{ name: 'Referer', value: 'https://example.com/releases' }],
+    });
+
+    expect(context).not.toBeNull();
+    store.remember(context!);
+
+    expect(store.peek({ url: 'https://cdn.example.com/file.zip' }).context).toEqual(context);
+    expect(store.match({ url: 'https://cdn.example.com/file.zip' }).context).toEqual(context);
+  });
+
   it('reports expired cached contexts by TTL without leaking header values', () => {
     let now = 1000;
     const store = new RequestHeaderContextStore(() => now, 100, 16);

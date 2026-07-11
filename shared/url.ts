@@ -13,6 +13,11 @@
 import contentDisposition from 'content-disposition';
 import { decodeMimeWords } from 'lettercoder';
 
+export interface ParsedContentDisposition {
+  type: string;
+  filename?: string;
+}
+
 /**
  * Decode RFC 2047 MIME encoded-words when servers put them in filename fields.
  *
@@ -76,13 +81,18 @@ export function extractFilenameFromUrl(url: string): string | null {
 }
 
 export function extractFilenameFromContentDisposition(header: string): string | null {
+  return parseContentDispositionHeader(header)?.filename ?? null;
+}
+
+export function parseContentDispositionHeader(header: string): ParsedContentDisposition | null {
   try {
-    const { parameters } = contentDisposition.parse(header);
+    const { type, parameters } = contentDisposition.parse(header);
     const filename = parameters.filename;
-    if (filename) return decodeMimeEncodedWords(filename);
+    return {
+      type: type.toLowerCase(),
+      ...(filename ? { filename: decodeMimeEncodedWords(filename) } : {}),
+    };
   } catch {
     return null;
   }
-
-  return null;
 }

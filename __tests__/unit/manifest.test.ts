@@ -32,6 +32,7 @@ describe('buildExtensionManifest', () => {
       'contextMenus',
       'notifications',
       'webRequest',
+      'webRequestBlocking',
       'cookies',
     ]);
     expect(manifest.optional_permissions).toEqual([]);

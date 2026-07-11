@@ -30,17 +30,24 @@ const REQUIRED_PERMISSIONS = [
   'webRequest',
   'cookies',
 ] as const;
+const FIREFOX_REQUIRED_PERMISSIONS = [
+  ...REQUIRED_PERMISSIONS.slice(0, -1),
+  'webRequestBlocking',
+  'cookies',
+] as const;
 const LOOPBACK_HOST_PERMISSIONS = ['http://127.0.0.1/*', 'http://localhost/*'] as const;
 const BROAD_DOWNLOAD_ORIGINS = ['https://*/*', 'http://*/*'] as const;
 
 export function buildExtensionManifest(browser: ExtensionBrowser): ExtensionManifest {
   const optionalPermissions = browser === 'firefox' ? [] : ['downloads.ui'];
+  const permissions =
+    browser === 'firefox' ? [...FIREFOX_REQUIRED_PERMISSIONS] : [...REQUIRED_PERMISSIONS];
 
   return {
     name: '__MSG_ext_name__',
     description: '__MSG_ext_description__',
     default_locale: 'en',
-    permissions: [...REQUIRED_PERMISSIONS],
+    permissions,
     optional_permissions: optionalPermissions,
     host_permissions: [...LOOPBACK_HOST_PERMISSIONS, ...BROAD_DOWNLOAD_ORIGINS],
     optional_host_permissions: [],
