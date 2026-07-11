@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import {
   buildDecision,
@@ -22,6 +22,7 @@ import {
   decideEdgePreflightAction,
   classifyEdgePublishOperation,
   extractOperationIdFromLocation,
+  fetchTrackedPublishOperation,
 } from '../../scripts/actions/publish-edge';
 import { normalizeReleaseInput } from '../../scripts/actions/resolve-release';
 
@@ -211,6 +212,35 @@ describe('workflow action helpers', () => {
       outcome: 'skipped-in-review',
       reason: 'Edge Add-ons already has version 1.3.2 submitted as InProgress',
     });
+  });
+
+  test('ignores stale or missing Edge publish operations during preflight', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('', { status: 404 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      fetchTrackedPublishOperation({
+        authHeaders: {},
+        operationId: 'old-operation',
+        operationVersion: '1.3.2',
+        productId: 'product-id',
+        targetVersion: '1.3.4',
+      }),
+    ).resolves.toBeUndefined();
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    await expect(
+      fetchTrackedPublishOperation({
+        authHeaders: {},
+        operationId: 'missing-operation',
+        operationVersion: '1.3.4',
+        productId: 'product-id',
+        targetVersion: '1.3.4',
+      }),
+    ).resolves.toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledOnce();
+
+    vi.unstubAllGlobals();
   });
 
   test('classifies terminal Edge publish operation responses', () => {

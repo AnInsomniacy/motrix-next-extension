@@ -143,7 +143,9 @@ export async function publishEdgeFromEnv(): Promise<void> {
   const preflight = await fetchTrackedPublishOperation({
     authHeaders,
     operationId: optionalEnv('EDGE_LAST_OPERATION_ID'),
+    operationVersion: optionalEnv('EDGE_LAST_OPERATION_VERSION'),
     productId,
+    targetVersion: version,
   });
   if (preflight) {
     const decision = decideEdgePreflightAction(
@@ -333,17 +335,28 @@ async function waitForPublishOperation(input: {
   };
 }
 
-async function fetchTrackedPublishOperation(input: {
+export async function fetchTrackedPublishOperation(input: {
   authHeaders: Record<string, string>;
   operationId: string;
+  operationVersion: string;
   productId: string;
+  targetVersion: string;
 }): Promise<EdgePublishOperation | undefined> {
-  if (!configured(input.operationId)) return undefined;
-  const response = await fetchJson(
-    `https://api.addons.microsoftedge.microsoft.com/v1/products/${input.productId}/submissions/operations/${input.operationId}`,
-    { headers: input.authHeaders },
-  );
-  return readEdgePublishOperation(response);
+  if (!configured(input.operationId) || input.operationVersion !== input.targetVersion) {
+    return undefined;
+  }
+
+  const url = `https://api.addons.microsoftedge.microsoft.com/v1/products/${input.productId}/submissions/operations/${input.operationId}`;
+  const response = await fetch(url, { headers: input.authHeaders });
+  const text = await response.text();
+  if (response.status === 404) {
+    console.log('::notice::Edge Add-ons: tracked publish operation is no longer available');
+    return undefined;
+  }
+  if (!response.ok) {
+    throw new Error(`${url} failed: HTTP ${response.status} ${text.slice(0, 240)}`);
+  }
+  return readEdgePublishOperation(text ? (JSON.parse(text) as unknown) : {});
 }
 
 function readEdgePublishOperation(value: unknown): EdgePublishOperation {
