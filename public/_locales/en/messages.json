@@ -121,27 +121,6 @@
     "message": "Diagnostics",
     "description": "Settings section for diagnostic event log"
   },
-  "notification_sent_title": {
-    "message": "Sent to Motrix Next",
-    "description": "Notification title when download is sent"
-  },
-  "notification_sent_body": {
-    "message": "$filename$ is now downloading",
-    "description": "Notification body when download is sent",
-    "placeholders": {
-      "filename": {
-        "content": "$1"
-      }
-    }
-  },
-  "notification_failed_title": {
-    "message": "Download Failed",
-    "description": "Notification title when download send fails"
-  },
-  "notification_fallback_title": {
-    "message": "Fallback to Browser",
-    "description": "Notification title when falling back to browser download"
-  },
   "context_menu_download": {
     "message": "Download with Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
@@ -203,10 +182,6 @@
         "content": "$1"
       }
     }
-  },
-  "notification_complete_title": {
-    "message": "Download Complete",
-    "description": "Title for download completion notification"
   },
   "options_save": {
     "message": "Save",
@@ -348,9 +323,25 @@
     "message": "Follow browser language",
     "description": "Description for auto language option"
   },
-  "options_auto_launch_label": {
-    "message": "Auto-launch Motrix Next",
-    "description": "Toggle label for auto-launching app on download interception"
+  "options_desktop_unavailable_label": {
+    "message": "When Motrix Next Is Unavailable",
+    "description": "Unavailable desktop behavior label"
+  },
+  "options_desktop_unavailable_launch": {
+    "message": "Launch Motrix Next",
+    "description": "Launch desktop option"
+  },
+  "options_desktop_unavailable_browser": {
+    "message": "Use Browser",
+    "description": "Browser fallback option"
+  },
+  "options_desktop_startup_timeout_label": {
+    "message": "Startup Timeout",
+    "description": "Desktop startup timeout label"
+  },
+  "options_seconds_suffix": {
+    "message": "s",
+    "description": "Seconds unit suffix"
   },
   "popup_stat_active": {
     "message": "Active",

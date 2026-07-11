@@ -17,18 +17,21 @@ import type {
   DuplicateDownloadReservation,
   DuplicateDownloadInput,
 } from './duplicate-guard';
+import { AutomaticDownloadHandoff } from './automatic-handoff';
 
 // ─── Dependency Interface ───────────────────────────────
 
 /**
  * Minimal dependency interface for the download orchestrator.
  *
- * Primary path: HTTP API via `desktopClient.addDownload()`.
- * Fallback path: `openProtocolNewTask()` deep-link when the desktop app
- * is not reachable via HTTP (e.g. app not yet started).
+ * Automatic browser downloads use the HTTP API and preserve the native
+ * download until the desktop app accepts the task. Explicit user commands
+ * may use the protocol deep-link when the API is unavailable.
  */
 export interface OrchestratorDeps {
   downloads: {
+    pause: (id: number) => Promise<void>;
+    resume: (id: number) => Promise<void>;
     cancel: (id: number) => Promise<void>;
     erase: (query: { id: number }) => Promise<void>;
   };
@@ -53,19 +56,15 @@ export interface OrchestratorDeps {
   /**
    * Wake the desktop app via protocol handler and wait for the HTTP API
    * to become reachable. Returns true if the app woke up successfully.
-   * Used as an intermediate step before falling back to the raw deep-link.
+   * Automatic downloads use the configured startup timeout. Explicit commands
+   * may continue to the raw deep-link when the wait expires.
    */
-  wakeDesktop?: () => Promise<boolean>;
+  wakeDesktop?: (timeoutMs: number) => Promise<boolean>;
   /**
    * Fallback: route a URL to the desktop app via `motrixnext://new?url=...`
    * deep link. Used only when both HTTP API and wake+retry fail.
    */
   openProtocolNewTask?: (url: string, referer: string, filename?: string) => Promise<void>;
-  /**
-   * Callback fired when all routing paths fail and the download is lost.
-   * The extension has already cancelled the browser download at this point.
-   */
-  onRouteFailed?: (info: { url: string; filename: string }) => void;
   onDuplicateBlocked?: () => void;
 }
 
@@ -176,20 +175,22 @@ function resolveBestFilenameHint(
 /**
  * Central download interception orchestrator.
  *
- * Routing priority:
- * 1. HTTP API (`desktopClient.addDownload()`) — non-blocking, no browser dialog
- * 2. Deep-link fallback (`openProtocolNewTask()`) — when HTTP API unreachable
+ * Automatic flow:
+ *   filter → confirm desktop availability → pause browser download →
+ *   submit to desktop → cancel browser download, or resume on failure
  *
- * The extension is a thin interceptor + router layer:
- *   filter → cancel browser download → collect metadata → send to desktop
+ * Explicit flow:
+ *   submit through HTTP → wake and retry → protocol deep-link
  */
 export class DownloadOrchestrator {
   private readonly deps: OrchestratorDeps;
   private readonly filterStages;
+  private readonly automaticHandoff: AutomaticDownloadHandoff;
 
   constructor(deps: OrchestratorDeps) {
     this.deps = deps;
     this.filterStages = createFilterPipeline(() => deps.getSiteRules());
+    this.automaticHandoff = new AutomaticDownloadHandoff(deps);
   }
 
   /**
@@ -220,13 +221,20 @@ export class DownloadOrchestrator {
       return false;
     }
 
+    if (this.automaticHandoff.consumeBrowserFallback(item)) {
+      this.deps.diagnosticLog.append({
+        level: 'info',
+        code: 'download_skipped',
+        message: `Continuing Firefox response in browser: ${item.url}`,
+        context: { url: item.url, stage: 'firefox-response-fallback' },
+      });
+      return false;
+    }
+
     const filterResult = this.evaluateCandidate(item);
     if (!filterResult) return false;
     const { tabUrl, stageName } = filterResult;
 
-    // Stop the native browser download as soon as the filter has committed to
-    // interception. Metadata collection and desktop routing can be slower on
-    // some browsers, especially when cookie forwarding is enabled.
     const effectiveUrl = item.finalUrl || item.url;
 
     const duplicateDecision = this.reserveDuplicateDownload({
@@ -256,23 +264,15 @@ export class DownloadOrchestrator {
       return true;
     }
 
-    this.deps.diagnosticLog.append({
-      level: 'info',
-      code: 'download_intercepted',
-      message: `Intercepted: ${item.url}`,
-      context: {
-        url: item.url,
-        fileSize: item.fileSize,
-        totalBytes: item.totalBytes,
-        mime: item.mime,
-        tabUrl,
-        ...(item.filename ? { filename: item.filename } : {}),
-        ...(item.byExtensionId ? { byExtensionId: item.byExtensionId } : {}),
-        ...(stageName ? { stage: stageName } : {}),
-      },
-    });
+    if (!(await this.automaticHandoff.ensureDesktopAvailable(effectiveUrl))) {
+      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
+      return false;
+    }
 
-    await this.safeCancel(item.id);
+    if (!(await this.automaticHandoff.pauseBrowserDownload(item.id))) {
+      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
+      return false;
+    }
 
     // ─── Route to desktop app ───────────────────
     const metadata = await this.resolveFilenameMetadata(item);
@@ -293,21 +293,37 @@ export class DownloadOrchestrator {
       filenameSource,
       item.requestHeaderContext,
       item.requestHeaderDiagnostics,
+      { allowWake: false, allowProtocol: false },
     );
     if (!routed) {
       this.deps.duplicateGuard?.release(duplicateDecision.reservation);
-      // Both paths failed — can't route to desktop
+      await this.automaticHandoff.resumeBrowserDownload(item.id);
       this.deps.diagnosticLog.append({
         level: 'warn',
         code: 'download_fallback',
-        message: `No route to desktop for: ${displayName}`,
-        context: { url: effectiveUrl },
+        message: `Continuing in browser after desktop routing failed: ${displayName}`,
+        context: { url: effectiveUrl, target: 'browser' },
       });
-      this.deps.onRouteFailed?.({ url: effectiveUrl, filename: displayName });
-      return true; // Already cancelled — can't un-cancel
+      return false;
     }
 
+    await this.safeCancel(item.id);
     this.deps.duplicateGuard?.commit(duplicateDecision.reservation);
+    this.deps.diagnosticLog.append({
+      level: 'info',
+      code: 'download_intercepted',
+      message: `Intercepted: ${item.url}`,
+      context: {
+        url: item.url,
+        fileSize: item.fileSize,
+        totalBytes: item.totalBytes,
+        mime: item.mime,
+        tabUrl,
+        ...(item.filename ? { filename: item.filename } : {}),
+        ...(item.byExtensionId ? { byExtensionId: item.byExtensionId } : {}),
+        ...(stageName ? { stage: stageName } : {}),
+      },
+    });
     return true;
   }
 
@@ -320,10 +336,12 @@ export class DownloadOrchestrator {
     if (!filterResult) return false;
     const { tabUrl } = filterResult;
 
-    const desktopClient = this.deps.desktopClient;
-    if (!desktopClient || !(await desktopClient.isReachable())) return false;
-
     const effectiveUrl = item.finalUrl || item.url;
+    if (!(await this.automaticHandoff.ensureDesktopAvailable(effectiveUrl))) {
+      this.automaticHandoff.rememberBrowserFallback(effectiveUrl);
+      return false;
+    }
+
     const duplicateDecision = this.reserveDuplicateDownload({
       url: item.url,
       finalUrl: item.finalUrl,
@@ -363,6 +381,7 @@ export class DownloadOrchestrator {
       );
     } catch (e) {
       this.deps.duplicateGuard?.release(duplicateDecision.reservation);
+      this.automaticHandoff.rememberBrowserFallback(effectiveUrl);
       this.deps.diagnosticLog.append({
         level: e instanceof ApiAuthError ? 'error' : 'warn',
         code: e instanceof ApiAuthError ? 'api_auth_failed' : 'download_fallback',
@@ -501,6 +520,10 @@ export class DownloadOrchestrator {
     filenameSource: string = 'none',
     requestHeaderContext?: RequestHeaderContext,
     requestHeaderDiagnostics?: RequestHeaderDiagnostics,
+    options: { allowWake: boolean; allowProtocol: boolean } = {
+      allowWake: true,
+      allowProtocol: true,
+    },
   ): Promise<boolean> {
     const headerLogContext = this.buildHeaderLogContext(
       requestHeaderContext,
@@ -544,7 +567,12 @@ export class DownloadOrchestrator {
 
         // Wake → retry: try to start the desktop app and retry via HTTP
         const settings = this.deps.getSettings();
-        if (settings.autoLaunchApp && this.deps.wakeDesktop && this.deps.desktopClient) {
+        if (
+          settings.desktopUnavailable.action === 'launch' &&
+          options.allowWake &&
+          this.deps.wakeDesktop &&
+          this.deps.desktopClient
+        ) {
           this.deps.diagnosticLog.append({
             level: 'info',
             code: 'download_wake_attempt',
@@ -553,7 +581,9 @@ export class DownloadOrchestrator {
           });
 
           try {
-            const woke = await this.deps.wakeDesktop();
+            const woke = await this.deps.wakeDesktop(
+              settings.desktopUnavailable.startupTimeoutSeconds * 1000,
+            );
             if (woke) {
               this.deps.diagnosticLog.append({
                 level: 'info',
@@ -604,12 +634,11 @@ export class DownloadOrchestrator {
               context: { url, ...headerLogContext },
             });
           }
-        } else if (!settings.autoLaunchApp) {
-          // User disabled auto-launch — skip wake entirely
+        } else if (settings.desktopUnavailable.action === 'browser') {
           this.deps.diagnosticLog.append({
             level: 'info',
             code: 'download_fallback',
-            message: `autoLaunchApp disabled, skipping wake for: ${displayName}`,
+            message: `Browser fallback selected, skipping wake for: ${displayName}`,
             context: { url, ...headerLogContext },
           });
         }
@@ -617,7 +646,7 @@ export class DownloadOrchestrator {
     }
 
     // Fallback: deep-link protocol
-    if (this.deps.openProtocolNewTask) {
+    if (options.allowProtocol && this.deps.openProtocolNewTask) {
       const protocolFilenameHint =
         filenameHint !== extractFilenameFromUrl(url) ? filenameHint : undefined;
       if (protocolFilenameHint) {

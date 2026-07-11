@@ -8,7 +8,10 @@ export const DEFAULT_CONNECTION_CONFIG: Readonly<ConnectionConfig> = {
 export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = {
   enabled: true,
   hideDownloadBar: false,
-  autoLaunchApp: true,
+  desktopUnavailable: {
+    action: 'launch',
+    startupTimeoutSeconds: 15,
+  },
   forwardRequestHeaders: true,
   forwardCookies: true,
   duplicateGuard: {

@@ -50,7 +50,7 @@ describe('WakeService', () => {
     expect(checkApi).toHaveBeenCalledTimes(3);
   });
 
-  it('returns false when polling times out (tab stays open)', async () => {
+  it('returns false and closes the protocol tab when polling times out', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
     const checkApi = vi.fn().mockResolvedValue(false);
@@ -64,8 +64,7 @@ describe('WakeService', () => {
 
     expect(result).toBe(false);
     expect(openProtocol).toHaveBeenCalledTimes(1);
-    // Tab NOT closed on timeout — user may still click manually
-    expect(closeTab).not.toHaveBeenCalled();
+    expect(closeTab).toHaveBeenCalledTimes(1);
     expect(checkApi.mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -112,23 +111,6 @@ describe('WakeService', () => {
     expect(r2).toBe(true);
     // Protocol should only be opened once despite two concurrent callers
     expect(openProtocol).toHaveBeenCalledTimes(1);
-  });
-
-  it('uses default timeouts when not specified', async () => {
-    const closeTab = vi.fn();
-    const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    const checkApi = vi.fn().mockResolvedValue(true);
-
-    // First call returns false (not reachable), second returns true
-    checkApi.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
-
-    const result = await service.wakeAndWaitForApi({
-      openProtocol,
-      checkApi,
-      // No maxWaitMs / pollIntervalMs — should use defaults
-    });
-
-    expect(result).toBe(true);
   });
 
   it('resets state after completion so subsequent calls work', async () => {

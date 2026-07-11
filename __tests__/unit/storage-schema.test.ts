@@ -63,7 +63,7 @@ describe('parseDownloadSettings', () => {
     const input = {
       enabled: false,
       hideDownloadBar: true,
-      autoLaunchApp: false,
+      desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
       forwardRequestHeaders: false,
       forwardCookies: true,
       duplicateGuard: {
@@ -97,7 +97,7 @@ describe('parseDownloadSettings', () => {
     expect(result).toEqual({
       enabled: true,
       hideDownloadBar: false,
-      autoLaunchApp: true,
+      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
       forwardRequestHeaders: true,
       forwardCookies: true,
       duplicateGuard: {
@@ -129,7 +129,7 @@ describe('parseDownloadSettings', () => {
     expect(result).toEqual({
       enabled: true,
       hideDownloadBar: false,
-      autoLaunchApp: true,
+      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
       forwardRequestHeaders: true,
       forwardCookies: true,
       duplicateGuard: {
@@ -170,7 +170,7 @@ describe('parseDownloadSettings', () => {
     const result = parseDownloadSettings({
       enabled: false,
       hideDownloadBar: true,
-      autoLaunchApp: false,
+      desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
       forwardRequestHeaders: false,
       forwardCookies: true,
       unknown: 42,
@@ -179,7 +179,7 @@ describe('parseDownloadSettings', () => {
     expect(result).toEqual({
       enabled: false,
       hideDownloadBar: true,
-      autoLaunchApp: false,
+      desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
       forwardRequestHeaders: false,
       forwardCookies: true,
       duplicateGuard: {
@@ -338,7 +338,7 @@ describe('parseStorage', () => {
     expect(result.settings).toEqual({
       enabled: true,
       hideDownloadBar: false,
-      autoLaunchApp: true,
+      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
       forwardRequestHeaders: true,
       forwardCookies: true,
       duplicateGuard: {
@@ -385,7 +385,7 @@ describe('parseStorage', () => {
     expect(result.settings).toEqual({
       enabled: false,
       hideDownloadBar: false,
-      autoLaunchApp: true,
+      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
       forwardRequestHeaders: true,
       forwardCookies: true,
       duplicateGuard: {
@@ -418,7 +418,7 @@ describe('parseStorage', () => {
       settings: {
         enabled: false,
         hideDownloadBar: true,
-        autoLaunchApp: false,
+        desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
         forwardRequestHeaders: false,
         forwardCookies: true,
         interceptionScope: {
@@ -436,7 +436,7 @@ describe('parseStorage', () => {
     expect(result.settings).toEqual({
       enabled: false,
       hideDownloadBar: true,
-      autoLaunchApp: false,
+      desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
       forwardRequestHeaders: false,
       forwardCookies: true,
       duplicateGuard: {

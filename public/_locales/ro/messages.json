@@ -121,27 +121,6 @@
     "message": "Diagnostic",
     "description": "Settings section for diagnostic event log"
   },
-  "notification_sent_title": {
-    "message": "Trimis la Motrix Next",
-    "description": "Notification title when download is sent"
-  },
-  "notification_sent_body": {
-    "message": "$filename$ se descarcă",
-    "description": "Notification body when download is sent",
-    "placeholders": {
-      "filename": {
-        "content": "$1"
-      }
-    }
-  },
-  "notification_failed_title": {
-    "message": "Descărcarea a eșuat",
-    "description": "Notification title when download send fails"
-  },
-  "notification_fallback_title": {
-    "message": "Revenire la browser",
-    "description": "Notification title when falling back to browser download"
-  },
   "context_menu_download": {
     "message": "Descarcă cu Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
@@ -203,10 +182,6 @@
         "content": "$1"
       }
     }
-  },
-  "notification_complete_title": {
-    "message": "Descărcare finalizată",
-    "description": "Title for download completion notification"
   },
   "options_save": {
     "message": "Salvează",
@@ -348,9 +323,25 @@
     "message": "Urmărește limba browserului",
     "description": "Description for auto language option"
   },
-  "options_auto_launch_label": {
-    "message": "Pornește Motrix Next automat",
-    "description": "Toggle label for auto-launching app on download interception"
+  "options_desktop_unavailable_label": {
+    "message": "Când Motrix Next nu este disponibil",
+    "description": "Unavailable desktop behavior label"
+  },
+  "options_desktop_unavailable_launch": {
+    "message": "Pornește Motrix Next",
+    "description": "Launch desktop option"
+  },
+  "options_desktop_unavailable_browser": {
+    "message": "Folosește browserul",
+    "description": "Browser fallback option"
+  },
+  "options_desktop_startup_timeout_label": {
+    "message": "Timp limită la pornire",
+    "description": "Desktop startup timeout label"
+  },
+  "options_seconds_suffix": {
+    "message": "s",
+    "description": "Seconds unit suffix"
   },
   "popup_stat_active": {
     "message": "Active",

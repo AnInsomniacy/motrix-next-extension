@@ -8,7 +8,7 @@ import type { StorageSnapshot } from './storage-service';
 import type { ConnectionConfig } from '@/shared/types';
 
 export const SETTINGS_BACKUP_KIND = 'motrix-next-extension-settings' as const;
-export const SETTINGS_BACKUP_SCHEMA_VERSION = 1 as const;
+export const SETTINGS_BACKUP_SCHEMA_VERSION = 2 as const;
 
 export interface SettingsBackup {
   kind: typeof SETTINGS_BACKUP_KIND;

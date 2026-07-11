@@ -12,7 +12,7 @@ function createSnapshot(): StorageSnapshot {
     settings: {
       enabled: true,
       hideDownloadBar: false,
-      autoLaunchApp: true,
+      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
       forwardRequestHeaders: true,
       forwardCookies: true,
       duplicateGuard: { enabled: true, windowSeconds: 10 },
@@ -40,7 +40,7 @@ describe('settings backup', () => {
 
     expect(backup).toEqual({
       kind: SETTINGS_BACKUP_KIND,
-      schemaVersion: 1,
+      schemaVersion: 2,
       extensionVersion: '1.2.19',
       exportedAt: '2026-06-02T00:00:00.000Z',
       settings: {
@@ -94,5 +94,16 @@ describe('settings backup', () => {
 
   it('rejects files that are not Motrix Next settings backups', () => {
     expect(() => parseSettingsBackup('{"kind":"other"}')).toThrow('Invalid settings backup');
+  });
+
+  it('rejects legacy backup schemas', () => {
+    const backup = createSettingsBackup(createSnapshot(), {
+      extensionVersion: '1.3.3',
+      exportedAt: '2026-07-11T00:00:00.000Z',
+    });
+
+    expect(() => parseSettingsBackup(JSON.stringify({ ...backup, schemaVersion: 1 }))).toThrow(
+      'Invalid settings backup',
+    );
   });
 });

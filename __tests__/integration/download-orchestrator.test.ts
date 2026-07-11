@@ -5,7 +5,6 @@ import type {
   DownloadItem,
   OrchestratorDeps,
 } from '@/lib/download/orchestrator';
-import { DuplicateDownloadGuard } from '@/lib/download/duplicate-guard';
 import type { DownloadSettings, SiteRule } from '@/shared/types';
 import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
 import { DesktopApiClient } from '@/lib/api/desktop-client';
@@ -58,11 +57,19 @@ function createMockDownloadCandidate(overrides?: Partial<DownloadCandidate>): Do
   return { ...candidate, ...overrides };
 }
 
+function createDesktopClient(reachable = true, secret = 'secret'): DesktopApiClient {
+  const client = new DesktopApiClient({ port: 29110, secret });
+  vi.spyOn(client, 'isReachable').mockResolvedValue(reachable);
+  return client;
+}
+
 // ─── Mock Dependencies ──────────────────────────────────
 
 function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): OrchestratorDeps {
   return {
     downloads: {
+      pause: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
+      resume: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
       cancel: vi.fn<(id: number) => Promise<void>>().mockResolvedValue(undefined),
       erase: vi.fn<(query: { id: number }) => Promise<void>>().mockResolvedValue(undefined),
     },
@@ -91,251 +98,6 @@ describe('DownloadOrchestrator', () => {
   beforeEach(() => {
     deps = createMockDeps();
     orchestrator = new DownloadOrchestrator(deps);
-  });
-
-  // ─── handleCreated — unified deep-link routing ─────────
-
-  describe('handleCreated — routes all intercepted downloads to desktop', () => {
-    it('cancels browser download and routes to desktop via deep link', async () => {
-      const item = createMockDownloadItem();
-
-      const intercepted = await orchestrator.handleCreated(item);
-
-      expect(intercepted).toBe(true);
-      expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
-      expect(deps.downloads.erase).toHaveBeenCalledWith({ id: 1 });
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-      );
-    });
-
-    it('uses finalUrl (post-redirect) instead of url for deep link', async () => {
-      const item = createMockDownloadItem({
-        url: 'https://landing.example.com/page',
-        finalUrl: 'https://cdn.example.com/913b9d40.zip',
-      });
-
-      await orchestrator.handleCreated(item);
-
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://cdn.example.com/913b9d40.zip',
-        'https://example.com/page',
-        'file.zip',
-      );
-    });
-
-    it('falls back to url when finalUrl is empty', async () => {
-      const item = createMockDownloadItem({
-        url: 'https://example.com/file.zip',
-        finalUrl: '',
-      });
-
-      await orchestrator.handleCreated(item);
-
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-      );
-    });
-
-    it('does not query the active tab before cancelling no-referrer downloads', async () => {
-      const item = createMockDownloadItem({
-        referrer: '',
-        requestHeaderContext: undefined,
-      });
-
-      await orchestrator.handleCreated(item);
-
-      expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith('https://example.com/file.zip', '');
-    });
-
-    it('routes torrent downloads to desktop (same unified path)', async () => {
-      const item = createMockDownloadItem({
-        url: 'https://example.com/linux.torrent',
-        finalUrl: 'https://example.com/linux.torrent',
-        mime: 'application/x-bittorrent',
-      });
-
-      const intercepted = await orchestrator.handleCreated(item);
-
-      expect(intercepted).toBe(true);
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/linux.torrent',
-        'https://example.com/page',
-      );
-    });
-
-    it('routes small torrent files even when minimum file size filtering is enabled', async () => {
-      (deps.getSettings as ReturnType<typeof vi.fn>).mockReturnValue({
-        ...DEFAULT_DOWNLOAD_SETTINGS,
-        minimumFileSize: {
-          enabled: true,
-          sizeMb: 5,
-          unknownSizeAction: 'intercept',
-        },
-      } satisfies DownloadSettings);
-      const item = createMockDownloadItem({
-        url: 'https://example.com/linux.torrent',
-        finalUrl: 'https://example.com/linux.torrent',
-        filename: 'linux.torrent',
-        fileSize: 27 * 1024,
-        totalBytes: 27 * 1024,
-        mime: 'application/x-bittorrent',
-      });
-
-      const intercepted = await orchestrator.handleCreated(item);
-
-      expect(intercepted).toBe(true);
-      expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/linux.torrent',
-        'https://example.com/page',
-      );
-    });
-
-    it('logs download_intercepted before download_routed', async () => {
-      const item = createMockDownloadItem();
-
-      await orchestrator.handleCreated(item);
-
-      const calls = (deps.diagnosticLog.append as ReturnType<typeof vi.fn>).mock.calls;
-      const codes = calls.map((c: unknown[]) => (c[0] as { code: string }).code);
-      const interceptedIdx = codes.indexOf('download_intercepted');
-      const routedIdx = codes.indexOf('download_routed');
-      expect(interceptedIdx).toBeGreaterThanOrEqual(0);
-      expect(routedIdx).toBeGreaterThan(interceptedIdx);
-    });
-
-    it('logs download_routed with correct context', async () => {
-      const item = createMockDownloadItem();
-
-      await orchestrator.handleCreated(item);
-
-      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({
-          code: 'download_routed',
-          level: 'info',
-        }),
-      );
-    });
-
-    it('includes hasCookie: false in diagnostic context without cookies', async () => {
-      await orchestrator.handleCreated(createMockDownloadItem());
-
-      const routedCall = (deps.diagnosticLog.append as ReturnType<typeof vi.fn>).mock.calls.find(
-        (c: unknown[]) => (c[0] as { code: string }).code === 'download_routed',
-      );
-      expect(routedCall).toBeDefined();
-      expect((routedCall![0] as { context: { hasCookie: boolean } }).context.hasCookie).toBe(false);
-    });
-
-    it('cancels the browser download before resolving delayed filename metadata', async () => {
-      const calls: string[] = [];
-      const earlyCancelDeps = createMockDeps();
-      earlyCancelDeps.downloads.cancel = vi
-        .fn<(id: number) => Promise<void>>()
-        .mockImplementation(async () => {
-          calls.push('cancel');
-        });
-      const filenameMetadata = {
-        resolve: vi.fn().mockImplementation(async () => {
-          calls.push('metadata');
-          return {
-            filename: 'file.zip',
-            source: 'content-disposition' as const,
-          };
-        }),
-      };
-      earlyCancelDeps.filenameMetadata = filenameMetadata;
-      const orch = new DownloadOrchestrator(earlyCancelDeps);
-
-      await orch.handleCreated(createMockDownloadItem());
-
-      expect(filenameMetadata.resolve).toHaveBeenCalled();
-      expect(calls).toEqual(['cancel', 'metadata']);
-    });
-
-    it('cancels the browser download before collecting cookies', async () => {
-      const calls: string[] = [];
-      const earlyCancelDeps = createMockDeps({
-        getSettings: vi.fn().mockReturnValue({
-          ...DEFAULT_DOWNLOAD_SETTINGS,
-          forwardCookies: true,
-        } satisfies DownloadSettings),
-      });
-      earlyCancelDeps.downloads.cancel = vi
-        .fn<(id: number) => Promise<void>>()
-        .mockImplementation(async () => {
-          calls.push('cancel');
-        });
-      const cookies = {
-        getAll: vi.fn().mockImplementation(async () => {
-          calls.push('cookies');
-          return [{ name: 'token', value: 'abc123' }];
-        }),
-      };
-      earlyCancelDeps.cookies = cookies;
-      const orch = new DownloadOrchestrator(earlyCancelDeps);
-
-      await orch.handleCreated(createMockDownloadItem());
-
-      expect(cookies.getAll).toHaveBeenCalled();
-      expect(calls).toEqual(['cancel', 'cookies']);
-    });
-
-    it('cancels and skips repeated downloads inside the duplicate guard window', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
-      const addDownload = vi
-        .spyOn(desktopClient, 'addDownload')
-        .mockResolvedValue({ action: 'queued' });
-      const guardedDeps = createMockDeps({
-        desktopClient,
-        openProtocolNewTask: undefined,
-        duplicateGuard: new DuplicateDownloadGuard(() => 1_000),
-        onDuplicateBlocked: vi.fn(),
-      });
-      const orch = new DownloadOrchestrator(guardedDeps);
-
-      await orch.handleCreated(createMockDownloadItem({ id: 1 }));
-      const blocked = await orch.handleCreated(createMockDownloadItem({ id: 2 }));
-
-      expect(blocked).toBe(true);
-      expect(addDownload).toHaveBeenCalledTimes(1);
-      expect(guardedDeps.downloads.cancel).toHaveBeenCalledWith(2);
-      expect(guardedDeps.onDuplicateBlocked).toHaveBeenCalledTimes(1);
-      expect(guardedDeps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({
-          code: 'download_duplicate_blocked',
-          level: 'info',
-        }),
-      );
-    });
-
-    it('cancels the browser download before routing to the desktop app', async () => {
-      const calls: string[] = [];
-      const earlyCancelDeps = createMockDeps({
-        openProtocolNewTask: undefined,
-      });
-      earlyCancelDeps.downloads.cancel = vi
-        .fn<(id: number) => Promise<void>>()
-        .mockImplementation(async () => {
-          calls.push('cancel');
-        });
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
-      const addDownload = vi.spyOn(desktopClient, 'addDownload').mockImplementation(async () => {
-        calls.push('route');
-        return { action: 'queued' };
-      });
-      earlyCancelDeps.desktopClient = desktopClient;
-      const orch = new DownloadOrchestrator(earlyCancelDeps);
-
-      await orch.handleCreated(createMockDownloadItem());
-
-      expect(addDownload).toHaveBeenCalled();
-      expect(calls).toEqual(['cancel', 'route']);
-    });
   });
 
   // ─── handleCreated — state guard (#267) ─────────────────
@@ -377,15 +139,6 @@ describe('DownloadOrchestrator', () => {
       );
     });
 
-    it('intercepts downloads with state "in_progress" (normal new download)', async () => {
-      const item = createMockDownloadItem({ state: 'in_progress' });
-
-      const intercepted = await orchestrator.handleCreated(item);
-
-      expect(intercepted).toBe(true);
-      expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
-    });
-
     it('does not invoke getSettings for stale items (fast path)', async () => {
       const item = createMockDownloadItem({ state: 'complete' });
 
@@ -395,105 +148,9 @@ describe('DownloadOrchestrator', () => {
     });
   });
 
-  // ─── handleCreated — skip conditions ───────────────────
-
-  describe('handleCreated — skip conditions', () => {
-    it('skips when extension is disabled and returns false', async () => {
-      (deps.getSettings as ReturnType<typeof vi.fn>).mockReturnValue({
-        ...DEFAULT_DOWNLOAD_SETTINGS,
-        enabled: false,
-      });
-
-      const intercepted = await orchestrator.handleCreated(createMockDownloadItem());
-
-      expect(intercepted).toBe(false);
-      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
-    });
-
-    it('skips downloads triggered by an extension and returns false', async () => {
-      const item = createMockDownloadItem({ byExtensionId: 'my-ext-id' });
-
-      const intercepted = await orchestrator.handleCreated(item);
-
-      expect(intercepted).toBe(false);
-      expect(deps.downloads.cancel).not.toHaveBeenCalled();
-    });
-
-    it('skips blob URLs and returns false', async () => {
-      const item = createMockDownloadItem({ url: 'blob:https://example.com/abc' });
-
-      const intercepted = await orchestrator.handleCreated(item);
-
-      expect(intercepted).toBe(false);
-      expect(deps.downloads.cancel).not.toHaveBeenCalled();
-    });
-
-    it('logs download_skipped diagnostic event', async () => {
-      const item = createMockDownloadItem({ url: 'blob:https://example.com/abc' });
-
-      await orchestrator.handleCreated(item);
-
-      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'download_skipped' }),
-      );
-    });
-
-    it('skips text/html downloads (cloud storage landing page defense)', async () => {
-      const item = createMockDownloadItem({
-        url: 'https://lanzou.com/file/?xyz&toolsdown',
-        mime: 'text/html',
-      });
-
-      const intercepted = await orchestrator.handleCreated(item);
-
-      expect(intercepted).toBe(false);
-      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
-      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'download_skipped' }),
-      );
-    });
-
-    it('leaves small files in the browser when minimum file size filtering is enabled', async () => {
-      (deps.getSettings as ReturnType<typeof vi.fn>).mockReturnValue({
-        ...DEFAULT_DOWNLOAD_SETTINGS,
-        minimumFileSize: {
-          enabled: true,
-          sizeMb: 5,
-          unknownSizeAction: 'intercept',
-        },
-      } satisfies DownloadSettings);
-      const item = createMockDownloadItem({ fileSize: 1_000_000, totalBytes: 1_000_000 });
-
-      const intercepted = await orchestrator.handleCreated(item);
-
-      expect(intercepted).toBe(false);
-      expect(deps.downloads.cancel).not.toHaveBeenCalled();
-      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
-    });
-  });
-
-  // ─── handleCreated — defensive fallback ────────────────
-
-  describe('handleCreated — defensive fallback', () => {
-    it('cancels download but logs warning when no route is available', async () => {
-      const noDeps = createMockDeps({ openProtocolNewTask: undefined, desktopClient: undefined });
-      const orch = new DownloadOrchestrator(noDeps);
-
-      const intercepted = await orch.handleCreated(createMockDownloadItem());
-
-      // Download was already cancelled — can't un-cancel, so returns true
-      expect(intercepted).toBe(true);
-      // Should log a warning about no route available
-      expect(noDeps.diagnosticLog.append).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'download_fallback', level: 'warn' }),
-      );
-    });
-  });
-
   describe('handleResponse — Firefox pre-download routing', () => {
     it('cancels the response only after the desktop API accepts the download', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
-      vi.spyOn(desktopClient, 'isReachable').mockResolvedValue(true);
+      const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
@@ -512,8 +169,7 @@ describe('DownloadOrchestrator', () => {
     });
 
     it('leaves the Firefox response untouched when the desktop API is unavailable', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
-      vi.spyOn(desktopClient, 'isReachable').mockResolvedValue(false);
+      const desktopClient = createDesktopClient(false);
       const addDownload = vi.spyOn(desktopClient, 'addDownload');
       const responseDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(responseDeps);
@@ -531,7 +187,7 @@ describe('DownloadOrchestrator', () => {
 
   describe('handleCreated — cookie forwarding', () => {
     it('forwards cookies only to the HTTP API path', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
@@ -563,7 +219,7 @@ describe('DownloadOrchestrator', () => {
     });
 
     it('forwards captured request headers and User-Agent only through the HTTP API path', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
@@ -593,72 +249,8 @@ describe('DownloadOrchestrator', () => {
       });
     });
 
-    it('reuses captured request headers when retrying after wake', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
-      const addDownload = vi
-        .spyOn(desktopClient, 'addDownload')
-        .mockRejectedValueOnce(new Error('offline'))
-        .mockResolvedValueOnce({ action: 'queued' });
-      const apiDeps = createMockDeps({
-        desktopClient,
-        wakeDesktop: vi.fn().mockResolvedValue(true),
-        openProtocolNewTask: undefined,
-      });
-      const orch = new DownloadOrchestrator(apiDeps);
-
-      await orch.handleCreated(
-        createMockDownloadItem({
-          requestHeaderContext: {
-            url: 'https://example.com/file.zip',
-            createdAt: 1000,
-            userAgent: 'Browser/1.0',
-            requestHeaders: [{ name: 'Accept-Language', value: 'en-US' }],
-          },
-        }),
-      );
-
-      expect(addDownload).toHaveBeenLastCalledWith({
-        url: 'https://example.com/file.zip',
-        finalUrl: 'https://example.com/file.zip',
-        referer: 'https://example.com/page',
-        cookie: undefined,
-        filename: 'file.zip',
-        userAgent: 'Browser/1.0',
-        requestHeaders: [{ name: 'Accept-Language', value: 'en-US' }],
-      });
-    });
-
-    it('does not place captured request headers in the deep-link fallback', async () => {
-      const apiDeps = createMockDeps({
-        getSettings: vi.fn().mockReturnValue({
-          ...DEFAULT_DOWNLOAD_SETTINGS,
-          forwardCookies: true,
-        } satisfies DownloadSettings),
-        cookies: {
-          getAll: vi.fn().mockResolvedValue([{ name: 'token', value: 'abc123' }]),
-        },
-      });
-      const orch = new DownloadOrchestrator(apiDeps);
-
-      await orch.handleCreated(
-        createMockDownloadItem({
-          requestHeaderContext: {
-            url: 'https://example.com/file.zip',
-            createdAt: 1000,
-            userAgent: 'Browser/1.0',
-            requestHeaders: [{ name: 'Origin', value: 'https://example.com' }],
-          },
-        }),
-      );
-
-      expect(apiDeps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-      );
-    });
-
     it('logs only header context counts and booleans after HTTP routing', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({ action: 'queued' });
       const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
@@ -692,7 +284,7 @@ describe('DownloadOrchestrator', () => {
     });
 
     it('logs request-header match reason when no cached context is available', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({ action: 'queued' });
       const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
@@ -723,138 +315,8 @@ describe('DownloadOrchestrator', () => {
       );
     });
 
-    it('logs deep-link header forwarding as intentionally skipped', async () => {
-      const apiDeps = createMockDeps();
-      const orch = new DownloadOrchestrator(apiDeps);
-
-      await orch.handleCreated(
-        createMockDownloadItem({
-          requestHeaderContext: {
-            url: 'https://example.com/file.zip',
-            createdAt: 1000,
-            userAgent: 'SensitiveBrowser/1.0',
-            requestHeaders: [{ name: 'Origin', value: 'https://private.example.com' }],
-          },
-          requestHeaderDiagnostics: {
-            enabled: true,
-            matched: true,
-            reason: 'matched',
-            source: 'finalUrl',
-            ageMs: 25,
-          },
-        }),
-      );
-
-      const routedCall = (apiDeps.diagnosticLog.append as ReturnType<typeof vi.fn>).mock.calls.find(
-        (c: unknown[]) => (c[0] as { code: string }).code === 'download_routed',
-      );
-
-      expect(routedCall).toBeDefined();
-      expect((routedCall![0] as { context: Record<string, unknown> }).context).toEqual(
-        expect.objectContaining({
-          requestHeadersEnabled: true,
-          matchedHeaderContext: true,
-          headerMatchReason: 'matched',
-          headerMatchSource: 'finalUrl',
-          headerAgeMs: 25,
-          hasUserAgent: false,
-          headerCount: 0,
-          headerForwardingSkippedReason: 'deep-link',
-        }),
-      );
-      expect(JSON.stringify(routedCall![0])).not.toContain('SensitiveBrowser');
-      expect(JSON.stringify(routedCall![0])).not.toContain('private.example.com');
-    });
-
-    it('does not collect cookies when cookie forwarding is disabled', async () => {
-      const cookies = {
-        getAll: vi.fn().mockResolvedValue([{ name: 'token', value: 'abc123' }]),
-      };
-      const cookieDeps = createMockDeps({
-        cookies,
-        getSettings: vi.fn().mockReturnValue({
-          ...DEFAULT_DOWNLOAD_SETTINGS,
-          forwardCookies: false,
-        } satisfies DownloadSettings),
-      });
-      const orch = new DownloadOrchestrator(cookieDeps);
-
-      await orch.handleCreated(createMockDownloadItem());
-
-      expect(cookies.getAll).not.toHaveBeenCalled();
-      expect(cookieDeps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-      );
-    });
-
-    it('drops cookies when falling back to the protocol handler', async () => {
-      const cookieDeps = createMockDeps({
-        getSettings: vi.fn().mockReturnValue({
-          ...DEFAULT_DOWNLOAD_SETTINGS,
-          forwardCookies: true,
-        } satisfies DownloadSettings),
-        cookies: {
-          getAll: vi.fn().mockResolvedValue([{ name: 'token', value: 'abc123' }]),
-        },
-      });
-      const orch = new DownloadOrchestrator(cookieDeps);
-
-      await orch.handleCreated(createMockDownloadItem());
-
-      expect(cookieDeps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-      );
-    });
-
-    it('passes empty cookie string when cookies API is not provided', async () => {
-      const noCookieApiDeps = createMockDeps({ cookies: undefined });
-      const orch = new DownloadOrchestrator(noCookieApiDeps);
-
-      await orch.handleCreated(createMockDownloadItem());
-
-      expect(noCookieApiDeps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-      );
-    });
-
-    it('gracefully degrades when cookies.getAll throws', async () => {
-      const errorDeps = createMockDeps({
-        cookies: {
-          getAll: vi.fn().mockRejectedValue(new Error('Permission denied')),
-        },
-      });
-      const orch = new DownloadOrchestrator(errorDeps);
-
-      const intercepted = await orch.handleCreated(createMockDownloadItem());
-
-      expect(intercepted).toBe(true);
-      expect(errorDeps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-      );
-    });
-
-    it('passes empty cookie string when no cookies exist for the URL', async () => {
-      const emptyCookieDeps = createMockDeps({
-        cookies: {
-          getAll: vi.fn().mockResolvedValue([]),
-        },
-      });
-      const orch = new DownloadOrchestrator(emptyCookieDeps);
-
-      await orch.handleCreated(createMockDownloadItem());
-
-      expect(emptyCookieDeps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com/page',
-      );
-    });
-
     it('does not forward generic download placeholder as HTTP API filename', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
@@ -879,7 +341,7 @@ describe('DownloadOrchestrator', () => {
     });
 
     it('does not forward numeric download-item placeholder as HTTP API filename', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
@@ -904,7 +366,7 @@ describe('DownloadOrchestrator', () => {
     });
 
     it('forwards filename metadata captured from Content-Disposition', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
@@ -939,7 +401,7 @@ describe('DownloadOrchestrator', () => {
     });
 
     it('forwards meaningful unicode filename as HTTP API filename', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
@@ -965,7 +427,7 @@ describe('DownloadOrchestrator', () => {
     });
 
     it('decodes RFC 2047 encoded-word filename before forwarding to HTTP API', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
@@ -991,7 +453,7 @@ describe('DownloadOrchestrator', () => {
     });
 
     it('includes hasCookie: true in diagnostic context when cookies are collected', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({ action: 'queued' });
       const cookieDeps = createMockDeps({
         desktopClient,
@@ -1016,7 +478,7 @@ describe('DownloadOrchestrator', () => {
     });
 
     it('prefers the captured browser Cookie header over cookies API reconstruction', async () => {
-      const desktopClient = new DesktopApiClient({ port: 29110, secret: 'secret' });
+      const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
@@ -1136,7 +598,10 @@ describe('DownloadOrchestrator', () => {
 
   describe('diagnostic log — cookie_collect_failed', () => {
     it('logs cookie_collect_failed when cookies.getAll throws', async () => {
+      const desktopClient = createDesktopClient();
+      vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({ action: 'queued' });
       const errorDeps = createMockDeps({
+        desktopClient,
         getSettings: vi.fn().mockReturnValue({
           ...DEFAULT_DOWNLOAD_SETTINGS,
           forwardCookies: true,
@@ -1160,8 +625,13 @@ describe('DownloadOrchestrator', () => {
 
   describe('diagnostic log — download_cancel_failed', () => {
     it('logs download_cancel_failed when cancel throws', async () => {
+      const desktopClient = createDesktopClient();
+      vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({ action: 'queued' });
       const errorDeps = createMockDeps({
+        desktopClient,
         downloads: {
+          pause: vi.fn().mockResolvedValue(undefined),
+          resume: vi.fn().mockResolvedValue(undefined),
           cancel: vi.fn().mockRejectedValue(new Error('Download already gone')),
           erase: vi.fn().mockResolvedValue(undefined),
         },

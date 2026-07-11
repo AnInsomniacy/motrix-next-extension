@@ -8,8 +8,8 @@
  *
  * Key design decisions:
  *   - Check API FIRST before opening protocol (avoids unnecessary tab)
- *   - The protocol tab STAYS OPEN so the user can interact with the
- *     "Open MotrixNext.app?" dialog — it is only closed after success
+ *   - The protocol tab stays open while waiting for user confirmation
+ *     and is closed after success or timeout
  *   - Concurrent callers share a single wake attempt (dedup via promise)
  *   - Exceptions from checkApi are treated as "not reachable" (keep polling)
  *   - No dependency on Chrome APIs — all I/O is injected for testability
@@ -27,15 +27,14 @@ export interface WakeDeps {
   openProtocol: () => Promise<() => void>;
   /** Return true if the desktop API is reachable (e.g. ping succeeds). */
   checkApi: () => Promise<boolean>;
-  /** Maximum time to wait for API to become available (ms). Default: 15000. */
-  maxWaitMs?: number;
+  /** Maximum time to wait for API to become available (ms). */
+  maxWaitMs: number;
   /** Interval between API checks during polling (ms). Default: 500. */
   pollIntervalMs?: number;
 }
 
 // ─── Constants ──────────────────────────────────────────
 
-const DEFAULT_MAX_WAIT_MS = 15_000;
 const DEFAULT_POLL_INTERVAL_MS = 500;
 
 // ─── Service ────────────────────────────────────────────
@@ -82,7 +81,6 @@ export class WakeService {
   // ─── Internal ───────────────────────────────────────
 
   private async doWake(deps: WakeDeps): Promise<boolean> {
-    const maxWaitMs = deps.maxWaitMs ?? DEFAULT_MAX_WAIT_MS;
     const pollIntervalMs = deps.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
 
     // Step 1: Pre-check — maybe app is already running.
@@ -92,7 +90,7 @@ export class WakeService {
     const closeTab = await deps.openProtocol();
 
     // Step 3: Poll until API is reachable or timeout.
-    const deadline = Date.now() + maxWaitMs;
+    const deadline = Date.now() + deps.maxWaitMs;
 
     while (Date.now() < deadline) {
       await this.delay(pollIntervalMs);
@@ -103,7 +101,7 @@ export class WakeService {
       }
     }
 
-    // Timed out — leave the tab open so user can still try manually.
+    closeTab();
     return false;
   }
 

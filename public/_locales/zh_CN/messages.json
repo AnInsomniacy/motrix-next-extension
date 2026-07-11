@@ -121,27 +121,6 @@
     "message": "诊断",
     "description": "诊断事件日志区域"
   },
-  "notification_sent_title": {
-    "message": "已发送到 Motrix Next",
-    "description": "下载发送成功的通知标题"
-  },
-  "notification_sent_body": {
-    "message": "$filename$ 正在下载",
-    "description": "下载发送成功的通知内容",
-    "placeholders": {
-      "filename": {
-        "content": "$1"
-      }
-    }
-  },
-  "notification_failed_title": {
-    "message": "下载失败",
-    "description": "下载发送失败的通知标题"
-  },
-  "notification_fallback_title": {
-    "message": "已回退到浏览器下载",
-    "description": "回退到浏览器下载的通知标题"
-  },
   "context_menu_download": {
     "message": "使用 Motrix Next 下载",
     "description": "使用 Motrix Next 下载链接的右键菜单项"
@@ -203,10 +182,6 @@
         "content": "$1"
       }
     }
-  },
-  "notification_complete_title": {
-    "message": "下载完成",
-    "description": "下载完成通知标题"
   },
   "options_save": {
     "message": "保存",
@@ -348,9 +323,25 @@
     "message": "跟随浏览器语言",
     "description": "自动语言选项的说明"
   },
-  "options_auto_launch_label": {
-    "message": "自动启动 Motrix Next",
-    "description": "Toggle label for auto-launching app on download interception"
+  "options_desktop_unavailable_label": {
+    "message": "Motrix Next 不可用时",
+    "description": "Unavailable desktop behavior label"
+  },
+  "options_desktop_unavailable_launch": {
+    "message": "启动 Motrix Next",
+    "description": "Launch desktop option"
+  },
+  "options_desktop_unavailable_browser": {
+    "message": "使用浏览器",
+    "description": "Browser fallback option"
+  },
+  "options_desktop_startup_timeout_label": {
+    "message": "启动超时",
+    "description": "Desktop startup timeout label"
+  },
+  "options_seconds_suffix": {
+    "message": "秒",
+    "description": "Seconds unit suffix"
   },
   "popup_stat_active": {
     "message": "活跃",

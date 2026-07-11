@@ -30,6 +30,7 @@ import {
 import { PermissionService } from '@/lib/services';
 import type {
   ConnectionConfig,
+  DesktopUnavailableSettings,
   DuplicateDownloadGuardSettings,
   DiagnosticEvent,
   FileExtensionRuleSettings,
@@ -117,6 +118,7 @@ function createDefaultStorageSnapshot(): StorageSnapshot {
     connection: { ...DEFAULT_CONNECTION_CONFIG },
     settings: {
       ...DEFAULT_DOWNLOAD_SETTINGS,
+      desktopUnavailable: { ...DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable },
       duplicateGuard: { ...DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard },
       minimumFileSize: { ...DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize },
       fileExtensionRule: {
@@ -140,7 +142,7 @@ function createStorageSnapshotFromState(formState: SettingsForm): StorageSnapsho
     settings: {
       enabled: interceptionEnabled.value,
       hideDownloadBar: browserCapabilities.canControlDownloadUi ? formState.hideDownloadBar : false,
-      autoLaunchApp: formState.autoLaunchApp,
+      desktopUnavailable: formState.desktopUnavailable,
       forwardRequestHeaders: formState.forwardRequestHeaders,
       forwardCookies: formState.forwardCookies,
       duplicateGuard: formState.duplicateGuard,
@@ -164,7 +166,7 @@ interface SettingsForm {
   port: number;
   secret: string;
   hideDownloadBar: boolean;
-  autoLaunchApp: boolean;
+  desktopUnavailable: DesktopUnavailableSettings;
   forwardRequestHeaders: boolean;
   forwardCookies: boolean;
   duplicateGuard: DuplicateDownloadGuardSettings;
@@ -184,7 +186,7 @@ function buildForm(): SettingsForm {
     port: DEFAULT_CONNECTION_CONFIG.port,
     secret: DEFAULT_CONNECTION_CONFIG.secret,
     hideDownloadBar: DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar,
-    autoLaunchApp: DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp,
+    desktopUnavailable: { ...DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable },
     forwardRequestHeaders: DEFAULT_DOWNLOAD_SETTINGS.forwardRequestHeaders,
     forwardCookies: DEFAULT_DOWNLOAD_SETTINGS.forwardCookies,
     duplicateGuard: { ...DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard },
@@ -233,7 +235,7 @@ const {
     });
     await storageService.updateSettings({
       hideDownloadBar: browserCapabilities.canControlDownloadUi ? f.hideDownloadBar : false,
-      autoLaunchApp: f.autoLaunchApp,
+      desktopUnavailable: f.desktopUnavailable,
       forwardRequestHeaders: f.forwardRequestHeaders,
       forwardCookies: f.forwardCookies,
       duplicateGuard: f.duplicateGuard,
@@ -285,7 +287,7 @@ function stageStorageSnapshot(snapshot: StorageSnapshot): void {
   interceptionEnabled.value = snapshot.settings.enabled;
   interceptionScope.value = snapshot.settings.interceptionScope;
   form.value.hideDownloadBar = snapshot.settings.hideDownloadBar;
-  form.value.autoLaunchApp = snapshot.settings.autoLaunchApp;
+  form.value.desktopUnavailable = snapshot.settings.desktopUnavailable;
   form.value.forwardRequestHeaders = snapshot.settings.forwardRequestHeaders;
   form.value.forwardCookies = snapshot.settings.forwardCookies;
   form.value.duplicateGuard = snapshot.settings.duplicateGuard;
@@ -530,7 +532,7 @@ async function loadFromStorage(): Promise<void> {
     browserCapabilities.canControlDownloadUi &&
     data.settings.hideDownloadBar &&
     (await permissionService.hasDownloadUiAccess().catch(() => false));
-  form.value.autoLaunchApp = data.settings.autoLaunchApp;
+  form.value.desktopUnavailable = data.settings.desktopUnavailable;
   form.value.forwardRequestHeaders = data.settings.forwardRequestHeaders;
   form.value.forwardCookies =
     data.settings.forwardCookies &&
@@ -562,7 +564,7 @@ async function applySettingsStorageChange(value: unknown): Promise<void> {
     browserCapabilities.canControlDownloadUi &&
     settings.hideDownloadBar &&
     (await permissionService.hasDownloadUiAccess().catch(() => false));
-  form.value.autoLaunchApp = settings.autoLaunchApp;
+  form.value.desktopUnavailable = settings.desktopUnavailable;
   form.value.forwardRequestHeaders = settings.forwardRequestHeaders;
   form.value.forwardCookies =
     settings.forwardCookies &&
@@ -709,13 +711,15 @@ onUnmounted(() => {
                   :interception-scope="interceptionScope"
                   :hide-download-bar="form.hideDownloadBar"
                   :can-control-download-ui="browserCapabilities.canControlDownloadUi"
-                  :auto-launch-app="form.autoLaunchApp"
+                  :desktop-unavailable="form.desktopUnavailable"
                   :forward-request-headers="form.forwardRequestHeaders"
                   :forward-cookies="form.forwardCookies"
                   @update:enabled="handleEnabledChange"
                   @update:scope="handleInterceptionScopeChange"
                   @update:hide-download-bar="handleHideDownloadBarChange"
-                  @update:auto-launch-app="form.autoLaunchApp = $event"
+                  @update:desktop-unavailable="
+                    form.desktopUnavailable = { ...form.desktopUnavailable, ...$event }
+                  "
                   @update:forward-request-headers="form.forwardRequestHeaders = $event"
                   @update:forward-cookies="handleForwardCookiesChange"
                 />

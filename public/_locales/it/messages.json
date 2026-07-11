@@ -121,27 +121,6 @@
     "message": "Diagnostica",
     "description": "Settings section for diagnostic event log"
   },
-  "notification_sent_title": {
-    "message": "Inviato a Motrix Next",
-    "description": "Notification title when download is sent"
-  },
-  "notification_sent_body": {
-    "message": "$filename$ in download",
-    "description": "Notification body when download is sent",
-    "placeholders": {
-      "filename": {
-        "content": "$1"
-      }
-    }
-  },
-  "notification_failed_title": {
-    "message": "Download fallito",
-    "description": "Notification title when download send fails"
-  },
-  "notification_fallback_title": {
-    "message": "Ripristino al browser",
-    "description": "Notification title when falling back to browser download"
-  },
   "context_menu_download": {
     "message": "Scarica con Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
@@ -203,10 +182,6 @@
         "content": "$1"
       }
     }
-  },
-  "notification_complete_title": {
-    "message": "Download completato",
-    "description": "Title for download completion notification"
   },
   "options_save": {
     "message": "Salva",
@@ -348,9 +323,25 @@
     "message": "Segui la lingua del browser",
     "description": "Description for auto language option"
   },
-  "options_auto_launch_label": {
-    "message": "Avvia Motrix Next automaticamente",
-    "description": "Toggle label for auto-launching app on download interception"
+  "options_desktop_unavailable_label": {
+    "message": "Quando Motrix Next non è disponibile",
+    "description": "Unavailable desktop behavior label"
+  },
+  "options_desktop_unavailable_launch": {
+    "message": "Avvia Motrix Next",
+    "description": "Launch desktop option"
+  },
+  "options_desktop_unavailable_browser": {
+    "message": "Usa il browser",
+    "description": "Browser fallback option"
+  },
+  "options_desktop_startup_timeout_label": {
+    "message": "Timeout di avvio",
+    "description": "Desktop startup timeout label"
+  },
+  "options_seconds_suffix": {
+    "message": "s",
+    "description": "Seconds unit suffix"
   },
   "popup_stat_active": {
     "message": "Attivi",

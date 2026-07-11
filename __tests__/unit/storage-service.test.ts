@@ -119,7 +119,7 @@ describe('StorageService.saveSettings', () => {
     const settings = {
       enabled: false,
       hideDownloadBar: true,
-      autoLaunchApp: false,
+      desktopUnavailable: { action: 'browser' as const, startupTimeoutSeconds: 15 },
       forwardRequestHeaders: true,
       forwardCookies: true,
       duplicateGuard: {
@@ -156,7 +156,7 @@ describe('StorageService.saveSettings', () => {
     const settings = ref({
       enabled: false,
       hideDownloadBar: true,
-      autoLaunchApp: false,
+      desktopUnavailable: { action: 'browser' as const, startupTimeoutSeconds: 15 },
       forwardRequestHeaders: true,
       forwardCookies: true,
       duplicateGuard: {
@@ -198,7 +198,7 @@ describe('StorageService.updateSettings', () => {
       settings: {
         enabled: true,
         hideDownloadBar: true,
-        autoLaunchApp: false,
+        desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
         forwardRequestHeaders: true,
         forwardCookies: true,
         duplicateGuard: {
@@ -232,7 +232,7 @@ describe('StorageService.updateSettings', () => {
       settings: {
         enabled: false,
         hideDownloadBar: true,
-        autoLaunchApp: false,
+        desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
         forwardRequestHeaders: true,
         forwardCookies: true,
         duplicateGuard: {

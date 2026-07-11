@@ -18,7 +18,7 @@ import type { FilterContext, DownloadSettings, SiteRule } from '@/shared/types';
 const DEFAULT_SETTINGS: DownloadSettings = {
   enabled: true,
   hideDownloadBar: false,
-  autoLaunchApp: true,
+  desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
   forwardRequestHeaders: true,
   forwardCookies: false,
   duplicateGuard: {

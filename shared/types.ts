@@ -37,13 +37,20 @@ export interface FilterStage {
 export interface DownloadSettings {
   enabled: boolean;
   hideDownloadBar: boolean;
-  autoLaunchApp: boolean;
+  desktopUnavailable: DesktopUnavailableSettings;
   forwardRequestHeaders: boolean;
   forwardCookies: boolean;
   duplicateGuard: DuplicateDownloadGuardSettings;
   minimumFileSize: MinimumFileSizeSettings;
   fileExtensionRule: FileExtensionRuleSettings;
   interceptionScope: InterceptionScope;
+}
+
+export type DesktopUnavailableAction = 'launch' | 'browser';
+
+export interface DesktopUnavailableSettings {
+  action: DesktopUnavailableAction;
+  startupTimeoutSeconds: number;
 }
 
 export interface DuplicateDownloadGuardSettings {
@@ -128,8 +135,7 @@ export type DiagnosticCode =
   | 'storage_persist_failed'
   | 'download_bar_error'
   // ── Notification ───────────────────────────────────────
-  | 'notification_create_failed'
-  | 'download_route_failed';
+  | 'notification_create_failed';
 
 export type DiagnosticLevel = 'info' | 'warn' | 'error';
 

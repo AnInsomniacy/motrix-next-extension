@@ -65,7 +65,7 @@ describe('useDiagnostics', () => {
       settings: {
         enabled: true,
         hideDownloadBar: false,
-        autoLaunchApp: true,
+        desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
         forwardRequestHeaders: true,
         forwardCookies: false,
         duplicateGuard: {

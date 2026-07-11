@@ -188,6 +188,8 @@ export default defineBackground(() => {
   // ─── Orchestrator ───────────────────────────────────
   const orchestrator = new DownloadOrchestrator({
     downloads: {
+      pause: (id) => browser.downloads.pause(id),
+      resume: (id) => browser.downloads.resume(id),
       cancel: (id) => browser.downloads.cancel(id),
       erase: (query) => browser.downloads.erase(query).then(() => {}),
     },
@@ -215,7 +217,7 @@ export default defineBackground(() => {
     filenameMetadata,
     duplicateGuard: duplicateDownloadGuard,
     desktopClient,
-    wakeDesktop: async () =>
+    wakeDesktop: async (timeoutMs) =>
       wakeService.wakeAndWaitForApi({
         checkApi: () => desktopClient.isReachable(),
         openProtocol: async () => {
@@ -228,6 +230,7 @@ export default defineBackground(() => {
             if (tabId) browser.tabs.remove(tabId).catch(() => {});
           };
         },
+        maxWaitMs: timeoutMs,
       }),
     openProtocolNewTask: async (url: string, referer: string, filename?: string) => {
       const params: Record<string, string> = { url, referer };
@@ -253,26 +256,6 @@ export default defineBackground(() => {
           browser.tabs.remove(tabId).catch(() => {});
         }, 30000);
       }
-    },
-    onRouteFailed: (info) => {
-      // This is the ONLY notification the extension should emit — the desktop
-      // app handles start/complete/error notifications.  The extension uniquely
-      // knows when a download was intercepted but never delivered.
-      const payload = NotificationService.buildFailedNotification(
-        info.filename,
-        'Could not reach Motrix Next',
-      );
-      try {
-        browser.notifications.create(payload.id, payload.options);
-      } catch (e) {
-        logWarn(
-          'notification_create_failed',
-          `Notification create failed: ${e instanceof Error ? e.message : String(e)}`,
-        );
-      }
-      logError('download_route_failed', `All routing paths failed: ${info.filename}`, {
-        url: info.url,
-      });
     },
     onDuplicateBlocked: () => {
       const payload = NotificationService.buildDuplicateDownloadNotification(
@@ -622,21 +605,6 @@ export default defineBackground(() => {
         );
       }
     });
-  });
-
-  // Notification clicks
-  browser.notifications.onClicked.addListener((notificationId) => {
-    const action = NotificationService.resolveClickAction(notificationId);
-    switch (action) {
-      case 'launch-app':
-        void browser.tabs.create({ url: buildProtocolUrl(), active: false }).then((tab) => {
-          if (tab.id) setTimeout(() => browser.tabs.remove(tab.id!), 500);
-        });
-        break;
-      case 'open-options':
-        void browser.runtime.openOptionsPage();
-        break;
-    }
   });
 
   // External protocol link interception from content script

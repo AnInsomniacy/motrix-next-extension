@@ -5,16 +5,21 @@
  * Toggle switches for controlling download interception behavior.
  * Uses Naive UI NSwitch, matching the desktop Basic.vue controls.
  */
-import { NFormItem, NSwitch } from 'naive-ui';
+import { computed } from 'vue';
+import { NFormItem, NInputNumber, NSelect, NSwitch } from 'naive-ui';
 import { motion } from 'motion-v';
-import type { InterceptionScope } from '@/shared/types';
+import type {
+  DesktopUnavailableAction,
+  DesktopUnavailableSettings,
+  InterceptionScope,
+} from '@/shared/types';
 
 defineProps<{
   enabled: boolean;
   interceptionScope: InterceptionScope;
   hideDownloadBar: boolean;
   canControlDownloadUi: boolean;
-  autoLaunchApp: boolean;
+  desktopUnavailable: DesktopUnavailableSettings;
   forwardRequestHeaders: boolean;
   forwardCookies: boolean;
 }>();
@@ -23,7 +28,7 @@ const emit = defineEmits<{
   'update:enabled': [value: boolean];
   'update:scope': [value: Partial<InterceptionScope>];
   'update:hideDownloadBar': [value: boolean];
-  'update:autoLaunchApp': [value: boolean];
+  'update:desktopUnavailable': [value: Partial<DesktopUnavailableSettings>];
   'update:forwardRequestHeaders': [value: boolean];
   'update:forwardCookies': [value: boolean];
 }>();
@@ -31,6 +36,17 @@ const emit = defineEmits<{
 import { useI18n } from '@/shared/i18n/engine';
 
 const { t: i18n } = useI18n();
+
+const unavailableActionOptions = computed(() => [
+  {
+    label: i18n('options_desktop_unavailable_launch', 'Launch Motrix Next'),
+    value: 'launch',
+  },
+  {
+    label: i18n('options_desktop_unavailable_browser', 'Use Browser'),
+    value: 'browser',
+  },
+]);
 </script>
 
 <template>
@@ -140,10 +156,53 @@ const { t: i18n } = useI18n();
       <NFormItem
         class="settings-row"
         :show-feedback="false"
-        :label="i18n('options_auto_launch_label', 'Auto-launch Motrix Next')"
+        :label="i18n('options_desktop_unavailable_label', 'When Motrix Next Is Unavailable')"
       >
-        <NSwitch :value="autoLaunchApp" @update:value="emit('update:autoLaunchApp', $event)" />
+        <NSelect
+          :value="desktopUnavailable.action"
+          :options="unavailableActionOptions"
+          style="width: 210px"
+          @update:value="
+            (value: DesktopUnavailableAction) =>
+              emit('update:desktopUnavailable', { action: value })
+          "
+        />
       </NFormItem>
+
+      <motion.div
+        class="settings-panel-motion"
+        :initial="false"
+        :animate="
+          desktopUnavailable.action === 'launch'
+            ? { height: 'auto', opacity: 1 }
+            : { height: 0, opacity: 0 }
+        "
+        :transition="{ duration: 0.22, ease: [0.2, 0, 0, 1] }"
+      >
+        <div class="settings-subpanel">
+          <NFormItem
+            class="settings-row settings-row--nested"
+            :show-feedback="false"
+            :label="i18n('options_desktop_startup_timeout_label', 'Startup Timeout')"
+          >
+            <NInputNumber
+              :value="desktopUnavailable.startupTimeoutSeconds"
+              :min="3"
+              :max="60"
+              :step="1"
+              style="width: 132px"
+              @update:value="
+                (value: number | null) =>
+                  emit('update:desktopUnavailable', { startupTimeoutSeconds: value ?? 15 })
+              "
+            >
+              <template #suffix>
+                {{ i18n('options_seconds_suffix', 's') }}
+              </template>
+            </NInputNumber>
+          </NFormItem>
+        </div>
+      </motion.div>
     </section>
   </div>
 </template>

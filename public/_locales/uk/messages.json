@@ -121,27 +121,6 @@
     "message": "Діагностика",
     "description": "Settings section for diagnostic event log"
   },
-  "notification_sent_title": {
-    "message": "Надіслано до Motrix Next",
-    "description": "Notification title when download is sent"
-  },
-  "notification_sent_body": {
-    "message": "$filename$ завантажується",
-    "description": "Notification body when download is sent",
-    "placeholders": {
-      "filename": {
-        "content": "$1"
-      }
-    }
-  },
-  "notification_failed_title": {
-    "message": "Завантаження не вдалося",
-    "description": "Notification title when download send fails"
-  },
-  "notification_fallback_title": {
-    "message": "Повернення до браузера",
-    "description": "Notification title when falling back to browser download"
-  },
   "context_menu_download": {
     "message": "Завантажити з Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
@@ -203,10 +182,6 @@
         "content": "$1"
       }
     }
-  },
-  "notification_complete_title": {
-    "message": "Завантаження завершено",
-    "description": "Title for download completion notification"
   },
   "options_save": {
     "message": "Зберегти",
@@ -348,9 +323,25 @@
     "message": "Слідувати за мовою браузера",
     "description": "Description for auto language option"
   },
-  "options_auto_launch_label": {
-    "message": "Автоматично запускати Motrix Next",
-    "description": "Toggle label for auto-launching app on download interception"
+  "options_desktop_unavailable_label": {
+    "message": "Якщо Motrix Next недоступний",
+    "description": "Unavailable desktop behavior label"
+  },
+  "options_desktop_unavailable_launch": {
+    "message": "Запустити Motrix Next",
+    "description": "Launch desktop option"
+  },
+  "options_desktop_unavailable_browser": {
+    "message": "Використовувати браузер",
+    "description": "Browser fallback option"
+  },
+  "options_desktop_startup_timeout_label": {
+    "message": "Час очікування запуску",
+    "description": "Desktop startup timeout label"
+  },
+  "options_seconds_suffix": {
+    "message": "с",
+    "description": "Seconds unit suffix"
   },
   "popup_stat_active": {
     "message": "Активні",

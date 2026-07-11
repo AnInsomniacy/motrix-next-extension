@@ -10,8 +10,6 @@ export interface NotificationPayload {
   };
 }
 
-export type ClickAction = 'open-options' | 'launch-app' | 'none';
-
 // ─── Service ────────────────────────────────────────────
 
 /**
@@ -19,18 +17,6 @@ export type ClickAction = 'open-options' | 'launch-app' | 'none';
  * Pure functions — no chrome.* dependency.
  */
 export class NotificationService {
-  static buildFailedNotification(filename: string, error: string): NotificationPayload {
-    return {
-      id: `failed-${Date.now()}`,
-      options: {
-        type: 'basic',
-        title: 'Download Failed',
-        message: `${filename}: ${error}`,
-        iconUrl: 'icon/128.png',
-      },
-    };
-  }
-
   static buildDuplicateDownloadNotification(
     title = 'Task submitted',
     message = 'Duplicate request skipped',
@@ -44,13 +30,5 @@ export class NotificationService {
         iconUrl: 'icon/128.png',
       },
     };
-  }
-
-  /**
-   * Determine what action to take when a notification is clicked.
-   */
-  static resolveClickAction(notificationId: string): ClickAction {
-    if (notificationId.startsWith('failed-')) return 'open-options';
-    return 'none';
   }
 }

@@ -115,6 +115,20 @@ const DuplicateDownloadGuardSchema = z.object({
     .default(DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard.windowSeconds),
 });
 
+const DesktopUnavailableSchema = z.object({
+  action: z
+    .enum(['launch', 'browser'])
+    .catch(DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable.action)
+    .default(DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable.action),
+  startupTimeoutSeconds: z
+    .number()
+    .int()
+    .min(3)
+    .max(60)
+    .catch(DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable.startupTimeoutSeconds)
+    .default(DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable.startupTimeoutSeconds),
+});
+
 const DownloadSettingsSchema = z.object({
   enabled: z
     .boolean()
@@ -124,10 +138,9 @@ const DownloadSettingsSchema = z.object({
     .boolean()
     .catch(DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar)
     .default(DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar),
-  autoLaunchApp: z
-    .boolean()
-    .catch(DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp)
-    .default(DEFAULT_DOWNLOAD_SETTINGS.autoLaunchApp),
+  desktopUnavailable: DesktopUnavailableSchema.catch(
+    DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable,
+  ).default(DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable),
   forwardRequestHeaders: z
     .boolean()
     .catch(DEFAULT_DOWNLOAD_SETTINGS.forwardRequestHeaders)
@@ -211,7 +224,6 @@ const DiagnosticCodeSchema = z.enum([
   'download_bar_error',
   // Notification
   'notification_create_failed',
-  'download_route_failed',
 ]);
 
 const DiagnosticEventSchema = z.object({

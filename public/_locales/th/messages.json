@@ -121,27 +121,6 @@
     "message": "การวินิจฉัย",
     "description": "Settings section for diagnostic event log"
   },
-  "notification_sent_title": {
-    "message": "ส่งไปยัง Motrix Next แล้ว",
-    "description": "Notification title when download is sent"
-  },
-  "notification_sent_body": {
-    "message": "กำลังดาวน์โหลด $filename$",
-    "description": "Notification body when download is sent",
-    "placeholders": {
-      "filename": {
-        "content": "$1"
-      }
-    }
-  },
-  "notification_failed_title": {
-    "message": "ดาวน์โหลดล้มเหลว",
-    "description": "Notification title when download send fails"
-  },
-  "notification_fallback_title": {
-    "message": "กลับไปใช้เบราว์เซอร์",
-    "description": "Notification title when falling back to browser download"
-  },
   "context_menu_download": {
     "message": "ดาวน์โหลดด้วย Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
@@ -203,10 +182,6 @@
         "content": "$1"
       }
     }
-  },
-  "notification_complete_title": {
-    "message": "ดาวน์โหลดเสร็จสมบูรณ์",
-    "description": "Title for download completion notification"
   },
   "options_save": {
     "message": "บันทึก",
@@ -348,9 +323,25 @@
     "message": "ตามภาษาของเบราว์เซอร์",
     "description": "Description for auto language option"
   },
-  "options_auto_launch_label": {
-    "message": "เปิด Motrix Next โดยอัตโนมัติ",
-    "description": "Toggle label for auto-launching app on download interception"
+  "options_desktop_unavailable_label": {
+    "message": "เมื่อ Motrix Next ไม่พร้อมใช้งาน",
+    "description": "Unavailable desktop behavior label"
+  },
+  "options_desktop_unavailable_launch": {
+    "message": "เปิด Motrix Next",
+    "description": "Launch desktop option"
+  },
+  "options_desktop_unavailable_browser": {
+    "message": "ใช้เบราว์เซอร์",
+    "description": "Browser fallback option"
+  },
+  "options_desktop_startup_timeout_label": {
+    "message": "ระยะเวลารอเริ่มต้น",
+    "description": "Desktop startup timeout label"
+  },
+  "options_seconds_suffix": {
+    "message": "วิ",
+    "description": "Seconds unit suffix"
   },
   "popup_stat_active": {
     "message": "กำลังทำงาน",
