@@ -343,27 +343,44 @@ body {
   transform: scale(0.98);
 }
 
-/* ── section: options section switch (fade + shared-axis rise) ───── */
-.section-enter-active {
+/* ── section: options section switch (fade + shared-axis slide) ──── */
+/* Direction follows nav order: moving to a lower tab enters from below,
+ * moving to a higher tab enters from above. App.vue picks the transition
+ * name via `section-down` / `section-up`. */
+.section-down-enter-active,
+.section-up-enter-active {
   transition:
     opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
     transform 0.2s cubic-bezier(0.05, 0.7, 0.1, 1);
 }
 
-.section-leave-active {
+.section-down-leave-active,
+.section-up-leave-active {
   transition:
     opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
     transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
 }
 
-.section-enter-from {
+/* Forward (down the nav): new content rises from below, old exits upward. */
+.section-down-enter-from {
   opacity: 0;
   transform: translateY(6px);
 }
 
-.section-leave-to {
+.section-down-leave-to {
   opacity: 0;
   transform: translateY(-4px);
+}
+
+/* Reverse (up the nav): new content drops from above, old exits downward. */
+.section-up-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.section-up-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
 }
 
 /* ── text-swap: vertical roll for in-button text changes ─────────── */

@@ -89,7 +89,28 @@ const { message: toast } = createDiscreteApi(['message'], {
 
 // ─── State ──────────────────────────────────────────────
 
-const activeSection = ref('connection');
+/** Section ids in nav order — drives the directional switch animation. */
+const SECTION_ORDER = [
+  'connection',
+  'behavior',
+  'rules',
+  'appearance',
+  'language',
+  'diagnostics',
+] as const;
+
+const activeSection = ref<string>('connection');
+// 'section-down' when moving toward a later tab, 'section-up' otherwise.
+const sectionTransition = ref<'section-down' | 'section-up'>('section-down');
+
+function selectSection(id: string): void {
+  if (id === activeSection.value) return;
+  const from = SECTION_ORDER.indexOf(activeSection.value as (typeof SECTION_ORDER)[number]);
+  const to = SECTION_ORDER.indexOf(id as (typeof SECTION_ORDER)[number]);
+  sectionTransition.value = to > from ? 'section-down' : 'section-up';
+  activeSection.value = id;
+}
+
 const canControlDownloadUi = !import.meta.env.FIREFOX;
 const extensionVersion = browser.runtime.getManifest().version;
 
@@ -458,10 +479,10 @@ onUnmounted(() => {
 
       <!-- ── Body: Nav + Content ─────────────────────────────── -->
       <div class="options-body">
-        <OptionsNav :active="activeSection" @select="activeSection = $event" />
+        <OptionsNav :active="activeSection" @select="selectSection" />
 
         <main class="options-content">
-          <Transition name="section" mode="out-in">
+          <Transition :name="sectionTransition" mode="out-in">
             <!-- Connection -->
             <div v-if="activeSection === 'connection'" key="connection" class="section-wrapper">
               <h2 class="section-title">{{ i18n('options_section_connection', 'Connection') }}</h2>
