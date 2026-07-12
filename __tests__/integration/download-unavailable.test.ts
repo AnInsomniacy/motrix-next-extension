@@ -5,10 +5,10 @@ import type {
   DownloadItem,
   OrchestratorDeps,
 } from '@/lib/download/orchestrator';
-import { DesktopApiClient } from '@/lib/api/desktop-client';
-import { ApiUnreachableError } from '@/shared/errors';
-import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
-import type { DownloadSettings, SiteRule } from '@/shared/types';
+import { DesktopApiClient } from '@/lib/api';
+import { ApiUnreachableError } from '@/lib/api';
+import { DEFAULT_DOWNLOAD_SETTINGS } from '@/lib/schema';
+import type { DownloadSettings, SiteRule } from '@/lib/schema';
 
 function createDownloadItem(): DownloadItem {
   return {
@@ -33,7 +33,6 @@ type DownloadLifecycleDeps = OrchestratorDeps;
 
 function createDeps(options?: {
   action?: 'launch' | 'browser';
-  latestAction?: 'launch' | 'browser';
   reachable?: boolean;
   wakeResult?: boolean;
   wakeFails?: boolean;
@@ -71,13 +70,6 @@ function createDeps(options?: {
     },
     diagnosticLog: { append: vi.fn() },
     getSettings: () => settings,
-    getLatestSettings: vi.fn().mockResolvedValue({
-      ...settings,
-      desktopUnavailable: {
-        ...settings.desktopUnavailable,
-        action: options?.latestAction ?? settings.desktopUnavailable.action,
-      },
-    }),
     getSiteRules: () => [] as SiteRule[],
     desktopClient,
     wakeDesktop: vi.fn().mockImplementation(async () => {
@@ -115,16 +107,6 @@ describe('automatic download fallback', () => {
     expect(intercepted).toBe(true);
     expect(deps.desktopClient?.isReachable).toHaveBeenCalledTimes(1);
     expect(calls).toEqual(['cancel', 'route']);
-  });
-
-  it('uses the persisted browser fallback before attempting to launch Motrix Next', async () => {
-    const deps = createDeps({ action: 'launch', latestAction: 'browser' });
-    const orchestrator = new DownloadOrchestrator(deps);
-
-    const intercepted = await orchestrator.handleCreated(createDownloadItem());
-
-    expect(intercepted).toBe(false);
-    expect(deps.wakeDesktop).not.toHaveBeenCalled();
   });
 
   it('keeps the original cancel-first flow in launch mode when the desktop app is running', async () => {

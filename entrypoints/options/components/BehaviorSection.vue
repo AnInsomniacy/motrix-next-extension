@@ -7,12 +7,12 @@
  */
 import { computed } from 'vue';
 import { NFormItem, NInputNumber, NSelect, NSwitch } from 'naive-ui';
-import { motion } from 'motion-v';
+import CollapsePanel from '@/shared/components/CollapsePanel.vue';
 import type {
   DesktopUnavailableAction,
   DesktopUnavailableSettings,
   InterceptionScope,
-} from '@/shared/types';
+} from '@/lib/schema';
 
 defineProps<{
   enabled: boolean;
@@ -60,12 +60,7 @@ const unavailableActionOptions = computed(() => [
         <NSwitch :value="enabled" @update:value="emit('update:enabled', $event)" />
       </NFormItem>
 
-      <motion.div
-        class="settings-panel-motion"
-        :initial="false"
-        :animate="enabled ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }"
-        :transition="{ duration: 0.22, ease: [0.2, 0, 0, 1] }"
-      >
+      <CollapsePanel :open="enabled">
         <div class="settings-subpanel">
           <NFormItem
             class="settings-row settings-row--nested"
@@ -111,7 +106,7 @@ const unavailableActionOptions = computed(() => [
             />
           </NFormItem>
         </div>
-      </motion.div>
+      </CollapsePanel>
     </section>
 
     <section class="settings-group">
@@ -169,16 +164,7 @@ const unavailableActionOptions = computed(() => [
         />
       </NFormItem>
 
-      <motion.div
-        class="settings-panel-motion"
-        :initial="false"
-        :animate="
-          desktopUnavailable.action === 'launch'
-            ? { height: 'auto', opacity: 1 }
-            : { height: 0, opacity: 0 }
-        "
-        :transition="{ duration: 0.22, ease: [0.2, 0, 0, 1] }"
-      >
+      <CollapsePanel :open="desktopUnavailable.action === 'launch'">
         <div class="settings-subpanel">
           <NFormItem
             class="settings-row settings-row--nested"
@@ -202,7 +188,7 @@ const unavailableActionOptions = computed(() => [
             </NInputNumber>
           </NFormItem>
         </div>
-      </motion.div>
+      </CollapsePanel>
     </section>
   </div>
 </template>

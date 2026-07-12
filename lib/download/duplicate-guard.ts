@@ -1,4 +1,4 @@
-import type { DuplicateDownloadGuardSettings } from '@/shared/types';
+import type { DuplicateDownloadGuardSettings } from '@/lib/schema';
 
 export interface DuplicateDownloadInput {
   url: string;

@@ -1,56 +1,47 @@
 <script lang="ts" setup>
 /**
- * @fileoverview Popup root component.
+ * Popup root: connection status, live speed/task dashboard, quick actions.
  *
- * Wraps the popup UI in a Naive UI NConfigProvider for consistent M3
- * theming, delegates rendering to dedicated sub-components, and manages
- * the data polling lifecycle. All business logic (API client, connection
- * check, task polling) is preserved unchanged from the original.
+ * Data flows from the desktop HTTP API via visibility-aware polling with
+ * exponential backoff. Theme, locale, and settings sync live through
+ * browser.storage.onChanged.
  */
-import { ref, provide, onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, provide, ref } from 'vue';
 import { browser } from 'wxt/browser';
-import { storage as wxtStorage } from '#imports';
-import { usePolling } from '@/shared/use-polling';
-import { NConfigProvider, NSpin, NIcon, NButton } from 'naive-ui';
-import { PauseOutline, PlayOutline, RocketOutline, AlertCircleOutline } from '@vicons/ionicons5';
-import { DesktopApiClient } from '@/lib/api';
-import { ConnectionService, ConnectionStatus } from '@/lib/services';
-import { buildProtocolUrl, ProtocolAction } from '@/lib/protocol';
-import { resolveThemeClass } from '@/lib/services';
-import type { ThemePreference } from '@/lib/services';
+import { NButton, NConfigProvider, NIcon } from 'naive-ui';
+import { AlertCircleOutline, PauseOutline, PlayOutline, RocketOutline } from '@vicons/ionicons5';
 import {
-  StorageService,
-  createWxtStorageApi,
+  DesktopApiClient,
+  checkConnection,
+  type ConnectionStatus,
+  type StatResponse,
+} from '@/lib/api';
+import { buildProtocolUrl } from '@/lib/desktop';
+import { loadSnapshot, updateSettings } from '@/lib/storage';
+import {
+  DEFAULT_CONNECTION_CONFIG,
   parseConnectionConfig,
   parseDownloadSettings,
   parseUiPrefs,
-} from '@/lib/storage';
-import type { StatResponse } from '@/lib/api/desktop-client';
-import { DEFAULT_CONNECTION_CONFIG, DEFAULT_UI_PREFS } from '@/shared/constants';
-import { useTheme } from '@/shared/use-theme';
-import { getBootstrappedUiPrefs } from '@/shared/theme-bootstrap';
-
+} from '@/lib/schema';
+import { usePolling } from '@/shared/use-polling';
+import { useAppTheme } from '@/shared/theme';
 import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
 
 import PopupHeader from './components/PopupHeader.vue';
 import StatDashboard from './components/StatDashboard.vue';
 
-// ─── i18n ───────────────────────────────────────────────────────────
+// ─── i18n + Theme ───────────────────────────────────────
 
 const i18nCtx = createI18n('auto', { localeApi: browser.i18n });
 provide(I18N_KEY, i18nCtx);
 const { t: i18n, tSub: i18nSub, effectiveLocale } = i18nCtx;
 const { naiveLocale, naiveDateLocale } = useNaiveLocale(effectiveLocale);
+const theme = useAppTheme();
 
-// ─── Theme + Color Scheme ───────────────────────────────────────────
+// ─── State ──────────────────────────────────────────────
 
-const bootstrappedUiPrefs = getBootstrappedUiPrefs();
-const colorSchemeId = ref(bootstrappedUiPrefs?.colorScheme ?? DEFAULT_UI_PREFS.colorScheme);
-const { naiveTheme, themeOverrides } = useTheme(colorSchemeId);
-
-// ─── State ──────────────────────────────────────────────────────────
-
-const status = ref<ConnectionStatus>(ConnectionStatus.Disconnected);
+const status = ref<ConnectionStatus>('disconnected');
 const version = ref<string | null>(null);
 const errorType = ref<string | null>(null);
 const connectionPort = ref(DEFAULT_CONNECTION_CONFIG.port);
@@ -58,52 +49,38 @@ const globalStat = ref<StatResponse | null>(null);
 const loading = ref(true);
 const enabled = ref(true);
 
-type StorageChangeListener = Parameters<typeof browser.storage.onChanged.addListener>[0];
-
-let apiClient: DesktopApiClient;
-let storageService: StorageService;
+const apiClient = new DesktopApiClient({ ...DEFAULT_CONNECTION_CONFIG });
 let stopPolling: (() => void) | null = null;
-let stopThemeMediaListener: (() => void) | null = null;
 let stopStorageListener: (() => void) | null = null;
 
-// ─── Data Fetching ──────────────────────────────────────────────────
+// ─── Data Fetching ──────────────────────────────────────
 
 async function fetchData(): Promise<void> {
   try {
-    const connectionSvc = new ConnectionService(apiClient);
-    const result = await connectionSvc.checkConnection();
+    const result = await checkConnection(apiClient);
     status.value = result.status;
     version.value = result.version;
     errorType.value = result.error ?? null;
-
-    if (result.status === ConnectionStatus.Connected) {
+    if (result.status === 'connected') {
       globalStat.value = await apiClient.getStat();
     }
   } catch {
-    status.value = ConnectionStatus.Disconnected;
+    status.value = 'disconnected';
   } finally {
     loading.value = false;
   }
 }
 
-// ─── Actions ────────────────────────────────────────────────────────
+// ─── Actions ────────────────────────────────────────────
 
 async function pauseAll(): Promise<void> {
-  try {
-    await apiClient.pauseAll();
-    await fetchData();
-  } catch {
-    /* silent */
-  }
+  await apiClient.pauseAll().catch(() => {});
+  await fetchData();
 }
 
 async function resumeAll(): Promise<void> {
-  try {
-    await apiClient.resumeAll();
-    await fetchData();
-  } catch {
-    /* silent */
-  }
+  await apiClient.resumeAll().catch(() => {});
+  await fetchData();
 }
 
 function openSettings(): void {
@@ -111,91 +88,60 @@ function openSettings(): void {
 }
 
 function launchApp(): void {
-  // Connected: focus the existing window. Disconnected: wake the app via OS.
-  const url =
-    status.value === ConnectionStatus.Connected
-      ? buildProtocolUrl(ProtocolAction.Tasks)
-      : buildProtocolUrl();
-  // Let Chrome handle the protocol tab lifecycle naturally —
-  // the OS will process the custom scheme and Chrome manages the tab.
+  // Connected: focus the existing window. Disconnected: wake via the OS.
+  const url = status.value === 'connected' ? buildProtocolUrl('tasks') : buildProtocolUrl();
   void browser.tabs.create({ url, active: true });
 }
 
-/**
- * Toggle download interception on/off. Performs a read-modify-write to
- * preserve all other DownloadSettings fields. The background service
- * worker picks up the change automatically via browser.storage.onChanged.
- */
+/** Toggle interception; the background worker reacts via storage.onChanged. */
 async function toggleEnabled(): Promise<void> {
   enabled.value = !enabled.value;
   try {
-    await storageService.updateSettings({ enabled: enabled.value });
+    await updateSettings({ enabled: enabled.value });
   } catch {
-    // Revert on failure — keep UI in sync with actual storage state.
-    enabled.value = !enabled.value;
+    enabled.value = !enabled.value; // revert — keep UI in sync with storage
   }
 }
 
-function applyStoredTheme(theme: ThemePreference): void {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  document.documentElement.className = resolveThemeClass(theme, mediaQuery.matches);
-
-  stopThemeMediaListener?.();
-  const handleMediaChange = (): void => {
-    document.documentElement.className = resolveThemeClass(theme, mediaQuery.matches);
-  };
-  mediaQuery.addEventListener('change', handleMediaChange);
-  stopThemeMediaListener = () => mediaQuery.removeEventListener('change', handleMediaChange);
-}
+// ─── Live Sync ──────────────────────────────────────────
 
 function bindStorageChanges(): void {
-  const handleStorageChange: StorageChangeListener = (changes, area) => {
+  const listener: Parameters<typeof browser.storage.onChanged.addListener>[0] = (changes, area) => {
     if (area !== 'local') return;
 
     if (changes.settings?.newValue) {
       enabled.value = parseDownloadSettings(changes.settings.newValue).enabled;
     }
-
     if (changes.connection?.newValue) {
       const connection = parseConnectionConfig(changes.connection.newValue);
       connectionPort.value = connection.port;
-      apiClient.updateConfig({ port: connection.port, secret: connection.secret });
+      apiClient.updateConfig(connection);
       void fetchData();
     }
-
     if (changes.uiPrefs?.newValue) {
       const prefs = parseUiPrefs(changes.uiPrefs.newValue);
-      colorSchemeId.value = prefs.colorScheme;
+      theme.setMode(prefs.theme);
+      theme.setColorScheme(prefs.colorScheme);
       i18nCtx.setLocale(prefs.locale);
-      applyStoredTheme(prefs.theme as ThemePreference);
     }
   };
 
-  browser.storage.onChanged.addListener(handleStorageChange);
-  stopStorageListener = () => browser.storage.onChanged.removeListener(handleStorageChange);
+  browser.storage.onChanged.addListener(listener);
+  stopStorageListener = () => browser.storage.onChanged.removeListener(listener);
 }
 
-// ─── Lifecycle ──────────────────────────────────────────────────────
+// ─── Lifecycle ──────────────────────────────────────────
 
 onMounted(async () => {
-  storageService = new StorageService(createWxtStorageApi(wxtStorage));
-  const data = await storageService.load();
-
-  // Hydrate interception toggle state
+  const data = await loadSnapshot();
   enabled.value = data.settings.enabled;
-
-  // Apply theme
-  const theme = data.uiPrefs.theme as ThemePreference;
-  colorSchemeId.value = data.uiPrefs.colorScheme;
+  theme.setMode(data.uiPrefs.theme);
+  theme.setColorScheme(data.uiPrefs.colorScheme);
   i18nCtx.setLocale(data.uiPrefs.locale);
-  applyStoredTheme(theme);
-
-  // Initialize API client with validated config
   connectionPort.value = data.connection.port;
-  apiClient = new DesktopApiClient({ port: data.connection.port, secret: data.connection.secret });
+  apiClient.updateConfig(data.connection);
   bindStorageChanges();
 
-  // Smart polling with exponential backoff + visibility awareness
   const poller = usePolling({
     fn: fetchData,
     baseIntervalMs: 500,
@@ -208,23 +154,34 @@ onMounted(async () => {
 
 onUnmounted(() => {
   stopPolling?.();
-  stopThemeMediaListener?.();
   stopStorageListener?.();
 });
 </script>
 
 <template>
   <NConfigProvider
-    :theme="naiveTheme"
-    :theme-overrides="themeOverrides"
+    :theme="theme.naiveTheme.value"
+    :theme-overrides="theme.themeOverrides.value"
     :locale="naiveLocale"
     :date-locale="naiveDateLocale"
     inline-theme-disabled
   >
     <div class="popup-root">
-      <!-- ── Loading State ─────────────────────────────────────── -->
-      <div v-if="loading" class="popup-loading">
-        <NSpin size="medium" />
+      <!-- ── Skeleton (first poll in flight) ─────────────────── -->
+      <div v-if="loading" class="popup-skeleton" aria-busy="true">
+        <div class="popup-skeleton__header">
+          <span class="skeleton skeleton--logo" />
+          <span class="skeleton skeleton--chip" />
+          <span class="popup-skeleton__spacer" />
+          <span class="skeleton skeleton--switch" />
+        </div>
+        <div class="popup-skeleton__body">
+          <span class="skeleton skeleton--stat" />
+          <span class="skeleton skeleton--stat" />
+        </div>
+        <div class="popup-skeleton__footer">
+          <span class="skeleton skeleton--button" />
+        </div>
       </div>
 
       <template v-else>
@@ -245,7 +202,6 @@ onUnmounted(() => {
             </NIcon>
             <div>
               <Transition name="text-swap" mode="out-in">
-                <!-- Auth Error -->
                 <div v-if="errorType === 'ApiAuthError'" key="auth">
                   <p class="popup-banner__title">
                     {{ i18n('popup_error_auth', 'API secret mismatch') }}
@@ -259,7 +215,6 @@ onUnmounted(() => {
                     }}
                   </p>
                 </div>
-                <!-- Timeout Error -->
                 <div v-else-if="errorType === 'ApiTimeoutError'" key="timeout">
                   <p class="popup-banner__title">
                     {{ i18n('popup_error_timeout', 'Connection timed out') }}
@@ -274,7 +229,6 @@ onUnmounted(() => {
                     }}
                   </p>
                 </div>
-                <!-- Unreachable / Unknown (default) -->
                 <div v-else key="unreachable">
                   <p class="popup-banner__title">
                     {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
@@ -295,9 +249,11 @@ onUnmounted(() => {
         </Transition>
 
         <!-- ── Connected: Stat Dashboard ────────────────────────── -->
-        <template v-if="status === 'connected'">
-          <StatDashboard v-if="globalStat" :stat="globalStat" :disabled="!enabled" />
-        </template>
+        <StatDashboard
+          v-if="status === 'connected' && globalStat"
+          :stat="globalStat"
+          :disabled="!enabled"
+        />
 
         <!-- ── Actions ─────────────────────────────────────────── -->
         <div class="popup-actions">
@@ -346,12 +302,84 @@ onUnmounted(() => {
   font-family: var(--font-sans);
 }
 
-/* ── Loading ──────────────────────────────────────────────────── */
-.popup-loading {
+/* ── Skeleton ─────────────────────────────────────────────────── */
+.popup-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  min-height: 216px;
+}
+
+.popup-skeleton__header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 240px;
+  gap: 8px;
+}
+
+.popup-skeleton__spacer {
+  flex: 1;
+}
+
+.popup-skeleton__body {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.popup-skeleton__footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.skeleton {
+  display: inline-block;
+  border-radius: 8px;
+  background: linear-gradient(
+    100deg,
+    var(--color-surface-container) 40%,
+    var(--color-surface-container-high) 50%,
+    var(--color-surface-container) 60%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+}
+
+.skeleton--logo {
+  width: 64px;
+  height: 24px;
+}
+
+.skeleton--chip {
+  width: 84px;
+  height: 18px;
+  border-radius: 9999px;
+}
+
+.skeleton--switch {
+  width: 96px;
+  height: 20px;
+  border-radius: 9999px;
+}
+
+.skeleton--stat {
+  flex: 1;
+  height: 108px;
+  border-radius: 12px;
+}
+
+.skeleton--button {
+  width: 140px;
+  height: 24px;
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 /* ── Disconnected Banner ─────────────────────────────────────── */

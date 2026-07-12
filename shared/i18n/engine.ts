@@ -1,191 +1,119 @@
 /**
- * @fileoverview I18n engine with Vue integration and Naive UI locale mapping.
+ * I18n engine.
  *
- * Architecture:
- *   I18nEngine    — Framework-agnostic translation engine (Vue + service worker)
- *   createI18n()  — Vue provide/inject factory for App roots
- *   useI18n()     — Vue inject helper for child components
- *   useNaiveLocale() — Reactive NConfigProvider locale mapping
- *
- * The engine is a class (not pure functions) because Background service
- * worker needs stateful locale without Vue reactivity.
- *
- * Reactivity trick: a _version ref is bumped on setLocale(). All t()/tSub()
- * closures read _version as a tracked dependency, so Vue re-renders on locale
- * change without reactive-proxying the entire dictionary object.
+ *   I18nEngine       — stateful translator for the background service worker
+ *   createI18n()     — reactive Vue context (provide/inject) for UI roots
+ *   useI18n()        — inject helper for child components
+ *   useNaiveLocale() — Naive UI NConfigProvider locale mapping
  */
-import { ref, computed, inject, type InjectionKey, type Ref, type ComputedRef } from 'vue';
+import { computed, inject, ref, type ComputedRef, type InjectionKey, type Ref } from 'vue';
 import {
-  zhCN,
+  dateEnUS,
+  dateJaJP,
   dateZhCN,
   enUS,
-  dateEnUS,
   jaJP,
-  dateJaJP,
-  type NLocale,
+  zhCN,
   type NDateLocale,
+  type NLocale,
 } from 'naive-ui';
 import { DICTIONARIES, FALLBACK_LOCALE, resolveLocaleId } from './dictionaries';
 
-// ─── Engine (framework-agnostic) ────────────────────────
+const FALLBACK_DICT = DICTIONARIES[FALLBACK_LOCALE]!;
 
-/**
- * Stateless-ish translation engine. Used in both Vue UIs
- * (via createI18n wrapper) and Background service worker (directly).
- */
+function translate(dict: Record<string, string>, key: string, fallback?: string): string {
+  return dict[key] ?? FALLBACK_DICT[key] ?? fallback ?? key;
+}
+
+function substitute(msg: string, subs: string[]): string {
+  return subs.reduce((acc, sub, i) => acc.replaceAll(`$${i + 1}`, sub), msg);
+}
+
+// ─── Service Worker Engine ──────────────────────────────
+
+/** Minimal stateful translator for non-Vue contexts (background worker). */
 export class I18nEngine {
   private dict: Record<string, string>;
-  private readonly fallbackDict: Record<string, string>;
-  private _locale: string;
 
   constructor(initialLocale: string) {
-    this._locale = initialLocale;
-    this.fallbackDict = DICTIONARIES[FALLBACK_LOCALE]!;
-    this.dict = DICTIONARIES[initialLocale] ?? this.fallbackDict;
+    this.dict = DICTIONARIES[initialLocale] ?? FALLBACK_DICT;
   }
 
-  get locale(): string {
-    return this._locale;
-  }
-
-  /** Switch the active locale. Unknown locales fall back to en. */
   setLocale(id: string): void {
-    this._locale = id;
-    this.dict = DICTIONARIES[id] ?? this.fallbackDict;
+    this.dict = DICTIONARIES[id] ?? FALLBACK_DICT;
   }
 
-  /**
-   * Translate a key.
-   * Fallback chain: current dict → en dict → provided fallback → raw key.
-   */
   t(key: string, fallback?: string): string {
-    return this.dict[key] ?? this.fallbackDict[key] ?? fallback ?? key;
-  }
-
-  /**
-   * Always return the English translation, regardless of current locale.
-   * Used by the Language section for bilingual display (“言語 / Language”).
-   */
-  tEn(key: string, fallback?: string): string {
-    return this.fallbackDict[key] ?? fallback ?? key;
-  }
-
-  /**
-   * Translate with positional substitutions.
-   * Replaces $1, $2, ... with corresponding array entries.
-   */
-  tSub(key: string, subs: string[], fallback?: string): string {
-    let msg = this.dict[key] ?? this.fallbackDict[key] ?? fallback ?? key;
-    for (let i = 0; i < subs.length; i++) {
-      msg = msg.replaceAll(`$${i + 1}`, subs[i]!);
-    }
-    return msg;
+    return translate(this.dict, key, fallback);
   }
 }
 
 // ─── Vue Integration ────────────────────────────────────
 
-/** Context shape exposed via provide/inject. */
 export interface I18nContext {
   /** Raw user preference: 'auto' | 'en' | 'zh_CN' | ... */
   locale: Ref<string>;
   /** Resolved effective locale after 'auto' detection. */
   effectiveLocale: ComputedRef<string>;
-  /** Translate a key with optional fallback. */
   t: (key: string, fallback?: string) => string;
-  /** Always return the English translation (for bilingual display). */
+  /** Always the English translation (for bilingual display). */
   tEn: (key: string, fallback?: string) => string;
   /** Translate with positional substitutions ($1, $2, ...). */
   tSub: (key: string, subs: string[], fallback?: string) => string;
-  /** Change the active locale (triggers reactive re-render). */
   setLocale: (id: string) => void;
 }
 
 export const I18N_KEY: InjectionKey<I18nContext> = Symbol('i18n');
 
-export interface BrowserLocaleApi {
-  getUILanguage: () => string;
-}
-
 export interface CreateI18nOptions {
-  localeApi?: BrowserLocaleApi;
+  localeApi?: { getUILanguage: () => string };
 }
 
-/**
- * Detect browser locale using the most accurate signal sources.
- * Priority: injected extension locale API → navigator.language → fallback.
- */
-function detectBrowserLocale(localeApi?: BrowserLocaleApi): string {
+function detectBrowserLocale(localeApi?: CreateI18nOptions['localeApi']): string {
   try {
     const uiLang = localeApi?.getUILanguage();
     if (uiLang) return resolveLocaleId(uiLang);
   } catch {
-    /* Not in extension context (e.g. unit test) */
+    /* not in an extension context */
   }
-
   if (typeof navigator !== 'undefined' && navigator.language) {
     return resolveLocaleId(navigator.language);
   }
-
   return FALLBACK_LOCALE;
 }
 
 /**
- * Create an i18n context for a Vue app root.
+ * Create the reactive i18n context for a Vue app root.
  * Call once in App.vue setup, then `provide(I18N_KEY, ctx)`.
  */
 export function createI18n(
   initialLocale: string = 'auto',
   options: CreateI18nOptions = {},
 ): I18nContext {
-  const resolved =
-    initialLocale === 'auto' ? detectBrowserLocale(options.localeApi) : initialLocale;
-  const engine = new I18nEngine(resolved);
   const locale = ref(initialLocale);
 
-  // Reactivity trigger — bumped on setLocale to invalidate computed t/tSub.
-  const _v = ref(0);
+  const effectiveLocale = computed(() =>
+    locale.value === 'auto' ? detectBrowserLocale(options.localeApi) : locale.value,
+  );
+  const dict = computed(() => DICTIONARIES[effectiveLocale.value] ?? FALLBACK_DICT);
 
-  const effectiveLocale = computed(() => {
-    void _v.value; // tracked dependency
-    return locale.value === 'auto' ? detectBrowserLocale(options.localeApi) : locale.value;
-  });
-
-  function setLocale(id: string): void {
-    locale.value = id;
-    engine.setLocale(id === 'auto' ? detectBrowserLocale(options.localeApi) : id);
-    _v.value++;
-  }
-
-  // Reactive wrappers — depend on _v so Vue re-renders on locale change.
-  function t(key: string, fallback?: string): string {
-    void _v.value;
-    return engine.t(key, fallback);
-  }
-
-  function tEn(key: string, fallback?: string): string {
-    return engine.tEn(key, fallback);
-  }
-
-  function tSub(key: string, subs: string[], fallback?: string): string {
-    void _v.value;
-    return engine.tSub(key, subs, fallback);
-  }
-
-  return { locale, effectiveLocale, t, tEn, tSub, setLocale };
+  return {
+    locale,
+    effectiveLocale,
+    t: (key, fallback) => translate(dict.value, key, fallback),
+    tEn: (key, fallback) => FALLBACK_DICT[key] ?? fallback ?? key,
+    tSub: (key, subs, fallback) => substitute(translate(dict.value, key, fallback), subs),
+    setLocale: (id) => {
+      locale.value = id;
+    },
+  };
 }
 
-/**
- * Inject i18n context in child components.
- * Mirrors vue-i18n's useI18n() API for familiarity.
- */
+/** Inject the i18n context in child components. */
 export function useI18n(): I18nContext {
   const ctx = inject(I18N_KEY);
   if (!ctx) {
-    throw new Error(
-      '[i18n] useI18n() called without createI18n() in ancestor. ' +
-        'Call createI18n() and provide(I18N_KEY, ctx) in your App root.',
-    );
+    throw new Error('[i18n] useI18n() requires createI18n() + provide(I18N_KEY) in the app root');
   }
   return ctx;
 }
@@ -198,20 +126,10 @@ const NAIVE_MAP: Record<string, { locale: NLocale; dateLocale: NDateLocale }> = 
   zh_CN: { locale: zhCN, dateLocale: dateZhCN },
 };
 
-const NAIVE_FALLBACK = NAIVE_MAP.en!;
-
-/**
- * Reactive Naive UI locale objects for NConfigProvider.
- *
- * @example
- * const { naiveLocale, naiveDateLocale } = useNaiveLocale(effectiveLocale);
- * // <NConfigProvider :locale="naiveLocale" :date-locale="naiveDateLocale">
- */
+/** Reactive Naive UI locale objects for NConfigProvider. */
 export function useNaiveLocale(effectiveLocale: ComputedRef<string> | Ref<string>) {
   return {
-    naiveLocale: computed(() => (NAIVE_MAP[effectiveLocale.value] ?? NAIVE_FALLBACK).locale),
-    naiveDateLocale: computed(
-      () => (NAIVE_MAP[effectiveLocale.value] ?? NAIVE_FALLBACK).dateLocale,
-    ),
+    naiveLocale: computed(() => (NAIVE_MAP[effectiveLocale.value] ?? NAIVE_MAP.en!).locale),
+    naiveDateLocale: computed(() => (NAIVE_MAP[effectiveLocale.value] ?? NAIVE_MAP.en!).dateLocale),
   };
 }

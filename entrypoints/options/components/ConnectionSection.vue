@@ -12,8 +12,8 @@
 import { computed } from 'vue';
 import { NFormItem, NInput, NInputNumber, NButton, NTag, NIcon } from 'naive-ui';
 import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
-import { ConnectionStatus } from '@/lib/services';
-import { DEFAULT_CONNECTION_CONFIG } from '@/shared/constants';
+import type { ConnectionStatus } from '@/lib/api';
+import { DEFAULT_CONNECTION_CONFIG } from '@/lib/schema';
 
 const props = defineProps<{
   port: number;
@@ -34,7 +34,7 @@ import { useI18n } from '@/shared/i18n/engine';
 
 const { t: i18n } = useI18n();
 
-const isConnected = computed(() => props.status === ConnectionStatus.Connected);
+const isConnected = computed(() => props.status === 'connected');
 
 /** Map error class names from ConnectionService to i18n keys. */
 const ERROR_I18N: Record<string, [key: string, fallback: string]> = {

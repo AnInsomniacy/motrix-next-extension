@@ -1,6 +1,4 @@
-@import 'tailwindcss';
-
-@theme {
+:root {
   /* ── M3 Primary (Amber Gold · seed #E0A422 · desktop-aligned) ────── */
   --color-primary: #7c5800;
   --color-on-primary: #ffffff;
@@ -303,10 +301,6 @@ body {
   margin-top: 12px;
 }
 
-.settings-panel-motion {
-  overflow: hidden;
-}
-
 .settings-subpanel {
   display: flex;
   flex-direction: column;
@@ -347,6 +341,29 @@ body {
 .fade-leave-to {
   opacity: 0;
   transform: scale(0.98);
+}
+
+/* ── section: options section switch (fade + shared-axis rise) ───── */
+.section-enter-active {
+  transition:
+    opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+.section-leave-active {
+  transition:
+    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
+    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+.section-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.section-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 /* ── text-swap: vertical roll for in-button text changes ─────────── */

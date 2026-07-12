@@ -5,10 +5,10 @@ import type {
   DownloadItem,
   OrchestratorDeps,
 } from '@/lib/download/orchestrator';
-import type { DownloadSettings, SiteRule } from '@/shared/types';
-import { DEFAULT_DOWNLOAD_SETTINGS } from '@/shared/constants';
-import { DesktopApiClient } from '@/lib/api/desktop-client';
-import { ApiAuthError } from '@/shared/errors';
+import type { DownloadSettings, SiteRule } from '@/lib/schema';
+import { DEFAULT_DOWNLOAD_SETTINGS } from '@/lib/schema';
+import { DesktopApiClient } from '@/lib/api';
+import { ApiAuthError } from '@/lib/api';
 import type {
   RequestHeaderContext,
   RequestHeaderMatchReason,
@@ -75,9 +75,6 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
       append: vi.fn(),
     },
     getSettings: vi.fn().mockReturnValue({
-      ...DEFAULT_DOWNLOAD_SETTINGS,
-    } satisfies DownloadSettings),
-    getLatestSettings: vi.fn().mockResolvedValue({
       ...DEFAULT_DOWNLOAD_SETTINGS,
     } satisfies DownloadSettings),
     getSiteRules: vi.fn().mockReturnValue([] as SiteRule[]),
@@ -182,7 +179,6 @@ describe('DownloadOrchestrator', () => {
       const responseDeps = createMockDeps({
         desktopClient,
         getSettings: vi.fn().mockReturnValue(browserSettings),
-        getLatestSettings: vi.fn().mockResolvedValue(browserSettings),
       });
       const orch = new DownloadOrchestrator(responseDeps);
 
@@ -286,9 +282,8 @@ describe('DownloadOrchestrator', () => {
       expect((routedCall![0] as { context: Record<string, unknown> }).context).toEqual(
         expect.objectContaining({
           hasCookie: false,
-          hasUserAgent: true,
           headerCount: 1,
-          matchedHeaderContext: true,
+          headerMatchReason: 'matched',
         }),
       );
       expect(JSON.stringify(routedCall![0])).not.toContain('SensitiveBrowser');
@@ -318,10 +313,7 @@ describe('DownloadOrchestrator', () => {
       expect(routedCall).toBeDefined();
       expect((routedCall![0] as { context: Record<string, unknown> }).context).toEqual(
         expect.objectContaining({
-          requestHeadersEnabled: true,
-          matchedHeaderContext: false,
           headerMatchReason: 'expired',
-          hasUserAgent: false,
           headerCount: 0,
         }),
       );

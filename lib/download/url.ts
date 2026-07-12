@@ -84,6 +84,16 @@ export function extractFilenameFromContentDisposition(header: string): string | 
   return parseContentDispositionHeader(header)?.filename ?? null;
 }
 
+/** Cookies can only be collected for network schemes. */
+export function isCookieCollectableUrl(url: string): boolean {
+  try {
+    const protocol = new URL(url).protocol;
+    return protocol === 'http:' || protocol === 'https:' || protocol === 'ftp:';
+  } catch {
+    return false;
+  }
+}
+
 export function parseContentDispositionHeader(header: string): ParsedContentDisposition | null {
   try {
     const { type, parameters } = contentDisposition.parse(header);

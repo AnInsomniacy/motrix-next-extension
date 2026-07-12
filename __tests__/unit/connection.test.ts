@@ -1,138 +1,84 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ConnectionService, ConnectionStatus } from '@/lib/services/connection';
-import { ApiAuthError, ApiTimeoutError, ApiUnreachableError } from '@/shared/errors';
-
-import type { PingResponse, StatResponse } from '@/lib/api/desktop-client';
-
-/** Minimal shape that ConnectionService's constructor requires. */
-interface MockApiClient {
-  ping: () => Promise<PingResponse>;
-  getStat: () => Promise<StatResponse>;
-}
+import {
+  checkConnection,
+  ApiAuthError,
+  ApiTimeoutError,
+  ApiUnreachableError,
+  type PingResponse,
+  type StatResponse,
+} from '@/lib/api';
 
 /** Helper: build a mock client with both ping and getStat. */
 function mockClient(overrides: {
-  ping?: ReturnType<typeof vi.fn>;
-  getStat?: ReturnType<typeof vi.fn>;
-}): MockApiClient {
+  ping?: () => Promise<PingResponse>;
+  getStat?: () => Promise<StatResponse>;
+}) {
   return {
     ping:
-      (overrides.ping as MockApiClient['ping'] | undefined) ??
+      overrides.ping ??
       vi.fn<() => Promise<PingResponse>>().mockResolvedValue({ status: 'ok', version: '3.7.3' }),
     getStat:
-      (overrides.getStat as MockApiClient['getStat'] | undefined) ??
+      overrides.getStat ??
       vi
         .fn<() => Promise<StatResponse>>()
         .mockResolvedValue({ downloadSpeed: '0' } as StatResponse),
   };
 }
 
-describe('ConnectionService', () => {
-  describe('checkConnection', () => {
-    it('returns connected when both ping and getStat succeed', async () => {
-      const client = mockClient({});
-      const service = new ConnectionService(client);
+describe('checkConnection', () => {
+  it('returns connected when both ping and getStat succeed', async () => {
+    const result = await checkConnection(mockClient({}));
 
-      const result = await service.checkConnection();
+    expect(result.status).toBe('connected');
+    expect(result.version).toBe('3.7.3');
+    expect(result.error).toBeUndefined();
+  });
 
-      expect(result.status).toBe(ConnectionStatus.Connected);
-      expect(result.version).toBe('3.7.3');
-      expect(result.error).toBeUndefined();
-    });
+  it('returns unreachable when ping fails', async () => {
+    const result = await checkConnection(
+      mockClient({ ping: vi.fn().mockRejectedValue(new ApiUnreachableError()) }),
+    );
 
-    it('returns disconnected when ping fails (unreachable)', async () => {
-      const err = new TypeError('Failed to fetch');
-      const client = mockClient({ ping: vi.fn().mockRejectedValue(err) });
-      const service = new ConnectionService(client);
+    expect(result.status).toBe('disconnected');
+    expect(result.version).toBeNull();
+    expect(result.error).toBe('ApiUnreachableError');
+  });
 
-      const result = await service.checkConnection();
+  it('returns auth error with ping version when getStat rejects with 401', async () => {
+    const result = await checkConnection(
+      mockClient({ getStat: vi.fn().mockRejectedValue(new ApiAuthError()) }),
+    );
 
-      expect(result.status).toBe(ConnectionStatus.Disconnected);
-      expect(result.version).toBeNull();
-      expect(result.error).toBe('ApiUnreachableError');
-    });
+    expect(result.status).toBe('disconnected');
+    expect(result.version).toBe('3.7.3'); // version from ping survives auth failure
+    expect(result.error).toBe('ApiAuthError');
+  });
 
-    it('returns auth error when ping succeeds but getStat returns 401', async () => {
-      const client = mockClient({
-        getStat: vi.fn().mockRejectedValue(new Error('Get stat failed: HTTP 401')),
-      });
-      const service = new ConnectionService(client);
+  it('returns timeout error', async () => {
+    const result = await checkConnection(
+      mockClient({ ping: vi.fn().mockRejectedValue(new ApiTimeoutError(5000)) }),
+    );
 
-      const result = await service.checkConnection();
+    expect(result.status).toBe('disconnected');
+    expect(result.error).toBe('ApiTimeoutError');
+  });
 
-      expect(result.status).toBe(ConnectionStatus.Disconnected);
-      expect(result.version).toBe('3.7.3'); // version from ping
-      expect(result.error).toBe('ApiAuthError');
-    });
+  it('hides the version when getStat fails with a non-auth error', async () => {
+    const result = await checkConnection(
+      mockClient({ getStat: vi.fn().mockRejectedValue(new ApiUnreachableError()) }),
+    );
 
-    it('classifies shared API auth errors without relying on message text', async () => {
-      const client = mockClient({
-        getStat: vi.fn().mockRejectedValue(new ApiAuthError()),
-      });
-      const service = new ConnectionService(client);
+    expect(result.status).toBe('disconnected');
+    expect(result.version).toBeNull();
+    expect(result.error).toBe('ApiUnreachableError');
+  });
 
-      const result = await service.checkConnection();
+  it('handles non-Error thrown values', async () => {
+    const result = await checkConnection(
+      mockClient({ ping: vi.fn().mockRejectedValue('string error') }),
+    );
 
-      expect(result.status).toBe(ConnectionStatus.Disconnected);
-      expect(result.version).toBe('3.7.3');
-      expect(result.error).toBe('ApiAuthError');
-    });
-
-    it('returns timeout error on AbortError', async () => {
-      const err = new Error('timeout');
-      err.name = 'AbortError';
-      const client = mockClient({ ping: vi.fn().mockRejectedValue(err) });
-      const service = new ConnectionService(client);
-
-      const result = await service.checkConnection();
-
-      expect(result.status).toBe(ConnectionStatus.Disconnected);
-      expect(result.error).toBe('ApiTimeoutError');
-    });
-
-    it('classifies shared API timeout errors', async () => {
-      const client = mockClient({ ping: vi.fn().mockRejectedValue(new ApiTimeoutError(5000)) });
-      const service = new ConnectionService(client);
-
-      const result = await service.checkConnection();
-
-      expect(result.status).toBe(ConnectionStatus.Disconnected);
-      expect(result.error).toBe('ApiTimeoutError');
-    });
-
-    it('handles non-Error thrown values', async () => {
-      const client = mockClient({ ping: vi.fn().mockRejectedValue('string error') });
-      const service = new ConnectionService(client);
-
-      const result = await service.checkConnection();
-
-      expect(result.status).toBe(ConnectionStatus.Disconnected);
-      expect(result.error).toBe('UnknownError');
-    });
-
-    it('returns unreachable when getStat fails with network error', async () => {
-      const client = mockClient({
-        getStat: vi.fn().mockRejectedValue(new TypeError('Failed to fetch')),
-      });
-      const service = new ConnectionService(client);
-
-      const result = await service.checkConnection();
-
-      expect(result.status).toBe(ConnectionStatus.Disconnected);
-      expect(result.version).toBeNull();
-      expect(result.error).toBe('ApiUnreachableError');
-    });
-
-    it('classifies shared API unreachable errors', async () => {
-      const client = mockClient({
-        ping: vi.fn().mockRejectedValue(new ApiUnreachableError(new Error('ECONNREFUSED'))),
-      });
-      const service = new ConnectionService(client);
-
-      const result = await service.checkConnection();
-
-      expect(result.status).toBe(ConnectionStatus.Disconnected);
-      expect(result.error).toBe('ApiUnreachableError');
-    });
+    expect(result.status).toBe('disconnected');
+    expect(result.error).toBe('UnknownError');
   });
 });

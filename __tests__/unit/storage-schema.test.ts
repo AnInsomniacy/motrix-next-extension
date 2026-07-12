@@ -4,8 +4,8 @@ import {
   parseDownloadSettings,
   parseSiteRules,
   parseUiPrefs,
-  parseStorage,
-} from '@/lib/storage/schema';
+  parseSnapshot,
+} from '@/lib/schema';
 
 // ─── ConnectionConfig Schema ────────────────────────────
 
@@ -339,9 +339,9 @@ describe('parseUiPrefs', () => {
 
 // ─── Full Storage Schema ────────────────────────────────
 
-describe('parseStorage', () => {
+describe('parseSnapshot', () => {
   it('returns fully defaulted storage for empty object', () => {
-    const result = parseStorage({});
+    const result = parseSnapshot({});
     expect(result.connection).toEqual({ port: 29110, secret: '' });
     expect(result.settings).toEqual({
       enabled: true,
@@ -377,13 +377,13 @@ describe('parseStorage', () => {
   });
 
   it('returns fully defaulted storage for null input', () => {
-    const result = parseStorage(null);
+    const result = parseSnapshot(null);
     expect(result.connection.port).toBe(29110);
     expect(result.settings.enabled).toBe(true);
   });
 
   it('correctly parses a partial storage object', () => {
-    const result = parseStorage({
+    const result = parseSnapshot({
       connection: { port: 9000 },
       settings: { enabled: false },
     });
@@ -421,7 +421,7 @@ describe('parseStorage', () => {
   });
 
   it('strips unknown fields without discarding valid stored values', () => {
-    const result = parseStorage({
+    const result = parseSnapshot({
       connection: { port: 16802, secret: 'token', extra: true },
       settings: {
         enabled: false,
@@ -473,7 +473,7 @@ describe('parseStorage', () => {
   });
 
   it('survives completely corrupt data gracefully', () => {
-    const result = parseStorage({
+    const result = parseSnapshot({
       connection: 'garbage',
       settings: 12345,
       siteRules: 'not-an-array',

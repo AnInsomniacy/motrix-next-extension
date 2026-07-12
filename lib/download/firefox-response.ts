@@ -1,6 +1,6 @@
 import type { DownloadCandidate } from './orchestrator';
 import { normalizeFilename, type FilenameMetadata } from './filename-metadata';
-import { parseContentDispositionHeader } from '@/shared/url';
+import { parseContentDispositionHeader } from './url';
 
 export interface FirefoxResponseHeader {
   name?: string;

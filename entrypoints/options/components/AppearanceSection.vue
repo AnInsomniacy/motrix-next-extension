@@ -11,7 +11,7 @@
  */
 import { NRadioGroup, NRadioButton, NFormItem, NIcon, NTooltip } from 'naive-ui';
 import { SunnyOutline, MoonOutline, DesktopOutline } from '@vicons/ionicons5';
-import { COLOR_SCHEMES } from '@/shared/color-schemes';
+import { COLOR_SCHEMES } from '@/shared/theme';
 
 defineProps<{
   theme: string;

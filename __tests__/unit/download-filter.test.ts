@@ -2,16 +2,15 @@ import { describe, it, expect } from 'vitest';
 import {
   evaluateFilterPipeline,
   createFilterPipeline,
-  EnabledStage,
-  SelfTriggerStage,
-  SchemeStage,
-  SiteRuleStage,
-  MimeTypeStage,
-  InterceptionScopeStage,
-  MinimumFileSizeStage,
-  FileExtensionRuleStage,
+  type FilterContext,
+  type FilterStage,
 } from '@/lib/download/filter';
-import type { FilterContext, DownloadSettings, SiteRule } from '@/shared/types';
+import type { DownloadSettings, SiteRule } from '@/lib/schema';
+
+/** Look up a single stage from the assembled pipeline by name. */
+function stageByName(name: string, getRules: () => SiteRule[] = () => []): FilterStage {
+  return createFilterPipeline(getRules).find((stage) => stage.name === name)!;
+}
 
 // ─── Fixtures ───────────────────────────────────────────
 
@@ -60,7 +59,7 @@ function createContext(overrides?: Partial<FilterContext>): FilterContext {
 // ─── Enabled Stage ──────────────────────────────────────
 
 describe('EnabledStage', () => {
-  const stage = new EnabledStage();
+  const stage = stageByName('enabled');
 
   it('returns skip when extension is disabled', () => {
     const result = stage.evaluate(createContext(), { ...DEFAULT_SETTINGS, enabled: false });
@@ -76,7 +75,7 @@ describe('EnabledStage', () => {
 // ─── Self-Trigger Stage ─────────────────────────────────
 
 describe('SelfTriggerStage', () => {
-  const stage = new SelfTriggerStage();
+  const stage = stageByName('self-trigger');
 
   it('returns skip when download was triggered by this extension', () => {
     const ctx = createContext({ byExtensionId: 'some-extension-id' });
@@ -94,7 +93,7 @@ describe('SelfTriggerStage', () => {
 // ─── Scheme Stage ───────────────────────────────────────
 
 describe('SchemeStage', () => {
-  const stage = new SchemeStage();
+  const stage = stageByName('scheme');
 
   it('returns null for http URLs', () => {
     const ctx = createContext({ url: 'http://example.com/file.zip' });
@@ -130,7 +129,7 @@ describe('SchemeStage', () => {
 // ─── Interception Scope Stage ───────────────────────────
 
 describe('InterceptionScopeStage', () => {
-  const stage = new InterceptionScopeStage();
+  const stage = stageByName('interception-scope');
 
   it('skips browser downloads when browser download interception is disabled', () => {
     const result = stage.evaluate(createContext(), {
@@ -150,7 +149,7 @@ describe('InterceptionScopeStage', () => {
 describe('SiteRuleStage', () => {
   it('returns null when no rules match', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'other.com', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
     const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBeNull();
@@ -158,7 +157,7 @@ describe('SiteRuleStage', () => {
 
   it('returns intercept when matching rule says always-intercept', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-intercept' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
     const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBe('intercept');
@@ -166,7 +165,7 @@ describe('SiteRuleStage', () => {
 
   it('returns skip when matching rule says always-skip', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
     const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBe('skip');
@@ -174,7 +173,7 @@ describe('SiteRuleStage', () => {
 
   it('returns null when matching rule says use-global', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'use-global' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
     const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBeNull();
@@ -182,7 +181,7 @@ describe('SiteRuleStage', () => {
 
   it('matches subdomain patterns', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '*.github.com', action: 'always-intercept' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://objects.github.com/download' });
     const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBe('intercept');
@@ -190,7 +189,7 @@ describe('SiteRuleStage', () => {
 
   it('does not match unrelated domains for wildcard pattern', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '*.github.com', action: 'always-intercept' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://example.com/page' });
     const result = stage.evaluate(ctx, DEFAULT_SETTINGS);
     expect(result).toBeNull();
@@ -200,35 +199,35 @@ describe('SiteRuleStage', () => {
 
   it('matches mid-domain wildcard (*.lanzou*.com)', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '*.lanzou*.com', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://www.lanzoux.com/download' });
     expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
   });
 
   it('does not match unrelated domain against mid-domain wildcard', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '*.lanzou*.com', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://developer2.lanrar.com/file' });
     expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
   });
 
   it('matches private IP range pattern (192.168.*.*)', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '192.168.*.*', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://192.168.1.100/files' });
     expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
   });
 
   it('does not match public IP against private IP pattern', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '192.168.*.*', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://10.0.0.1/files' });
     expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
   });
 
   it('matches 10.* intranet range', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '10.*.*.*', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({ tabUrl: 'https://10.0.0.1/nas' });
     expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
   });
@@ -237,7 +236,7 @@ describe('SiteRuleStage', () => {
 
   it('matches rule against download finalUrl when tabUrl does not match', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '*.webgetstore.com', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({
       tabUrl: 'https://developer2.lanrar.com/page',
       url: 'https://developer2.lanrar.com/file/abc',
@@ -250,7 +249,7 @@ describe('SiteRuleStage', () => {
     const rules: SiteRule[] = [
       { id: '1', pattern: '*.cdn.example.com', action: 'always-intercept' },
     ];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({
       tabUrl: 'https://example.com/page',
       url: 'https://files.cdn.example.com/big.zip',
@@ -263,7 +262,7 @@ describe('SiteRuleStage', () => {
     const rules: SiteRule[] = [
       { id: '1', pattern: 'trusted-site.com', action: 'always-intercept' },
     ];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({
       tabUrl: 'https://trusted-site.com/page',
       url: 'https://cdn.other.com/file.zip',
@@ -274,7 +273,7 @@ describe('SiteRuleStage', () => {
 
   it('deduplicates hostnames when tabUrl and url share same host', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: 'example.com', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({
       tabUrl: 'https://example.com/page',
       url: 'https://example.com/file.zip',
@@ -286,7 +285,7 @@ describe('SiteRuleStage', () => {
 
   it('returns null when no hostname matches across all three URLs', () => {
     const rules: SiteRule[] = [{ id: '1', pattern: '*.blocked.com', action: 'always-skip' }];
-    const stage = new SiteRuleStage(() => rules);
+    const stage = stageByName('site-rule', () => rules);
     const ctx = createContext({
       tabUrl: 'https://pagehost.com/page',
       url: 'https://downloadhost.com/file.zip',
@@ -299,7 +298,7 @@ describe('SiteRuleStage', () => {
 // ─── MIME Type Stage ────────────────────────────────────
 
 describe('MimeTypeStage', () => {
-  const stage = new MimeTypeStage();
+  const stage = stageByName('mime-type');
 
   it('returns skip for text/html', () => {
     const ctx = createContext({ mimeType: 'text/html' });
@@ -355,7 +354,7 @@ describe('MimeTypeStage', () => {
 // ─── Minimum File Size Stage ────────────────────────────
 
 describe('MinimumFileSizeStage', () => {
-  const stage = new MinimumFileSizeStage();
+  const stage = stageByName('minimum-file-size');
   const enabledSettings: DownloadSettings = {
     ...DEFAULT_SETTINGS,
     minimumFileSize: {
@@ -441,7 +440,7 @@ describe('MinimumFileSizeStage', () => {
 // ─── File Extension Rule Stage ──────────────────────────
 
 describe('FileExtensionRuleStage', () => {
-  const stage = new FileExtensionRuleStage();
+  const stage = stageByName('file-extension-rule');
   const enabledSettings: DownloadSettings = {
     ...DEFAULT_SETTINGS,
     fileExtensionRule: {

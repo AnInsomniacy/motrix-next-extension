@@ -1,73 +1,64 @@
-import type { DownloadSettings, SiteRule, FilterContext } from '@/shared/types';
-import type { DiagnosticInput } from '@/lib/storage/diagnostic-log';
-import { evaluateFilterPipeline, createFilterPipeline } from './filter';
-import { decodeMimeEncodedWords, extractFilenameFromUrl } from '@/shared/url';
+/**
+ * Central download interception orchestrator.
+ *
+ * Automatic flow (browser download / Firefox response):
+ *   filter → duplicate guard → unavailable policy → cancel browser download
+ *   when intercepting → activate desktop if required → submit over HTTP.
+ *   Automatic downloads never fall back to the deep-link protocol — they
+ *   either reach the desktop app or stay in / return to the browser.
+ *
+ * Explicit flow (context menu, protocol links):
+ *   submit over HTTP → wake and retry → deep-link protocol.
+ */
+import type { DownloadSettings, SiteRule } from '@/lib/schema';
+import type { DiagnosticInput } from '@/lib/diagnostics';
+import { ApiAuthError, type DesktopApiClient } from '@/lib/api';
+import { createFilterPipeline, evaluateFilterPipeline, type FilterContext } from './filter';
+import { decodeMimeEncodedWords, extractFilenameFromUrl, isCookieCollectableUrl } from './url';
 import {
   normalizeFilename,
   UNRESOLVED_FILENAME,
   type FilenameMetadata,
   type FilenameSource,
 } from './filename-metadata';
-import type { DesktopApiClient } from '@/lib/api/desktop-client';
-import { ApiAuthError } from '@/shared/errors';
-import { isCookieCollectableUrl } from '@/lib/services/magnet-interception';
 import type { RequestHeaderContext, RequestHeaderMatchReason } from './request-context';
 import type {
   DuplicateDownloadGuard,
-  DuplicateDownloadReservation,
   DuplicateDownloadInput,
+  DuplicateDownloadReservation,
 } from './duplicate-guard';
-import { AutomaticDownloadHandoff } from './automatic-handoff';
 
-// ─── Dependency Interface ───────────────────────────────
+// ─── Types ──────────────────────────────────────────────
 
-/**
- * Minimal dependency interface for the download orchestrator.
- *
- * Automatic browser downloads either remain entirely in the browser or are
- * cancelled before routing to the desktop app. Explicit user commands may use
- * the protocol deep-link when the API is unavailable.
- */
 export interface OrchestratorDeps {
   downloads: {
     cancel: (id: number) => Promise<void>;
     erase: (query: { id: number }) => Promise<void>;
   };
-  /** Optional browser cookies API for forwarding auth cookies to the desktop app. */
+  /** Optional cookies API for forwarding auth cookies to the desktop app. */
   cookies?: {
     getAll: (details: { url: string }) => Promise<Array<{ name: string; value: string }>>;
   };
-  diagnosticLog: {
-    append: (event: DiagnosticInput) => void;
-  };
+  diagnosticLog: { append: (event: DiagnosticInput) => void };
   getSettings: () => DownloadSettings;
-  getLatestSettings: () => Promise<DownloadSettings>;
   getSiteRules: () => SiteRule[];
   filenameMetadata?: {
     resolve: (item: DownloadItem) => Promise<FilenameMetadata | undefined>;
   };
   duplicateGuard?: DuplicateDownloadGuard;
-  /**
-   * HTTP API client for direct communication with the desktop app.
-   * When available and reachable, this is the primary download submission path.
-   */
+  /** Primary submission path when reachable. */
   desktopClient?: DesktopApiClient;
   /**
-   * Wake the desktop app via protocol handler and wait for the HTTP API
-   * to become reachable. Returns true if the app woke up successfully.
-   * Automatic downloads use the configured startup timeout. Explicit commands
-   * may continue to the raw deep-link when the wait expires.
+   * Wake the desktop app via protocol handler and wait for its HTTP API.
+   * Returns true when the app became reachable within the timeout.
    */
   wakeDesktop?: (timeoutMs: number) => Promise<boolean>;
-  /**
-   * Fallback: route a URL to the desktop app via `motrixnext://new?url=...`
-   * deep link. Used only when both HTTP API and wake+retry fail.
-   */
+  /** Last-resort deep link (`motrixnext://new?url=...`) for explicit commands. */
   openProtocolNewTask?: (url: string, referer: string, filename?: string) => Promise<void>;
   onDuplicateBlocked?: () => void;
 }
 
-/** Download data shared by browser download and Firefox response interception. */
+/** Download data shared by browser downloads and Firefox response interception. */
 export interface DownloadCandidate {
   url: string;
   finalUrl: string;
@@ -87,17 +78,37 @@ export interface DownloadItem extends DownloadCandidate {
   state: string;
 }
 
-const GENERIC_FILENAME_HINTS = new Set(['download', UNRESOLVED_FILENAME]);
-type FilenameHintSource = FilenameSource | 'download-item' | 'url';
-type HeaderMatchSource = 'finalUrl' | 'url';
-
 export interface RequestHeaderDiagnostics {
   enabled: boolean;
   matched: boolean;
   reason: RequestHeaderMatchReason | 'disabled';
-  source?: HeaderMatchSource;
-  ageMs?: number;
+  source?: 'finalUrl' | 'url';
 }
+
+/** Everything needed to submit one download to the desktop app. */
+interface DownloadJob {
+  url: string;
+  finalUrl?: string;
+  referer: string;
+  cookie: { value: string; source: string };
+  displayName: string;
+  filenameHint?: string;
+  filenameSource: string;
+  headerContext?: RequestHeaderContext;
+  headerDiagnostics?: RequestHeaderDiagnostics;
+}
+
+interface SendOptions {
+  allowWake: boolean;
+  allowProtocol: boolean;
+}
+
+// ─── Filename Heuristics ────────────────────────────────
+// These guards encode real-world fixes: browsers synthesize weak names
+// ("download", numeric ids) that must not override URL/header-derived names.
+
+const GENERIC_FILENAME_HINTS = new Set(['download', UNRESOLVED_FILENAME]);
+type FilenameHintSource = FilenameSource | 'download-item' | 'url';
 
 function extensionOf(filename: string): string {
   const dot = filename.lastIndexOf('.');
@@ -112,8 +123,7 @@ function filenameStem(filename: string): string {
 
 function extractPathBasename(url: string): string {
   try {
-    const parsed = new URL(url);
-    const raw = parsed.pathname.split('/').filter(Boolean).pop() ?? '';
+    const raw = new URL(url).pathname.split('/').filter(Boolean).pop() ?? '';
     return normalizeFilename(decodeURIComponent(raw));
   } catch {
     return '';
@@ -142,12 +152,10 @@ function resolveFilenameHint(
     if (isWeakBrowserFilename(url, trimmed)) return undefined;
   }
   const urlFilename = extractFilenameFromUrl(url);
-  if (urlFilename) {
+  if (urlFilename && candidate.source !== 'content-disposition') {
     const hintExt = extensionOf(trimmed);
     const urlExt = extensionOf(urlFilename);
-    if (candidate.source !== 'content-disposition' && hintExt && urlExt && hintExt !== urlExt) {
-      return undefined;
-    }
+    if (hintExt && urlExt && hintExt !== urlExt) return undefined;
   }
   return trimmed;
 }
@@ -157,269 +165,207 @@ function resolveBestFilenameHint(
   metadata: FilenameMetadata | undefined,
   itemFilename: string,
 ): { filename?: string; source: string } {
-  const candidates: Array<{ filename: string; source: FilenameHintSource }> = [];
-  if (metadata) candidates.push(metadata);
-  candidates.push({ filename: itemFilename, source: 'download-item' });
-
+  const candidates: Array<{ filename: string; source: FilenameHintSource }> = [
+    ...(metadata ? [metadata] : []),
+    { filename: itemFilename, source: 'download-item' as const },
+  ];
   for (const candidate of candidates) {
     const filename = resolveFilenameHint(url, candidate);
     if (filename) return { filename, source: candidate.source };
   }
-
   return { source: 'none' };
 }
 
 // ─── Orchestrator ───────────────────────────────────────
 
-/**
- * Central download interception orchestrator.
- *
- * Automatic flow:
- *   filter → resolve unavailable policy → cancel browser download when
- *   intercepting → activate desktop if required → submit to desktop
- *
- * Explicit flow:
- *   submit through HTTP → wake and retry → protocol deep-link
- */
-export class DownloadOrchestrator {
-  private readonly deps: OrchestratorDeps;
-  private readonly filterStages;
-  private readonly automaticHandoff: AutomaticDownloadHandoff;
+const BROWSER_FALLBACK_TTL_MS = 30_000;
 
-  constructor(deps: OrchestratorDeps) {
-    this.deps = deps;
+export class DownloadOrchestrator {
+  private readonly filterStages;
+  /** Firefox responses kept in the browser; their onCreated echo must pass through. */
+  private readonly browserFallbacks = new Map<string, number>();
+
+  constructor(private readonly deps: OrchestratorDeps) {
     this.filterStages = createFilterPipeline(() => deps.getSiteRules());
-    this.automaticHandoff = new AutomaticDownloadHandoff(deps);
   }
 
   /**
-   * Handle a download interception event.
+   * Handle a `downloads.onCreated` event.
    *
-   * Called from `onCreated` — fires for every new download item.
-   *
-   * @returns `true` if the download was intercepted (cancel called),
-   *          `false` if the browser should continue normally.
+   * @returns true if the download was intercepted (cancelled in the browser).
    */
   async handleCreated(item: DownloadItem): Promise<boolean> {
-    // ─── State guard ────────────────────────────
-    // Chrome may replay `onCreated` for interrupted or completed downloads
-    // after system reboots or Service Worker restarts. Only genuinely new
-    // downloads have state === 'in_progress'. Stale items (complete,
-    // interrupted) must be ignored to prevent historical download floods (#267).
+    // Chrome replays onCreated for interrupted/completed downloads after
+    // reboots or Service Worker restarts. Only genuinely new downloads are
+    // in_progress; stale items must be ignored to prevent historical
+    // download floods (#267).
     if (item.state !== 'in_progress') {
-      this.deps.diagnosticLog.append({
-        level: 'info',
-        code: 'download_skipped',
-        message: `Skipped stale download (state=${item.state}): ${item.url}`,
-        context: {
-          url: item.url,
-          state: item.state,
-          stage: 'state-guard',
-        },
+      this.log('download_skipped', `Skipped stale download (state=${item.state}): ${item.url}`, {
+        url: item.url,
+        state: item.state,
+        stage: 'state-guard',
       });
       return false;
     }
 
-    if (this.automaticHandoff.consumeBrowserFallback(item)) {
-      this.deps.diagnosticLog.append({
-        level: 'info',
-        code: 'download_skipped',
-        message: `Continuing Firefox response in browser: ${item.url}`,
-        context: { url: item.url, stage: 'firefox-response-fallback' },
+    if (this.consumeBrowserFallback(item)) {
+      this.log('download_skipped', `Continuing Firefox response in browser: ${item.url}`, {
+        url: item.url,
+        stage: 'firefox-response-fallback',
       });
       return false;
     }
 
     const filterResult = this.evaluateCandidate(item);
     if (!filterResult) return false;
-    const { tabUrl, stageName } = filterResult;
-
+    const { tabUrl } = filterResult;
     const effectiveUrl = item.finalUrl || item.url;
 
-    const duplicateDecision = this.reserveDuplicateDownload({
-      url: item.url,
-      finalUrl: item.finalUrl,
-      filename: item.filename,
-      fileSize: item.fileSize,
-      totalBytes: item.totalBytes,
-      mime: item.mime,
-    });
-    if (duplicateDecision.blocked) {
+    const duplicate = this.reserveDuplicate(item);
+    if (duplicate.blocked) {
       await this.safeCancel(item.id);
-      this.deps.diagnosticLog.append({
-        level: 'info',
-        code: 'download_duplicate_blocked',
-        message: `Duplicate download blocked: ${effectiveUrl}`,
-        context: {
-          url: effectiveUrl,
-          fileSize: item.fileSize,
-          totalBytes: item.totalBytes,
-          mime: item.mime,
-          tabUrl,
-          shouldNotify: duplicateDecision.shouldNotify,
-        },
-      });
-      if (duplicateDecision.shouldNotify) this.deps.onDuplicateBlocked?.();
+      this.reportDuplicate(effectiveUrl, duplicate.shouldNotify, { tabUrl });
       return true;
     }
 
-    const settings = await this.automaticHandoff.resolveSettings(effectiveUrl);
+    const settings = this.deps.getSettings();
     if (settings.desktopUnavailable.action === 'browser') {
-      if (!(await this.automaticHandoff.isDesktopReachable())) {
-        this.deps.duplicateGuard?.release(duplicateDecision.reservation);
-        this.deps.diagnosticLog.append({
-          level: 'info',
-          code: 'download_fallback',
-          message: `Continuing in browser because Motrix Next is unavailable: ${effectiveUrl}`,
-          context: { url: effectiveUrl, target: 'browser' },
-        });
+      if (!(await this.isDesktopReachable())) {
+        this.deps.duplicateGuard?.release(duplicate.reservation);
+        this.log(
+          'download_fallback',
+          `Continuing in browser because Motrix Next is unavailable: ${effectiveUrl}`,
+          { url: effectiveUrl, target: 'browser' },
+        );
         return false;
       }
       await this.safeCancel(item.id);
     } else {
       await this.safeCancel(item.id);
-      if (!(await this.automaticHandoff.activateDesktop(effectiveUrl, settings))) {
-        this.deps.duplicateGuard?.release(duplicateDecision.reservation);
+      if (!(await this.activateDesktop(effectiveUrl, settings))) {
+        this.deps.duplicateGuard?.release(duplicate.reservation);
         return true;
       }
     }
 
-    // ─── Route to desktop app ───────────────────
-    const metadata = await this.resolveFilenameMetadata(item);
-    const resolvedFilename = resolveBestFilenameHint(effectiveUrl, metadata, item.filename);
-    const filenameHint = resolvedFilename.filename;
-    const filenameSource = resolvedFilename.source;
-    const displayName = filenameHint || extractFilenameFromUrl(effectiveUrl) || UNRESOLVED_FILENAME;
-    const cookieResult = await this.resolveCookieHeader(effectiveUrl, item.requestHeaderContext);
-
-    const routed = await this.sendToDesktop(
-      effectiveUrl,
-      effectiveUrl,
-      tabUrl,
-      cookieResult.value,
-      cookieResult.source,
-      displayName,
-      filenameHint,
-      filenameSource,
-      item.requestHeaderContext,
-      item.requestHeaderDiagnostics,
-      { allowWake: false, allowProtocol: false },
-    );
+    const job = await this.buildJob(item, await this.resolveFilenameMetadata(item), tabUrl);
+    const routed = await this.sendToDesktop(job, { allowWake: false, allowProtocol: false });
     if (!routed) {
-      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
-      this.deps.diagnosticLog.append({
-        level: 'warn',
-        code: 'download_failed',
-        message: `Discarded after desktop routing failed: ${displayName}`,
-        context: { url: effectiveUrl, target: 'discard' },
+      this.deps.duplicateGuard?.release(duplicate.reservation);
+      this.log('download_failed', `Discarded after desktop routing failed: ${job.displayName}`, {
+        url: effectiveUrl,
+        target: 'discard',
       });
       return true;
     }
 
-    this.deps.duplicateGuard?.commit(duplicateDecision.reservation);
-    this.deps.diagnosticLog.append({
-      level: 'info',
-      code: 'download_intercepted',
-      message: `Intercepted: ${item.url}`,
-      context: {
-        url: item.url,
-        fileSize: item.fileSize,
-        totalBytes: item.totalBytes,
-        mime: item.mime,
-        tabUrl,
-        ...(item.filename ? { filename: item.filename } : {}),
-        ...(item.byExtensionId ? { byExtensionId: item.byExtensionId } : {}),
-        ...(stageName ? { stage: stageName } : {}),
-      },
-    });
+    this.deps.duplicateGuard?.commit(duplicate.reservation);
+    this.logIntercepted(item, tabUrl, filterResult.stageName);
     return true;
   }
 
   /**
-   * Route a Firefox attachment response before Firefox opens its save dialog.
-   * Browser mode keeps the response when desktop routing is unavailable.
-   * Launch mode cancels it when startup or routing fails.
+   * Route a Firefox attachment response before the save dialog opens.
+   * Browser mode keeps the response when desktop routing is unavailable;
+   * launch mode cancels it when startup or routing fails.
+   *
+   * @returns true if the response should be cancelled.
    */
   async handleResponse(item: DownloadCandidate, metadata?: FilenameMetadata): Promise<boolean> {
     const filterResult = this.evaluateCandidate(item);
     if (!filterResult) return false;
     const { tabUrl } = filterResult;
-
     const effectiveUrl = item.finalUrl || item.url;
-    const settings = await this.automaticHandoff.resolveSettings(effectiveUrl);
+
+    const settings = this.deps.getSettings();
     if (settings.desktopUnavailable.action === 'browser') {
-      if (!(await this.automaticHandoff.isDesktopReachable())) {
-        this.automaticHandoff.rememberBrowserFallback(effectiveUrl);
+      if (!(await this.isDesktopReachable())) {
+        this.browserFallbacks.set(effectiveUrl, Date.now() + BROWSER_FALLBACK_TTL_MS);
         return false;
       }
-    } else if (!(await this.automaticHandoff.activateDesktop(effectiveUrl, settings))) {
+    } else if (!(await this.activateDesktop(effectiveUrl, settings))) {
       return true;
     }
 
-    const duplicateDecision = this.reserveDuplicateDownload({
-      url: item.url,
-      finalUrl: item.finalUrl,
-      filename: item.filename,
-      fileSize: item.fileSize,
-      totalBytes: item.totalBytes,
-      mime: item.mime,
-    });
-    if (duplicateDecision.blocked) {
-      this.deps.diagnosticLog.append({
-        level: 'info',
-        code: 'download_duplicate_blocked',
-        message: `Duplicate download blocked: ${effectiveUrl}`,
-        context: { url: effectiveUrl, shouldNotify: duplicateDecision.shouldNotify },
-      });
-      if (duplicateDecision.shouldNotify) this.deps.onDuplicateBlocked?.();
+    const duplicate = this.reserveDuplicate(item);
+    if (duplicate.blocked) {
+      this.reportDuplicate(effectiveUrl, duplicate.shouldNotify);
       return true;
     }
 
-    const resolvedFilename = resolveBestFilenameHint(effectiveUrl, metadata, item.filename);
-    const filenameHint = resolvedFilename.filename;
-    const displayName = filenameHint || extractFilenameFromUrl(effectiveUrl) || UNRESOLVED_FILENAME;
-    const cookieResult = await this.resolveCookieHeader(effectiveUrl, item.requestHeaderContext);
-
+    const job = await this.buildJob(item, metadata, tabUrl);
     try {
-      await this.submitToDesktopApi(
-        effectiveUrl,
-        effectiveUrl,
-        tabUrl,
-        cookieResult.value,
-        cookieResult.source,
-        displayName,
-        filenameHint,
-        resolvedFilename.source,
-        item.requestHeaderContext,
-        item.requestHeaderDiagnostics,
-      );
+      await this.submitToDesktopApi(job);
     } catch (e) {
-      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
-      this.deps.diagnosticLog.append({
-        level: e instanceof ApiAuthError ? 'error' : 'warn',
-        code: e instanceof ApiAuthError ? 'api_auth_failed' : 'download_fallback',
-        message: `Firefox response routing failed: ${e instanceof Error ? e.message : String(e)}`,
-        context: { url: effectiveUrl },
-      });
+      this.deps.duplicateGuard?.release(duplicate.reservation);
+      const auth = e instanceof ApiAuthError;
+      this.log(
+        auth ? 'api_auth_failed' : 'download_fallback',
+        `Firefox response routing failed: ${errorMessage(e)}`,
+        { url: effectiveUrl },
+        auth ? 'error' : 'warn',
+      );
       return true;
     }
 
-    this.deps.duplicateGuard?.commit(duplicateDecision.reservation);
-    this.deps.diagnosticLog.append({
-      level: 'info',
-      code: 'download_intercepted',
-      message: `Intercepted: ${item.url}`,
-      context: {
-        url: item.url,
-        fileSize: item.fileSize,
-        totalBytes: item.totalBytes,
-        mime: item.mime,
-        tabUrl,
-        ...(item.filename ? { filename: item.filename } : {}),
-      },
-    });
+    this.deps.duplicateGuard?.commit(duplicate.reservation);
+    this.logIntercepted(item, tabUrl, filterResult.stageName);
     return true;
   }
+
+  /**
+   * Send a URL to the desktop app (context menu, protocol links).
+   *
+   * @returns 'routed-to-desktop' or 'duplicate-blocked'.
+   * @throws when no routing path succeeded.
+   */
+  async sendUrl(
+    url: string,
+    tabUrl: string,
+    options: Partial<SendOptions> = {},
+  ): Promise<'routed-to-desktop' | 'duplicate-blocked'> {
+    const extracted = extractFilenameFromUrl(url) ?? '';
+    const filenameHint = extracted
+      ? resolveFilenameHint(url, { filename: extracted, source: 'url' })
+      : undefined;
+    const displayName = filenameHint || url.split('/').pop() || 'download';
+
+    const duplicate = this.reserveDuplicate({
+      url,
+      finalUrl: url,
+      filename: displayName,
+      fileSize: -1,
+      totalBytes: -1,
+      mime: '',
+    });
+    if (duplicate.blocked) {
+      this.reportDuplicate(url, duplicate.shouldNotify);
+      return 'duplicate-blocked';
+    }
+
+    const routed = await this.sendToDesktop(
+      {
+        url,
+        referer: tabUrl,
+        cookie: await this.resolveCookieHeader(url),
+        displayName,
+        filenameHint,
+        filenameSource: 'url',
+      },
+      { allowWake: options.allowWake ?? true, allowProtocol: options.allowProtocol ?? true },
+    );
+    if (!routed) {
+      this.deps.duplicateGuard?.release(duplicate.reservation);
+      throw new Error(
+        'Desktop app routing unavailable: neither HTTP API nor protocol handler provided',
+      );
+    }
+
+    this.deps.duplicateGuard?.commit(duplicate.reservation);
+    return 'routed-to-desktop';
+  }
+
+  // ─── Candidate Evaluation ─────────────────────────────
 
   private evaluateCandidate(
     item: DownloadCandidate,
@@ -442,254 +388,123 @@ export class DownloadOrchestrator {
     );
 
     if (verdict === 'skip') {
-      this.deps.diagnosticLog.append({
-        level: 'info',
-        code: 'download_skipped',
-        message: `Skipped by ${stageName ?? 'unknown'}: ${item.url}`,
-        context: {
-          url: item.url,
-          stage: stageName ?? 'unknown',
-          fileSize: item.fileSize,
-          totalBytes: item.totalBytes,
-          mime: item.mime,
-          tabUrl,
-          ...(item.byExtensionId ? { byExtensionId: item.byExtensionId } : {}),
-        },
+      this.log('download_skipped', `Skipped by ${stageName ?? 'unknown'}: ${item.url}`, {
+        url: item.url,
+        stage: stageName ?? 'unknown',
+        mime: item.mime,
+        tabUrl,
       });
       return null;
     }
-
     return { tabUrl, stageName };
   }
 
-  /**
-   * Send a URL to the desktop app (e.g. from context menu or magnet interception).
-   *
-   * @returns `'routed-to-desktop'` sentinel on success
-   * @throws when no routing path is available
-   */
-  async sendUrl(
-    url: string,
-    tabUrl: string,
-    options: { allowWake?: boolean; allowProtocol?: boolean } = {},
-  ): Promise<string> {
-    const extractedFilename = extractFilenameFromUrl(url) ?? '';
-    const filenameHint = extractedFilename
-      ? resolveFilenameHint(url, { filename: extractedFilename, source: 'url' })
-      : undefined;
-    const displayName = filenameHint || url.split('/').pop() || 'download';
-    const duplicateDecision = this.reserveDuplicateDownload({
-      url,
-      finalUrl: url,
-      filename: displayName,
-      fileSize: -1,
-      totalBytes: -1,
-      mime: '',
-    });
-    if (duplicateDecision.blocked) {
-      this.deps.diagnosticLog.append({
-        level: 'info',
-        code: 'download_duplicate_blocked',
-        message: `Duplicate download blocked: ${url}`,
-        context: { url, shouldNotify: duplicateDecision.shouldNotify },
-      });
-      if (duplicateDecision.shouldNotify) this.deps.onDuplicateBlocked?.();
-      return 'duplicate-blocked';
-    }
+  // ─── Desktop Activation ───────────────────────────────
 
-    const cookieResult = await this.resolveCookieHeader(url);
-
-    const routed = await this.sendToDesktop(
-      url,
-      undefined,
-      tabUrl,
-      cookieResult.value,
-      cookieResult.source,
-      displayName,
-      filenameHint,
-      'url',
-      undefined,
-      undefined,
-      {
-        allowWake: options.allowWake ?? true,
-        allowProtocol: options.allowProtocol ?? true,
-      },
-    );
-    if (!routed) {
-      this.deps.duplicateGuard?.release(duplicateDecision.reservation);
-      throw new Error(
-        'Desktop app routing unavailable: neither HTTP API nor protocol handler provided',
-      );
-    }
-
-    this.deps.duplicateGuard?.commit(duplicateDecision.reservation);
-    return 'routed-to-desktop';
+  private async isDesktopReachable(): Promise<boolean> {
+    return this.deps.desktopClient ? this.deps.desktopClient.isReachable() : false;
   }
 
-  // ─── Private Helpers ──────────────────────────────
+  /** Launch-mode activation: wake the app and wait for its API. */
+  private async activateDesktop(url: string, settings: DownloadSettings): Promise<boolean> {
+    if (!this.deps.wakeDesktop) return this.isDesktopReachable();
+
+    const timeoutMs = settings.desktopUnavailable.startupTimeoutSeconds * 1000;
+    this.log('download_wake_attempt', `Waking desktop app for: ${url}`, { url, timeoutMs });
+
+    try {
+      if (await this.deps.wakeDesktop(timeoutMs)) {
+        this.log('wake_success', `Desktop app woke successfully for: ${url}`, { url });
+        return true;
+      }
+      this.log('wake_timeout', `Wake timed out for: ${url}`, { url, timeoutMs }, 'warn');
+    } catch (e) {
+      this.log(
+        'download_fallback',
+        `Motrix Next could not be started: ${errorMessage(e)}`,
+        { url, target: 'discard' },
+        'warn',
+      );
+    }
+    return false;
+  }
+
+  private consumeBrowserFallback(item: { url: string; finalUrl: string }): boolean {
+    const now = Date.now();
+    for (const url of new Set([item.url, item.finalUrl].filter(Boolean))) {
+      const expiresAt = this.browserFallbacks.get(url);
+      if (expiresAt === undefined) continue;
+      this.browserFallbacks.delete(url);
+      if (expiresAt > now) return true;
+    }
+    return false;
+  }
+
+  // ─── Submission ───────────────────────────────────────
+
+  private async buildJob(
+    item: DownloadCandidate,
+    metadata: FilenameMetadata | undefined,
+    tabUrl: string,
+  ): Promise<DownloadJob> {
+    const effectiveUrl = item.finalUrl || item.url;
+    const { filename, source } = resolveBestFilenameHint(effectiveUrl, metadata, item.filename);
+    return {
+      url: effectiveUrl,
+      finalUrl: effectiveUrl,
+      referer: tabUrl,
+      cookie: await this.resolveCookieHeader(effectiveUrl, item.requestHeaderContext),
+      displayName: filename || extractFilenameFromUrl(effectiveUrl) || UNRESOLVED_FILENAME,
+      filenameHint: filename,
+      filenameSource: source,
+      headerContext: item.requestHeaderContext,
+      headerDiagnostics: item.requestHeaderDiagnostics,
+    };
+  }
 
   /**
-   * Try HTTP API first, then fall back to deep-link protocol.
-   * @returns `true` if successfully routed, `false` if all paths failed.
+   * Try the HTTP API, then wake+retry, then the deep-link protocol.
+   * @returns true if the download reached the desktop app by any path.
    */
-  private async sendToDesktop(
-    url: string,
-    finalUrl: string | undefined,
-    referer: string,
-    cookie: string,
-    cookieSource: string,
-    displayName: string,
-    filenameHint?: string,
-    filenameSource: string = 'none',
-    requestHeaderContext?: RequestHeaderContext,
-    requestHeaderDiagnostics?: RequestHeaderDiagnostics,
-    options: { allowWake: boolean; allowProtocol: boolean } = {
-      allowWake: true,
-      allowProtocol: true,
-    },
-  ): Promise<boolean> {
-    const headerLogContext = this.buildHeaderLogContext(
-      requestHeaderContext,
-      requestHeaderDiagnostics,
-    );
-
-    // Primary: HTTP API
+  private async sendToDesktop(job: DownloadJob, options: SendOptions): Promise<boolean> {
     if (this.deps.desktopClient) {
       try {
-        await this.submitToDesktopApi(
-          url,
-          finalUrl,
-          referer,
-          cookie,
-          cookieSource,
-          displayName,
-          filenameHint,
-          filenameSource,
-          requestHeaderContext,
-          requestHeaderDiagnostics,
-        );
+        await this.submitToDesktopApi(job);
         return true;
       } catch (e) {
         if (e instanceof ApiAuthError) {
-          this.deps.diagnosticLog.append({
-            level: 'error',
-            code: 'api_auth_failed',
-            message: `HTTP API authentication failed: ${e.message}`,
-            context: { url },
-          });
+          this.log(
+            'api_auth_failed',
+            `HTTP API authentication failed: ${e.message}`,
+            { url: job.url },
+            'error',
+          );
           return false;
         }
-
-        // HTTP API failed — attempt wake + retry before falling back to deep-link
-        this.deps.diagnosticLog.append({
-          level: 'warn',
-          code: 'download_fallback',
-          message: `HTTP API failed, attempting wake: ${e instanceof Error ? e.message : String(e)}`,
-          context: { url, ...headerLogContext },
-        });
-
-        // Wake → retry: try to start the desktop app and retry via HTTP
-        const settings = this.deps.getSettings();
-        if (
-          settings.desktopUnavailable.action === 'launch' &&
-          options.allowWake &&
-          this.deps.wakeDesktop &&
-          this.deps.desktopClient
-        ) {
-          this.deps.diagnosticLog.append({
-            level: 'info',
-            code: 'download_wake_attempt',
-            message: `Waking desktop app for: ${displayName}`,
-            context: { url, ...headerLogContext },
-          });
-
-          try {
-            const woke = await this.deps.wakeDesktop(
-              settings.desktopUnavailable.startupTimeoutSeconds * 1000,
-            );
-            if (woke) {
-              this.deps.diagnosticLog.append({
-                level: 'info',
-                code: 'wake_success',
-                message: `Desktop app woke successfully for: ${displayName}`,
-                context: { url, ...headerLogContext },
-              });
-
-              await this.submitToDesktopApi(
-                url,
-                finalUrl,
-                referer,
-                cookie,
-                cookieSource,
-                displayName,
-                filenameHint,
-                filenameSource,
-                requestHeaderContext,
-                requestHeaderDiagnostics,
-                true,
-              );
-              return true;
-            }
-
-            // Wake returned false — timed out
-            this.deps.diagnosticLog.append({
-              level: 'warn',
-              code: 'wake_timeout',
-              message: `Wake timed out for: ${displayName}`,
-              context: { url, ...headerLogContext },
-            });
-          } catch (wakeError) {
-            if (wakeError instanceof ApiAuthError) {
-              this.deps.diagnosticLog.append({
-                level: 'error',
-                code: 'api_auth_failed',
-                message: `HTTP API authentication failed after wake: ${wakeError.message}`,
-                context: { url },
-              });
-              return false;
-            }
-
-            // Wake or retry-after-wake failed — log and fall through to deep-link
-            this.deps.diagnosticLog.append({
-              level: 'warn',
-              code: 'download_fallback',
-              message: `Wake+retry failed, falling back to deep-link: ${wakeError instanceof Error ? wakeError.message : String(wakeError)}`,
-              context: { url, ...headerLogContext },
-            });
-          }
-        } else if (settings.desktopUnavailable.action === 'browser') {
-          this.deps.diagnosticLog.append({
-            level: 'info',
-            code: 'download_fallback',
-            message: `Browser fallback selected, skipping wake for: ${displayName}`,
-            context: { url, ...headerLogContext },
-          });
-        }
+        this.log(
+          'download_fallback',
+          `HTTP API failed, attempting wake: ${errorMessage(e)}`,
+          { url: job.url },
+          'warn',
+        );
+        const wokeAndRetried = await this.wakeAndRetry(job, options);
+        if (wokeAndRetried !== null) return wokeAndRetried;
       }
     }
 
-    // Fallback: deep-link protocol
     if (options.allowProtocol && this.deps.openProtocolNewTask) {
       const protocolFilenameHint =
-        filenameHint !== extractFilenameFromUrl(url) ? filenameHint : undefined;
+        job.filenameHint !== extractFilenameFromUrl(job.url) ? job.filenameHint : undefined;
       if (protocolFilenameHint) {
-        await this.deps.openProtocolNewTask(url, referer, protocolFilenameHint);
+        await this.deps.openProtocolNewTask(job.url, job.referer, protocolFilenameHint);
       } else {
-        await this.deps.openProtocolNewTask(url, referer);
+        await this.deps.openProtocolNewTask(job.url, job.referer);
       }
-
-      this.deps.diagnosticLog.append({
-        level: 'info',
-        code: 'download_routed',
-        message: `Routed via deep-link: ${displayName}`,
-        context: {
-          url,
-          filename: displayName,
-          filenameSource,
-          hasCookie: false,
-          cookieSource: 'none',
-          ...this.buildDeepLinkHeaderLogContext(requestHeaderDiagnostics),
-        },
+      this.log('download_routed', `Routed via deep-link: ${job.displayName}`, {
+        url: job.url,
+        filename: job.displayName,
+        filenameSource: job.filenameSource,
+        transport: 'deep-link',
       });
       return true;
     }
@@ -697,75 +512,98 @@ export class DownloadOrchestrator {
     return false;
   }
 
-  private async submitToDesktopApi(
-    url: string,
-    finalUrl: string | undefined,
-    referer: string,
-    cookie: string,
-    cookieSource: string,
-    displayName: string,
-    filenameHint?: string,
-    filenameSource: string = 'none',
-    requestHeaderContext?: RequestHeaderContext,
-    requestHeaderDiagnostics?: RequestHeaderDiagnostics,
-    afterWake = false,
-  ): Promise<void> {
+  /**
+   * Wake the desktop app and retry the HTTP submission.
+   * @returns true/false when the attempt concluded the flow, null to
+   *          continue to the deep-link fallback.
+   */
+  private async wakeAndRetry(job: DownloadJob, options: SendOptions): Promise<boolean | null> {
+    const settings = this.deps.getSettings();
+    if (
+      settings.desktopUnavailable.action !== 'launch' ||
+      !options.allowWake ||
+      !this.deps.wakeDesktop
+    ) {
+      return null;
+    }
+
+    this.log('download_wake_attempt', `Waking desktop app for: ${job.displayName}`, {
+      url: job.url,
+    });
+    try {
+      const woke = await this.deps.wakeDesktop(
+        settings.desktopUnavailable.startupTimeoutSeconds * 1000,
+      );
+      if (!woke) {
+        this.log(
+          'wake_timeout',
+          `Wake timed out for: ${job.displayName}`,
+          { url: job.url },
+          'warn',
+        );
+        return null;
+      }
+      this.log('wake_success', `Desktop app woke successfully for: ${job.displayName}`, {
+        url: job.url,
+      });
+      await this.submitToDesktopApi(job, true);
+      return true;
+    } catch (e) {
+      if (e instanceof ApiAuthError) {
+        this.log(
+          'api_auth_failed',
+          `HTTP API authentication failed after wake: ${e.message}`,
+          { url: job.url },
+          'error',
+        );
+        return false;
+      }
+      this.log(
+        'download_fallback',
+        `Wake+retry failed, falling back to deep-link: ${errorMessage(e)}`,
+        { url: job.url },
+        'warn',
+      );
+      return null;
+    }
+  }
+
+  private async submitToDesktopApi(job: DownloadJob, afterWake = false): Promise<void> {
     if (!this.deps.desktopClient) throw new Error('Desktop API unavailable');
 
     const response = await this.deps.desktopClient.addDownload({
-      url,
-      finalUrl: finalUrl || undefined,
-      referer: referer || undefined,
-      cookie: cookie || undefined,
-      ...(filenameHint ? { filename: filenameHint } : {}),
-      ...(requestHeaderContext?.userAgent ? { userAgent: requestHeaderContext.userAgent } : {}),
-      ...(requestHeaderContext?.requestHeaders.length
-        ? { requestHeaders: requestHeaderContext.requestHeaders }
+      url: job.url,
+      finalUrl: job.finalUrl || undefined,
+      referer: job.referer || undefined,
+      cookie: job.cookie.value || undefined,
+      ...(job.filenameHint ? { filename: job.filenameHint } : {}),
+      ...(job.headerContext?.userAgent ? { userAgent: job.headerContext.userAgent } : {}),
+      ...(job.headerContext?.requestHeaders.length
+        ? { requestHeaders: job.headerContext.requestHeaders }
         : {}),
     });
 
-    this.deps.diagnosticLog.append({
-      level: 'info',
-      code: 'download_routed',
-      message: `Routed via HTTP API${afterWake ? ' (after wake)' : ''}: ${displayName} (${response.action})`,
-      context: {
-        url,
-        filename: displayName,
-        filenameSource,
+    this.log(
+      'download_routed',
+      `Routed via HTTP API${afterWake ? ' (after wake)' : ''}: ${job.displayName} (${response.action})`,
+      {
+        url: job.url,
+        filename: job.displayName,
+        filenameSource: job.filenameSource,
         action: response.action,
         ...(response.gid ? { gid: response.gid } : {}),
-        hasCookie: cookie.length > 0,
-        cookieSource,
-        ...this.buildHeaderLogContext(requestHeaderContext, requestHeaderDiagnostics),
-        ...(afterWake ? { afterWake: true } : {}),
+        hasCookie: job.cookie.value.length > 0,
+        cookieSource: job.cookie.source,
+        headerCount: job.headerContext?.requestHeaders.length ?? 0,
+        headerMatchReason:
+          job.headerDiagnostics?.reason ?? (job.headerContext ? 'matched' : 'not-found'),
       },
-    });
+    );
   }
 
-  private buildHeaderLogContext(
-    context: RequestHeaderContext | undefined,
-    diagnostics: RequestHeaderDiagnostics | undefined,
-  ): {
-    requestHeadersEnabled: boolean;
-    hasUserAgent: boolean;
-    headerCount: number;
-    matchedHeaderContext: boolean;
-    headerMatchReason: string;
-    headerMatchSource?: string;
-    headerAgeMs?: number;
-  } {
-    return {
-      requestHeadersEnabled: diagnostics?.enabled ?? false,
-      hasUserAgent: Boolean(context?.userAgent),
-      headerCount: context?.requestHeaders.length ?? 0,
-      matchedHeaderContext: diagnostics?.matched ?? Boolean(context),
-      headerMatchReason: diagnostics?.reason ?? (context ? 'matched' : 'not-found'),
-      ...(diagnostics?.source ? { headerMatchSource: diagnostics.source } : {}),
-      ...(diagnostics?.ageMs !== undefined ? { headerAgeMs: diagnostics.ageMs } : {}),
-    };
-  }
+  // ─── Duplicate Guard ──────────────────────────────────
 
-  private reserveDuplicateDownload(
+  private reserveDuplicate(
     input: DuplicateDownloadInput,
   ):
     | { blocked: true; shouldNotify: boolean }
@@ -775,101 +613,102 @@ export class DownloadOrchestrator {
       : { blocked: false };
   }
 
-  private buildDeepLinkHeaderLogContext(diagnostics: RequestHeaderDiagnostics | undefined): {
-    requestHeadersEnabled: boolean;
-    hasUserAgent: boolean;
-    headerCount: number;
-    matchedHeaderContext: boolean;
-    headerMatchReason: string;
-    headerMatchSource?: string;
-    headerAgeMs?: number;
-    headerForwardingSkippedReason: string;
-  } {
-    return {
-      ...this.buildHeaderLogContext(undefined, diagnostics),
-      hasUserAgent: false,
-      headerCount: 0,
-      headerForwardingSkippedReason: 'deep-link',
-    };
+  private reportDuplicate(
+    url: string,
+    shouldNotify: boolean,
+    extra: Record<string, string> = {},
+  ): void {
+    this.log('download_duplicate_blocked', `Duplicate download blocked: ${url}`, {
+      url,
+      shouldNotify,
+      ...extra,
+    });
+    if (shouldNotify) this.deps.onDuplicateBlocked?.();
   }
 
-  /**
-   * Cancel and erase a browser download, ignoring errors if the download
-   * has already been cancelled or removed.
-   */
-  private async safeCancel(id: number): Promise<void> {
-    try {
-      await this.deps.downloads.cancel(id);
-    } catch (e) {
-      this.deps.diagnosticLog.append({
-        level: 'warn',
-        code: 'download_cancel_failed',
-        message: `Cancel failed for download ${id}: ${e instanceof Error ? e.message : String(e)}`,
-        context: { downloadId: id },
-      });
-    }
-    try {
-      await this.deps.downloads.erase({ id });
-    } catch {
-      /* already removed from history — benign */
-    }
-  }
-
-  /**
-   * Collect browser cookies for the given URL.
-   */
-  private async collectCookies(url: string): Promise<string> {
-    if (!this.deps.getSettings().forwardCookies) {
-      return '';
-    }
-    if (!isCookieCollectableUrl(url)) {
-      return '';
-    }
-    if (!this.deps.cookies) {
-      return '';
-    }
-    try {
-      const cookies = await this.deps.cookies.getAll({ url });
-      if (!cookies.length) return '';
-      return cookies.map((c) => `${c.name}=${c.value}`).join('; ');
-    } catch (e) {
-      this.deps.diagnosticLog.append({
-        level: 'warn',
-        code: 'cookie_collect_failed',
-        message: `Cookie collection failed: ${e instanceof Error ? e.message : String(e)}`,
-        context: { url },
-      });
-      return ''; // Graceful degradation — never block the download
-    }
-  }
+  // ─── Cookies ──────────────────────────────────────────
 
   private async resolveCookieHeader(
     url: string,
-    requestHeaderContext?: RequestHeaderContext,
+    headerContext?: RequestHeaderContext,
   ): Promise<{ value: string; source: string }> {
-    if (!this.deps.getSettings().forwardCookies) {
-      return { value: '', source: 'disabled' };
+    if (!this.deps.getSettings().forwardCookies) return { value: '', source: 'disabled' };
+
+    const captured = headerContext?.cookie?.trim();
+    if (captured) return { value: captured, source: 'request-header' };
+
+    if (!this.deps.cookies || !isCookieCollectableUrl(url)) return { value: '', source: 'none' };
+    try {
+      const cookies = await this.deps.cookies.getAll({ url });
+      const value = cookies.map((c) => `${c.name}=${c.value}`).join('; ');
+      return { value, source: value ? 'cookies-api' : 'none' };
+    } catch (e) {
+      // Graceful degradation — never block the download on cookie failure.
+      this.log(
+        'cookie_collect_failed',
+        `Cookie collection failed: ${errorMessage(e)}`,
+        { url },
+        'warn',
+      );
+      return { value: '', source: 'none' };
     }
-    const captured = requestHeaderContext?.cookie?.trim();
-    if (captured) {
-      return { value: captured, source: 'request-header' };
-    }
-    const collected = await this.collectCookies(url);
-    return { value: collected, source: collected ? 'cookies-api' : 'none' };
   }
+
+  // ─── Misc Helpers ─────────────────────────────────────
 
   private async resolveFilenameMetadata(item: DownloadItem): Promise<FilenameMetadata | undefined> {
     if (!this.deps.filenameMetadata) return undefined;
     try {
       return await this.deps.filenameMetadata.resolve(item);
     } catch (e) {
-      this.deps.diagnosticLog.append({
-        level: 'warn',
-        code: 'download_fallback',
-        message: `Filename metadata resolution failed: ${e instanceof Error ? e.message : String(e)}`,
-        context: { url: item.finalUrl || item.url },
-      });
+      this.log(
+        'download_fallback',
+        `Filename metadata resolution failed: ${errorMessage(e)}`,
+        { url: item.finalUrl || item.url },
+        'warn',
+      );
       return undefined;
     }
   }
+
+  /** Cancel and erase a browser download, tolerating already-gone items. */
+  private async safeCancel(id: number): Promise<void> {
+    try {
+      await this.deps.downloads.cancel(id);
+    } catch (e) {
+      this.log(
+        'download_cancel_failed',
+        `Cancel failed for download ${id}: ${errorMessage(e)}`,
+        { downloadId: id },
+        'warn',
+      );
+    }
+    await this.deps.downloads.erase({ id }).catch(() => {
+      /* already removed from history — benign */
+    });
+  }
+
+  private logIntercepted(item: DownloadCandidate, tabUrl: string, stageName: string | null): void {
+    this.log('download_intercepted', `Intercepted: ${item.url}`, {
+      url: item.url,
+      totalBytes: item.totalBytes,
+      mime: item.mime,
+      tabUrl,
+      ...(item.filename ? { filename: item.filename } : {}),
+      ...(stageName ? { stage: stageName } : {}),
+    });
+  }
+
+  private log(
+    code: DiagnosticInput['code'],
+    message: string,
+    context?: DiagnosticInput['context'],
+    level: DiagnosticInput['level'] = 'info',
+  ): void {
+    this.deps.diagnosticLog.append({ level, code, message, context });
+  }
+}
+
+function errorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : String(e);
 }

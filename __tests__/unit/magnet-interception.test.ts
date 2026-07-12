@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createExternalProtocolClickHandler } from '@/lib/services/magnet-interception';
+import { createExternalProtocolClickHandler } from '@/lib/browser';
 
 function appendProtocolLink(href: string): HTMLAnchorElement {
   const anchor = document.createElement('a');

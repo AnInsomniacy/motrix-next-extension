@@ -1,13 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { WakeService } from '@/lib/services/wake';
+import { describe, it, expect, vi } from 'vitest';
+import { wakeAndWaitForApi } from '@/lib/desktop';
 
-describe('WakeService', () => {
-  let service: WakeService;
-
-  beforeEach(() => {
-    service = new WakeService();
-  });
-
+describe('wakeAndWaitForApi', () => {
   // ─── wakeAndWaitForApi ─────────────────────────────────
 
   it('skips protocol launch if API is already reachable', async () => {
@@ -15,7 +9,7 @@ describe('WakeService', () => {
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
     const checkApi = vi.fn().mockResolvedValue(true);
 
-    const result = await service.wakeAndWaitForApi({
+    const result = await wakeAndWaitForApi({
       openProtocol,
       checkApi,
       maxWaitMs: 5000,
@@ -37,7 +31,7 @@ describe('WakeService', () => {
       return callCount >= 3; // Succeeds on 3rd poll
     });
 
-    const result = await service.wakeAndWaitForApi({
+    const result = await wakeAndWaitForApi({
       openProtocol,
       checkApi,
       maxWaitMs: 10000,
@@ -55,7 +49,7 @@ describe('WakeService', () => {
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
     const checkApi = vi.fn().mockResolvedValue(false);
 
-    const result = await service.wakeAndWaitForApi({
+    const result = await wakeAndWaitForApi({
       openProtocol,
       checkApi,
       maxWaitMs: 300,
@@ -78,7 +72,7 @@ describe('WakeService', () => {
       return true;
     });
 
-    const result = await service.wakeAndWaitForApi({
+    const result = await wakeAndWaitForApi({
       openProtocol,
       checkApi,
       maxWaitMs: 10000,
@@ -97,10 +91,7 @@ describe('WakeService', () => {
 
     const deps = { openProtocol, checkApi, maxWaitMs: 50, pollIntervalMs: 10 };
 
-    const [r1, r2] = await Promise.all([
-      service.wakeAndWaitForApi(deps),
-      service.wakeAndWaitForApi(deps),
-    ]);
+    const [r1, r2] = await Promise.all([wakeAndWaitForApi(deps), wakeAndWaitForApi(deps)]);
 
     expect(r1).toBe(false);
     expect(r2).toBe(false);
@@ -113,7 +104,7 @@ describe('WakeService', () => {
     const checkApi = vi.fn().mockResolvedValue(false);
 
     // First call: timeout
-    const r1 = await service.wakeAndWaitForApi({
+    const r1 = await wakeAndWaitForApi({
       openProtocol,
       checkApi,
       maxWaitMs: 100,
@@ -123,7 +114,7 @@ describe('WakeService', () => {
 
     // Second call: immediate success
     checkApi.mockResolvedValue(true);
-    const r2 = await service.wakeAndWaitForApi({
+    const r2 = await wakeAndWaitForApi({
       openProtocol,
       checkApi,
       maxWaitMs: 5000,

@@ -14,7 +14,7 @@
  */
 import { NIcon, NSwitch } from 'naive-ui';
 import { SettingsOutline } from '@vicons/ionicons5';
-import { ConnectionStatus } from '@/lib/services';
+import type { ConnectionStatus } from '@/lib/api';
 import { useI18n } from '@/shared/i18n/engine';
 import NextLogo from '@/shared/components/NextLogo.vue';
 

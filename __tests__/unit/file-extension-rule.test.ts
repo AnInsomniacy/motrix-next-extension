@@ -3,7 +3,7 @@ import {
   normalizeFileExtension,
   normalizeFileExtensionList,
   resolveFileExtension,
-} from '@/shared/file-extension-rule';
+} from '@/lib/file-extensions';
 
 describe('file extension rule helpers', () => {
   it('normalizes extensions from comma and whitespace separated input', () => {

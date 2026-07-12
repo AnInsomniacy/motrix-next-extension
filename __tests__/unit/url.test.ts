@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractFilenameFromUrl } from '../../shared/url';
+import { extractFilenameFromUrl } from '../../lib/download/url';
 
 describe('extractFilenameFromUrl', () => {
   // ── Existing pathname-based tests ──

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { DiagnosticLog } from '@/lib/storage/diagnostic-log';
-import { MAX_DIAGNOSTIC_EVENTS } from '@/shared/constants';
-import type { DiagnosticEvent } from '@/shared/types';
+import { DiagnosticLog } from '@/lib/diagnostics';
+import { MAX_DIAGNOSTIC_EVENTS } from '@/lib/diagnostics';
+import type { DiagnosticEvent } from '@/lib/schema';
 
 // ─── Tests ──────────────────────────────────────────────
 
@@ -18,7 +18,7 @@ describe('DiagnosticLog', () => {
 
       const productionLog = new DiagnosticLog();
       for (let i = 0; i < 150; i++) {
-        productionLog.append({ level: 'info', code: 'api_connected', message: `Event ${i}` });
+        productionLog.append({ level: 'info', code: 'config_loaded', message: `Event ${i}` });
       }
 
       const events = productionLog.getAll();
@@ -31,7 +31,7 @@ describe('DiagnosticLog', () => {
 
   describe('append', () => {
     it('adds an event with auto-generated id and timestamp', () => {
-      log.append({ level: 'info', code: 'api_connected', message: 'Connected to Motrix Next' });
+      log.append({ level: 'info', code: 'config_loaded', message: 'Connected to Motrix Next' });
 
       const events = log.getAll();
       expect(events).toHaveLength(1);
@@ -39,7 +39,7 @@ describe('DiagnosticLog', () => {
       expect(events[0]?.id).not.toBe('');
       expect(events[0]?.ts).toBeGreaterThan(0);
       expect(events[0]?.level).toBe('info');
-      expect(events[0]?.code).toBe('api_connected');
+      expect(events[0]?.code).toBe('config_loaded');
       expect(events[0]?.message).toBe('Connected to Motrix Next');
     });
 
@@ -56,8 +56,8 @@ describe('DiagnosticLog', () => {
     });
 
     it('generates unique ids for each event', () => {
-      log.append({ level: 'info', code: 'api_connected', message: 'A' });
-      log.append({ level: 'info', code: 'api_connected', message: 'B' });
+      log.append({ level: 'info', code: 'config_loaded', message: 'A' });
+      log.append({ level: 'info', code: 'config_loaded', message: 'B' });
 
       const events = log.getAll();
       expect(events[0]?.id).not.toBe(events[1]?.id);
@@ -67,7 +67,7 @@ describe('DiagnosticLog', () => {
   describe('ring buffer behavior', () => {
     it('limits events to max capacity', () => {
       for (let i = 0; i < 10; i++) {
-        log.append({ level: 'info', code: 'api_connected', message: `Event ${i}` });
+        log.append({ level: 'info', code: 'config_loaded', message: `Event ${i}` });
       }
 
       const events = log.getAll();
@@ -76,7 +76,7 @@ describe('DiagnosticLog', () => {
 
     it('keeps the most recent events when buffer overflows', () => {
       for (let i = 0; i < 8; i++) {
-        log.append({ level: 'info', code: 'api_connected', message: `Event ${i}` });
+        log.append({ level: 'info', code: 'config_loaded', message: `Event ${i}` });
       }
 
       const events = log.getAll();
@@ -92,8 +92,8 @@ describe('DiagnosticLog', () => {
     });
 
     it('returns events in chronological order', () => {
-      log.append({ level: 'info', code: 'api_connected', message: 'First' });
-      log.append({ level: 'warn', code: 'api_unreachable', message: 'Second' });
+      log.append({ level: 'info', code: 'config_loaded', message: 'First' });
+      log.append({ level: 'warn', code: 'config_changed', message: 'Second' });
       log.append({ level: 'error', code: 'download_failed', message: 'Third' });
 
       const events = log.getAll();
@@ -103,7 +103,7 @@ describe('DiagnosticLog', () => {
     });
 
     it('returns a copy that does not mutate internal state', () => {
-      log.append({ level: 'info', code: 'api_connected', message: 'Original' });
+      log.append({ level: 'info', code: 'config_loaded', message: 'Original' });
 
       const events = log.getAll();
       events.pop();
@@ -112,34 +112,11 @@ describe('DiagnosticLog', () => {
     });
   });
 
-  describe('clear', () => {
-    it('removes all events', () => {
-      log.append({ level: 'info', code: 'api_connected', message: 'A' });
-      log.append({ level: 'info', code: 'api_connected', message: 'B' });
-
-      log.clear();
-
-      expect(log.getAll()).toEqual([]);
-    });
-  });
-
-  describe('toJSON', () => {
-    it('returns valid JSON string of all events', () => {
-      log.append({ level: 'info', code: 'api_connected', message: 'Test' });
-
-      const json = log.toJSON();
-      const parsed = JSON.parse(json) as DiagnosticEvent[];
-
-      expect(parsed).toHaveLength(1);
-      expect(parsed[0]?.code).toBe('api_connected');
-    });
-  });
-
   describe('hydrate', () => {
     it('restores events from a serialized array', () => {
       const events: DiagnosticEvent[] = [
-        { id: 'a', ts: 1000, level: 'info', code: 'api_connected', message: 'Restored' },
-        { id: 'b', ts: 2000, level: 'warn', code: 'api_unreachable', message: 'Warn' },
+        { id: 'a', ts: 1000, level: 'info', code: 'config_loaded', message: 'Restored' },
+        { id: 'b', ts: 2000, level: 'warn', code: 'config_changed', message: 'Warn' },
       ];
 
       log.hydrate(events);
@@ -155,7 +132,7 @@ describe('DiagnosticLog', () => {
         id: String(i),
         ts: i * 1000,
         level: 'info' as const,
-        code: 'api_connected' as const,
+        code: 'config_loaded' as const,
         message: `Event ${i}`,
       }));
 

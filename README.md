@@ -151,24 +151,24 @@ pnpm zip
 ```
 motrix-next-extension/
 ├── entrypoints/                # Extension entry points
-│   ├── background.ts           #   Service worker — orchestrator, listeners, polling
-│   ├── content.ts              #   Content script — magnet link click interception
+│   ├── background.ts           #   Service worker — orchestrator wiring, listeners
+│   ├── content.ts              #   Content script — magnet/ed2k/thunder link interception
 │   ├── popup/App.vue           #   Browser action popup — status, speed, task dashboard
-│   └── options/App.vue         #   Full-page settings — connection, behavior, rules
-├── lib/                        # Core logic (dependency-injected, fully testable)
-│   ├── api/                    #   Desktop HTTP API client (Axum REST)
-│   ├── download/               #   Interception orchestrator, 5-stage filter, metadata collector
-│   ├── services/               #   Connection, wake, context menu, notifications, download bar, theme
-│   ├── protocol/               #   motrixnext:// protocol URL builder
-│   └── storage/                #   Zod-validated schemas, migration framework, diagnostic log
-├── shared/                     # Shared utilities
-│   ├── i18n/                   #   Compile-time i18n engine with positional placeholders
-│   ├── types.ts                #   TypeScript interfaces
-│   └── constants.ts            #   Default configs, timing constants
-├── __tests__/                  # 350 tests across 25 files
-│   ├── unit/                   #   24 isolated service test files
-│   └── integration/            #   End-to-end interception flow
-├── public/_locales/            # Chrome i18n message bundles (27 languages)
+│   └── options/App.vue         #   Full-page settings — one staged-snapshot state model
+├── lib/                        # Core logic
+│   ├── schema.ts               #   Zod schemas — single source of types + defaults
+│   ├── storage.ts              #   Schema-validated browser.storage access
+│   ├── api.ts                  #   Desktop HTTP API client + error taxonomy
+│   ├── desktop.ts              #   motrixnext:// protocol + wake flow
+│   ├── browser.ts              #   Permissions, context menu, webRequest helpers
+│   ├── backup.ts               #   Settings backup import/export
+│   ├── diagnostics.ts          #   Diagnostic event ring buffer
+│   └── download/               #   Orchestrator, filter pipeline, request context
+├── shared/                     # Shared UI infrastructure
+│   ├── i18n/                   #   Runtime i18n engine + virtual:locales loader
+│   └── theme.ts                #   M3 color system — bootstrap, CSS vars, Naive UI
+├── __tests__/                  # Behavior-level unit + integration tests
+├── public/_locales/            # Chrome i18n message bundles (27 languages, SSOT)
 └── .github/workflows/ci.yml   # CI: compile → test → lint → i18n → format → build
 ```
 
@@ -193,7 +193,7 @@ motrix-next-extension/
 
 ### Testing
 
-All services are tested through dependency injection interfaces — no browser API mocking required. Run the full suite before committing:
+Tests run on Vitest with WXT’s `fakeBrowser` polyfill for extension APIs. Run the full suite before committing:
 
 ```bash
 pnpm format:check && pnpm lint && pnpm compile && pnpm test && pnpm build

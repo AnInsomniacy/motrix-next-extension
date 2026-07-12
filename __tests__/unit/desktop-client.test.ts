@@ -5,12 +5,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   DesktopApiClient,
-  type DesktopApiConfig,
+  API_CONNECTIVITY_TIMEOUT_MS,
+  API_REQUEST_TIMEOUT_MS,
   type AddDownloadRequest,
   type AddDownloadResponse,
   type PingResponse,
-} from '@/lib/api/desktop-client';
-import { API_CONNECTIVITY_TIMEOUT_MS, API_REQUEST_TIMEOUT_MS } from '@/shared/constants';
+} from '@/lib/api';
+import type { ConnectionConfig } from '@/lib/schema';
 
 function firstRequest(): Request {
   const [input] = vi.mocked(fetch).mock.calls[0]!;
@@ -41,7 +42,7 @@ async function readJsonBody(request: Request): Promise<unknown> {
 }
 
 describe('DesktopApiClient', () => {
-  const defaultConfig: DesktopApiConfig = {
+  const defaultConfig: ConnectionConfig = {
     port: 29110,
     secret: 'test-secret',
   };
@@ -56,18 +57,18 @@ describe('DesktopApiClient', () => {
 
   // ── Configuration ──────────────────────────────────────────
 
-  it('constructs base URL from port', () => {
-    expect(client.baseUrl).toBe('http://127.0.0.1:29110');
-  });
+  it('targets the configured port and applies runtime config updates', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      async () => new Response(JSON.stringify({ status: 'ok', version: '1.0.0' }), { status: 200 }),
+    );
 
-  it('uses custom port in base URL', () => {
-    const c = new DesktopApiClient({ port: 9999, secret: '' });
-    expect(c.baseUrl).toBe('http://127.0.0.1:9999');
-  });
+    await client.ping();
+    expect(firstRequest().url).toBe('http://127.0.0.1:29110/ping');
 
-  it('allows updating config at runtime', () => {
     client.updateConfig({ port: 12345, secret: 'new-secret' });
-    expect(client.baseUrl).toBe('http://127.0.0.1:12345');
+    await client.ping();
+    const [input] = vi.mocked(fetch).mock.calls[1]!;
+    expect((input as Request).url).toBe('http://127.0.0.1:12345/ping');
   });
 
   // ── ping() ─────────────────────────────────────────────────

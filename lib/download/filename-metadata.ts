@@ -1,4 +1,4 @@
-import { extractFilenameFromContentDisposition } from '@/shared/url';
+import { extractFilenameFromContentDisposition } from './url';
 import sanitizeFilename from 'sanitize-filename';
 
 export const UNRESOLVED_FILENAME = 'unresolved-filename';

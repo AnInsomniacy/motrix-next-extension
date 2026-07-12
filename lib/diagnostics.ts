@@ -1,7 +1,7 @@
-import type { DiagnosticEvent, DiagnosticCode, DiagnosticLevel } from '@/shared/types';
-import { MAX_DIAGNOSTIC_EVENTS } from '@/shared/constants';
+import type { DiagnosticCode, DiagnosticEvent, DiagnosticLevel } from './schema';
 
-// ─── Input Type ─────────────────────────────────────────
+/** Maximum number of diagnostic events retained in memory and storage. */
+export const MAX_DIAGNOSTIC_EVENTS = 100;
 
 export interface DiagnosticInput {
   level: DiagnosticLevel;
@@ -10,68 +10,33 @@ export interface DiagnosticInput {
   context?: Record<string, string | number | boolean>;
 }
 
-// ─── Diagnostic Log ─────────────────────────────────────
-
 /**
- * In-memory ring buffer for diagnostic events.
- *
- * Design:
- * - Pure data structure, no chrome.storage dependency
- * - Serializable: toJSON() for clipboard copy, hydrate() for storage restore
- * - Oldest events evicted first when capacity is exceeded
+ * In-memory ring buffer for diagnostic events. Pure data structure —
+ * persistence is the caller's concern.
  */
 export class DiagnosticLog {
   private events: DiagnosticEvent[] = [];
-  private readonly max: number;
   private counter = 0;
 
-  constructor(maxEvents: number = MAX_DIAGNOSTIC_EVENTS) {
-    this.max = maxEvents;
-  }
+  constructor(private readonly max: number = MAX_DIAGNOSTIC_EVENTS) {}
 
-  /** Append a diagnostic event with auto-generated id and timestamp. */
   append(input: DiagnosticInput): void {
-    const event: DiagnosticEvent = {
-      id: this.generateId(),
+    this.events.push({
+      ...input,
+      id: `diag_${++this.counter}_${Date.now().toString(36)}`,
       ts: Date.now(),
-      level: input.level,
-      code: input.code,
-      message: input.message,
-      context: input.context,
-    };
-
-    this.events.push(event);
-
+    });
     if (this.events.length > this.max) {
       this.events.splice(0, this.events.length - this.max);
     }
   }
 
-  /** Return a copy of all events in chronological order. */
   getAll(): DiagnosticEvent[] {
     return [...this.events];
   }
 
-  /** Remove all events. */
-  clear(): void {
-    this.events = [];
-  }
-
-  /** Serialize all events to JSON string. */
-  toJSON(): string {
-    return JSON.stringify(this.events);
-  }
-
-  /** Restore events from a previously serialized array (e.g. from storage). */
+  /** Restore events from storage, keeping only the newest `max`. */
   hydrate(events: DiagnosticEvent[]): void {
-    if (events.length > this.max) {
-      this.events = events.slice(events.length - this.max);
-    } else {
-      this.events = [...events];
-    }
-  }
-
-  private generateId(): string {
-    return `diag_${++this.counter}_${Date.now().toString(36)}`;
+    this.events = events.slice(-this.max);
   }
 }

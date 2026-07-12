@@ -7,16 +7,16 @@
  */
 import { computed } from 'vue';
 import { NDynamicTags, NFormItem, NInputNumber, NSelect, NSwitch } from 'naive-ui';
-import { motion } from 'motion-v';
+import CollapsePanel from '@/shared/components/CollapsePanel.vue';
 import type {
   DuplicateDownloadGuardSettings,
   FileExtensionRuleAction,
   FileExtensionRuleSettings,
   MinimumFileSizeSettings,
   SiteRule,
-} from '@/shared/types';
+} from '@/lib/schema';
 import { useI18n } from '@/shared/i18n/engine';
-import { normalizeFileExtensionList } from '@/shared/file-extension-rule';
+import { normalizeFileExtensionList } from '@/lib/file-extensions';
 import SiteRulesSection from './SiteRulesSection.vue';
 
 defineProps<{
@@ -74,14 +74,7 @@ const extensionActionOptions = computed(() => [
           />
         </NFormItem>
 
-        <motion.div
-          class="settings-panel-motion"
-          :initial="false"
-          :animate="
-            duplicateGuard.enabled ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }
-          "
-          :transition="{ duration: 0.22, ease: [0.2, 0, 0, 1] }"
-        >
+        <CollapsePanel :open="duplicateGuard.enabled">
           <div class="settings-subpanel">
             <NFormItem
               class="settings-row settings-row--nested"
@@ -102,7 +95,7 @@ const extensionActionOptions = computed(() => [
               </NInputNumber>
             </NFormItem>
           </div>
-        </motion.div>
+        </CollapsePanel>
       </div>
 
       <div class="rule-block">
@@ -117,14 +110,7 @@ const extensionActionOptions = computed(() => [
           />
         </NFormItem>
 
-        <motion.div
-          class="settings-panel-motion"
-          :initial="false"
-          :animate="
-            fileExtensionRule.enabled ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }
-          "
-          :transition="{ duration: 0.22, ease: [0.2, 0, 0, 1] }"
-        >
+        <CollapsePanel :open="fileExtensionRule.enabled">
           <div class="settings-subpanel">
             <NFormItem
               class="settings-row settings-row--nested"
@@ -178,7 +164,7 @@ const extensionActionOptions = computed(() => [
               />
             </NFormItem>
           </div>
-        </motion.div>
+        </CollapsePanel>
       </div>
 
       <div class="rule-block">
@@ -193,14 +179,7 @@ const extensionActionOptions = computed(() => [
           />
         </NFormItem>
 
-        <motion.div
-          class="settings-panel-motion"
-          :initial="false"
-          :animate="
-            minimumFileSize.enabled ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }
-          "
-          :transition="{ duration: 0.22, ease: [0.2, 0, 0, 1] }"
-        >
+        <CollapsePanel :open="minimumFileSize.enabled">
           <div class="settings-subpanel">
             <NFormItem
               class="settings-row settings-row--nested"
@@ -236,7 +215,7 @@ const extensionActionOptions = computed(() => [
               />
             </NFormItem>
           </div>
-        </motion.div>
+        </CollapsePanel>
       </div>
     </section>
 

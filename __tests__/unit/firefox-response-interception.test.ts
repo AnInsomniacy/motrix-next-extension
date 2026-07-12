@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseFirefoxDownloadResponse } from '@/lib/download/firefox-response-interception';
+import { parseFirefoxDownloadResponse } from '@/lib/download/firefox-response';
 
 describe('parseFirefoxDownloadResponse', () => {
   it('creates a download candidate from an explicit attachment response', () => {

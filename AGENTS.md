@@ -4,102 +4,86 @@
 > For human contributors, see [README.md](README.md) and [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 > [!IMPORTANT]
-> **All changes must meet industrial-grade quality.** Enforce DRY (extract services/utilities over duplication), strict TypeScript (no `any`, justify every `as` cast), dependency injection for all Chrome API surfaces, and full verification (`vue-tsc` + tests pass) before completion.
+> **All changes must meet industrial-grade quality.** Keep the codebase lean: plain functions over classes, one source of truth for every fact, strict TypeScript (no `any`, justify every `as` cast), and full verification (`pnpm compile` + `pnpm test`) before completion.
 
 ---
 
 ## A. Project Architecture
 
-| Layer               | Stack                                           |
-| ------------------- | ----------------------------------------------- |
-| **Framework**       | WXT 0.20 (Manifest V3) + Vue 3 Composition API  |
-| **UI**              | Naive UI + Tailwind CSS 4                       |
-| **Validation**      | Zod 4 (storage schemas)                         |
-| **Testing**         | Vitest (350 tests, DI-based — no browser mocks) |
-| **Build**           | Vite (via WXT) → `.output/chromium-mv3/`        |
-| **Package Manager** | pnpm 10                                         |
+| Layer               | Stack                                          |
+| ------------------- | ---------------------------------------------- |
+| **Framework**       | WXT 0.20 (Manifest V3) + Vue 3 Composition API |
+| **UI**              | Naive UI + plain CSS custom properties         |
+| **Validation**      | Zod 4 (`lib/schema.ts` is the SSOT)            |
+| **Testing**         | Vitest + WXT `fakeBrowser` polyfill            |
+| **Build**           | Vite (via WXT) → `.output/chromium-mv3/`       |
+| **Package Manager** | pnpm 10                                        |
 
 ### Key File Paths
 
 ```
 entrypoints/
-├── background.ts               # Service worker — orchestrator, listeners, heartbeat polling
-├── content.ts                   # Content script — magnet/torrent link detection
-├── popup/
-│   ├── App.vue                  # Browser action popup — status, speed, task dashboard
-│   └── components/              # PopupHeader, SpeedBar, StatDashboard
-└── options/
-    ├── App.vue                  # Full-page settings — connection, behavior, rules, appearance
-    └── composables/
-        ├── use-appearance.ts     # Theme and color scheme switching
-        ├── use-connection-test.ts # RPC connection testing
-        ├── use-diagnostics.ts    # Diagnostic log viewer
-        └── use-site-rules.ts     # Per-site interception rules CRUD
+├── background.ts                # Service worker — orchestrator wiring, listeners, storage sync
+├── content.ts                   # Content script — magnet/ed2k/thunder link interception
+├── popup/App.vue                # Browser action popup — status, speed, dashboard
+└── options/App.vue              # Full-page settings — one staged-snapshot state model
 
-lib/                             # Core logic — all services use dependency injection
-├── download/
-│   ├── orchestrator.ts          # Download interception entry point, retry-after-wake
-│   ├── filter.ts                # 5-stage filter pipeline (see Section A′)
-│   └── metadata-collector.ts    # Filename, cookie, referer extraction
-├── rpc/
-│   └── aria2-client.ts          # aria2 JSON-RPC 2.0 client with retry and auth
-├── services/
-│   ├── connection.ts            # Heartbeat polling, connect/disconnect state
-│   ├── context-menu.ts          # Right-click "Download with Motrix Next"
-│   ├── download-bar.ts          # chrome.downloads.setUiOptions (Chrome 115+)
-│   ├── notification.ts          # Desktop notification builder
-│   ├── theme.ts                 # Material You theme resolution
-│   └── wake.ts                  # motrixnext:// protocol launcher
-├── protocol/
-│   └── launcher.ts              # Protocol URL builder and tab management
-└── storage/
-    ├── schema.ts                # Zod schemas + safe parse functions (see Section C)
-    ├── storage-service.ts       # Typed get/set wrappers over chrome.storage.local
-    ├── migration.ts             # Forward-only versioned schema migration (see Section C′)
-    └── diagnostic-log.ts        # Capped event log with severity levels
+lib/
+├── schema.ts                    # Zod schemas — single source of persisted types + defaults
+├── storage.ts                   # Schema-validated load/save over browser.storage.local
+├── api.ts                       # DesktopApiClient (ky) + error taxonomy + checkConnection
+├── desktop.ts                   # motrixnext:// protocol URLs + wakeAndWaitForApi
+├── browser.ts                   # Permissions, context menu, notifications, webRequest types
+├── backup.ts                    # Settings backup export/import
+├── diagnostics.ts               # DiagnosticLog ring buffer
+├── file-extensions.ts           # File extension normalization/matching
+└── download/
+    ├── orchestrator.ts          # Interception flows: automatic, Firefox response, explicit
+    ├── filter.ts                # Filter pipeline (pure function stages)
+    ├── request-context.ts       # Captured request headers (TTL store)
+    ├── filename-metadata.ts     # Content-Disposition filename store
+    ├── duplicate-guard.ts       # Duplicate download reservation window
+    ├── firefox-response.ts      # Firefox attachment response parsing
+    └── url.ts                   # URL/filename extraction (incl. presigned CD params)
 
 shared/
+├── theme.ts                     # Entire theme system: schemes, M3 CSS vars, bootstrap, useAppTheme()
 ├── i18n/
-│   ├── engine.ts                # Compile-time i18n with positional $placeholder$ support
-│   ├── dictionaries.ts          # Locale module registry (27 languages)
-│   └── locale-modules.d.ts      # Virtual module type declarations for locale:* imports
-├── types.ts                     # TypeScript interfaces (RpcConfig, DownloadSettings, etc.)
-├── constants.ts                 # Default configs, timing constants, URL schemes
-├── color-schemes.ts             # Material You color scheme definitions
-├── url.ts                       # URL validation and scheme classification
-├── thunder.ts                   # Thunder (迅雷) link decoder
-├── errors.ts                    # Typed error constructors
-├── use-color-scheme.ts          # Color scheme composable with dynamic CSS injection
-├── use-polling.ts               # Generic polling composable with lifecycle management
-├── use-preference-form.ts       # Two-way preference form binding composable
-└── use-theme.ts                 # System/light/dark theme detection composable
+│   ├── engine.ts                # I18nEngine (worker) + createI18n/useI18n (Vue)
+│   ├── dictionaries.ts          # Locale registry; data via virtual:locales
+│   └── locales-plugin.ts        # Vite plugin aggregating public/_locales/ at build time
+├── json.ts                      # jsonClone / deepEqual for JSON-safe data
+├── use-polling.ts               # Visibility-aware polling with backoff
+├── manifest.ts                  # Manifest builder (per-browser permissions)
+└── components/                  # NextLogo, CollapsePanel
 
-__tests__/
-├── unit/                        # 28 isolated service test files
-└── integration/                 # End-to-end interception flow
-
-public/_locales/                 # Chrome i18n message bundles (27 languages, see Section D)
-
-.github/workflows/
-├── ci.yml                       # Quality gate: compile → test → lint → i18n → format → build
-├── release.yml                  # Package → upload to GitHub Release
-└── publish.yml                  # Manual store publishing (Chrome, Firefox, Edge)
+__tests__/                       # Behavior-level unit + integration tests
+public/_locales/                 # Chrome i18n bundles (27 languages, SSOT)
 ```
 
 ### A′. Download Filter Pipeline
 
-The 5-stage filter (`lib/download/filter.ts`) evaluates downloads in strict order:
+`lib/download/filter.ts` evaluates candidates through ordered pure-function stages; the
+first non-null verdict wins, default is intercept:
 
-| Stage | Gate               | Pass                               | Reject                             |
-| ----- | ------------------ | ---------------------------------- | ---------------------------------- |
-| 1     | Global toggle      | `enabled === true`                 | Skip — extension disabled          |
-| 2     | Self-trigger guard | Not triggered by Motrix itself     | Skip — avoid infinite loop         |
-| 3     | URL scheme         | `http:`, `https:`, `ftp:`          | Skip — `blob:`, `data:`, `chrome:` |
-| 4     | Per-site rules     | `always-intercept` or `use-global` | Skip — `always-skip`               |
-| 5     | Document MIME      | Non-document file MIME             | Skip — document response           |
-| 6     | Final verdict      | Intercept                          | —                                  |
+enabled → self-trigger → interception-scope → scheme → site-rule → mime-type →
+file-extension-rule → minimum-file-size
 
-Every stage returns a typed `FilterResult` with the reason code. All stages are pure functions — no side effects, fully unit-testable.
+### A″. Persistence Model
+
+- Persisted shapes live ONLY in `lib/schema.ts`. Types are `z.infer`, defaults come from
+  `Schema.parse({})` — never hand-write a default twice.
+- Every parse helper accepts `unknown` and never throws; corrupt fields collapse to
+  defaults, invalid array entries are dropped.
+- `lib/storage.ts` validates on read AND write (writes are re-parsed, which also strips
+  Vue reactivity proxies).
+
+### Adding a New Storage Field
+
+1. Add the field (with `.catch(default)`) to the schema in `lib/schema.ts` — done: type + default exist.
+2. Wire it into the UI and/or background logic.
+3. Add i18n keys to all 27 locales (see Section D).
+4. Extend `__tests__/unit/storage-schema.test.ts`.
 
 ---
 
@@ -107,57 +91,11 @@ Every stage returns a typed `FilterResult` with the reason code. All stages are 
 
 **`package.json` is the single source of truth.** WXT reads `version` from here for the manifest.
 
-### How to Bump
-
-Always use the provided script:
+Always bump via the script — never edit the version manually:
 
 ```bash
 ./scripts/bump-version.sh 1.0.6
 ```
-
-This validates the SemVer format and atomically updates `package.json`.
-
-> **Never manually edit the version string.** Always use `bump-version.sh`.
-
----
-
-## C. Adding a New Storage Key
-
-Follow this exact checklist:
-
-1. **`shared/types.ts`** — Add the field to the relevant interface (`RpcConfig`, `DownloadSettings`, `UiPrefs`, or create a new one)
-2. **`shared/constants.ts`** — Add the default value to the corresponding `DEFAULT_*` constant
-3. **`lib/storage/schema.ts`** — Add the field to the Zod schema with `.default()` matching the constant
-4. **`lib/storage/storage-service.ts`** — Add typed getter/setter if the key is accessed individually
-5. **`parseStorage()` in `schema.ts`** — Ensure the new field is included in the composite parse
-6. **All 27 locale files** — Add i18n label keys. Use a temporary batch helper outside the repository when changing many files.
-7. **UI binding** — Wire into the appropriate Options page section
-8. **Tests** — Add parse tests in `__tests__/unit/storage-schema.test.ts`
-
----
-
-## C′. Storage Schema Migration
-
-`lib/storage/migration.ts` implements forward-only versioned schema migration for `chrome.storage.local`.
-
-### How It Works
-
-- `STORAGE_VERSION` constant defines the current schema version
-- `MIGRATIONS` array holds ordered migration functions (each with a `version` and `up` transform)
-- On extension startup, `migrateStorage()` reads `_version`, applies pending migrations, writes back
-- No-op if already at current version
-
-### Adding a New Migration
-
-1. Increment `STORAGE_VERSION` in `migration.ts`
-2. Append a new entry to the `MIGRATIONS` array with the target version and `up` function
-3. Add tests in `__tests__/unit/storage-migration.test.ts`
-
-### Rules
-
-- Migrations **must be idempotent** — safe to re-run on already-migrated data
-- Migrations **must not delete** user data without logging
-- Use spread operator to preserve existing fields: `(data) => ({ ...data, newField: default })`
 
 ---
 
@@ -170,25 +108,19 @@ Follow this exact checklist:
 3. English (`en`) is the reference locale — validate this first.
 4. Run `pnpm lint:i18n` after every change to verify consistency across all 27 locales.
 
-### 27 Locale Directories
+Only reusable project scripts belong in `scripts/`. One-off helpers, generated caches,
+scratch files, and temporary automation outputs must stay outside the repository in the
+platform's standard temporary directory.
 
-```
-public/_locales/ar/   # Arabic          public/_locales/nb/      # Norwegian Bokmål
-public/_locales/bg/   # Bulgarian       public/_locales/nl/      # Dutch
-public/_locales/ca/   # Catalan         public/_locales/pl/      # Polish
-public/_locales/de/   # German          public/_locales/pt_BR/   # Portuguese (Brazil)
-public/_locales/el/   # Greek           public/_locales/ro/      # Romanian
-public/_locales/en/   # English (ref)   public/_locales/ru/      # Russian
-public/_locales/es/   # Spanish         public/_locales/th/      # Thai
-public/_locales/fa/   # Persian         public/_locales/tr/      # Turkish
-public/_locales/fr/   # French          public/_locales/uk/      # Ukrainian
-public/_locales/hi/   # Hindi           public/_locales/vi/      # Vietnamese
-public/_locales/hu/   # Hungarian       public/_locales/zh_CN/   # Chinese Simplified
-public/_locales/id/   # Indonesian      public/_locales/zh_TW/   # Chinese Traditional
-public/_locales/it/   # Italian
-public/_locales/ja/   # Japanese
-public/_locales/ko/   # Korean
-```
+### Adding a New Language
+
+1. Create `public/_locales/{code}/messages.json` (copy `en` as template and translate).
+2. Add one entry to `SUPPORTED_LOCALES` in `shared/i18n/dictionaries.ts`.
+3. Add the locale code to `LOCALES` in `scripts/lint-i18n.ts`.
+4. Run `pnpm lint:i18n` to verify key parity.
+
+The dictionary data itself is aggregated automatically by the `virtual:locales` plugin —
+no imports, aliases, or module declarations to touch.
 
 ### Chrome i18n Format
 
@@ -198,36 +130,11 @@ public/_locales/ko/   # Korean
     "message": "Your text with $PLACEHOLDER$ support",
     "description": "Context for translators",
     "placeholders": {
-      "PLACEHOLDER": {
-        "content": "$1",
-        "example": "127.0.0.1"
-      }
+      "PLACEHOLDER": { "content": "$1", "example": "127.0.0.1" }
     }
   }
 }
 ```
-
-### Batch Locale Updates
-
-Use a one-off batch helper in the operating system's temporary directory to add, modify, or delete i18n keys across all 27 locales. This keeps locale changes atomic without leaving task-specific code in the project.
-
-Only reusable project scripts belong in `scripts/`. One-off helpers, generated caches,
-scratch files, and temporary automation outputs must stay outside the repository in the
-platform's standard temporary directory. Never commit them, and never leave task-specific payloads in
-reusable scripts after the operation is complete.
-
-> **Critical:** After running, verify with `pnpm lint:i18n` — key inconsistencies will surface here.
-
-### Adding a New Language
-
-1. Create `public/_locales/{code}/messages.json` (copy `en` as template)
-2. Translate all 110 message keys
-3. Register the locale in `shared/i18n/dictionaries.ts` (import + `SUPPORTED_LOCALES` entry + `DICTIONARIES` entry)
-4. Add a `locale:{code}` alias in `vitest.config.ts`
-5. Add a `declare module 'locale:{code}'` block in `shared/i18n/locale-modules.d.ts`
-6. Add the locale code to `LOCALES` array in `scripts/lint-i18n.ts`
-7. Run `pnpm lint:i18n` to verify key parity with the `en` reference
-8. Submit a Pull Request
 
 ---
 
@@ -410,34 +317,20 @@ beta/prerelease tags are rejected.
 
 ## G. Code Conventions
 
-### Dependency Injection
-
-**Every service that touches Chrome APIs must accept an injected adapter interface.** This is the core architectural principle — it enables unit testing without `chrome.*` mocks.
-
-```typescript
-// ✅ Correct — injectable
-export function createNotification(api: NotificationApi, opts: NotifyOpts): void
-
-// ❌ Wrong — direct Chrome dependency
-export function createNotification(opts: NotifyOpts): void {
-  chrome.notifications.create(...)  // untestable
-}
-```
-
-### TypeScript / Vue
-
-- **Strict mode** enabled in `tsconfig.json`
-- **`<script setup lang="ts">`** for all components
-- **No `any`** — use `unknown` + type guards or Zod parse
-- **Pure functions first** — filter evaluation, theme resolution, notification building
-- **Graceful degradation** — silently catch API errors for features on older browsers
-- **Formatting**: Prettier with project config (`.prettierrc`)
-
-### CSS
-
-- **Tailwind CSS 4** utility classes for layout
-- **Naive UI** component library with `NaiveUiResolver` auto-import
-- **Custom properties** for theme-specific tokens (Material You color schemes)
+- **Plain functions over classes.** A class is justified only by real mutable state
+  (e.g. `DesktopApiClient`, `DiagnosticLog`, the TTL stores). Never introduce a
+  class + interface pair just to make something mockable — tests use `vi.spyOn`/`vi.mock`
+  and WXT's `fakeBrowser`.
+- **One source of truth.** Persisted types/defaults live in `lib/schema.ts` only.
+  Error classification lives in `lib/api.ts` only. Theme/DOM application lives in
+  `shared/theme.ts` only.
+- **Strict TypeScript** — no `any`; use `unknown` + type guards or Zod parse.
+- **`<script setup lang="ts">`** for all components; Naive UI via `NaiveUiResolver`.
+- **CSS**: plain custom properties (M3 tokens in `globals.css`, runtime values injected by
+  `shared/theme.ts`). Animations are CSS-only and respect `prefers-reduced-motion`.
+- **Graceful degradation** — API failures around downloads must never block or lose the
+  user's download; log to diagnostics and fall back.
+- **Formatting**: Prettier with project config (`.prettierrc`).
 
 ---
 
@@ -449,7 +342,7 @@ Run these before committing changes:
 pnpm format           # Auto-format all files
 pnpm format:check     # Verify formatting (CI runs this)
 pnpm compile          # TypeScript type checking
-pnpm test             # Vitest — 350 unit + integration tests
+pnpm test             # Vitest unit + integration tests
 pnpm lint             # ESLint
 pnpm lint:i18n        # i18n key consistency across 27 locales
 pnpm build            # Production build
@@ -466,4 +359,7 @@ All checks must pass with zero errors before any PR or release.
 
 > **DO NOT use browser tools (Playwright, puppeteer, etc.) to test this extension.** Extension popup and options pages run in a restricted Chrome extension context — they cannot be accessed via `localhost` URLs. Use CLI checks (`vue-tsc`, `pnpm test`) for automated verification. For UI testing, ask the user to load the unpacked extension via `chrome://extensions` and verify manually.
 
-> **All services are testable via DI.** If you find yourself needing to mock `chrome.*` globals, the design is wrong — inject the API surface instead.
+> **Test behavior, not glue.** Cover filter verdicts, orchestrator flows, schema repair,
+> header/filename heuristics, and real bug regressions (e.g. the stale-download state
+> guard, #267). Do not write tests that merely mirror an implementation or assert that a
+> one-line wrapper forwards its arguments.

@@ -1,196 +1,156 @@
-import type {
-  FilterContext,
-  FilterVerdict,
-  DownloadSettings,
-  SiteRule,
-  FilterStage,
-} from '@/shared/types';
-import { INTERCEPTABLE_SCHEMES } from '@/shared/constants';
-import { matchesFileExtension, resolveFileExtension } from '@/shared/file-extension-rule';
-import { extractFilenameFromUrl } from '@/shared/url';
+/**
+ * Download interception filter pipeline.
+ *
+ * Each stage inspects the candidate and returns a terminal verdict
+ * ('intercept' | 'skip') or null to defer to the next stage. When every
+ * stage defers, the download is intercepted.
+ *
+ * Order: enabled → self-trigger → scope → scheme → site-rule → mime →
+ * file-extension → minimum-size.
+ */
 import picomatch from 'picomatch';
+import type { DownloadSettings, SiteRule } from '@/lib/schema';
+import { matchesFileExtension, resolveFileExtension } from '@/lib/file-extensions';
+import { extractFilenameFromUrl } from './url';
+
+export const INTERCEPTABLE_SCHEMES = ['http:', 'https:', 'ftp:'] as const;
+
+export interface FilterContext {
+  url: string;
+  finalUrl: string;
+  filename: string;
+  fileSize: number; // -1 = unknown
+  totalBytes: number; // -1 = unknown
+  mimeType: string;
+  tabUrl: string;
+  byExtensionId?: string;
+}
+
+export type FilterVerdict = 'intercept' | 'skip';
+
+export interface FilterStage {
+  readonly name: string;
+  evaluate: (ctx: FilterContext, config: DownloadSettings) => FilterVerdict | null;
+}
+
+export interface FilterPipelineResult {
+  verdict: FilterVerdict;
+  /** Stage that produced the terminal verdict; null when all stages passed. */
+  stageName: string | null;
+}
+
+// ─── Stage Helpers ──────────────────────────────────────
+
+function hostnameOf(url: string): string | null {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+}
+
+function baseMime(mimeType: string): string {
+  return (mimeType.split(';')[0] ?? '').trim().toLowerCase();
+}
+
+const TORRENT_MIMES = new Set([
+  'application/x-bittorrent',
+  'application/x-torrent',
+  'application/torrent',
+]);
+
+/** MIME types that represent documents rather than downloadable files. */
+const DOCUMENT_MIMES = new Set(['text/html', 'text/xml', 'application/xhtml+xml']);
+
+function isTorrentDescriptor(ctx: FilterContext): boolean {
+  if (TORRENT_MIMES.has(baseMime(ctx.mimeType))) return true;
+  return [ctx.filename, extractFilenameFromUrl(ctx.finalUrl), extractFilenameFromUrl(ctx.url)]
+    .filter((value): value is string => Boolean(value))
+    .some((filename) =>
+      filename
+        .trim()
+        .replace(/^.*[/\\]/, '')
+        .toLowerCase()
+        .endsWith('.torrent'),
+    );
+}
 
 // ─── Stages ─────────────────────────────────────────────
 
-/**
- * Stage 1: Check if download interception is globally enabled.
- */
-export class EnabledStage implements FilterStage {
-  readonly name = 'enabled';
+const enabled: FilterStage = {
+  name: 'enabled',
+  evaluate: (_ctx, config) => (config.enabled ? null : 'skip'),
+};
 
-  evaluate(_ctx: FilterContext, config: DownloadSettings): FilterVerdict | null {
-    return config.enabled ? null : 'skip';
-  }
-}
+/** Skip downloads triggered by another extension (including ourselves). */
+const selfTrigger: FilterStage = {
+  name: 'self-trigger',
+  evaluate: (ctx) => (ctx.byExtensionId ? 'skip' : null),
+};
 
-/**
- * Stage 2: Skip downloads triggered by another extension (including ourselves)
- * to prevent infinite loops.
- */
-export class SelfTriggerStage implements FilterStage {
-  readonly name = 'self-trigger';
+const interceptionScope: FilterStage = {
+  name: 'interception-scope',
+  evaluate: (_ctx, config) => (config.interceptionScope.browserDownloads ? null : 'skip'),
+};
 
-  evaluate(ctx: FilterContext, _config: DownloadSettings): FilterVerdict | null {
-    return ctx.byExtensionId ? 'skip' : null;
-  }
-}
-
-/**
- * Stage 3: Respect the browser download interception scope.
- */
-export class InterceptionScopeStage implements FilterStage {
-  readonly name = 'interception-scope';
-
-  evaluate(_ctx: FilterContext, config: DownloadSettings): FilterVerdict | null {
-    return config.interceptionScope.browserDownloads ? null : 'skip';
-  }
-}
-
-/**
- * Stage 4: Only intercept http/https/ftp schemes.
- * Reject blob:, data:, chrome:, chrome-extension:, about:.
- */
-export class SchemeStage implements FilterStage {
-  readonly name = 'scheme';
-
-  evaluate(ctx: FilterContext, _config: DownloadSettings): FilterVerdict | null {
+/** Only http/https/ftp — reject blob:, data:, chrome:, about:, etc. */
+const scheme: FilterStage = {
+  name: 'scheme',
+  evaluate: (ctx) => {
     try {
-      const scheme = new URL(ctx.url).protocol;
-      const isInterceptable = (INTERCEPTABLE_SCHEMES as readonly string[]).includes(scheme);
-      return isInterceptable ? null : 'skip';
+      const protocol = new URL(ctx.url).protocol;
+      return (INTERCEPTABLE_SCHEMES as readonly string[]).includes(protocol) ? null : 'skip';
     } catch {
       return 'skip';
     }
-  }
-}
+  },
+};
 
 /**
- * Stage 5: Apply per-site rules.
- *
- * `SiteRuleStage` takes an additional `rules` parameter because it needs
- * external state (the rule list) that isn't part of `DownloadSettings`.
- * The pipeline orchestrator passes this separately.
+ * Per-site glob rules, matched against the page origin and both download
+ * URLs (pre/post redirect). First matching rule wins.
  */
-export class SiteRuleStage implements FilterStage {
-  readonly name = 'site-rule';
+function siteRule(getRules: () => SiteRule[]): FilterStage {
+  return {
+    name: 'site-rule',
+    evaluate: (ctx) => {
+      const rules = getRules();
+      if (!rules.length) return null;
 
-  constructor(private readonly getRules: () => SiteRule[]) {}
+      const hostnames = [
+        ...new Set([ctx.tabUrl, ctx.url, ctx.finalUrl].flatMap((url) => hostnameOf(url) ?? [])),
+      ];
+      if (!hostnames.length) return null;
 
-  evaluate(ctx: FilterContext, _config: DownloadSettings): FilterVerdict | null {
-    const rules = this.getRules();
-    if (!rules.length) return null;
-
-    const hostnames = this.collectHostnames(ctx);
-    if (!hostnames.length) return null;
-
-    for (const rule of rules) {
-      const isMatch = picomatch(rule.pattern);
-      if (hostnames.some((h) => isMatch(h))) {
-        switch (rule.action) {
-          case 'always-intercept':
-            return 'intercept';
-          case 'always-skip':
-            return 'skip';
-          case 'use-global':
-            return null;
-        }
+      for (const rule of rules) {
+        const isMatch = picomatch(rule.pattern);
+        if (!hostnames.some((h) => isMatch(h))) continue;
+        if (rule.action === 'always-intercept') return 'intercept';
+        if (rule.action === 'always-skip') return 'skip';
+        return null; // use-global
       }
-    }
-
-    return null;
-  }
-
-  /**
-   * Collect unique hostnames from all relevant URLs.
-   *
-   * Checks tabUrl (page origin), url (initial download URL), and
-   * finalUrl (after redirects). Deduplicates to avoid redundant matching.
-   */
-  private collectHostnames(ctx: FilterContext): string[] {
-    const seen = new Set<string>();
-    const hostnames: string[] = [];
-    for (const rawUrl of [ctx.tabUrl, ctx.url, ctx.finalUrl]) {
-      const h = this.extractHostname(rawUrl);
-      if (h && !seen.has(h)) {
-        seen.add(h);
-        hostnames.push(h);
-      }
-    }
-    return hostnames;
-  }
-
-  private extractHostname(url: string): string | null {
-    try {
-      return new URL(url).hostname;
-    } catch {
       return null;
-    }
-  }
+    },
+  };
 }
 
 /**
- * Stage 6: Skip downloads smaller than the configured minimum size.
- *
- * Browser APIs expose unknown sizes as -1. Unknown sizes follow the explicit
- * user preference instead of being guessed.
+ * Skip document MIME types. Cloud storage services sometimes force download
+ * behavior on HTML landing pages; letting the browser render them means the
+ * real binary download gets intercepted on the second pass.
  */
-export class MinimumFileSizeStage implements FilterStage {
-  readonly name = 'minimum-file-size';
-
-  private static readonly TORRENT_MIMES: ReadonlySet<string> = new Set([
-    'application/x-bittorrent',
-    'application/x-torrent',
-    'application/torrent',
-  ]);
-
-  evaluate(ctx: FilterContext, config: DownloadSettings): FilterVerdict | null {
-    const settings = config.minimumFileSize;
-    if (!settings.enabled || settings.sizeMb <= 0) return null;
-    if (this.isTorrentDescriptor(ctx)) return null;
-
-    const knownSize = this.resolveKnownSize(ctx);
-    if (knownSize === null) {
-      return settings.unknownSizeAction === 'skip' ? 'skip' : null;
-    }
-
-    return knownSize < settings.sizeMb * 1024 * 1024 ? 'skip' : null;
-  }
-
-  private resolveKnownSize(ctx: FilterContext): number | null {
-    if (ctx.totalBytes >= 0) return ctx.totalBytes;
-    if (ctx.fileSize >= 0) return ctx.fileSize;
-    return null;
-  }
-
-  private isTorrentDescriptor(ctx: FilterContext): boolean {
-    if (this.isTorrentMime(ctx.mimeType)) return true;
-    return [ctx.filename, extractFilenameFromUrl(ctx.finalUrl), extractFilenameFromUrl(ctx.url)]
-      .filter((value): value is string => Boolean(value))
-      .some((filename) => this.hasTorrentExtension(filename));
-  }
-
-  private isTorrentMime(mimeType: string): boolean {
-    const normalized = (mimeType.split(';')[0] ?? '').trim().toLowerCase();
-    return MinimumFileSizeStage.TORRENT_MIMES.has(normalized);
-  }
-
-  private hasTorrentExtension(filename: string): boolean {
-    const basename = filename.trim().replace(/^.*[/\\]/, '');
-    return basename.toLowerCase().endsWith('.torrent');
-  }
-}
+const mimeType: FilterStage = {
+  name: 'mime-type',
+  evaluate: (ctx) => (ctx.mimeType && DOCUMENT_MIMES.has(baseMime(ctx.mimeType)) ? 'skip' : null),
+};
 
 /**
- * Stage: Apply the user-defined file extension rule.
- *
- * This is intentionally metadata-only. The browser download event exposes
- * filename and URL fields, but not file bytes, so content sniffing belongs in
- * the desktop app rather than the extension interceptor.
+ * User-defined file extension rule. Metadata-only by design — content
+ * sniffing belongs in the desktop app.
  */
-export class FileExtensionRuleStage implements FilterStage {
-  readonly name = 'file-extension-rule';
-
-  evaluate(ctx: FilterContext, config: DownloadSettings): FilterVerdict | null {
+const fileExtensionRule: FilterStage = {
+  name: 'file-extension-rule',
+  evaluate: (ctx, config) => {
     const settings = config.fileExtensionRule;
     if (!settings.enabled) return null;
 
@@ -204,82 +164,43 @@ export class FileExtensionRuleStage implements FilterStage {
     return settings.extensions.some((item) => matchesFileExtension(extension, item))
       ? settings.listedAction
       : null;
-  }
-}
+  },
+};
 
 /**
- * Stage: Skip downloads whose MIME type indicates a document rather than a file.
- *
- * Many cloud storage services (Lanzou, MediaFire, etc.) serve JavaScript-heavy
- * landing pages at intermediate URLs. If the browser treats a text/html response
- * as a "download" (e.g. via Content-Disposition: attachment), intercepting it
- * would cause the download manager to fetch the HTML page itself.
- *
- * By skipping document MIME types, the browser handles (renders) these pages
- * normally, and the real binary download — triggered by the page's JavaScript —
- * gets intercepted on the second pass with a proper file MIME type.
- *
- * Note: Chrome typically renders text/html responses as pages (no onCreated).
- * This stage guards the uncommon case where a server forces download behavior
- * on an HTML response.
+ * Skip downloads smaller than the configured minimum. Unknown sizes (-1)
+ * follow the explicit user preference. Torrent descriptors are always tiny
+ * and always pass.
  */
-export class MimeTypeStage implements FilterStage {
-  readonly name = 'mime-type';
+const minimumFileSize: FilterStage = {
+  name: 'minimum-file-size',
+  evaluate: (ctx, config) => {
+    const settings = config.minimumFileSize;
+    if (!settings.enabled || settings.sizeMb <= 0) return null;
+    if (isTorrentDescriptor(ctx)) return null;
 
-  /** MIME types that represent documents, not downloadable files. */
-  private static readonly DOCUMENT_MIMES: ReadonlySet<string> = new Set([
-    'text/html',
-    'text/xml',
-    'application/xhtml+xml',
-  ]);
+    const knownSize =
+      ctx.totalBytes >= 0 ? ctx.totalBytes : ctx.fileSize >= 0 ? ctx.fileSize : null;
+    if (knownSize === null) return settings.unknownSizeAction === 'skip' ? 'skip' : null;
+    return knownSize < settings.sizeMb * 1024 * 1024 ? 'skip' : null;
+  },
+};
 
-  evaluate(ctx: FilterContext, _config: DownloadSettings): FilterVerdict | null {
-    if (!ctx.mimeType) return null; // Unknown MIME — pass through (safe default)
-    // Strip charset/boundary parameters: "text/html; charset=utf-8" → "text/html"
-    const normalized = (ctx.mimeType.split(';')[0] ?? '').trim().toLowerCase();
-    return MimeTypeStage.DOCUMENT_MIMES.has(normalized) ? 'skip' : null;
-  }
-}
+// ─── Pipeline ───────────────────────────────────────────
 
-// ─── Pipeline Factory ───────────────────────────────────
-
-/**
- * Create the complete filter pipeline with all stages.
- *
- * Pipeline order:
- * 1. Enabled → 2. SelfTrigger → 3. InterceptionScope → 4. Scheme → 5. SiteRule → 6. MimeType → 7. FileExtensionRule → 8. MinimumFileSize
- *
- * @param getRules - Getter for current site rules (lazy evaluation)
- */
 export function createFilterPipeline(getRules: () => SiteRule[]): FilterStage[] {
   return [
-    new EnabledStage(),
-    new SelfTriggerStage(),
-    new InterceptionScopeStage(),
-    new SchemeStage(),
-    new SiteRuleStage(getRules),
-    new MimeTypeStage(),
-    new FileExtensionRuleStage(),
-    new MinimumFileSizeStage(),
+    enabled,
+    selfTrigger,
+    interceptionScope,
+    scheme,
+    siteRule(getRules),
+    mimeType,
+    fileExtensionRule,
+    minimumFileSize,
   ];
 }
 
-/**
- * Result of evaluating a filter pipeline.
- *
- * `stageName` identifies which stage produced the terminal verdict.
- * When all stages pass (default intercept), `stageName` is `null`.
- */
-export interface FilterPipelineResult {
-  verdict: FilterVerdict;
-  stageName: string | null;
-}
-
-/**
- * Evaluate a filter pipeline against a download context.
- * Returns 'intercept' or 'skip' along with the deciding stage name.
- * Default (all stages pass) = intercept with `stageName: null`.
- */
 export function evaluateFilterPipeline(
   ctx: FilterContext,
   config: DownloadSettings,

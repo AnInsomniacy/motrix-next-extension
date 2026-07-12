@@ -1,58 +1,55 @@
 <script lang="ts" setup>
 /**
- * @fileoverview Options page root component.
+ * Options page root.
  *
- * Dual-pane layout (sidebar nav + content area) wrapped in Naive UI
- * NConfigProvider for M3 Amber Gold theming. Business logic is delegated
- * to focused composables; this file handles only layout, lifecycle,
- * and composable wiring.
+ * State model — one snapshot, one dirty flag:
+ *   - `draft`  : the full StorageSnapshot the UI edits
+ *   - `saved`  : the last persisted baseline
+ *   - `staged` : when a factory reset or backup import is pending, ALL
+ *                changes stay local until Save writes the whole snapshot
  *
- * Persistence model:
- *   - Connection / Behavior / Rules settings: explicit Save via usePreferenceForm
- *   - Theme, language, and diagnostics persist immediately unless a full reset
- *     is staged, in which case Save / Discard applies to the full snapshot.
+ * Two persistence classes:
+ *   - immediate (enabled, scope, site rules, uiPrefs, diagnostics) — written
+ *     on change unless `staged`
+ *   - draft-tracked (connection + behavior/rules details) — written on Save,
+ *     compared through `draftView()` for the dirty flag
  */
-import { ref, provide, onMounted, onUnmounted, computed, watch } from 'vue';
+import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
 import { browser } from 'wxt/browser';
-import { storage as wxtStorage } from '#imports';
 import { NConfigProvider, createDiscreteApi } from 'naive-ui';
 import {
-  StorageService,
-  createWxtStorageApi,
+  loadSnapshot,
+  saveConnectionConfig,
+  saveDiagnosticLog,
+  saveSiteRules,
+  saveSnapshot,
+  updateSettings,
+  updateUiPrefs,
+} from '@/lib/storage';
+import {
+  createDefaultSnapshot,
   parseConnectionConfig,
+  parseDiagnosticEvents,
   parseDownloadSettings,
   parseSiteRules,
   parseUiPrefs,
-  createSettingsBackup,
-  parseSettingsBackup,
+  type DownloadSettings,
+  type InterceptionScope,
+  type SiteRule,
   type StorageSnapshot,
-} from '@/lib/storage';
-import { PermissionService } from '@/lib/services';
-import type {
-  ConnectionConfig,
-  DesktopUnavailableSettings,
-  DuplicateDownloadGuardSettings,
-  DiagnosticEvent,
-  FileExtensionRuleSettings,
-  InterceptionScope,
-  MinimumFileSizeSettings,
-  SiteRule,
-  UiPrefs,
-} from '@/shared/types';
+  type ThemePreference,
+  type UiPrefs,
+} from '@/lib/schema';
+import { createSettingsBackup, parseSettingsBackup } from '@/lib/backup';
+import { DesktopApiClient, checkConnection, type ConnectionStatus } from '@/lib/api';
 import {
-  DEFAULT_CONNECTION_CONFIG,
-  DEFAULT_DOWNLOAD_SETTINGS,
-  DEFAULT_UI_PREFS,
-} from '@/shared/constants';
-import { useTheme } from '@/shared/use-theme';
-import { getBootstrappedUiPrefs } from '@/shared/theme-bootstrap';
-import { usePreferenceForm } from '@/shared/use-preference-form';
-import { resolveBrowserCapabilities } from '@/shared/browser-capabilities';
-
-import { useSiteRules } from './composables/use-site-rules';
-import { useConnectionTest } from './composables/use-connection-test';
-import { useDiagnostics } from './composables/use-diagnostics';
-import { useAppearance } from './composables/use-appearance';
+  hasCookieForwardingAccess,
+  hasDownloadUiAccess,
+  requestCookieForwardingAccess,
+  requestDownloadUiAccess,
+} from '@/lib/browser';
+import { deepEqual, jsonClone } from '@/shared/json';
+import { useAppTheme } from '@/shared/theme';
 import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
 
 import OptionsNav from './components/OptionsNav.vue';
@@ -65,17 +62,12 @@ import SettingsActionBar from './components/SettingsActionBar.vue';
 import LanguageSection from './components/LanguageSection.vue';
 import NextLogo from '@/shared/components/NextLogo.vue';
 
-// ─── Theme + Color Scheme ───────────────────────────────────────────
+// ─── Theme + i18n ───────────────────────────────────────
 
-const bootstrappedUiPrefs = getBootstrappedUiPrefs();
-const colorSchemeId = ref(bootstrappedUiPrefs?.colorScheme ?? DEFAULT_UI_PREFS.colorScheme);
-const { naiveTheme, themeOverrides, setTheme } = useTheme(colorSchemeId);
-
-// ─── i18n ───────────────────────────────────────────────────────────
-
+const theme = useAppTheme();
 const i18nCtx = createI18n('auto', { localeApi: browser.i18n });
 provide(I18N_KEY, i18nCtx);
-const { t: i18n, tEn: i18nEn, tSub: i18nSub, effectiveLocale, setLocale: i18nSetLocale } = i18nCtx;
+const { t: i18n, tEn: i18nEn, tSub: i18nSub, effectiveLocale } = i18nCtx;
 const { naiveLocale, naiveDateLocale } = useNaiveLocale(effectiveLocale);
 
 /** Bilingual display for the Language section title. */
@@ -85,235 +77,216 @@ function i18nBilingual(key: string, enFallback: string): string {
   return native === en ? native : `${native} / ${en}`;
 }
 
-// ─── Navigation ─────────────────────────────────────────────────────
+const { message: toast } = createDiscreteApi(['message'], {
+  configProviderProps: computed(() => ({
+    theme: theme.naiveTheme.value,
+    themeOverrides: theme.themeOverrides.value,
+    locale: naiveLocale.value,
+    dateLocale: naiveDateLocale.value,
+    inlineThemeDisabled: true,
+  })),
+});
+
+// ─── State ──────────────────────────────────────────────
 
 const activeSection = ref('connection');
-const browserCapabilities = resolveBrowserCapabilities(import.meta.env.BROWSER);
+const canControlDownloadUi = !import.meta.env.FIREFOX;
+const extensionVersion = browser.runtime.getManifest().version;
 
-// ─── StorageService ──────────────────────────────────────────────────
-
-const storageService = new StorageService(createWxtStorageApi(wxtStorage));
-const permissionService = new PermissionService({
-  contains: (permissions) => browser.permissions.contains(permissions),
-  request: (permissions) => browser.permissions.request(permissions),
-});
-
-// ─── Composables ────────────────────────────────────────────────────
-
-const { siteRules, hydrate: hydrateSiteRules, addRule, removeRule } = useSiteRules(storageService);
-const {
-  diagnosticEvents,
-  hydrate: hydrateDiagnostics,
-  clearDiagnosticLog,
-  exportDiagnosticReport,
-} = useDiagnostics(storageService, {
-  getManifest: () => browser.runtime.getManifest(),
-});
-const appearance = useAppearance(storageService, setTheme, (id) => {
-  colorSchemeId.value = id;
-});
-
-function createDefaultStorageSnapshot(): StorageSnapshot {
-  return {
-    connection: { ...DEFAULT_CONNECTION_CONFIG },
-    settings: {
-      ...DEFAULT_DOWNLOAD_SETTINGS,
-      desktopUnavailable: { ...DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable },
-      duplicateGuard: { ...DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard },
-      minimumFileSize: { ...DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize },
-      fileExtensionRule: {
-        ...DEFAULT_DOWNLOAD_SETTINGS.fileExtensionRule,
-        extensions: [...DEFAULT_DOWNLOAD_SETTINGS.fileExtensionRule.extensions],
-      },
-      interceptionScope: { ...DEFAULT_DOWNLOAD_SETTINGS.interceptionScope },
-    },
-    siteRules: [],
-    uiPrefs: { ...DEFAULT_UI_PREFS },
-    diagnosticLog: [],
-  };
-}
-
-function createStorageSnapshotFromState(formState: SettingsForm): StorageSnapshot {
-  return {
-    connection: {
-      port: formState.port,
-      secret: formState.secret,
-    },
-    settings: {
-      enabled: interceptionEnabled.value,
-      hideDownloadBar: browserCapabilities.canControlDownloadUi ? formState.hideDownloadBar : false,
-      desktopUnavailable: formState.desktopUnavailable,
-      forwardRequestHeaders: formState.forwardRequestHeaders,
-      forwardCookies: formState.forwardCookies,
-      duplicateGuard: formState.duplicateGuard,
-      minimumFileSize: formState.minimumFileSize,
-      fileExtensionRule: formState.fileExtensionRule,
-      interceptionScope: interceptionScope.value,
-    },
-    siteRules: siteRules.value,
-    uiPrefs: {
-      theme: appearance.uiTheme.value,
-      colorScheme: appearance.uiColorScheme.value,
-      locale: appearance.uiLocale.value,
-    },
-    diagnosticLog: diagnosticEvents.value,
-  };
-}
-
-// ─── Preference Form (dirty-tracked settings) ──────────────────────
-
-interface SettingsForm {
-  port: number;
-  secret: string;
-  hideDownloadBar: boolean;
-  desktopUnavailable: DesktopUnavailableSettings;
-  forwardRequestHeaders: boolean;
-  forwardCookies: boolean;
-  duplicateGuard: DuplicateDownloadGuardSettings;
-  minimumFileSize: MinimumFileSizeSettings;
-  fileExtensionRule: FileExtensionRuleSettings;
-}
-
-const interceptionEnabled = ref(DEFAULT_DOWNLOAD_SETTINGS.enabled);
-const interceptionScope = ref<InterceptionScope>({
-  ...DEFAULT_DOWNLOAD_SETTINGS.interceptionScope,
-});
-const factoryResetPending = ref(false);
-const backupImportPending = ref(false);
+const draft = ref<StorageSnapshot>(createDefaultSnapshot());
+const saved = ref<StorageSnapshot>(createDefaultSnapshot());
+const staged = ref<null | 'factory-reset' | 'backup-import'>(null);
 const includeConnectionSecretInBackup = ref(true);
-function buildForm(): SettingsForm {
-  return {
-    port: DEFAULT_CONNECTION_CONFIG.port,
-    secret: DEFAULT_CONNECTION_CONFIG.secret,
-    hideDownloadBar: DEFAULT_DOWNLOAD_SETTINGS.hideDownloadBar,
-    desktopUnavailable: { ...DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable },
-    forwardRequestHeaders: DEFAULT_DOWNLOAD_SETTINGS.forwardRequestHeaders,
-    forwardCookies: DEFAULT_DOWNLOAD_SETTINGS.forwardCookies,
-    duplicateGuard: { ...DEFAULT_DOWNLOAD_SETTINGS.duplicateGuard },
-    minimumFileSize: { ...DEFAULT_DOWNLOAD_SETTINGS.minimumFileSize },
-    fileExtensionRule: { ...DEFAULT_DOWNLOAD_SETTINGS.fileExtensionRule },
-  };
+
+/** The draft-tracked (Save/Discard) subset of a snapshot. */
+function draftView(s: StorageSnapshot) {
+  const { enabled: _e, interceptionScope: _s, ...tracked } = s.settings;
+  return { connection: s.connection, ...tracked };
 }
 
-const discreteConfigProviderProps = computed(() => ({
-  theme: naiveTheme.value,
-  themeOverrides: themeOverrides.value,
-  locale: naiveLocale.value,
-  dateLocale: naiveDateLocale.value,
-  inlineThemeDisabled: true,
-}));
-
-const { message: toast } = createDiscreteApi(['message'], {
-  configProviderProps: discreteConfigProviderProps,
-});
-
-const {
-  form,
-  isDirty,
-  handleSave: rawSave,
-  handleReset: rawReset,
-  resetSnapshot,
-} = usePreferenceForm<SettingsForm>({
-  buildForm,
-  persist: async (f) => {
-    if (factoryResetPending.value) {
-      await storageService.saveSnapshot(createStorageSnapshotFromState(f));
-      factoryResetPending.value = false;
-      backupImportPending.value = false;
-      return;
-    }
-
-    if (backupImportPending.value) {
-      await storageService.saveSnapshot(createStorageSnapshotFromState(f));
-      backupImportPending.value = false;
-      return;
-    }
-
-    await storageService.updateConnectionConfig({
-      port: f.port,
-      secret: f.secret,
-    });
-    await storageService.updateSettings({
-      hideDownloadBar: browserCapabilities.canControlDownloadUi ? f.hideDownloadBar : false,
-      desktopUnavailable: f.desktopUnavailable,
-      forwardRequestHeaders: f.forwardRequestHeaders,
-      forwardCookies: f.forwardCookies,
-      duplicateGuard: f.duplicateGuard,
-      minimumFileSize: f.minimumFileSize,
-      fileExtensionRule: f.fileExtensionRule,
-    });
-  },
-  afterSave: () => {
-    toast.success(i18n('options_save_success', 'Settings saved'));
-  },
-});
-const hasSnapshotPendingChanges = computed(
-  () => isDirty.value || factoryResetPending.value || backupImportPending.value,
+const isDirty = computed(
+  () => staged.value !== null || !deepEqual(draftView(draft.value), draftView(saved.value)),
 );
+
+// ─── Immediate Persistence ──────────────────────────────
+
+/** Persist an immediate-class change; staged mode keeps it local. */
+async function persistImmediate(persist: () => Promise<void>, revert?: () => void): Promise<void> {
+  if (staged.value) return;
+  try {
+    await persist();
+  } catch {
+    revert?.();
+    toast.error(i18n('options_save_error', 'Failed to save settings'));
+  }
+}
+
+async function handleEnabledChange(value: boolean): Promise<void> {
+  const previous = draft.value.settings.enabled;
+  draft.value.settings.enabled = value;
+  await persistImmediate(
+    () => updateSettings({ enabled: value }),
+    () => {
+      draft.value.settings.enabled = previous;
+    },
+  );
+}
+
+async function handleInterceptionScopeChange(value: Partial<InterceptionScope>): Promise<void> {
+  const previous = { ...draft.value.settings.interceptionScope };
+  draft.value.settings.interceptionScope = { ...previous, ...value };
+  await persistImmediate(
+    () => updateSettings({ interceptionScope: draft.value.settings.interceptionScope }),
+    () => {
+      draft.value.settings.interceptionScope = previous;
+    },
+  );
+}
+
+function handleAddSiteRule(rule: Omit<SiteRule, 'id'>): void {
+  draft.value.siteRules.push({ id: `rule-${Date.now()}`, ...rule });
+  void persistImmediate(() => saveSiteRules(draft.value.siteRules));
+}
+
+function handleRemoveSiteRule(id: string): void {
+  draft.value.siteRules = draft.value.siteRules.filter((rule) => rule.id !== id);
+  void persistImmediate(() => saveSiteRules(draft.value.siteRules));
+}
+
+function handleThemeChange(value: string): void {
+  draft.value.uiPrefs.theme = value as ThemePreference;
+  theme.setMode(draft.value.uiPrefs.theme);
+  void persistImmediate(() => updateUiPrefs({ theme: draft.value.uiPrefs.theme }));
+}
+
+function handleColorSchemeChange(value: string): void {
+  draft.value.uiPrefs.colorScheme = value;
+  theme.setColorScheme(value);
+  void persistImmediate(() => updateUiPrefs({ colorScheme: value }));
+}
+
+function handleLocaleChange(value: string): void {
+  draft.value.uiPrefs.locale = value;
+  i18nCtx.setLocale(value);
+  void persistImmediate(() => updateUiPrefs({ locale: value }));
+}
+
+function handleClearDiagnosticLog(): void {
+  draft.value.diagnosticLog = [];
+  void persistImmediate(() => saveDiagnosticLog([]));
+}
+
+// ─── Permission-gated Toggles ───────────────────────────
+
+async function handleHideDownloadBarChange(value: boolean): Promise<void> {
+  if (!value || !canControlDownloadUi) {
+    draft.value.settings.hideDownloadBar = false;
+    return;
+  }
+  if (await requestDownloadUiAccess().catch(() => false)) {
+    draft.value.settings.hideDownloadBar = true;
+    return;
+  }
+  draft.value.settings.hideDownloadBar = false;
+  toast.warning(
+    i18n(
+      'options_permission_download_ui_denied',
+      'Grant download UI permission to hide the browser download bar.',
+    ),
+  );
+}
+
+async function handleForwardCookiesChange(value: boolean): Promise<void> {
+  if (!value) {
+    draft.value.settings.forwardCookies = false;
+    return;
+  }
+  if (await requestCookieForwardingAccess().catch(() => false)) {
+    draft.value.settings.forwardCookies = true;
+    return;
+  }
+  draft.value.settings.forwardCookies = false;
+  toast.warning(
+    i18n(
+      'options_permission_cookies_denied',
+      'Grant cookie and site permissions to forward cookies to Motrix Next.',
+    ),
+  );
+}
+
+// ─── Save / Discard ─────────────────────────────────────
 
 async function handleSave(): Promise<void> {
   try {
-    await rawSave();
+    if (staged.value) {
+      await saveSnapshot(draft.value);
+      staged.value = null;
+    } else {
+      await saveConnectionConfig(draft.value.connection);
+      const { enabled: _e, interceptionScope: _s, ...tracked } = draft.value.settings;
+      await updateSettings({
+        ...tracked,
+        hideDownloadBar: canControlDownloadUi && tracked.hideDownloadBar,
+      });
+    }
+    saved.value = jsonClone(draft.value);
+    toast.success(i18n('options_save_success', 'Settings saved'));
   } catch {
     toast.error(i18n('options_save_error', 'Failed to save settings'));
   }
 }
 
-function handleReset(): void {
-  if (factoryResetPending.value) {
-    factoryResetPending.value = false;
-    backupImportPending.value = false;
-    void loadFromStorage().then(() => appearance.applyTheme());
-  } else if (backupImportPending.value) {
-    backupImportPending.value = false;
-    void loadFromStorage().then(() => appearance.applyTheme());
+async function handleDiscard(): Promise<void> {
+  if (staged.value) {
+    staged.value = null;
+    await loadFromStorage();
   } else {
-    rawReset();
+    draft.value = jsonClone(saved.value);
   }
+  applyUiSideEffects(draft.value.uiPrefs);
   toast.info(i18n('options_discard_success', 'Changes restored'));
 }
 
+// ─── Staged Snapshots (factory reset / backup import) ───
+
+function stageSnapshot(snapshot: StorageSnapshot, mode: 'factory-reset' | 'backup-import'): void {
+  draft.value = snapshot;
+  staged.value = mode;
+  applyUiSideEffects(snapshot.uiPrefs);
+}
+
 function stageFactoryReset(): void {
-  const defaults = createDefaultStorageSnapshot();
-  stageStorageSnapshot(defaults);
-  factoryResetPending.value = true;
-  backupImportPending.value = false;
+  stageSnapshot({ ...createDefaultSnapshot(), diagnosticLog: [] }, 'factory-reset');
   toast.info(i18n('options_factory_reset_ready', 'Defaults ready to save'));
 }
 
-function stageStorageSnapshot(snapshot: StorageSnapshot): void {
-  form.value.port = snapshot.connection.port;
-  form.value.secret = snapshot.connection.secret;
-  interceptionEnabled.value = snapshot.settings.enabled;
-  interceptionScope.value = snapshot.settings.interceptionScope;
-  form.value.hideDownloadBar = snapshot.settings.hideDownloadBar;
-  form.value.desktopUnavailable = snapshot.settings.desktopUnavailable;
-  form.value.forwardRequestHeaders = snapshot.settings.forwardRequestHeaders;
-  form.value.forwardCookies = snapshot.settings.forwardCookies;
-  form.value.duplicateGuard = snapshot.settings.duplicateGuard;
-  form.value.minimumFileSize = snapshot.settings.minimumFileSize;
-  form.value.fileExtensionRule = snapshot.settings.fileExtensionRule;
-
-  appearance.hydrate(snapshot.uiPrefs);
-  i18nCtx.setLocale(snapshot.uiPrefs.locale);
-  hydrateSiteRules(snapshot.siteRules);
-  hydrateDiagnostics(snapshot.diagnosticLog);
-  appearance.applyTheme();
+async function importSettingsBackup(file: globalThis.File): Promise<void> {
+  try {
+    const snapshot = parseSettingsBackup(await file.text(), {
+      currentSecret: draft.value.connection.secret,
+    });
+    stageSnapshot({ ...snapshot, diagnosticLog: draft.value.diagnosticLog }, 'backup-import');
+    toast.info(i18n('options_settings_backup_imported', 'Settings imported. Review and save.'));
+  } catch {
+    toast.error(i18n('options_settings_backup_invalid', 'Invalid backup file'));
+  }
 }
 
+// ─── Backup / Diagnostics Export ────────────────────────
+
 function downloadJson(filename: string, data: unknown): void {
+  // Data URI instead of blob URL: blob downloads fire downloads.onCreated,
+  // which wakes the service worker and pollutes the diagnostic log.
   const json = JSON.stringify(data, null, 2);
-  const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(json)}`;
   const a = document.createElement('a');
-  a.href = dataUri;
+  a.href = `data:application/json;charset=utf-8,${encodeURIComponent(json)}`;
   a.download = filename;
   a.click();
 }
 
-async function exportSettingsBackup(): Promise<void> {
+function exportSettingsBackup(): void {
   try {
-    const snapshot = createStorageSnapshotFromState(form.value);
-    const backup = createSettingsBackup(snapshot, {
+    const backup = createSettingsBackup(draft.value, {
       extensionVersion,
       includeConnectionSecret: includeConnectionSecretInBackup.value,
     });
@@ -325,335 +298,142 @@ async function exportSettingsBackup(): Promise<void> {
   }
 }
 
-async function readFileText(file: globalThis.File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new globalThis.FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        resolve(reader.result);
-        return;
-      }
-      reject(new Error('Invalid file content'));
-    };
-    reader.onerror = () => reject(reader.error ?? new Error('Failed to read file'));
-    reader.readAsText(file);
+function exportDiagnosticReport(): void {
+  const { connection, settings, siteRules, uiPrefs, diagnosticLog } = draft.value;
+  downloadJson(`motrix-next-diagnostic-${Date.now()}.json`, {
+    exportedAt: new Date().toISOString(),
+    extension: { version: extensionVersion, manifestVersion: 3 },
+    browser: { userAgent: navigator.userAgent, language: navigator.language },
+    config: { connection: { port: connection.port }, settings, siteRules, uiPrefs },
+    diagnosticLog,
   });
 }
 
-async function importSettingsBackup(file: globalThis.File): Promise<void> {
-  try {
-    const snapshot = parseSettingsBackup(await readFileText(file), {
-      currentSecret: form.value.secret,
-    });
-    stageStorageSnapshot({ ...snapshot, diagnosticLog: diagnosticEvents.value });
-    backupImportPending.value = true;
-    factoryResetPending.value = false;
-    toast.info(i18n('options_settings_backup_imported', 'Settings imported. Review and save.'));
-  } catch {
-    toast.error(i18n('options_settings_backup_invalid', 'Invalid backup file'));
-  }
+// ─── Connection Test ────────────────────────────────────
+
+const connectionStatus = ref<ConnectionStatus>('disconnected');
+const connectionVersion = ref<string | null>(null);
+const connectionError = ref<string | null>(null);
+const testingConnection = ref(false);
+
+async function testConnection(): Promise<void> {
+  testingConnection.value = true;
+  connectionError.value = null;
+
+  const client = new DesktopApiClient(draft.value.connection);
+  // Minimum 600ms so the loading state doesn't flash on fast local checks.
+  const [result] = await Promise.all([
+    checkConnection(client),
+    new Promise((r) => setTimeout(r, 600)),
+  ]);
+
+  connectionStatus.value = result.status;
+  connectionVersion.value = result.version;
+  connectionError.value = result.error ?? null;
+  testingConnection.value = false;
 }
 
-function handleThemeChange(value: string): void {
-  if (!factoryResetPending.value) {
-    appearance.handleThemeChange(value);
-    return;
-  }
+// ─── Load + Live Sync ───────────────────────────────────
 
-  appearance.hydrate({ theme: value as UiPrefs['theme'] });
-  appearance.applyTheme();
+function applyUiSideEffects(prefs: UiPrefs): void {
+  theme.setMode(prefs.theme);
+  theme.setColorScheme(prefs.colorScheme);
+  i18nCtx.setLocale(prefs.locale);
 }
 
-function handleColorSchemeChange(value: string): void {
-  if (!factoryResetPending.value) {
-    appearance.handleColorSchemeChange(value);
-    return;
-  }
-
-  appearance.hydrate({ colorScheme: value });
+/** Reflect actually-granted permissions in permission-gated toggles. */
+async function gatePermissions(settings: DownloadSettings): Promise<void> {
+  settings.hideDownloadBar =
+    canControlDownloadUi &&
+    settings.hideDownloadBar &&
+    (await hasDownloadUiAccess().catch(() => false));
+  settings.forwardCookies =
+    settings.forwardCookies && (await hasCookieForwardingAccess().catch(() => false));
 }
-
-function handleLocaleChange(value: string): void {
-  if (!factoryResetPending.value) {
-    i18nSetLocale(value);
-    appearance.handleLocaleChange(value);
-    return;
-  }
-
-  i18nSetLocale(value);
-  appearance.hydrate({ locale: value });
-}
-
-function handleAddSiteRule(rule: Omit<SiteRule, 'id'>): void {
-  if (!factoryResetPending.value) {
-    addRule(rule);
-    return;
-  }
-
-  siteRules.value.push({
-    id: `rule-${Date.now()}`,
-    pattern: rule.pattern,
-    action: rule.action,
-  });
-}
-
-function handleRemoveSiteRule(id: string): void {
-  if (!factoryResetPending.value) {
-    removeRule(id);
-    return;
-  }
-
-  siteRules.value = siteRules.value.filter((rule) => rule.id !== id);
-}
-
-function handleClearDiagnosticLog(): void {
-  if (!factoryResetPending.value) {
-    clearDiagnosticLog();
-    return;
-  }
-
-  hydrateDiagnostics([]);
-}
-
-async function handleEnabledChange(value: boolean): Promise<void> {
-  const previous = interceptionEnabled.value;
-  interceptionEnabled.value = value;
-  if (factoryResetPending.value) return;
-  try {
-    await storageService.updateSettings({ enabled: value });
-  } catch {
-    interceptionEnabled.value = previous;
-    toast.error(i18n('options_save_error', 'Failed to save settings'));
-  }
-}
-
-async function handleInterceptionScopeChange(value: Partial<InterceptionScope>): Promise<void> {
-  const previous = { ...interceptionScope.value };
-  interceptionScope.value = { ...interceptionScope.value, ...value };
-  if (factoryResetPending.value) return;
-  try {
-    await storageService.updateSettings({ interceptionScope: interceptionScope.value });
-  } catch {
-    interceptionScope.value = previous;
-    toast.error(i18n('options_save_error', 'Failed to save settings'));
-  }
-}
-
-function handleMinimumFileSizeChange(value: Partial<MinimumFileSizeSettings>): void {
-  form.value.minimumFileSize = { ...form.value.minimumFileSize, ...value };
-}
-
-function handleFileExtensionRuleChange(value: Partial<FileExtensionRuleSettings>): void {
-  form.value.fileExtensionRule = { ...form.value.fileExtensionRule, ...value };
-}
-
-function handleDuplicateGuardChange(value: Partial<DuplicateDownloadGuardSettings>): void {
-  form.value.duplicateGuard = { ...form.value.duplicateGuard, ...value };
-}
-
-async function handleHideDownloadBarChange(value: boolean): Promise<void> {
-  if (!browserCapabilities.canControlDownloadUi) {
-    form.value.hideDownloadBar = false;
-    return;
-  }
-
-  if (!value) {
-    form.value.hideDownloadBar = false;
-    return;
-  }
-
-  const granted = await permissionService.requestDownloadUiAccess().catch(() => false);
-  if (granted) {
-    form.value.hideDownloadBar = true;
-    return;
-  }
-
-  form.value.hideDownloadBar = false;
-  toast.warning(
-    i18n(
-      'options_permission_download_ui_denied',
-      'Grant download UI permission to hide the browser download bar.',
-    ),
-  );
-}
-
-async function handleForwardCookiesChange(value: boolean): Promise<void> {
-  if (!value) {
-    form.value.forwardCookies = false;
-    return;
-  }
-
-  const granted = await permissionService.requestCookieForwardingAccess().catch(() => false);
-  if (granted) {
-    form.value.forwardCookies = true;
-    return;
-  }
-
-  form.value.forwardCookies = false;
-  toast.warning(
-    i18n(
-      'options_permission_cookies_denied',
-      'Grant cookie and site permissions to forward cookies to Motrix Next.',
-    ),
-  );
-}
-
-// ─── Connection Test ────────────────────────────────────────────────
-
-const connectionForTest = computed<ConnectionConfig>(() => ({
-  port: form.value.port,
-  secret: form.value.secret,
-}));
-
-const { connectionStatus, connectionVersion, connectionError, testingConnection, testConnection } =
-  useConnectionTest(connectionForTest);
-
-// ─── Extension Version ─────────────────────────────────────────────
-
-const extensionVersion = browser.runtime.getManifest().version;
-type StorageChangeListener = Parameters<typeof browser.storage.onChanged.addListener>[0];
-let stopThemeMediaListener: (() => void) | null = null;
-let stopStorageListener: (() => void) | null = null;
-
-// ─── Load from Storage ──────────────────────────────────────────────
 
 async function loadFromStorage(): Promise<void> {
-  const data = await storageService.load();
-
-  // Hydrate dirty-tracked form (schema-validated, no casts)
-  form.value.port = data.connection.port;
-  form.value.secret = data.connection.secret;
-  interceptionEnabled.value = data.settings.enabled;
-  interceptionScope.value = data.settings.interceptionScope;
-  form.value.minimumFileSize = data.settings.minimumFileSize;
-  form.value.fileExtensionRule = data.settings.fileExtensionRule;
-  form.value.duplicateGuard = data.settings.duplicateGuard;
-  form.value.hideDownloadBar =
-    browserCapabilities.canControlDownloadUi &&
-    data.settings.hideDownloadBar &&
-    (await permissionService.hasDownloadUiAccess().catch(() => false));
-  form.value.desktopUnavailable = data.settings.desktopUnavailable;
-  form.value.forwardRequestHeaders = data.settings.forwardRequestHeaders;
-  form.value.forwardCookies =
-    data.settings.forwardCookies &&
-    (await permissionService.hasCookieForwardingAccess().catch(() => false));
-  resetSnapshot();
-
-  // Hydrate composables (already type-safe from Zod)
-  appearance.hydrate(data.uiPrefs);
-  i18nCtx.setLocale(data.uiPrefs.locale);
-  hydrateSiteRules(data.siteRules);
-  hydrateDiagnostics(data.diagnosticLog);
+  const data = await loadSnapshot();
+  await gatePermissions(data.settings);
+  draft.value = data;
+  saved.value = jsonClone(data);
+  applyUiSideEffects(data.uiPrefs);
 }
 
-function applyConnectionStorageChange(value: unknown): void {
-  const connection = parseConnectionConfig(value);
-  form.value.port = connection.port;
-  form.value.secret = connection.secret;
-}
-
-async function applySettingsStorageChange(value: unknown): Promise<void> {
-  const settings = parseDownloadSettings(value);
-  interceptionEnabled.value = settings.enabled;
-  interceptionScope.value = settings.interceptionScope;
-  if (isDirty.value) return;
-
-  form.value.minimumFileSize = settings.minimumFileSize;
-  form.value.fileExtensionRule = settings.fileExtensionRule;
-  form.value.hideDownloadBar =
-    browserCapabilities.canControlDownloadUi &&
-    settings.hideDownloadBar &&
-    (await permissionService.hasDownloadUiAccess().catch(() => false));
-  form.value.desktopUnavailable = settings.desktopUnavailable;
-  form.value.forwardRequestHeaders = settings.forwardRequestHeaders;
-  form.value.forwardCookies =
-    settings.forwardCookies &&
-    (await permissionService.hasCookieForwardingAccess().catch(() => false));
-  form.value.duplicateGuard = settings.duplicateGuard;
-}
-
-function applyUiPrefsStorageChange(value: unknown): void {
-  const prefs = parseUiPrefs(value);
-  appearance.hydrate(prefs);
-  i18nCtx.setLocale(prefs.locale);
-  appearance.applyTheme();
-}
-
-// ─── Lifecycle ──────────────────────────────────────────────────────
-
-function onBeforeUnload(e: globalThis.BeforeUnloadEvent): void {
-  if (hasSnapshotPendingChanges.value) {
-    e.preventDefault();
-  }
-}
-
-watch(hasSnapshotPendingChanges, (dirty) => {
-  if (dirty) {
-    window.addEventListener('beforeunload', onBeforeUnload);
-  } else {
-    window.removeEventListener('beforeunload', onBeforeUnload);
-  }
-});
-
-function bindThemeMediaChanges(): void {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  const handleMediaChange = (): void => {
-    appearance.applyTheme();
-  };
-  mediaQuery.addEventListener('change', handleMediaChange);
-  stopThemeMediaListener = () => mediaQuery.removeEventListener('change', handleMediaChange);
-}
+let stopStorageListener: (() => void) | null = null;
 
 function bindStorageChanges(): void {
-  const handleStorageChange: StorageChangeListener = (changes, area) => {
-    if (area !== 'local') return;
-    if (factoryResetPending.value || backupImportPending.value) return;
+  const listener: Parameters<typeof browser.storage.onChanged.addListener>[0] = (changes, area) => {
+    if (area !== 'local' || staged.value) return;
 
     if (changes.connection?.newValue && !isDirty.value) {
-      applyConnectionStorageChange(changes.connection.newValue);
-      resetSnapshot();
+      const connection = parseConnectionConfig(changes.connection.newValue);
+      draft.value.connection = connection;
+      saved.value.connection = jsonClone(connection);
     }
 
     if (changes.settings?.newValue) {
-      void applySettingsStorageChange(changes.settings.newValue).then(() => {
-        if (!isDirty.value) resetSnapshot();
+      const settings = parseDownloadSettings(changes.settings.newValue);
+      void gatePermissions(settings).then(() => {
+        // Immediate-class fields always follow storage; draft-tracked fields
+        // only when there are no unsaved local edits.
+        const dirty = isDirty.value;
+        saved.value.settings = jsonClone(settings);
+        if (dirty) {
+          draft.value.settings.enabled = settings.enabled;
+          draft.value.settings.interceptionScope = settings.interceptionScope;
+        } else {
+          draft.value.settings = jsonClone(settings);
+        }
       });
     }
 
     if (changes.siteRules?.newValue) {
-      hydrateSiteRules(parseSiteRules(changes.siteRules.newValue));
+      draft.value.siteRules = parseSiteRules(changes.siteRules.newValue);
+      saved.value.siteRules = jsonClone(draft.value.siteRules);
     }
 
     if (changes.uiPrefs?.newValue) {
-      applyUiPrefsStorageChange(changes.uiPrefs.newValue);
+      const prefs = parseUiPrefs(changes.uiPrefs.newValue);
+      draft.value.uiPrefs = prefs;
+      saved.value.uiPrefs = jsonClone(prefs);
+      applyUiSideEffects(prefs);
     }
 
     if (changes.diagnosticLog?.newValue) {
-      hydrateDiagnostics(changes.diagnosticLog.newValue as DiagnosticEvent[]);
+      draft.value.diagnosticLog = parseDiagnosticEvents(changes.diagnosticLog.newValue);
     }
   };
 
-  browser.storage.onChanged.addListener(handleStorageChange);
-  stopStorageListener = () => browser.storage.onChanged.removeListener(handleStorageChange);
+  browser.storage.onChanged.addListener(listener);
+  stopStorageListener = () => browser.storage.onChanged.removeListener(listener);
 }
 
+// ─── Lifecycle ──────────────────────────────────────────
+
+function onBeforeUnload(e: globalThis.BeforeUnloadEvent): void {
+  if (isDirty.value) e.preventDefault();
+}
+
+watch(isDirty, (dirty) => {
+  if (dirty) window.addEventListener('beforeunload', onBeforeUnload);
+  else window.removeEventListener('beforeunload', onBeforeUnload);
+});
+
 onMounted(() => {
-  void loadFromStorage().then(() => appearance.applyTheme());
-  bindThemeMediaChanges();
+  void loadFromStorage();
   bindStorageChanges();
 });
 
 onUnmounted(() => {
   window.removeEventListener('beforeunload', onBeforeUnload);
-  stopThemeMediaListener?.();
   stopStorageListener?.();
 });
 </script>
 
 <template>
   <NConfigProvider
-    :theme="naiveTheme"
-    :theme-overrides="themeOverrides"
+    :theme="theme.naiveTheme.value"
+    :theme-overrides="theme.themeOverrides.value"
     :locale="naiveLocale"
     :date-locale="naiveDateLocale"
     inline-theme-disabled
@@ -681,20 +461,20 @@ onUnmounted(() => {
         <OptionsNav :active="activeSection" @select="activeSection = $event" />
 
         <main class="options-content">
-          <Transition name="fade" mode="out-in">
+          <Transition name="section" mode="out-in">
             <!-- Connection -->
             <div v-if="activeSection === 'connection'" key="connection" class="section-wrapper">
               <h2 class="section-title">{{ i18n('options_section_connection', 'Connection') }}</h2>
               <div class="card">
                 <ConnectionSection
-                  :port="form.port"
-                  :secret="form.secret"
+                  :port="draft.connection.port"
+                  :secret="draft.connection.secret"
                   :status="connectionStatus"
                   :version="connectionVersion"
                   :error="connectionError"
                   :testing="testingConnection"
-                  @update:port="form.port = $event"
-                  @update:secret="form.secret = $event"
+                  @update:port="draft.connection.port = $event"
+                  @update:secret="draft.connection.secret = $event"
                   @test="testConnection"
                 />
               </div>
@@ -707,20 +487,23 @@ onUnmounted(() => {
               </h2>
               <div class="card">
                 <BehaviorSection
-                  :enabled="interceptionEnabled"
-                  :interception-scope="interceptionScope"
-                  :hide-download-bar="form.hideDownloadBar"
-                  :can-control-download-ui="browserCapabilities.canControlDownloadUi"
-                  :desktop-unavailable="form.desktopUnavailable"
-                  :forward-request-headers="form.forwardRequestHeaders"
-                  :forward-cookies="form.forwardCookies"
+                  :enabled="draft.settings.enabled"
+                  :interception-scope="draft.settings.interceptionScope"
+                  :hide-download-bar="draft.settings.hideDownloadBar"
+                  :can-control-download-ui="canControlDownloadUi"
+                  :desktop-unavailable="draft.settings.desktopUnavailable"
+                  :forward-request-headers="draft.settings.forwardRequestHeaders"
+                  :forward-cookies="draft.settings.forwardCookies"
                   @update:enabled="handleEnabledChange"
                   @update:scope="handleInterceptionScopeChange"
                   @update:hide-download-bar="handleHideDownloadBarChange"
                   @update:desktop-unavailable="
-                    form.desktopUnavailable = { ...form.desktopUnavailable, ...$event }
+                    draft.settings.desktopUnavailable = {
+                      ...draft.settings.desktopUnavailable,
+                      ...$event,
+                    }
                   "
-                  @update:forward-request-headers="form.forwardRequestHeaders = $event"
+                  @update:forward-request-headers="draft.settings.forwardRequestHeaders = $event"
                   @update:forward-cookies="handleForwardCookiesChange"
                 />
               </div>
@@ -731,13 +514,25 @@ onUnmounted(() => {
               <h2 class="section-title">{{ i18n('options_section_rules', 'Rules') }}</h2>
               <div class="card">
                 <RulesSection
-                  :duplicate-guard="form.duplicateGuard"
-                  :minimum-file-size="form.minimumFileSize"
-                  :file-extension-rule="form.fileExtensionRule"
-                  :site-rules="siteRules"
-                  @update:duplicate-guard="handleDuplicateGuardChange"
-                  @update:minimum-file-size="handleMinimumFileSizeChange"
-                  @update:file-extension-rule="handleFileExtensionRuleChange"
+                  :duplicate-guard="draft.settings.duplicateGuard"
+                  :minimum-file-size="draft.settings.minimumFileSize"
+                  :file-extension-rule="draft.settings.fileExtensionRule"
+                  :site-rules="draft.siteRules"
+                  @update:duplicate-guard="
+                    draft.settings.duplicateGuard = { ...draft.settings.duplicateGuard, ...$event }
+                  "
+                  @update:minimum-file-size="
+                    draft.settings.minimumFileSize = {
+                      ...draft.settings.minimumFileSize,
+                      ...$event,
+                    }
+                  "
+                  @update:file-extension-rule="
+                    draft.settings.fileExtensionRule = {
+                      ...draft.settings.fileExtensionRule,
+                      ...$event,
+                    }
+                  "
                   @add-site-rule="handleAddSiteRule"
                   @remove-site-rule="handleRemoveSiteRule"
                 />
@@ -753,8 +548,8 @@ onUnmounted(() => {
               <h2 class="section-title">{{ i18n('options_section_appearance', 'Appearance') }}</h2>
               <div class="card">
                 <AppearanceSection
-                  :theme="appearance.uiTheme.value"
-                  :color-scheme="appearance.uiColorScheme.value"
+                  :theme="draft.uiPrefs.theme"
+                  :color-scheme="draft.uiPrefs.colorScheme"
                   @update:theme="handleThemeChange"
                   @update:color-scheme="handleColorSchemeChange"
                 />
@@ -768,7 +563,7 @@ onUnmounted(() => {
               </h2>
               <div class="card">
                 <LanguageSection
-                  :locale="i18nCtx.locale.value"
+                  :locale="draft.uiPrefs.locale"
                   @update:locale="handleLocaleChange"
                 />
               </div>
@@ -785,7 +580,7 @@ onUnmounted(() => {
               </h2>
               <div class="card">
                 <MaintenanceSection
-                  :events="diagnosticEvents"
+                  :events="draft.diagnosticLog"
                   :include-connection-secret="includeConnectionSecretInBackup"
                   @export-settings="exportSettingsBackup"
                   @import-settings="importSettingsBackup"
@@ -797,11 +592,7 @@ onUnmounted(() => {
               </div>
             </div>
           </Transition>
-          <SettingsActionBar
-            :is-dirty="hasSnapshotPendingChanges"
-            @save="handleSave"
-            @discard="handleReset"
-          />
+          <SettingsActionBar :is-dirty="isDirty" @save="handleSave" @discard="handleDiscard" />
         </main>
       </div>
 
@@ -873,10 +664,6 @@ onUnmounted(() => {
   min-width: 0;
   padding: 8px 32px 32px 16px;
   border-left: 1px solid var(--color-outline-variant);
-}
-
-.section-wrapper {
-  /* anchor for Transition */
 }
 
 /* ── Footer ──────────────────────────────────────────────────── */

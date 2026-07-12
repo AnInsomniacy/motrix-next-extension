@@ -10,7 +10,7 @@
 import { ref, computed } from 'vue';
 import { NInput, NSelect, NButton, NTag, NIcon, NEmpty } from 'naive-ui';
 import { CloseOutline, AddOutline } from '@vicons/ionicons5';
-import type { SiteRule } from '@/shared/types';
+import type { SiteRule } from '@/lib/schema';
 
 defineProps<{
   rules: SiteRule[];

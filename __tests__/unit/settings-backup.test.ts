@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  createSettingsBackup,
-  parseSettingsBackup,
-  SETTINGS_BACKUP_KIND,
-} from '@/lib/storage/settings-backup';
-import type { StorageSnapshot } from '@/lib/storage';
+import { createSettingsBackup, parseSettingsBackup, SETTINGS_BACKUP_KIND } from '@/lib/backup';
+import type { StorageSnapshot } from '@/lib/schema';
 
 function createSnapshot(): StorageSnapshot {
   return {

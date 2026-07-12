@@ -8,7 +8,7 @@ import {
   RefreshOutline,
   TrashOutline,
 } from '@vicons/ionicons5';
-import type { DiagnosticEvent } from '@/shared/types';
+import type { DiagnosticEvent } from '@/lib/schema';
 import { useI18n } from '@/shared/i18n/engine';
 
 const props = defineProps<{

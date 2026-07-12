@@ -1,6 +1,7 @@
-import type { RequestHeader } from '@/shared/types';
-
-export type { RequestHeader };
+export interface RequestHeader {
+  name: string;
+  value: string;
+}
 
 export interface RawRequestHeader {
   name?: string;
