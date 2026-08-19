@@ -296,8 +296,8 @@ async function importSettingsBackup(file: globalThis.File): Promise<void> {
 // ─── Backup / Diagnostics Export ────────────────────────
 
 function downloadJson(filename: string, data: unknown): void {
-  // Data URI instead of blob URL: blob downloads fire downloads.onCreated,
-  // which wakes the service worker and pollutes the diagnostic log.
+  // Data URI instead of blob URL: blob downloads fire interception events,
+  // which wake the service worker and pollute the diagnostic log.
   const json = JSON.stringify(data, null, 2);
   const a = document.createElement('a');
   a.href = `data:application/json;charset=utf-8,${encodeURIComponent(json)}`;

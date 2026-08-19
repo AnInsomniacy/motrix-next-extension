@@ -1,7 +1,7 @@
 import { browser, type Browser } from 'wxt/browser';
 import { DownloadOrchestrator } from '@/lib/download/orchestrator';
+import { holdChromiumFilenameDecision } from '@/lib/download/chromium-interception';
 import { DuplicateDownloadGuard } from '@/lib/download/duplicate-guard';
-import { DownloadFilenameMetadataStore } from '@/lib/download/filename-metadata';
 import {
   RequestHeaderContextStore,
   buildRequestHeaderExtraInfoSpec,
@@ -44,7 +44,6 @@ export default defineBackground(() => {
 
   const bgI18n = new I18nEngine(FALLBACK_LOCALE);
   const diagnosticLog = new DiagnosticLog();
-  const filenameMetadata = new DownloadFilenameMetadataStore();
   const requestHeaderContexts = new RequestHeaderContextStore();
   const duplicateDownloadGuard = new DuplicateDownloadGuard();
   const desktopClient = new DesktopApiClient(parseConnectionConfig(null));
@@ -179,7 +178,6 @@ export default defineBackground(() => {
     },
     getSettings: () => settings,
     getSiteRules: () => siteRules,
-    filenameMetadata,
     duplicateGuard: duplicateDownloadGuard,
     desktopClient,
     wakeDesktop: (timeoutMs) =>
@@ -288,31 +286,6 @@ export default defineBackground(() => {
     }
   }
 
-  /** Chromium: remember Content-Disposition filenames from response headers. */
-  function registerFilenameMetadataListener(): void {
-    if (import.meta.env.FIREFOX) return;
-    try {
-      webRequest?.onHeadersReceived?.addListener(
-        (details): undefined => {
-          if (!settings.enabled || !settings.interceptionScope.browserDownloads) return;
-          const contentDisposition = details.responseHeaders?.find(
-            (header) => header.name?.toLowerCase() === 'content-disposition',
-          )?.value;
-          if (contentDisposition) {
-            filenameMetadata.rememberContentDisposition(details.url, contentDisposition);
-          }
-        },
-        { urls: ALL_HTTP_URLS },
-        ['responseHeaders'],
-      );
-    } catch (e) {
-      logWarn(
-        'download_fallback',
-        `Response header metadata listener unavailable: ${errorMessage(e)}`,
-      );
-    }
-  }
-
   /** Firefox: blocking interception of attachment responses. */
   function registerFirefoxResponseInterception(): void {
     if (!import.meta.env.FIREFOX) return;
@@ -323,18 +296,15 @@ export default defineBackground(() => {
           const parsed = parseFirefoxDownloadResponse(details);
           if (!parsed) return;
 
-          const match = matchRequestHeaders(parsed.item, false);
-          const intercepted = await orchestrator.handleResponse(
-            {
-              ...parsed.item,
-              requestHeaderContext: match.context,
-              requestHeaderDiagnostics: headerDiagnostics(match),
-            },
-            parsed.metadata,
-          );
+          const match = matchRequestHeaders(parsed, false);
+          const intercepted = await orchestrator.handleFirefoxResponse({
+            ...parsed,
+            requestHeaderContext: match.context,
+            requestHeaderDiagnostics: headerDiagnostics(match),
+          });
           if (!intercepted) return;
 
-          if (match.matched) requestHeaderContexts.match(parsed.item);
+          if (match.matched) requestHeaderContexts.match(parsed);
           return { cancel: true };
         },
         { urls: ALL_HTTP_URLS, types: ['main_frame', 'sub_frame'] },
@@ -346,47 +316,57 @@ export default defineBackground(() => {
   }
 
   registerRequestHeaderContextListener();
-  registerFilenameMetadataListener();
   registerFirefoxResponseInterception();
 
   // ─── Download Interception ────────────────────────────
-  //
-  // Chromium uses onCreated. Firefox uses blocking response interception for
-  // attachment responses and retains onCreated for unsupported shapes.
-  //
-  // Why not onDeterminingFilename (Chrome-only)? Registering it makes
-  // Chromium ignore filenames supplied by other extensions through
-  // downloads.download({ filename }).
 
-  browser.downloads.onCreated.addListener((item) => {
-    void (async () => {
-      try {
-        await ensureConfigLoaded();
-        const identity = { url: item.url, finalUrl: item.finalUrl ?? item.url };
-        const match = matchRequestHeaders(identity, true);
-        await orchestrator.handleCreated({
-          id: item.id,
-          url: item.url,
-          finalUrl: identity.finalUrl,
-          filename: item.filename ?? '',
-          fileSize: item.fileSize ?? -1,
-          totalBytes: item.totalBytes ?? item.fileSize ?? -1,
-          mime: item.mime ?? '',
-          byExtensionId: (item as { byExtensionId?: string }).byExtensionId,
-          state: item.state ?? 'in_progress',
-          referrer: item.referrer ?? '',
-          requestHeaderContext: match.context,
-          requestHeaderDiagnostics: headerDiagnostics(match),
-        });
-      } catch (e) {
-        logError('download_handler_error', `Download handler crashed: ${errorMessage(e)}`, {
-          url: item.url,
-          mime: item.mime ?? '',
-          filename: item.filename ?? '',
-        });
-      }
-    })();
-  });
+  async function handleBrowserDownload(
+    item: Browser.downloads.DownloadItem,
+    filenameSource?: 'browser-determined',
+  ): Promise<void> {
+    await ensureConfigLoaded();
+    const identity = { url: item.url, finalUrl: item.finalUrl || item.url };
+    const match = matchRequestHeaders(identity, true);
+    await orchestrator.handleBrowserDownload({
+      id: item.id,
+      url: item.url,
+      finalUrl: identity.finalUrl,
+      filename: item.filename || '',
+      ...(filenameSource ? { filenameSource } : {}),
+      fileSize: item.fileSize ?? -1,
+      totalBytes: item.totalBytes ?? item.fileSize ?? -1,
+      mime: item.mime || '',
+      byExtensionId: item.byExtensionId,
+      state: item.state || 'in_progress',
+      referrer: item.referrer || '',
+      requestHeaderContext: match.context,
+      requestHeaderDiagnostics: headerDiagnostics(match),
+    });
+  }
+
+  function logDownloadHandlerError(item: Browser.downloads.DownloadItem, error: unknown): void {
+    logError('download_handler_error', `Download handler crashed: ${errorMessage(error)}`, {
+      url: item.url,
+      mime: item.mime || '',
+      filename: item.filename || '',
+    });
+  }
+
+  if (import.meta.env.FIREFOX) {
+    browser.downloads.onCreated.addListener((item) => {
+      void handleBrowserDownload(item).catch((error) => {
+        logDownloadHandlerError(item, error);
+      });
+    });
+  } else {
+    browser.downloads.onDeterminingFilename.addListener((item, suggest) =>
+      holdChromiumFilenameDecision(
+        () => handleBrowserDownload(item, 'browser-determined'),
+        suggest,
+        (error) => logDownloadHandlerError(item, error),
+      ),
+    );
+  }
 
   // ─── Context Menu ─────────────────────────────────────
 

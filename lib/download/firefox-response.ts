@@ -1,6 +1,5 @@
 import type { DownloadCandidate } from './orchestrator';
-import { normalizeFilename, type FilenameMetadata } from './filename-metadata';
-import { parseContentDispositionHeader } from './url';
+import { normalizeFilename, parseContentDispositionHeader } from './url';
 
 export interface FirefoxResponseHeader {
   name?: string;
@@ -17,11 +16,6 @@ export interface FirefoxResponseDetails {
   responseHeaders?: FirefoxResponseHeader[];
 }
 
-export interface FirefoxDownloadResponse {
-  item: DownloadCandidate;
-  metadata?: FilenameMetadata;
-}
-
 function headerValue(headers: FirefoxResponseHeader[] | undefined, name: string): string {
   return headers?.find((header) => header.name?.toLowerCase() === name)?.value?.trim() ?? '';
 }
@@ -33,7 +27,7 @@ function contentLength(headers: FirefoxResponseHeader[] | undefined): number {
 
 export function parseFirefoxDownloadResponse(
   details: FirefoxResponseDetails,
-): FirefoxDownloadResponse | null {
+): DownloadCandidate | null {
   if (details.method !== 'GET') return null;
   if (details.type !== 'main_frame' && details.type !== 'sub_frame') return null;
   if (details.statusCode < 200 || details.statusCode >= 300) return null;
@@ -47,22 +41,13 @@ export function parseFirefoxDownloadResponse(
   const size = contentLength(details.responseHeaders);
 
   return {
-    item: {
-      url: details.url,
-      finalUrl: details.url,
-      filename,
-      fileSize: size,
-      totalBytes: size,
-      mime: headerValue(details.responseHeaders, 'content-type'),
-      referrer: details.originUrl || details.documentUrl || '',
-    },
-    ...(filename
-      ? {
-          metadata: {
-            filename,
-            source: 'content-disposition',
-          },
-        }
-      : {}),
+    url: details.url,
+    finalUrl: details.url,
+    filename,
+    filenameSource: 'content-disposition',
+    fileSize: size,
+    totalBytes: size,
+    mime: headerValue(details.responseHeaders, 'content-type'),
+    referrer: details.originUrl || details.documentUrl || '',
   };
 }

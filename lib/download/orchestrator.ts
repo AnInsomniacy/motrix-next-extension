@@ -4,8 +4,8 @@
  * Automatic flow (browser download / Firefox response):
  *   filter → duplicate guard → unavailable policy → cancel browser download
  *   when intercepting → activate desktop if required → submit over HTTP.
- *   Automatic downloads never fall back to the deep-link protocol — they
- *   either reach the desktop app or stay in / return to the browser.
+ *   Automatic downloads never fall back to the deep-link protocol. Browser
+ *   fallback mode preserves the original download when the desktop is unavailable.
  *
  * Explicit flow (context menu, protocol links):
  *   submit over HTTP → wake and retry → deep-link protocol.
@@ -14,13 +14,12 @@ import type { DownloadSettings, SiteRule } from '@/lib/schema';
 import type { DiagnosticInput } from '@/lib/diagnostics';
 import { ApiAuthError, type DesktopApiClient } from '@/lib/api';
 import { createFilterPipeline, evaluateFilterPipeline, type FilterContext } from './filter';
-import { decodeMimeEncodedWords, extractFilenameFromUrl, isCookieCollectableUrl } from './url';
 import {
+  decodeMimeEncodedWords,
+  extractFilenameFromUrl,
+  isCookieCollectableUrl,
   normalizeFilename,
-  UNRESOLVED_FILENAME,
-  type FilenameMetadata,
-  type FilenameSource,
-} from './filename-metadata';
+} from './url';
 import type { RequestHeaderContext, RequestHeaderMatchReason } from './request-context';
 import type {
   DuplicateDownloadGuard,
@@ -42,9 +41,6 @@ export interface OrchestratorDeps {
   diagnosticLog: { append: (event: DiagnosticInput) => void };
   getSettings: () => DownloadSettings;
   getSiteRules: () => SiteRule[];
-  filenameMetadata?: {
-    resolve: (item: DownloadItem) => Promise<FilenameMetadata | undefined>;
-  };
   duplicateGuard?: DuplicateDownloadGuard;
   /** Primary submission path when reachable. */
   desktopClient?: DesktopApiClient;
@@ -66,6 +62,7 @@ export interface DownloadCandidate {
   fileSize: number;
   totalBytes: number;
   mime: string;
+  filenameSource?: 'browser-determined' | 'content-disposition';
   byExtensionId?: string;
   referrer?: string;
   requestHeaderContext?: RequestHeaderContext;
@@ -107,8 +104,9 @@ interface SendOptions {
 // These guards encode real-world fixes: browsers synthesize weak names
 // ("download", numeric ids) that must not override URL/header-derived names.
 
+const UNRESOLVED_FILENAME = 'unresolved-filename';
 const GENERIC_FILENAME_HINTS = new Set(['download', UNRESOLVED_FILENAME]);
-type FilenameHintSource = FilenameSource | 'download-item' | 'url';
+type FilenameHintSource = 'browser-determined' | 'content-disposition' | 'download-item' | 'url';
 
 function extensionOf(filename: string): string {
   const dot = filename.lastIndexOf('.');
@@ -148,11 +146,19 @@ function resolveFilenameHint(
 ): string | undefined {
   const trimmed = normalizeFilename(decodeMimeEncodedWords(candidate.filename));
   if (!trimmed) return undefined;
-  if (candidate.source !== 'content-disposition' && candidate.source !== 'url') {
+  if (
+    candidate.source !== 'browser-determined' &&
+    candidate.source !== 'content-disposition' &&
+    candidate.source !== 'url'
+  ) {
     if (isWeakBrowserFilename(url, trimmed)) return undefined;
   }
   const urlFilename = extractFilenameFromUrl(url);
-  if (urlFilename && candidate.source !== 'content-disposition') {
+  if (
+    urlFilename &&
+    candidate.source !== 'browser-determined' &&
+    candidate.source !== 'content-disposition'
+  ) {
     const hintExt = extensionOf(trimmed);
     const urlExt = extensionOf(urlFilename);
     if (hintExt && urlExt && hintExt !== urlExt) return undefined;
@@ -162,12 +168,13 @@ function resolveFilenameHint(
 
 function resolveBestFilenameHint(
   url: string,
-  metadata: FilenameMetadata | undefined,
-  itemFilename: string,
+  item: Pick<DownloadCandidate, 'filename' | 'filenameSource'>,
 ): { filename?: string; source: string } {
   const candidates: Array<{ filename: string; source: FilenameHintSource }> = [
-    ...(metadata ? [metadata] : []),
-    { filename: itemFilename, source: 'download-item' as const },
+    {
+      filename: item.filename,
+      source: item.filenameSource ?? 'download-item',
+    },
   ];
   for (const candidate of candidates) {
     const filename = resolveFilenameHint(url, candidate);
@@ -190,15 +197,13 @@ export class DownloadOrchestrator {
   }
 
   /**
-   * Handle a `downloads.onCreated` event.
+   * Handle a browser download exposed by the engine-specific event adapter.
    *
    * @returns true if the download was intercepted (cancelled in the browser).
    */
-  async handleCreated(item: DownloadItem): Promise<boolean> {
-    // Chrome replays onCreated for interrupted/completed downloads after
-    // reboots or Service Worker restarts. Only genuinely new downloads are
-    // in_progress; stale items must be ignored to prevent historical
-    // download floods (#267).
+  async handleBrowserDownload(item: DownloadItem): Promise<boolean> {
+    // The Firefox onCreated fallback can replay interrupted or completed
+    // downloads after restarts. Only genuinely new downloads are eligible.
     if (item.state !== 'in_progress') {
       this.log('download_skipped', `Skipped stale download (state=${item.state}): ${item.url}`, {
         url: item.url,
@@ -223,7 +228,7 @@ export class DownloadOrchestrator {
 
     const duplicate = this.reserveDuplicate(item);
     if (duplicate.blocked) {
-      await this.safeCancel(item.id);
+      if (!(await this.cancelBrowserDownload(item.id))) return false;
       this.reportDuplicate(effectiveUrl, duplicate.shouldNotify, { tabUrl });
       return true;
     }
@@ -239,16 +244,22 @@ export class DownloadOrchestrator {
         );
         return false;
       }
-      await this.safeCancel(item.id);
+      if (!(await this.cancelBrowserDownload(item.id))) {
+        this.deps.duplicateGuard?.release(duplicate.reservation);
+        return false;
+      }
     } else {
-      await this.safeCancel(item.id);
+      if (!(await this.cancelBrowserDownload(item.id))) {
+        this.deps.duplicateGuard?.release(duplicate.reservation);
+        return false;
+      }
       if (!(await this.activateDesktop(effectiveUrl, settings))) {
         this.deps.duplicateGuard?.release(duplicate.reservation);
         return true;
       }
     }
 
-    const job = await this.buildJob(item, await this.resolveFilenameMetadata(item), tabUrl);
+    const job = await this.buildJob(item, tabUrl);
     const routed = await this.sendToDesktop(job, { allowWake: false, allowProtocol: false });
     if (!routed) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
@@ -271,7 +282,7 @@ export class DownloadOrchestrator {
    *
    * @returns true if the response should be cancelled.
    */
-  async handleResponse(item: DownloadCandidate, metadata?: FilenameMetadata): Promise<boolean> {
+  async handleFirefoxResponse(item: DownloadCandidate): Promise<boolean> {
     const filterResult = this.evaluateCandidate(item);
     if (!filterResult) return false;
     const { tabUrl } = filterResult;
@@ -293,7 +304,7 @@ export class DownloadOrchestrator {
       return true;
     }
 
-    const job = await this.buildJob(item, metadata, tabUrl);
+    const job = await this.buildJob(item, tabUrl);
     try {
       await this.submitToDesktopApi(job);
     } catch (e) {
@@ -305,6 +316,10 @@ export class DownloadOrchestrator {
         { url: effectiveUrl },
         auth ? 'error' : 'warn',
       );
+      if (settings.desktopUnavailable.action === 'browser') {
+        this.browserFallbacks.set(effectiveUrl, Date.now() + BROWSER_FALLBACK_TTL_MS);
+        return false;
+      }
       return true;
     }
 
@@ -442,13 +457,9 @@ export class DownloadOrchestrator {
 
   // ─── Submission ───────────────────────────────────────
 
-  private async buildJob(
-    item: DownloadCandidate,
-    metadata: FilenameMetadata | undefined,
-    tabUrl: string,
-  ): Promise<DownloadJob> {
+  private async buildJob(item: DownloadCandidate, tabUrl: string): Promise<DownloadJob> {
     const effectiveUrl = item.finalUrl || item.url;
-    const { filename, source } = resolveBestFilenameHint(effectiveUrl, metadata, item.filename);
+    const { filename, source } = resolveBestFilenameHint(effectiveUrl, item);
     return {
       url: effectiveUrl,
       finalUrl: effectiveUrl,
@@ -656,23 +667,8 @@ export class DownloadOrchestrator {
 
   // ─── Misc Helpers ─────────────────────────────────────
 
-  private async resolveFilenameMetadata(item: DownloadItem): Promise<FilenameMetadata | undefined> {
-    if (!this.deps.filenameMetadata) return undefined;
-    try {
-      return await this.deps.filenameMetadata.resolve(item);
-    } catch (e) {
-      this.log(
-        'download_fallback',
-        `Filename metadata resolution failed: ${errorMessage(e)}`,
-        { url: item.finalUrl || item.url },
-        'warn',
-      );
-      return undefined;
-    }
-  }
-
-  /** Cancel and erase a browser download, tolerating already-gone items. */
-  private async safeCancel(id: number): Promise<void> {
+  /** Cancel and erase a browser download before ownership moves to the desktop app. */
+  private async cancelBrowserDownload(id: number): Promise<boolean> {
     try {
       await this.deps.downloads.cancel(id);
     } catch (e) {
@@ -682,10 +678,12 @@ export class DownloadOrchestrator {
         { downloadId: id },
         'warn',
       );
+      return false;
     }
     await this.deps.downloads.erase({ id }).catch(() => {
       /* already removed from history — benign */
     });
+    return true;
   }
 
   private logIntercepted(item: DownloadCandidate, tabUrl: string, stageName: string | null): void {

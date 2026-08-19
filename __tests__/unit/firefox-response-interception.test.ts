@@ -17,19 +17,14 @@ describe('parseFirefoxDownloadResponse', () => {
     });
 
     expect(parsed).toEqual({
-      item: {
-        url: 'https://cdn.example.com/releases/asset',
-        finalUrl: 'https://cdn.example.com/releases/asset',
-        filename: 'release.zip',
-        fileSize: 10_485_760,
-        totalBytes: 10_485_760,
-        mime: 'application/zip',
-        referrer: 'https://example.com/releases',
-      },
-      metadata: {
-        filename: 'release.zip',
-        source: 'content-disposition',
-      },
+      url: 'https://cdn.example.com/releases/asset',
+      finalUrl: 'https://cdn.example.com/releases/asset',
+      filename: 'release.zip',
+      filenameSource: 'content-disposition',
+      fileSize: 10_485_760,
+      totalBytes: 10_485_760,
+      mime: 'application/zip',
+      referrer: 'https://example.com/releases',
     });
   });
 

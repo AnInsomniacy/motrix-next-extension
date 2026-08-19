@@ -88,7 +88,7 @@ describe('automatic download fallback', () => {
     const deps = createDeps();
     const orchestrator = new DownloadOrchestrator(deps);
 
-    const intercepted = await orchestrator.handleCreated(createDownloadItem());
+    const intercepted = await orchestrator.handleBrowserDownload(createDownloadItem());
 
     expect(intercepted).toBe(false);
     expect(deps.downloads.cancel).not.toHaveBeenCalled();
@@ -102,7 +102,7 @@ describe('automatic download fallback', () => {
     const deps = createDeps({ action: 'browser', reachable: true, calls });
     const orchestrator = new DownloadOrchestrator(deps);
 
-    const intercepted = await orchestrator.handleCreated(createDownloadItem());
+    const intercepted = await orchestrator.handleBrowserDownload(createDownloadItem());
 
     expect(intercepted).toBe(true);
     expect(deps.desktopClient?.isReachable).toHaveBeenCalledTimes(1);
@@ -119,7 +119,7 @@ describe('automatic download fallback', () => {
     });
     const orchestrator = new DownloadOrchestrator(deps);
 
-    const intercepted = await orchestrator.handleCreated(createDownloadItem());
+    const intercepted = await orchestrator.handleBrowserDownload(createDownloadItem());
 
     expect(intercepted).toBe(true);
     expect(calls).toEqual(['cancel', 'wake', 'route']);
@@ -129,7 +129,7 @@ describe('automatic download fallback', () => {
     const deps = createDeps({ action: 'launch', reachable: false, wakeResult: true });
     const orchestrator = new DownloadOrchestrator(deps);
 
-    const intercepted = await orchestrator.handleResponse(createDownloadCandidate());
+    const intercepted = await orchestrator.handleFirefoxResponse(createDownloadCandidate());
 
     expect(intercepted).toBe(true);
     expect(deps.wakeDesktop).toHaveBeenCalledWith(15_000);
@@ -141,7 +141,7 @@ describe('automatic download fallback', () => {
     const deps = createDeps({ action: 'launch', reachable: true, routeFails: true });
     const orchestrator = new DownloadOrchestrator(deps);
 
-    const intercepted = await orchestrator.handleCreated(createDownloadItem());
+    const intercepted = await orchestrator.handleBrowserDownload(createDownloadItem());
 
     expect(intercepted).toBe(true);
     expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
@@ -158,7 +158,7 @@ describe('automatic download fallback', () => {
     });
     const orchestrator = new DownloadOrchestrator(deps);
 
-    const intercepted = await orchestrator.handleCreated(createDownloadItem());
+    const intercepted = await orchestrator.handleBrowserDownload(createDownloadItem());
 
     expect(intercepted).toBe(true);
     expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
@@ -169,7 +169,7 @@ describe('automatic download fallback', () => {
     const deps = createDeps({ action: 'launch', reachable: false, wakeResult: false });
     const orchestrator = new DownloadOrchestrator(deps);
 
-    expect(await orchestrator.handleResponse(createDownloadCandidate())).toBe(true);
+    expect(await orchestrator.handleFirefoxResponse(createDownloadCandidate())).toBe(true);
 
     expect(deps.wakeDesktop).toHaveBeenCalledTimes(1);
   });

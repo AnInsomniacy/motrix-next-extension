@@ -12,10 +12,28 @@
  */
 import contentDisposition from 'content-disposition';
 import { decodeMimeWords } from 'lettercoder';
+import sanitizeFilename from 'sanitize-filename';
 
 export interface ParsedContentDisposition {
   type: string;
   filename?: string;
+}
+
+function stripControlCharacters(value: string): string {
+  return Array.from(value)
+    .filter((char) => {
+      const code = char.charCodeAt(0);
+      return code > 31 && code !== 127 && (code < 128 || code > 159);
+    })
+    .join('');
+}
+
+export function normalizeFilename(filename: string): string {
+  const basename = filename.trim().replace(/^.*[/\\]/, '');
+  const stripped = stripControlCharacters(basename).replace(/[. ]+$/, '');
+  return sanitizeFilename(stripped, { replacement: '_' })
+    .trim()
+    .replace(/[. ]+$/, '');
 }
 
 /**

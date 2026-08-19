@@ -21,6 +21,7 @@ interface MockDownloadItem {
   url: string;
   finalUrl: string;
   filename: string;
+  filenameSource?: 'browser-determined' | 'content-disposition';
   fileSize: number;
   totalBytes: number;
   mime: string;
@@ -98,13 +99,13 @@ describe('DownloadOrchestrator', () => {
     orchestrator = new DownloadOrchestrator(deps);
   });
 
-  // ─── handleCreated — state guard (#267) ─────────────────
+  // ─── handleBrowserDownload — state guard (#267) ─────────────────
 
-  describe('handleCreated — state guard against stale replay', () => {
+  describe('handleBrowserDownload — state guard against stale replay', () => {
     it('skips downloads with state "complete" (Chrome history replay)', async () => {
       const item = createMockDownloadItem({ state: 'complete' });
 
-      const intercepted = await orchestrator.handleCreated(item);
+      const intercepted = await orchestrator.handleBrowserDownload(item);
 
       expect(intercepted).toBe(false);
       expect(deps.downloads.cancel).not.toHaveBeenCalled();
@@ -114,7 +115,7 @@ describe('DownloadOrchestrator', () => {
     it('skips downloads with state "interrupted" (resumed after reboot)', async () => {
       const item = createMockDownloadItem({ state: 'interrupted' });
 
-      const intercepted = await orchestrator.handleCreated(item);
+      const intercepted = await orchestrator.handleBrowserDownload(item);
 
       expect(intercepted).toBe(false);
       expect(deps.downloads.cancel).not.toHaveBeenCalled();
@@ -124,7 +125,7 @@ describe('DownloadOrchestrator', () => {
     it('logs download_skipped with state-guard stage for stale items', async () => {
       const item = createMockDownloadItem({ state: 'complete' });
 
-      await orchestrator.handleCreated(item);
+      await orchestrator.handleBrowserDownload(item);
 
       expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -140,13 +141,13 @@ describe('DownloadOrchestrator', () => {
     it('does not invoke getSettings for stale items (fast path)', async () => {
       const item = createMockDownloadItem({ state: 'complete' });
 
-      await orchestrator.handleCreated(item);
+      await orchestrator.handleBrowserDownload(item);
 
       expect(deps.getSettings).not.toHaveBeenCalled();
     });
   });
 
-  describe('handleResponse — Firefox pre-download routing', () => {
+  describe('handleFirefoxResponse — Firefox pre-download routing', () => {
     it('cancels the response only after the desktop API accepts the download', async () => {
       const desktopClient = createDesktopClient();
       const addDownload = vi
@@ -155,10 +156,9 @@ describe('DownloadOrchestrator', () => {
       const responseDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(responseDeps);
 
-      const intercepted = await orch.handleResponse(createMockDownloadCandidate(), {
-        filename: 'file.zip',
-        source: 'content-disposition',
-      });
+      const intercepted = await orch.handleFirefoxResponse(
+        createMockDownloadCandidate({ filenameSource: 'content-disposition' }),
+      );
 
       expect(intercepted).toBe(true);
       expect(addDownload).toHaveBeenCalledTimes(1);
@@ -182,18 +182,38 @@ describe('DownloadOrchestrator', () => {
       });
       const orch = new DownloadOrchestrator(responseDeps);
 
-      const intercepted = await orch.handleResponse(createMockDownloadCandidate());
+      const intercepted = await orch.handleFirefoxResponse(createMockDownloadCandidate());
 
       expect(intercepted).toBe(false);
       expect(addDownload).not.toHaveBeenCalled();
       expect(responseDeps.downloads.cancel).not.toHaveBeenCalled();
       expect(responseDeps.openProtocolNewTask).not.toHaveBeenCalled();
     });
+
+    it('leaves the Firefox response untouched when browser-mode submission fails', async () => {
+      const desktopClient = createDesktopClient();
+      vi.spyOn(desktopClient, 'addDownload').mockRejectedValue(new Error('Connection lost'));
+      const browserSettings = {
+        ...DEFAULT_DOWNLOAD_SETTINGS,
+        desktopUnavailable: {
+          ...DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable,
+          action: 'browser' as const,
+        },
+      } satisfies DownloadSettings;
+      const responseDeps = createMockDeps({
+        desktopClient,
+        getSettings: vi.fn().mockReturnValue(browserSettings),
+      });
+      const orch = new DownloadOrchestrator(responseDeps);
+
+      expect(await orch.handleFirefoxResponse(createMockDownloadCandidate())).toBe(false);
+      expect(responseDeps.downloads.cancel).not.toHaveBeenCalled();
+    });
   });
 
-  // ─── handleCreated — cookie collection ─────────────────
+  // ─── handleBrowserDownload — cookie collection ─────────────────
 
-  describe('handleCreated — cookie forwarding', () => {
+  describe('handleBrowserDownload — cookie forwarding', () => {
     it('forwards cookies only to the HTTP API path', async () => {
       const desktopClient = createDesktopClient();
       const addDownload = vi
@@ -215,7 +235,7 @@ describe('DownloadOrchestrator', () => {
       });
       const orch = new DownloadOrchestrator(cookieDeps);
 
-      await orch.handleCreated(createMockDownloadItem());
+      await orch.handleBrowserDownload(createMockDownloadItem());
 
       expect(addDownload).toHaveBeenCalledWith({
         url: 'https://example.com/file.zip',
@@ -234,7 +254,7 @@ describe('DownloadOrchestrator', () => {
       const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
 
-      await orch.handleCreated(
+      await orch.handleBrowserDownload(
         createMockDownloadItem({
           requestHeaderContext: {
             url: 'https://example.com/file.zip',
@@ -263,7 +283,7 @@ describe('DownloadOrchestrator', () => {
       const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
 
-      await orch.handleCreated(
+      await orch.handleBrowserDownload(
         createMockDownloadItem({
           requestHeaderContext: {
             url: 'https://example.com/file.zip',
@@ -296,7 +316,7 @@ describe('DownloadOrchestrator', () => {
       const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
 
-      await orch.handleCreated(
+      await orch.handleBrowserDownload(
         createMockDownloadItem({
           requestHeaderDiagnostics: {
             enabled: true,
@@ -327,7 +347,7 @@ describe('DownloadOrchestrator', () => {
       const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
 
-      await orch.handleCreated(
+      await orch.handleBrowserDownload(
         createMockDownloadItem({
           url: 'https://mail-attachment.googleusercontent.com/attachment/u/0/',
           finalUrl: 'https://mail-attachment.googleusercontent.com/attachment/u/0/',
@@ -352,7 +372,7 @@ describe('DownloadOrchestrator', () => {
       const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
 
-      await orch.handleCreated(
+      await orch.handleBrowserDownload(
         createMockDownloadItem({
           url: 'https://mail-attachment.googleusercontent.com/attachment/u/0/',
           finalUrl: 'https://mail-attachment.googleusercontent.com/attachment/u/0/',
@@ -369,28 +389,20 @@ describe('DownloadOrchestrator', () => {
       });
     });
 
-    it('forwards filename metadata captured from Content-Disposition', async () => {
+    it('forwards the browser-determined filename without a metadata side channel', async () => {
       const desktopClient = createDesktopClient();
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
-      const apiDeps = createMockDeps({
-        desktopClient,
-        openProtocolNewTask: undefined,
-        filenameMetadata: {
-          resolve: vi.fn().mockResolvedValue({
-            filename: 'ИТОГИ ЛДУ 2026.xlsx',
-            source: 'content-disposition',
-          }),
-        },
-      });
+      const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
 
-      await orch.handleCreated(
+      await orch.handleBrowserDownload(
         createMockDownloadItem({
           url: 'https://mail-attachment.googleusercontent.com/attachment/u/0/',
           finalUrl: 'https://mail-attachment.googleusercontent.com/attachment/u/0/',
-          filename: 'download',
+          filename: 'ИТОГИ ЛДУ 2026.xlsx',
+          filenameSource: 'browser-determined',
           mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         }),
       );
@@ -412,7 +424,7 @@ describe('DownloadOrchestrator', () => {
       const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
 
-      await orch.handleCreated(
+      await orch.handleBrowserDownload(
         createMockDownloadItem({
           url: 'https://cdn.example.com/hash',
           finalUrl: 'https://cdn.example.com/hash',
@@ -438,7 +450,7 @@ describe('DownloadOrchestrator', () => {
       const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
       const orch = new DownloadOrchestrator(apiDeps);
 
-      await orch.handleCreated(
+      await orch.handleBrowserDownload(
         createMockDownloadItem({
           url: 'https://cdn.example.com/hash',
           finalUrl: 'https://cdn.example.com/hash',
@@ -472,7 +484,7 @@ describe('DownloadOrchestrator', () => {
       });
       const orch = new DownloadOrchestrator(cookieDeps);
 
-      await orch.handleCreated(createMockDownloadItem());
+      await orch.handleBrowserDownload(createMockDownloadItem());
 
       const routedCall = (
         cookieDeps.diagnosticLog.append as ReturnType<typeof vi.fn>
@@ -498,7 +510,7 @@ describe('DownloadOrchestrator', () => {
       });
       const orch = new DownloadOrchestrator(cookieDeps);
 
-      await orch.handleCreated(
+      await orch.handleBrowserDownload(
         createMockDownloadItem({
           requestHeaderContext: {
             url: 'https://spigotmc.org/download',
@@ -616,7 +628,7 @@ describe('DownloadOrchestrator', () => {
       });
       const orch = new DownloadOrchestrator(errorDeps);
 
-      await orch.handleCreated(createMockDownloadItem());
+      await orch.handleBrowserDownload(createMockDownloadItem());
 
       expect(errorDeps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -640,8 +652,10 @@ describe('DownloadOrchestrator', () => {
       });
       const orch = new DownloadOrchestrator(errorDeps);
 
-      await orch.handleCreated(createMockDownloadItem());
+      const intercepted = await orch.handleBrowserDownload(createMockDownloadItem());
 
+      expect(intercepted).toBe(false);
+      expect(errorDeps.desktopClient?.addDownload).not.toHaveBeenCalled();
       expect(errorDeps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({
           code: 'download_cancel_failed',
@@ -658,7 +672,7 @@ describe('DownloadOrchestrator', () => {
         enabled: false,
       });
 
-      await orchestrator.handleCreated(createMockDownloadItem());
+      await orchestrator.handleBrowserDownload(createMockDownloadItem());
 
       expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -671,7 +685,7 @@ describe('DownloadOrchestrator', () => {
     it('includes stage name in download_skipped context for scheme filter', async () => {
       const item = createMockDownloadItem({ url: 'blob:https://example.com/abc' });
 
-      await orchestrator.handleCreated(item);
+      await orchestrator.handleBrowserDownload(item);
 
       expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({

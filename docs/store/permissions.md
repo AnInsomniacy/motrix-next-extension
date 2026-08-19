@@ -9,7 +9,7 @@ Text to enter in the Chrome Web Store Developer Dashboard when prompted to justi
 ### `downloads`
 
 ```
-The 'downloads' permission is the core of this extension's functionality. When a browser download starts, the extension evaluates it against the user's rules, extracts the URL and metadata, and forwards it to the locally running Motrix Next desktop application via its HTTP API. After successful delegation, the original browser download is cancelled and erased. Without this permission, the extension cannot intercept or manage downloads.
+The 'downloads' permission is the core of this extension's functionality. On Chromium browsers, the extension holds filename determination while it evaluates the download and cancels the original browser task before delegating it to Motrix Next. On Firefox, it handles download items that cannot be intercepted earlier as attachment responses. Without this permission, the extension cannot intercept or manage downloads.
 ```
 
 ### `storage`
@@ -33,13 +33,13 @@ Displays a brief desktop notification when an intercepted download cannot be del
 ### `webRequest`
 
 ```
-Observes request headers and Content-Disposition response headers for download requests. Request headers are filtered to a strict allowlist and forwarded only to the local Motrix Next API so the desktop app can reproduce browser-authenticated downloads more accurately. Users can disable request header forwarding in Settings. The extension does not redirect requests or transmit request metadata to any external service.
+Observes request headers for download requests. On Firefox, it also inspects Content-Disposition response headers so explicit attachments can be handled before the native save dialog opens. Request headers are filtered to a strict allowlist and forwarded only to the local Motrix Next API so the desktop app can reproduce browser-authenticated downloads more accurately. Users can disable request header forwarding in Settings. The extension does not redirect requests or transmit request metadata to any external service.
 ```
 
 ### `webRequestBlocking` (Firefox only)
 
 ```
-Firefox opens its native save dialog before the downloads API exposes a download item. This permission allows the extension to pause explicit Content-Disposition attachment responses while submitting the download to the local Motrix Next API. The response is cancelled only after Motrix Next accepts the task. If Motrix Next is unavailable or rejects the task, the response continues unchanged and Firefox handles the download normally. Chromium browsers do not request this permission.
+Firefox opens its native save dialog before the downloads API exposes a download item. This permission allows the extension to pause explicit Content-Disposition attachment responses while submitting the download to the local Motrix Next API. In browser fallback mode, the response is cancelled only after Motrix Next accepts the task; unavailable or rejected submissions continue unchanged in Firefox. Chromium browsers do not request this permission.
 ```
 
 ## Required Host Permissions
@@ -59,7 +59,7 @@ Required to read cookies for the download URL's domain when cookie forwarding is
 ### `https://*/*` and `http://*/*`
 
 ```
-Required because chrome.cookies.getAll() and webRequest need matching host permissions for the target download domain. Since delegated downloads can originate from any site, broad HTTP and HTTPS access is necessary for authenticated downloads, request context preservation, and response filename header preservation. Cookies, filtered request metadata, and filename metadata are sent only to the local Motrix Next HTTP API.
+Required because chrome.cookies.getAll() and webRequest need matching host permissions for the target download domain. Since delegated downloads can originate from any site, broad HTTP and HTTPS access is necessary for authenticated downloads and request context preservation. Firefox also uses this access to identify explicit attachment responses before its native save dialog opens. Cookies and filtered request metadata are sent only to the local Motrix Next HTTP API.
 ```
 
 ## Optional Permissions
@@ -83,7 +83,7 @@ Intercept browser downloads and delegate them to the Motrix Next desktop downloa
 ### Permission Justification Summary
 
 ```
-This extension intercepts browser downloads and sends them to a locally running download manager (Motrix Next). Required permissions: 'downloads' to intercept browser downloads, 'webRequest' to observe filtered request headers and Content-Disposition response headers, 'storage' for local settings persistence, 'contextMenus' for the right-click download option, 'notifications' for delivery failure alerts, and 'cookies' for authenticated download forwarding. Firefox also requires 'webRequestBlocking' to prevent its native save dialog only after Motrix Next accepts an attachment response. Required host permissions include localhost for the Motrix Next HTTP API plus broad HTTP/HTTPS origins so cookie forwarding, request context forwarding, and filename header preservation work for downloads from any site. The only optional permission is 'downloads.ui' for hiding the Chromium download bar. No data is collected, transmitted, or shared with any external service.
+This extension intercepts browser downloads and sends them to a locally running download manager (Motrix Next). Required permissions: 'downloads' to intercept browser downloads, 'webRequest' to observe filtered request headers, 'storage' for local settings persistence, 'contextMenus' for the right-click download option, 'notifications' for delivery failure alerts, and 'cookies' for authenticated download forwarding. Firefox also uses 'webRequest' and 'webRequestBlocking' to handle explicit attachment responses before its native save dialog opens. Required host permissions include localhost for the Motrix Next HTTP API plus broad HTTP/HTTPS origins so cookie forwarding and request context forwarding work for downloads from any site. The only optional permission is 'downloads.ui' for hiding the Chromium download bar. No data is collected, transmitted, or shared with any external service.
 ```
 
 ### Data Use Disclosures

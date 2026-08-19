@@ -39,9 +39,9 @@ lib/
 ├── file-extensions.ts           # File extension normalization/matching
 └── download/
     ├── orchestrator.ts          # Interception flows: automatic, Firefox response, explicit
+    ├── chromium-interception.ts # Chromium filename-decision lifecycle
     ├── filter.ts                # Filter pipeline (pure function stages)
     ├── request-context.ts       # Captured request headers (TTL store)
-    ├── filename-metadata.ts     # Content-Disposition filename store
     ├── duplicate-guard.ts       # Duplicate download reservation window
     ├── firefox-response.ts      # Firefox attachment response parsing
     └── url.ts                   # URL/filename extraction (incl. presigned CD params)
