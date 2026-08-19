@@ -39,7 +39,7 @@ lib/
 ├── file-extensions.ts           # File extension normalization/matching
 └── download/
     ├── orchestrator.ts          # Interception flows: automatic, Firefox response, explicit
-    ├── chromium-interception.ts # Chromium filename-decision lifecycle
+    ├── chromium-takeover.ts     # Synchronous Chromium cancellation handoff
     ├── filter.ts                # Filter pipeline (pure function stages)
     ├── request-context.ts       # Captured request headers (TTL store)
     ├── duplicate-guard.ts       # Duplicate download reservation window

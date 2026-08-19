@@ -99,8 +99,7 @@ export function createExternalProtocolClickHandler(deps: ExternalProtocolClickHa
 }
 
 // ─── webRequest Types ───────────────────────────────────
-// WXT's cross-browser typings omit Firefox's Promise-returning blocking
-// listener contract, so the extension declares the minimal shape it uses.
+// WXT's cross-browser typings omit Firefox's blocking listener contract.
 
 export type WebRequestHeader = { name?: string; value?: string };
 
@@ -124,9 +123,7 @@ export interface WebRequestApi {
   };
   onHeadersReceived?: {
     addListener: (
-      callback: (
-        details: WebRequestHeadersDetails,
-      ) => void | { cancel?: boolean } | Promise<void | { cancel?: boolean }>,
+      callback: (details: WebRequestHeadersDetails) => void | { cancel?: boolean },
       filter: { urls: string[]; types?: string[] },
       extraInfoSpec?: string[],
     ) => void;

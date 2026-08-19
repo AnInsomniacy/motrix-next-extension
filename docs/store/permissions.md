@@ -9,7 +9,7 @@ Text to enter in the Chrome Web Store Developer Dashboard when prompted to justi
 ### `downloads`
 
 ```
-The 'downloads' permission is the core of this extension's functionality. On Chromium browsers, the extension holds filename determination while it evaluates the download and cancels the original browser task before delegating it to Motrix Next. On Firefox, it handles download items that cannot be intercepted earlier as attachment responses. Without this permission, the extension cannot intercept or manage downloads.
+The 'downloads' permission is the core of this extension's functionality. On Chromium browsers, the extension cancels an eligible browser task during Chrome's filename event before native save-location handling continues. Downloads that should remain in the browser are restarted as extension-owned tasks so Chrome presents one save dialog under the user's existing preference. On Firefox, the permission restarts browser fallbacks and handles download types that do not expose an interceptable HTTP response. Without this permission, the extension cannot intercept or manage downloads.
 ```
 
 ### `storage`
@@ -33,13 +33,13 @@ Displays a brief desktop notification when an intercepted download cannot be del
 ### `webRequest`
 
 ```
-Observes request headers for download requests. On Firefox, it also inspects Content-Disposition response headers so explicit attachments can be handled before the native save dialog opens. Request headers are filtered to a strict allowlist and forwarded only to the local Motrix Next API so the desktop app can reproduce browser-authenticated downloads more accurately. Users can disable request header forwarding in Settings. The extension does not redirect requests or transmit request metadata to any external service.
+Observes request headers for download requests. On Firefox, it also inspects response headers so attachments and binary MIME responses can be handled before the native save dialog opens. Request headers are filtered to a strict allowlist and forwarded only to the local Motrix Next API so the desktop app can reproduce browser-authenticated downloads more accurately. Users can disable request header forwarding in Settings. The extension does not transmit request metadata to any external service.
 ```
 
 ### `webRequestBlocking` (Firefox only)
 
 ```
-Firefox opens its native save dialog before the downloads API exposes a download item. This permission allows the extension to pause explicit Content-Disposition attachment responses while submitting the download to the local Motrix Next API. In browser fallback mode, the response is cancelled only after Motrix Next accepts the task; unavailable or rejected submissions continue unchanged in Firefox. Chromium browsers do not request this permission.
+Firefox opens its native save dialog before the downloads API exposes a download item. This permission lets the extension synchronously cancel confirmed attachment and binary responses before native save handling begins. Desktop routing continues asynchronously. Browser-mode failures are restarted as a single Firefox-owned download that follows the user's save-location preference. Chromium browsers do not request this permission.
 ```
 
 ## Required Host Permissions
@@ -59,7 +59,7 @@ Required to read cookies for the download URL's domain when cookie forwarding is
 ### `https://*/*` and `http://*/*`
 
 ```
-Required because chrome.cookies.getAll() and webRequest need matching host permissions for the target download domain. Since delegated downloads can originate from any site, broad HTTP and HTTPS access is necessary for authenticated downloads and request context preservation. Firefox also uses this access to identify explicit attachment responses before its native save dialog opens. Cookies and filtered request metadata are sent only to the local Motrix Next HTTP API.
+Required because chrome.cookies.getAll() and webRequest need matching host permissions for the target download domain. Since delegated downloads can originate from any site, broad HTTP and HTTPS access is necessary for authenticated downloads and request context preservation. Firefox also uses this access to identify attachment and binary responses before its native save dialog opens. Cookies and filtered request metadata are sent only to the local Motrix Next HTTP API.
 ```
 
 ## Optional Permissions
@@ -83,7 +83,7 @@ Intercept browser downloads and delegate them to the Motrix Next desktop downloa
 ### Permission Justification Summary
 
 ```
-This extension intercepts browser downloads and sends them to a locally running download manager (Motrix Next). Required permissions: 'downloads' to intercept browser downloads, 'webRequest' to observe filtered request headers, 'storage' for local settings persistence, 'contextMenus' for the right-click download option, 'notifications' for delivery failure alerts, and 'cookies' for authenticated download forwarding. Firefox also uses 'webRequest' and 'webRequestBlocking' to handle explicit attachment responses before its native save dialog opens. Required host permissions include localhost for the Motrix Next HTTP API plus broad HTTP/HTTPS origins so cookie forwarding and request context forwarding work for downloads from any site. The only optional permission is 'downloads.ui' for hiding the Chromium download bar. No data is collected, transmitted, or shared with any external service.
+This extension intercepts browser downloads and sends them to a locally running download manager (Motrix Next). Required permissions: 'downloads' to intercept browser downloads, 'webRequest' to observe filtered request headers, 'storage' for local settings persistence, 'contextMenus' for the right-click download option, 'notifications' for delivery failure alerts, and 'cookies' for authenticated download forwarding. Firefox also uses 'webRequest' and 'webRequestBlocking' to handle attachment and binary responses before its native save dialog opens. Required host permissions include localhost for the Motrix Next HTTP API plus broad HTTP/HTTPS origins so cookie forwarding and request context forwarding work for downloads from any site. The only optional permission is 'downloads.ui' for hiding the Chromium download bar. No data is collected, transmitted, or shared with any external service.
 ```
 
 ### Data Use Disclosures

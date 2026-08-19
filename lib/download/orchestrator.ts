@@ -1,11 +1,11 @@
 /**
  * Central download interception orchestrator.
  *
- * Automatic flow (browser download / Firefox response):
- *   filter → duplicate guard → unavailable policy → cancel browser download
- *   when intercepting → activate desktop if required → submit over HTTP.
- *   Automatic downloads never fall back to the deep-link protocol. Browser
- *   fallback mode preserves the original download when the desktop is unavailable.
+ * Automatic flow (Chromium takeover / Firefox response / Firefox fallback):
+ *   filter → duplicate guard → unavailable policy → submit over HTTP.
+ *   Chromium acquires ownership before this flow and recreates the browser
+ *   download when browser fallback is required. Firefox blocks attachment
+ *   responses before its native download starts.
  *
  * Explicit flow (context menu, protocol links):
  *   submit over HTTP → wake and retry → deep-link protocol.
@@ -33,6 +33,7 @@ export interface OrchestratorDeps {
   downloads: {
     cancel: (id: number) => Promise<void>;
     erase: (query: { id: number }) => Promise<void>;
+    download: (options: { url: string }) => Promise<number>;
   };
   /** Optional cookies API for forwarding auth cookies to the desktop app. */
   cookies?: {
@@ -189,7 +190,7 @@ const BROWSER_FALLBACK_TTL_MS = 30_000;
 
 export class DownloadOrchestrator {
   private readonly filterStages;
-  /** Firefox responses kept in the browser; their onCreated echo must pass through. */
+  /** Browser fallbacks whose Firefox onCreated echo must pass through. */
   private readonly browserFallbacks = new Map<string, number>();
 
   constructor(private readonly deps: OrchestratorDeps) {
@@ -201,7 +202,7 @@ export class DownloadOrchestrator {
    *
    * @returns true if the download was intercepted (cancelled in the browser).
    */
-  async handleBrowserDownload(item: DownloadItem): Promise<boolean> {
+  async handleFirefoxCreatedDownload(item: DownloadItem): Promise<boolean> {
     // The Firefox onCreated fallback can replay interrupted or completed
     // downloads after restarts. Only genuinely new downloads are eligible.
     if (item.state !== 'in_progress') {
@@ -276,22 +277,99 @@ export class DownloadOrchestrator {
   }
 
   /**
-   * Route a Firefox attachment response before the save dialog opens.
-   * Browser mode keeps the response when desktop routing is unavailable;
-   * launch mode cancels it when startup or routing fails.
-   *
-   * @returns true if the response should be cancelled.
+   * Finish a Chromium download whose cancellation was issued synchronously by
+   * the event adapter. Browser fallback starts a fresh, self-owned download so
+   * Chrome can show exactly one save dialog under the user's global preference.
    */
-  async handleFirefoxResponse(item: DownloadCandidate): Promise<boolean> {
+  async handleChromiumTakeover(item: DownloadItem, cancellation: Promise<void>): Promise<boolean> {
+    if (!(await this.finishChromiumCancellation(item.id, cancellation))) return false;
+
     const filterResult = this.evaluateCandidate(item);
-    if (!filterResult) return false;
+    if (!filterResult) {
+      await this.restartBrowserDownload(item);
+      return false;
+    }
+    const { tabUrl } = filterResult;
+    const effectiveUrl = item.finalUrl || item.url;
+
+    const duplicate = this.reserveDuplicate(item);
+    if (duplicate.blocked) {
+      this.reportDuplicate(effectiveUrl, duplicate.shouldNotify, { tabUrl });
+      return true;
+    }
+
+    const settings = this.deps.getSettings();
+    if (settings.desktopUnavailable.action === 'browser') {
+      if (!(await this.isDesktopReachable())) {
+        this.deps.duplicateGuard?.release(duplicate.reservation);
+        this.log(
+          'download_fallback',
+          `Restarting in Chrome because Motrix Next is unavailable: ${effectiveUrl}`,
+          { url: effectiveUrl, target: 'browser' },
+        );
+        await this.restartBrowserDownload(item);
+        return false;
+      }
+    } else if (!(await this.activateDesktop(effectiveUrl, settings))) {
+      this.deps.duplicateGuard?.release(duplicate.reservation);
+      return true;
+    }
+
+    const job = await this.buildJob(item, tabUrl);
+    const routed = await this.sendToDesktop(job, { allowWake: false, allowProtocol: false });
+    if (!routed) {
+      this.deps.duplicateGuard?.release(duplicate.reservation);
+      if (settings.desktopUnavailable.action === 'browser') {
+        this.log(
+          'download_fallback',
+          `Restarting in Chrome after desktop routing failed: ${job.displayName}`,
+          { url: effectiveUrl, target: 'browser' },
+          'warn',
+        );
+        await this.restartBrowserDownload(item);
+        return false;
+      }
+      this.log('download_failed', `Discarded after desktop routing failed: ${job.displayName}`, {
+        url: effectiveUrl,
+        target: 'discard',
+      });
+      return true;
+    }
+
+    this.deps.duplicateGuard?.commit(duplicate.reservation);
+    this.logIntercepted(item, tabUrl, filterResult.stageName);
+    return true;
+  }
+
+  shouldClaimChromiumDownload(item: DownloadItem): boolean {
+    if (item.state !== 'in_progress') return false;
+    return this.evaluateCandidate(item) !== null;
+  }
+
+  /**
+   * Route a Firefox response that the blocking listener already cancelled.
+   * Browser-mode failures recreate one Firefox-owned download.
+   *
+   * @returns true when the response remains owned by Motrix Next.
+   */
+  async handleFirefoxResponseTakeover(item: DownloadCandidate): Promise<boolean> {
+    const filterResult = this.evaluateCandidate(item);
+    if (!filterResult) {
+      await this.restartBrowserDownload(item);
+      return false;
+    }
     const { tabUrl } = filterResult;
     const effectiveUrl = item.finalUrl || item.url;
 
     const settings = this.deps.getSettings();
     if (settings.desktopUnavailable.action === 'browser') {
       if (!(await this.isDesktopReachable())) {
-        this.browserFallbacks.set(effectiveUrl, Date.now() + BROWSER_FALLBACK_TTL_MS);
+        this.log(
+          'download_fallback',
+          `Restarting in Firefox because Motrix Next is unavailable: ${effectiveUrl}`,
+          { url: effectiveUrl, target: 'browser' },
+        );
+        await this.restartBrowserDownload(item);
         return false;
       }
     } else if (!(await this.activateDesktop(effectiveUrl, settings))) {
@@ -305,27 +383,33 @@ export class DownloadOrchestrator {
     }
 
     const job = await this.buildJob(item, tabUrl);
-    try {
-      await this.submitToDesktopApi(job);
-    } catch (e) {
+    const routed = await this.sendToDesktop(job, { allowWake: false, allowProtocol: false });
+    if (!routed) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      const auth = e instanceof ApiAuthError;
-      this.log(
-        auth ? 'api_auth_failed' : 'download_fallback',
-        `Firefox response routing failed: ${errorMessage(e)}`,
-        { url: effectiveUrl },
-        auth ? 'error' : 'warn',
-      );
       if (settings.desktopUnavailable.action === 'browser') {
-        this.browserFallbacks.set(effectiveUrl, Date.now() + BROWSER_FALLBACK_TTL_MS);
+        this.log(
+          'download_fallback',
+          `Restarting in Firefox after desktop routing failed: ${job.displayName}`,
+          { url: effectiveUrl, target: 'browser' },
+          'warn',
+        );
+        await this.restartBrowserDownload(item);
         return false;
       }
+      this.log('download_failed', `Discarded after desktop routing failed: ${job.displayName}`, {
+        url: effectiveUrl,
+        target: 'discard',
+      });
       return true;
     }
 
     this.deps.duplicateGuard?.commit(duplicate.reservation);
     this.logIntercepted(item, tabUrl, filterResult.stageName);
     return true;
+  }
+
+  shouldClaimFirefoxResponse(item: DownloadCandidate): boolean {
+    return this.evaluateCandidate(item) !== null;
   }
 
   /**
@@ -684,6 +768,44 @@ export class DownloadOrchestrator {
       /* already removed from history — benign */
     });
     return true;
+  }
+
+  private async finishChromiumCancellation(
+    id: number,
+    cancellation: Promise<void>,
+  ): Promise<boolean> {
+    try {
+      await cancellation;
+    } catch (e) {
+      this.log(
+        'download_cancel_failed',
+        `Cancel failed for download ${id}: ${errorMessage(e)}`,
+        { downloadId: id },
+        'warn',
+      );
+      return false;
+    }
+    await this.deps.downloads.erase({ id }).catch(() => {
+      /* already removed from history */
+    });
+    return true;
+  }
+
+  private async restartBrowserDownload(item: DownloadCandidate): Promise<void> {
+    const url = item.url;
+    for (const candidate of new Set([item.url, item.finalUrl].filter(Boolean))) {
+      this.browserFallbacks.set(candidate, Date.now() + BROWSER_FALLBACK_TTL_MS);
+    }
+    try {
+      await this.deps.downloads.download({ url });
+    } catch (e) {
+      this.log(
+        'download_failed',
+        `Browser fallback failed: ${errorMessage(e)}`,
+        { url, target: 'browser' },
+        'error',
+      );
+    }
   }
 
   private logIntercepted(item: DownloadCandidate, tabUrl: string, stageName: string | null): void {

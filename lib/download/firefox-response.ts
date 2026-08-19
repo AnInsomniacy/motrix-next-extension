@@ -25,6 +25,53 @@ function contentLength(headers: FirefoxResponseHeader[] | undefined): number {
   return Number.isSafeInteger(value) && value >= 0 ? value : -1;
 }
 
+const NON_DOWNLOAD_APPLICATION_MIMES = new Set([
+  'application/ecmascript',
+  'application/javascript',
+  'application/json',
+  'application/pdf',
+  'application/wasm',
+  'application/x-www-form-urlencoded',
+]);
+const WEB_DOCUMENT_MIMES = new Set([
+  'application/xhtml+xml',
+  'application/xml',
+  'text/html',
+  'text/xml',
+]);
+
+function baseMime(value: string): string {
+  return (value.split(';')[0] ?? '').trim().toLowerCase();
+}
+
+function isBinaryMime(value: string): boolean {
+  const mime = baseMime(value);
+  if (mime === 'binary/octet-stream') return true;
+  if (!mime.startsWith('application/')) return false;
+  if (NON_DOWNLOAD_APPLICATION_MIMES.has(mime) || WEB_DOCUMENT_MIMES.has(mime)) return false;
+  return !mime.endsWith('+json') && !mime.endsWith('+xml');
+}
+
+function hasExplicitDownloadIntent(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const path = parsed.pathname.toLowerCase();
+    const downloadValue = (parsed.searchParams.get('dl') ?? '').toLowerCase();
+    return (
+      path.endsWith('/download') ||
+      path.includes('/download/') ||
+      parsed.searchParams.has('download') ||
+      parsed.searchParams.has('attachment') ||
+      parsed.searchParams.has('filename') ||
+      parsed.searchParams.has('response-content-disposition') ||
+      parsed.searchParams.get('export') === 'download' ||
+      ['1', 'true', 'yes', 'download'].includes(downloadValue)
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function parseFirefoxDownloadResponse(
   details: FirefoxResponseDetails,
 ): DownloadCandidate | null {
@@ -35,19 +82,22 @@ export function parseFirefoxDownloadResponse(
   const disposition = parseContentDispositionHeader(
     headerValue(details.responseHeaders, 'content-disposition'),
   );
-  if (disposition?.type !== 'attachment') return null;
+  const mime = headerValue(details.responseHeaders, 'content-type');
+  const isAttachment = disposition?.type === 'attachment';
+  if (!isAttachment && WEB_DOCUMENT_MIMES.has(baseMime(mime))) return null;
+  if (!isAttachment && !isBinaryMime(mime) && !hasExplicitDownloadIntent(details.url)) return null;
 
-  const filename = disposition.filename ? normalizeFilename(disposition.filename) : '';
+  const filename = disposition?.filename ? normalizeFilename(disposition.filename) : '';
   const size = contentLength(details.responseHeaders);
 
   return {
     url: details.url,
     finalUrl: details.url,
     filename,
-    filenameSource: 'content-disposition',
+    ...(filename ? { filenameSource: 'content-disposition' as const } : {}),
     fileSize: size,
     totalBytes: size,
-    mime: headerValue(details.responseHeaders, 'content-type'),
+    mime,
     referrer: details.originUrl || details.documentUrl || '',
   };
 }

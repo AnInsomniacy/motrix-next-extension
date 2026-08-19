@@ -28,6 +28,30 @@ describe('parseFirefoxDownloadResponse', () => {
     });
   });
 
+  it('recognizes an octet-stream download without Content-Disposition', () => {
+    const parsed = parseFirefoxDownloadResponse({
+      url: 'https://cdn.example.com/MicrosoftEdgeEnterpriseX64.msi',
+      method: 'GET',
+      type: 'main_frame',
+      statusCode: 200,
+      originUrl: 'https://go.microsoft.com/fwlink/?LinkID=2093437',
+      responseHeaders: [
+        { name: 'Content-Type', value: 'application/octet-stream' },
+        { name: 'Content-Length', value: '213393408' },
+      ],
+    });
+
+    expect(parsed).toEqual({
+      url: 'https://cdn.example.com/MicrosoftEdgeEnterpriseX64.msi',
+      finalUrl: 'https://cdn.example.com/MicrosoftEdgeEnterpriseX64.msi',
+      filename: '',
+      fileSize: 213_393_408,
+      totalBytes: 213_393_408,
+      mime: 'application/octet-stream',
+      referrer: 'https://go.microsoft.com/fwlink/?LinkID=2093437',
+    });
+  });
+
   it('rejects responses that are not explicit document downloads', () => {
     expect(
       parseFirefoxDownloadResponse({
@@ -36,6 +60,26 @@ describe('parseFirefoxDownloadResponse', () => {
         type: 'main_frame',
         statusCode: 200,
         responseHeaders: [{ name: 'Content-Type', value: 'text/html' }],
+      }),
+    ).toBeNull();
+
+    expect(
+      parseFirefoxDownloadResponse({
+        url: 'https://example.com/report.pdf',
+        method: 'GET',
+        type: 'main_frame',
+        statusCode: 200,
+        responseHeaders: [{ name: 'Content-Type', value: 'application/pdf' }],
+      }),
+    ).toBeNull();
+
+    expect(
+      parseFirefoxDownloadResponse({
+        url: 'https://example.com/api',
+        method: 'GET',
+        type: 'main_frame',
+        statusCode: 200,
+        responseHeaders: [{ name: 'Content-Type', value: 'application/problem+json' }],
       }),
     ).toBeNull();
 

@@ -109,7 +109,7 @@ Yes. This extension sends downloads to the Motrix Next desktop app via its HTTP 
 
 <br>
 
-The broad host permissions (`*://*/*`) are required so cookie forwarding works immediately for authenticated downloads from any site. The `chrome.cookies.getAll()` and `webRequest` APIs require matching host permissions for the target domain, and browser downloads can originate from any domain. The same access lets the extension preserve filtered request context and, on Firefox, inspect explicit attachment responses before the native save dialog opens. Cookies and filtered request metadata are sent only to the Motrix Next API on `127.0.0.1`. Users can disable cookie forwarding and request header forwarding in Settings.
+The broad host permissions (`*://*/*`) are required so cookie forwarding works immediately for authenticated downloads from any site. The `chrome.cookies.getAll()` and `webRequest` APIs require matching host permissions for the target domain, and browser downloads can originate from any domain. The same access lets the extension preserve filtered request context and, on Firefox, identify attachment and binary responses before the native save dialog opens. Cookies and filtered request metadata are sent only to the Motrix Next API on `127.0.0.1`. Users can disable cookie forwarding and request header forwarding in Settings.
 
 </details>
 

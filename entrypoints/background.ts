@@ -1,6 +1,6 @@
 import { browser, type Browser } from 'wxt/browser';
-import { DownloadOrchestrator } from '@/lib/download/orchestrator';
-import { holdChromiumFilenameDecision } from '@/lib/download/chromium-interception';
+import { DownloadOrchestrator, type DownloadCandidate } from '@/lib/download/orchestrator';
+import { startChromiumTakeover } from '@/lib/download/chromium-takeover';
 import { DuplicateDownloadGuard } from '@/lib/download/duplicate-guard';
 import {
   RequestHeaderContextStore,
@@ -41,6 +41,7 @@ export default defineBackground(() => {
   // ─── State (restored from storage on each SW wake) ────
   let settings: DownloadSettings = structuredClone(DEFAULT_DOWNLOAD_SETTINGS);
   let siteRules: SiteRule[] = [];
+  let configLoaded = false;
 
   const bgI18n = new I18nEngine(FALLBACK_LOCALE);
   const diagnosticLog = new DiagnosticLog();
@@ -102,6 +103,8 @@ export default defineBackground(() => {
           'config_load_failed',
           `Configuration load failed, using defaults: ${errorMessage(e)}`,
         );
+      } finally {
+        configLoaded = true;
       }
     })();
     return configLoadPromise;
@@ -160,6 +163,7 @@ export default defineBackground(() => {
     downloads: {
       cancel: (id) => browser.downloads.cancel(id),
       erase: (query) => browser.downloads.erase(query).then(() => {}),
+      download: (options) => browser.downloads.download(options),
     },
     cookies: {
       getAll: async (details) => {
@@ -286,25 +290,33 @@ export default defineBackground(() => {
     }
   }
 
-  /** Firefox: blocking interception of attachment responses. */
+  async function handleFirefoxResponseTakeover(candidate: DownloadCandidate): Promise<void> {
+    await ensureConfigLoaded();
+    const match = matchRequestHeaders(candidate, true);
+    await orchestrator.handleFirefoxResponseTakeover({
+      ...candidate,
+      requestHeaderContext: match.context,
+      requestHeaderDiagnostics: headerDiagnostics(match),
+    });
+  }
+
+  /** Firefox: synchronously cancel binary responses before the native picker. */
   function registerFirefoxResponseInterception(): void {
     if (!import.meta.env.FIREFOX) return;
     try {
       webRequest?.onHeadersReceived?.addListener(
-        async (details): Promise<void | { cancel: true }> => {
-          await ensureConfigLoaded();
+        (details): void | { cancel: true } => {
           const parsed = parseFirefoxDownloadResponse(details);
           if (!parsed) return;
+          if (configLoaded && !orchestrator.shouldClaimFirefoxResponse(parsed)) return;
 
-          const match = matchRequestHeaders(parsed, false);
-          const intercepted = await orchestrator.handleFirefoxResponse({
-            ...parsed,
-            requestHeaderContext: match.context,
-            requestHeaderDiagnostics: headerDiagnostics(match),
+          void handleFirefoxResponseTakeover(parsed).catch((error) => {
+            logError(
+              'download_handler_error',
+              `Firefox response takeover crashed: ${errorMessage(error)}`,
+              { url: parsed.url, mime: parsed.mime, filename: parsed.filename },
+            );
           });
-          if (!intercepted) return;
-
-          if (match.matched) requestHeaderContexts.match(parsed);
           return { cancel: true };
         },
         { urls: ALL_HTTP_URLS, types: ['main_frame', 'sub_frame'] },
@@ -320,14 +332,14 @@ export default defineBackground(() => {
 
   // ─── Download Interception ────────────────────────────
 
-  async function handleBrowserDownload(
+  function createBrowserDownloadItem(
     item: Browser.downloads.DownloadItem,
+    consumeHeaders: boolean,
     filenameSource?: 'browser-determined',
-  ): Promise<void> {
-    await ensureConfigLoaded();
+  ) {
     const identity = { url: item.url, finalUrl: item.finalUrl || item.url };
-    const match = matchRequestHeaders(identity, true);
-    await orchestrator.handleBrowserDownload({
+    const match = matchRequestHeaders(identity, consumeHeaders);
+    return {
       id: item.id,
       url: item.url,
       finalUrl: identity.finalUrl,
@@ -341,7 +353,32 @@ export default defineBackground(() => {
       referrer: item.referrer || '',
       requestHeaderContext: match.context,
       requestHeaderDiagnostics: headerDiagnostics(match),
-    });
+    };
+  }
+
+  async function handleFirefoxCreatedDownload(item: Browser.downloads.DownloadItem): Promise<void> {
+    await ensureConfigLoaded();
+    await orchestrator.handleFirefoxCreatedDownload(createBrowserDownloadItem(item, true));
+  }
+
+  async function handleChromiumTakeover(
+    item: Browser.downloads.DownloadItem,
+    cancellation: Promise<void>,
+  ): Promise<void> {
+    await ensureConfigLoaded();
+    await orchestrator.handleChromiumTakeover(
+      createBrowserDownloadItem(item, true, 'browser-determined'),
+      cancellation,
+    );
+  }
+
+  function isPotentialChromiumDownload(item: Browser.downloads.DownloadItem): boolean {
+    if (item.state !== 'in_progress' || item.byExtensionId) return false;
+    try {
+      return ['http:', 'https:', 'ftp:'].includes(new URL(item.url).protocol);
+    } catch {
+      return false;
+    }
   }
 
   function logDownloadHandlerError(item: Browser.downloads.DownloadItem, error: unknown): void {
@@ -354,18 +391,28 @@ export default defineBackground(() => {
 
   if (import.meta.env.FIREFOX) {
     browser.downloads.onCreated.addListener((item) => {
-      void handleBrowserDownload(item).catch((error) => {
+      void handleFirefoxCreatedDownload(item).catch((error) => {
         logDownloadHandlerError(item, error);
       });
     });
   } else {
-    browser.downloads.onDeterminingFilename.addListener((item, suggest) =>
-      holdChromiumFilenameDecision(
-        () => handleBrowserDownload(item, 'browser-determined'),
-        suggest,
+    browser.downloads.onDeterminingFilename.addListener((item) => {
+      if (!isPotentialChromiumDownload(item)) return;
+      if (
+        configLoaded &&
+        !orchestrator.shouldClaimChromiumDownload(
+          createBrowserDownloadItem(item, false, 'browser-determined'),
+        )
+      ) {
+        return;
+      }
+
+      startChromiumTakeover(
+        () => browser.downloads.cancel(item.id),
+        (cancellation) => handleChromiumTakeover(item, cancellation),
         (error) => logDownloadHandlerError(item, error),
-      ),
-    );
+      );
+    });
   }
 
   // ─── Context Menu ─────────────────────────────────────
