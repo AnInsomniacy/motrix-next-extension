@@ -14,6 +14,7 @@ import {
   DesktopActivationError,
   activateDesktop,
   createDesktopActivationCoordinator,
+  type DesktopActionResponse,
 } from '@/lib/desktop';
 import {
   CONTEXT_MENU_CONTEXTS,
@@ -28,9 +29,11 @@ import {
 } from '@/lib/browser';
 import { loadDiagnosticEvents, loadSnapshot, saveDiagnosticEvents } from '@/lib/storage';
 import {
+  DEFAULT_DIAGNOSTIC_SETTINGS,
   DEFAULT_DOWNLOAD_SETTINGS,
   parseConnectionConfig,
   parseDownloadSettings,
+  parseDiagnosticSettings,
   parseSiteRules,
   parseUiPrefs,
   type DiagnosticCode,
@@ -51,6 +54,7 @@ export default defineBackground(() => {
   const diagnosticLog = createDiagnosticJournal({
     load: loadDiagnosticEvents,
     save: saveDiagnosticEvents,
+    maxEvents: DEFAULT_DIAGNOSTIC_SETTINGS.maxEvents,
     onPersistError: (error) => {
       console.warn('[MotrixNext] Diagnostic persistence failed:', error);
     },
@@ -90,6 +94,7 @@ export default defineBackground(() => {
       try {
         const data = await loadSnapshot();
         settings = data.settings;
+        diagnosticLog.setMaxEvents(data.diagnostics.maxEvents);
         siteRules = data.siteRules;
         desktopClient.updateConfig(data.connection);
         bgI18n.setLocale(effectiveLocale(data.uiPrefs.locale));
@@ -480,7 +485,7 @@ export default defineBackground(() => {
     }
   }
 
-  async function handleDesktopActivation(): Promise<{ ok: true } | { ok: false; error: string }> {
+  async function handleDesktopOpen(): Promise<DesktopActionResponse> {
     try {
       await activateDesktopApp();
       return { ok: true };
@@ -490,6 +495,44 @@ export default defineBackground(() => {
         source: 'popup',
         reason: code,
       });
+      return { ok: false, error: code };
+    }
+  }
+
+  async function handleDesktopStart(): Promise<DesktopActionResponse> {
+    await ensureConfigLoaded();
+    try {
+      const ready = await activateDesktopAndWait({
+        activate: activateDesktopApp,
+        checkReady: async () => {
+          await desktopClient.getStat();
+          return true;
+        },
+        isFatalReadinessError: (error) => error instanceof ApiAuthError,
+        maxWaitMs: 15_000,
+      });
+      if (ready) return { ok: true };
+
+      logError('desktop_activation_failed', 'Motrix Next did not become ready', {
+        source: 'popup',
+        reason: 'readiness-timeout',
+      });
+      return { ok: false, error: 'readiness_timeout' };
+    } catch (error) {
+      const authFailure = error instanceof ApiAuthError;
+      const code =
+        error instanceof DesktopActivationError
+          ? error.code
+          : authFailure
+            ? 'api_auth_failed'
+            : 'unknown';
+      logError(
+        authFailure ? 'api_auth_failed' : 'desktop_activation_failed',
+        authFailure
+          ? 'Motrix Next rejected the API credentials'
+          : 'Motrix Next could not be started',
+        { source: 'popup', reason: code },
+      );
       return { ok: false, error: code };
     }
   }
@@ -517,15 +560,20 @@ export default defineBackground(() => {
 
   browser.runtime.onMessage.addListener((msg) => {
     if (msg === null || typeof msg !== 'object') return undefined;
-    if ('type' in msg && msg.type === 'ACTIVATE_DESKTOP') return handleDesktopActivation();
+    if ('type' in msg && msg.type === 'OPEN_DESKTOP') return handleDesktopOpen();
+    if ('type' in msg && msg.type === 'START_DESKTOP') return handleDesktopStart();
     if ('type' in msg && msg.type === 'CLEAR_DIAGNOSTICS') {
-      return diagnosticLog.clear().then(() => ({ ok: true as const }));
+      return ensureConfigLoaded()
+        .then(() => diagnosticLog.clear())
+        .then(() => ({ ok: true as const }));
     }
     if ('type' in msg && msg.type === 'GET_DIAGNOSTICS') {
-      return diagnosticLog.initialize().then(() => ({
-        ok: true as const,
-        events: diagnosticLog.getAll(),
-      }));
+      return ensureConfigLoaded()
+        .then(() => diagnosticLog.initialize())
+        .then(() => ({
+          ok: true as const,
+          events: diagnosticLog.getAll(),
+        }));
     }
     if ('type' in msg && msg.type === 'PAUSE_ALL') return handleDesktopCommand('pause-all');
     if ('type' in msg && msg.type === 'RESUME_ALL') return handleDesktopCommand('resume-all');
@@ -558,6 +606,9 @@ export default defineBackground(() => {
           });
         });
     }
+    if (changes.diagnostics?.newValue) {
+      diagnosticLog.setMaxEvents(parseDiagnosticSettings(changes.diagnostics.newValue).maxEvents);
+    }
   });
 
   // ─── Lifecycle ────────────────────────────────────────
@@ -587,8 +638,8 @@ export default defineBackground(() => {
     });
   });
 
-  void diagnosticLog.initialize();
-  void ensureConfigLoaded().then(() => {
+  void ensureConfigLoaded().then(async () => {
+    await diagnosticLog.initialize();
     // Register the context menu after the locale is loaded (i18n timing).
     registerContextMenu();
     applyDownloadBarPreferenceSafely();

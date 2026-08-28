@@ -15,10 +15,6 @@
     "message": "Getrennt",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_status_not_configured": {
-    "message": "Nicht konfiguriert",
-    "description": "Connection status badge when API secret is empty"
-  },
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
@@ -64,10 +60,6 @@
   "popup_error_unreachable": {
     "message": "Verbindung zu Motrix Next nicht möglich",
     "description": "Error message when API is unreachable"
-  },
-  "popup_error_check_settings": {
-    "message": "Einstellungen prüfen",
-    "description": "Button to navigate to settings when connection fails"
   },
   "options_title": {
     "message": "Motrix Next Extension · Einstellungen",
@@ -137,10 +129,6 @@
         "content": "$1"
       }
     }
-  },
-  "popup_error_hint": {
-    "message": "Make sure Motrix Next is running and API is enabled.",
-    "description": "Hint shown when connection fails"
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -547,10 +535,6 @@
     "message": "Ungultige Backup-Datei",
     "description": "Toast shown when selected settings backup is invalid."
   },
-  "options_settings_backup_include_secret": {
-    "message": "API-Schlüssel exportieren",
-    "description": "Switch label for including the API secret in exported settings backups."
-  },
   "options_diagnostics_filter_all": {
     "message": "Alle",
     "description": "Filter label for all diagnostic levels"
@@ -579,18 +563,28 @@
     "message": "Diagnosebericht konnte nicht exportiert werden",
     "description": "Error shown when the diagnostic report cannot be exported"
   },
-  "options_diagnostics_retention": {
-    "message": "Neueste $1 Ereignisse · Nach $2 Tagen gelöscht",
-    "description": "Diagnostic retention summary, $1 = maximum events and $2 = retention days",
-    "placeholders": {
-      "1": {
-        "content": "$1",
-        "example": "100"
-      },
-      "2": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
+  "popup_status_launching": {
+    "message": "Wird gestartet",
+    "description": "Popup status while the desktop app is starting"
+  },
+  "popup_launching_title": {
+    "message": "Motrix Next wird gestartet",
+    "description": "Popup launch progress title"
+  },
+  "popup_launching_hint": {
+    "message": "Desktop-App wird vorbereitet…",
+    "description": "Popup launch progress description"
+  },
+  "popup_launch_failed_title": {
+    "message": "Motrix Next konnte nicht gestartet werden",
+    "description": "Popup launch failure title"
+  },
+  "popup_launch_failed_hint": {
+    "message": "Prüfe, ob Motrix Next installiert ist und die API-Einstellungen stimmen.",
+    "description": "Popup launch failure guidance"
+  },
+  "popup_action_retry": {
+    "message": "Erneut versuchen",
+    "description": "Popup action to retry desktop launch"
   }
 }

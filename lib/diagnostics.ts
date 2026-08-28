@@ -8,9 +8,6 @@ import {
   type DiagnosticLevel,
 } from './schema';
 
-export const MAX_DIAGNOSTIC_EVENTS = 100;
-export const MAX_DIAGNOSTIC_AGE_MS = 7 * 24 * 60 * 60 * 1000;
-
 const URL_CONTEXT_KEYS = new Set(['url', 'finalUrl', 'tabUrl', 'pageUrl', 'referer']);
 
 export interface DiagnosticInput {
@@ -23,6 +20,7 @@ export interface DiagnosticInput {
 export interface DiagnosticJournalOptions {
   load: () => Promise<DiagnosticEvent[]>;
   save: (events: DiagnosticEvent[]) => Promise<void>;
+  maxEvents: number;
   now?: () => number;
   onPersistError?: (error: unknown) => void;
 }
@@ -33,6 +31,7 @@ export interface DiagnosticJournal {
   clear: () => Promise<void>;
   flush: () => Promise<void>;
   getAll: () => DiagnosticEvent[];
+  setMaxEvents: (maxEvents: number) => void;
 }
 
 function truncate(value: string, max: number): string {
@@ -95,13 +94,9 @@ function createEvent(input: DiagnosticInput, now: number, sequence: number): Dia
   };
 }
 
-function retainRecent(events: DiagnosticEvent[], now: number): DiagnosticEvent[] {
-  const cutoff = now - MAX_DIAGNOSTIC_AGE_MS;
-  return events.filter((event) => event.ts >= cutoff).slice(-MAX_DIAGNOSTIC_EVENTS);
-}
-
 export function createDiagnosticJournal(options: DiagnosticJournalOptions): DiagnosticJournal {
   const now = options.now ?? Date.now;
+  let maxEvents = options.maxEvents;
   let events: DiagnosticEvent[] = [];
   let pendingBeforeInitialization: DiagnosticEvent[] = [];
   let initialization: Promise<void> | null = null;
@@ -111,6 +106,10 @@ export function createDiagnosticJournal(options: DiagnosticJournalOptions): Diag
   let persistedMutation = 0;
   let persistence: Promise<void> | null = null;
   let lastPersistError: unknown = null;
+
+  function retainLatest(input: DiagnosticEvent[]): DiagnosticEvent[] {
+    return input.slice(-maxEvents);
+  }
 
   function schedulePersistence(): Promise<void> {
     if (!initialized) return Promise.resolve();
@@ -137,7 +136,7 @@ export function createDiagnosticJournal(options: DiagnosticJournalOptions): Diag
   }
 
   function mutate(nextEvents: DiagnosticEvent[]): void {
-    events = retainRecent(nextEvents, now());
+    events = retainLatest(nextEvents);
     mutation += 1;
     void schedulePersistence();
   }
@@ -150,7 +149,7 @@ export function createDiagnosticJournal(options: DiagnosticJournalOptions): Diag
       } catch (error) {
         options.onPersistError?.(error);
       }
-      events = retainRecent([...stored, ...pendingBeforeInitialization], now());
+      events = retainLatest([...stored, ...pendingBeforeInitialization]);
       const hadPending = pendingBeforeInitialization.length > 0;
       pendingBeforeInitialization = [];
       initialized = true;
@@ -185,11 +184,18 @@ export function createDiagnosticJournal(options: DiagnosticJournalOptions): Diag
     if (lastPersistError) throw lastPersistError;
   }
 
+  function setMaxEvents(value: number): void {
+    if (value === maxEvents) return;
+    maxEvents = value;
+    if (initialized && events.length > maxEvents) mutate(events);
+  }
+
   return {
     initialize,
     append,
     clear,
     flush,
     getAll: () => [...events],
+    setMaxEvents,
   };
 }

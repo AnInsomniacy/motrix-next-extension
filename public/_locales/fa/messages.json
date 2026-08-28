@@ -15,10 +15,6 @@
     "message": "قطع شده",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_status_not_configured": {
-    "message": "پیکربندی نشده",
-    "description": "Connection status badge when API secret is empty"
-  },
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
@@ -64,10 +60,6 @@
   "popup_error_unreachable": {
     "message": "اتصال به Motrix Next ممکن نیست",
     "description": "Error message when API is unreachable"
-  },
-  "popup_error_check_settings": {
-    "message": "بررسی تنظیمات",
-    "description": "Button to navigate to settings when connection fails"
   },
   "options_title": {
     "message": "Motrix Next Extension · تنظیمات",
@@ -137,10 +129,6 @@
         "content": "$1"
       }
     }
-  },
-  "popup_error_hint": {
-    "message": "Make sure Motrix Next is running and API is enabled.",
-    "description": "Hint shown when connection fails"
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -547,10 +535,6 @@
     "message": "فایل پشتیبان نامعتبر است",
     "description": "Toast shown when selected settings backup is invalid."
   },
-  "options_settings_backup_include_secret": {
-    "message": "خروجی گرفتن از کلید API",
-    "description": "Switch label for including the API secret in exported settings backups."
-  },
   "options_diagnostics_filter_all": {
     "message": "همه",
     "description": "Filter label for all diagnostic levels"
@@ -579,18 +563,28 @@
     "message": "خروجی‌گرفتن از گزارش عیب‌یابی ناموفق بود",
     "description": "Error shown when the diagnostic report cannot be exported"
   },
-  "options_diagnostics_retention": {
-    "message": "$1 رویداد اخیر · پس از $2 روز حذف می‌شوند",
-    "description": "Diagnostic retention summary, $1 = maximum events and $2 = retention days",
-    "placeholders": {
-      "1": {
-        "content": "$1",
-        "example": "100"
-      },
-      "2": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
+  "popup_status_launching": {
+    "message": "در حال راه‌اندازی",
+    "description": "Popup status while the desktop app is starting"
+  },
+  "popup_launching_title": {
+    "message": "در حال راه‌اندازی Motrix Next",
+    "description": "Popup launch progress title"
+  },
+  "popup_launching_hint": {
+    "message": "در انتظار آماده شدن برنامه دسکتاپ…",
+    "description": "Popup launch progress description"
+  },
+  "popup_launch_failed_title": {
+    "message": "Motrix Next راه‌اندازی نشد",
+    "description": "Popup launch failure title"
+  },
+  "popup_launch_failed_hint": {
+    "message": "مطمئن شوید Motrix Next نصب است و تنظیمات API درست هستند.",
+    "description": "Popup launch failure guidance"
+  },
+  "popup_action_retry": {
+    "message": "تلاش دوباره",
+    "description": "Popup action to retry desktop launch"
   }
 }

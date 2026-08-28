@@ -1,6 +1,19 @@
 <script lang="ts" setup>
-import { computed, onUnmounted, ref, watch } from 'vue';
-import { NBadge, NButton, NEmpty, NFormItem, NIcon, NSelect, NSwitch } from 'naive-ui';
+import { computed, h, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import {
+  NButton,
+  NCode,
+  NDataTable,
+  NEmpty,
+  NFormItem,
+  NIcon,
+  NInputNumber,
+  NSelect,
+  NTag,
+  type DataTableColumns,
+  type DataTableRowKey,
+  type PaginationProps,
+} from 'naive-ui';
 import {
   CloudDownloadOutline,
   CloudUploadOutline,
@@ -8,31 +21,50 @@ import {
   RefreshOutline,
   TrashOutline,
 } from '@vicons/ionicons5';
-import type { DiagnosticEvent, DiagnosticLevel } from '@/lib/schema';
+import {
+  DIAGNOSTIC_EVENT_LIMIT_MAX,
+  DIAGNOSTIC_EVENT_LIMIT_MIN,
+  type DiagnosticEvent,
+  type DiagnosticLevel,
+} from '@/lib/schema';
 import { useI18n } from '@/shared/i18n/engine';
 import CollapsePanel from '@/shared/components/CollapsePanel.vue';
 
 const props = defineProps<{
   events: DiagnosticEvent[];
-  includeConnectionSecret: boolean;
+  maxDiagnosticEvents: number;
 }>();
 
 const emit = defineEmits<{
   exportSettings: [];
   importSettings: [file: globalThis.File];
-  updateIncludeConnectionSecret: [value: boolean];
   resetSettings: [];
   clearDiagnostics: [];
   exportDiagnostics: [];
+  'update:maxDiagnosticEvents': [value: number];
 }>();
 
-const { t: i18n, tSub: i18nSub } = useI18n();
+const { t: i18n } = useI18n();
 const fileInput = ref<globalThis.HTMLInputElement | null>(null);
 const confirmingReset = ref(false);
-const expandedId = ref<string | null>(null);
 const levelFilter = ref<'all' | DiagnosticLevel>('all');
 const codeFilter = ref<string | null>(null);
+const diagnosticPage = ref(1);
+const expandedRowKeys = ref<DataTableRowKey[]>([]);
+const detailsOpen = ref(false);
+const tableHost = ref<globalThis.HTMLDivElement | null>(null);
 let resetConfirmTimer: ReturnType<typeof setTimeout> | null = null;
+let detailCloseTimer: ReturnType<typeof setTimeout> | null = null;
+
+const DIAGNOSTIC_PAGE_SIZE = 10;
+const DIAGNOSTIC_ROW_HEIGHT = 38;
+const DIAGNOSTIC_BODY_HEIGHT = DIAGNOSTIC_PAGE_SIZE * DIAGNOSTIC_ROW_HEIGHT;
+const DETAIL_TRANSITION_MS = 220;
+const LEVEL_TAG_TYPES: Record<DiagnosticLevel, 'info' | 'warning' | 'error'> = {
+  info: 'info',
+  warn: 'warning',
+  error: 'error',
+};
 
 const levelCounts = computed(() => ({
   all: props.events.length,
@@ -59,14 +91,91 @@ const levelOptions = computed<Array<{ value: 'all' | DiagnosticLevel; label: str
   { value: 'info', label: i18n('options_diagnostics_filter_info', 'Info') },
 ]);
 
+const diagnosticColumns: DataTableColumns<DiagnosticEvent> = [
+  {
+    type: 'expand',
+    width: 36,
+    expandable: (event) => Boolean(event.context),
+    renderExpand: (event) =>
+      h(
+        CollapsePanel,
+        { open: detailsOpen.value && expandedRowKeys.value.includes(event.id) },
+        {
+          default: () =>
+            h(NCode, {
+              class: 'diagnostic-context',
+              code: JSON.stringify(event.context, null, 2),
+              internalNoHighlight: true,
+              language: 'json',
+              wordWrap: true,
+            }),
+        },
+      ),
+  },
+  {
+    title: 'Time',
+    key: 'ts',
+    width: 108,
+    render: (event) =>
+      h('time', { datetime: new Date(event.ts).toISOString() }, formatTime(event.ts)),
+  },
+  {
+    title: 'Level',
+    key: 'level',
+    width: 90,
+    render: (event) =>
+      h(
+        NTag,
+        { bordered: false, size: 'small', type: LEVEL_TAG_TYPES[event.level] },
+        { default: () => event.level.toUpperCase() },
+      ),
+  },
+  {
+    title: 'Event',
+    key: 'code',
+    minWidth: 210,
+    ellipsis: { tooltip: true },
+    render: (event) => h('code', { class: 'diagnostic-code' }, event.code),
+  },
+  {
+    title: 'Message',
+    key: 'message',
+    minWidth: 260,
+    ellipsis: { tooltip: true },
+  },
+];
+
+const diagnosticPagination = computed<PaginationProps>(() => ({
+  page: diagnosticPage.value,
+  pageSize: DIAGNOSTIC_PAGE_SIZE,
+  pageSlot: 7,
+  size: 'small',
+  prefix: ({ startIndex, endIndex, itemCount }) => {
+    const total = itemCount ?? 0;
+    const range = total === 0 ? '0' : `${startIndex + 1}–${endIndex + 1}`;
+    return `${range} of ${total} · max ${props.maxDiagnosticEvents}`;
+  },
+}));
+
+watch([levelFilter, codeFilter], () => {
+  diagnosticPage.value = 1;
+  closeDetailsImmediately();
+  void animateDiagnosticRows();
+});
+
+watch(filteredEvents, (events) => {
+  const pageCount = Math.max(1, Math.ceil(events.length / DIAGNOSTIC_PAGE_SIZE));
+  diagnosticPage.value = Math.min(diagnosticPage.value, pageCount);
+  if (expandedRowKeys.value.some((key) => !events.some((event) => event.id === key))) {
+    closeDetailsImmediately();
+  }
+});
+
 watch(
   () => props.events,
   (events) => {
     if (codeFilter.value && !events.some((event) => event.code === codeFilter.value)) {
       codeFilter.value = null;
-    }
-    if (expandedId.value && !events.some((event) => event.id === expandedId.value)) {
-      expandedId.value = null;
     }
   },
 );
@@ -75,6 +184,13 @@ function clearResetConfirmTimer(): void {
   if (resetConfirmTimer) {
     clearTimeout(resetConfirmTimer);
     resetConfirmTimer = null;
+  }
+}
+
+function clearDetailCloseTimer(): void {
+  if (detailCloseTimer) {
+    clearTimeout(detailCloseTimer);
+    detailCloseTimer = null;
   }
 }
 
@@ -104,8 +220,65 @@ function handleResetClick(): void {
   }, 4000);
 }
 
-function toggleExpand(id: string): void {
-  expandedId.value = expandedId.value === id ? null : id;
+function handleDiagnosticPageChange(page: number): void {
+  diagnosticPage.value = page;
+  closeDetailsImmediately();
+  void animateDiagnosticRows();
+}
+
+async function handleExpandedRowKeys(keys: DataTableRowKey[]): Promise<void> {
+  const latest = keys.at(-1);
+  clearDetailCloseTimer();
+
+  if (latest === undefined) {
+    detailsOpen.value = false;
+    if (prefersReducedMotion()) {
+      expandedRowKeys.value = [];
+      return;
+    }
+    detailCloseTimer = setTimeout(() => {
+      expandedRowKeys.value = [];
+      detailCloseTimer = null;
+    }, DETAIL_TRANSITION_MS);
+    return;
+  }
+
+  detailsOpen.value = false;
+  expandedRowKeys.value = [latest];
+  await nextTick();
+  window.requestAnimationFrame(() => {
+    if (expandedRowKeys.value[0] === latest) detailsOpen.value = true;
+  });
+}
+
+function closeDetailsImmediately(): void {
+  clearDetailCloseTimer();
+  detailsOpen.value = false;
+  expandedRowKeys.value = [];
+}
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+async function animateDiagnosticRows(): Promise<void> {
+  await nextTick();
+  if (prefersReducedMotion()) return;
+
+  const body = tableHost.value?.querySelector('tbody');
+  if (!body || typeof body.animate !== 'function') return;
+  for (const animation of body.getAnimations()) animation.cancel();
+  body.animate(
+    [
+      { opacity: 0.72, transform: 'translateY(2px)' },
+      { opacity: 1, transform: 'translateY(0)' },
+    ],
+    { duration: 150, easing: 'cubic-bezier(0.2, 0, 0, 1)' },
+  );
+}
+
+function handleMaxDiagnosticEvents(value: number | null): void {
+  if (value !== null) emit('update:maxDiagnosticEvents', value);
 }
 
 function formatTime(ts: number): string {
@@ -117,7 +290,11 @@ function formatTime(ts: number): string {
   return d.toLocaleString();
 }
 
-onUnmounted(clearResetConfirmTimer);
+onMounted(() => void animateDiagnosticRows());
+onUnmounted(() => {
+  clearResetConfirmTimer();
+  clearDetailCloseTimer();
+});
 </script>
 
 <template>
@@ -126,17 +303,6 @@ onUnmounted(clearResetConfirmTimer);
       <h3 class="settings-group-title">
         {{ i18n('options_settings_backup_title', 'Settings Backup') }}
       </h3>
-
-      <NFormItem
-        class="settings-row"
-        :show-feedback="false"
-        :label="i18n('options_settings_backup_include_secret', 'Export API Secret')"
-      >
-        <NSwitch
-          :value="includeConnectionSecret"
-          @update:value="emit('updateIncludeConnectionSecret', $event)"
-        />
-      </NFormItem>
 
       <div class="maintenance-actions">
         <NButton size="small" @click="emit('exportSettings')">
@@ -178,12 +344,28 @@ onUnmounted(clearResetConfirmTimer);
     </section>
 
     <section class="settings-group">
-      <div class="maintenance-group-header">
-        <h3 class="settings-group-title">
-          {{ i18n('options_section_diagnostics', 'Diagnostics') }}
-        </h3>
-        <NBadge v-if="events.length" :value="events.length" :max="999" type="info" />
-      </div>
+      <h3 class="settings-group-title">
+        {{ i18n('options_section_diagnostics', 'Diagnostics') }}
+      </h3>
+
+      <NFormItem
+        class="diagnostics-retention-setting"
+        label="Retained events"
+        label-placement="left"
+        :show-feedback="false"
+      >
+        <NInputNumber
+          :max="DIAGNOSTIC_EVENT_LIMIT_MAX"
+          :min="DIAGNOSTIC_EVENT_LIMIT_MIN"
+          :precision="0"
+          :step="10"
+          :value="maxDiagnosticEvents"
+          size="small"
+          @update:value="handleMaxDiagnosticEvents"
+        >
+          <template #suffix>events</template>
+        </NInputNumber>
+      </NFormItem>
 
       <div class="diagnostics-toolbar">
         <div
@@ -230,69 +412,30 @@ onUnmounted(clearResetConfirmTimer);
         </div>
       </div>
 
-      <Transition name="fade" mode="out-in">
-        <TransitionGroup
-          v-if="filteredEvents.length"
-          key="log"
-          name="list-item"
-          tag="div"
-          class="diag-log"
-        >
-          <div
-            v-for="event in filteredEvents"
-            :key="event.id"
-            class="diag-entry-wrapper"
-            :class="`diag-entry-wrapper--${event.level}`"
-          >
-            <button
-              type="button"
-              class="diag-entry"
-              :disabled="!event.context"
-              :aria-expanded="event.context ? expandedId === event.id : undefined"
-              :aria-label="`${event.level}: ${event.code}. ${event.message}`"
-              @click="event.context ? toggleExpand(event.id) : undefined"
-            >
-              <span class="diag-entry__time">{{ formatTime(event.ts) }}</span>
-              <code class="diag-entry__code">{{ event.code }}</code>
-              <span class="diag-entry__msg">{{ event.message }}</span>
-              <span
-                v-if="event.context"
-                class="diag-entry__chevron"
-                :class="{ expanded: expandedId === event.id }"
-                >›</span
-              >
-            </button>
-            <CollapsePanel :open="Boolean(event.context && expandedId === event.id)">
-              <div v-if="event.context" class="diag-context">
-                <div
-                  v-for="(value, key) in event.context"
-                  :key="String(key)"
-                  class="diag-context__row"
-                >
-                  <span class="diag-context__key">{{ key }}</span>
-                  <span class="diag-context__value">{{ value }}</span>
-                </div>
-              </div>
-            </CollapsePanel>
-          </div>
-        </TransitionGroup>
-        <NEmpty
-          v-else
-          key="empty"
+      <div ref="tableHost">
+        <NDataTable
+          class="diagnostics-table"
+          :columns="diagnosticColumns"
+          :data="filteredEvents"
+          :expanded-row-keys="expandedRowKeys"
+          :max-height="DIAGNOSTIC_BODY_HEIGHT"
+          :min-height="DIAGNOSTIC_BODY_HEIGHT"
+          :pagination="diagnosticPagination"
+          :row-key="(event: DiagnosticEvent) => event.id"
+          :single-line="false"
           size="small"
-          :description="i18n('options_diagnostics_empty', 'No diagnostic events.')"
-        />
-      </Transition>
-
-      <p class="diagnostics-retention">
-        {{
-          i18nSub(
-            'options_diagnostics_retention',
-            ['100', '7'],
-            'Latest 100 events · Removed after 7 days',
-          )
-        }}
-      </p>
+          table-layout="fixed"
+          @update:expanded-row-keys="handleExpandedRowKeys"
+          @update:page="handleDiagnosticPageChange"
+        >
+          <template #empty>
+            <NEmpty
+              size="small"
+              :description="i18n('options_diagnostics_empty', 'No diagnostic events.')"
+            />
+          </template>
+        </NDataTable>
+      </div>
     </section>
   </div>
 </template>
@@ -312,11 +455,13 @@ onUnmounted(clearResetConfirmTimer);
   flex-shrink: 0;
 }
 
-.maintenance-group-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.diagnostics-retention-setting {
+  max-width: 300px;
+  margin-bottom: 12px;
+}
+
+.diagnostics-retention-setting :deep(.n-input-number) {
+  width: 150px;
 }
 
 .diagnostics-toolbar {
@@ -386,152 +531,52 @@ onUnmounted(clearResetConfirmTimer);
   margin-left: auto;
 }
 
-.diag-log {
-  max-height: min(400px, 50vh);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  background: var(--color-surface-container);
-  border-radius: 10px;
-  padding: 6px;
+.diagnostics-table {
+  font-family: var(--font-mono);
 }
 
-.diag-entry-wrapper {
-  position: relative;
-  border-radius: 6px;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: color-mix(in srgb, var(--color-surface-container-high) 72%, transparent);
-}
-
-.diag-entry-wrapper::before {
-  position: absolute;
-  z-index: 1;
-  top: 6px;
-  bottom: 6px;
-  left: 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--color-outline);
-  content: '';
-}
-
-.diag-entry-wrapper--warn::before {
-  background: var(--color-warning);
-}
-
-.diag-entry-wrapper--error::before {
-  background: var(--color-error);
-}
-
-.diag-entry {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.diagnostics-table :deep(.n-data-table-th),
+.diagnostics-table :deep(.n-data-table-td) {
   font-size: 12px;
-  font-family: var(--font-mono);
-  padding: 7px 9px 7px 11px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.15s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.diag-entry:disabled {
-  cursor: default;
-  opacity: 1;
+.diagnostics-table :deep(.n-data-table-tr:not(.n-data-table-tr--expanded) > .n-data-table-td) {
+  height: 38px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
-.diag-entry:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--color-on-surface) 4%, transparent);
+.diagnostics-table :deep(.n-data-table-tr--expanded > .n-data-table-td) {
+  height: auto;
+  padding: 0;
 }
 
-.diag-entry:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: -2px;
-}
-
-.diag-entry__time {
-  color: var(--color-on-surface-variant);
-  opacity: 0.65;
-  flex-shrink: 0;
-  font-size: 11px;
-}
-
-.diag-entry__code {
+.diagnostics-table :deep(.diagnostic-code) {
   font-weight: 600;
-  color: var(--color-on-surface);
-  min-width: min(245px, 38%);
 }
 
-.diag-entry__msg {
-  color: var(--color-on-surface-variant);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.diag-entry__chevron {
-  margin-left: auto;
-  flex-shrink: 0;
-  color: var(--color-on-surface-variant);
-  opacity: 0.5;
-  font-size: 14px;
-  font-weight: 700;
-  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.diag-entry__chevron.expanded {
-  transform: rotate(90deg);
-}
-
-.diag-context {
-  padding: 2px 10px 9px 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.diag-context__row {
-  display: flex;
-  gap: 8px;
+.diagnostics-table :deep(.diagnostic-context) {
+  display: block;
+  max-height: 220px;
+  overflow: auto;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--color-surface-container-lowest);
   font-size: 11px;
-  font-family: var(--font-mono);
 }
 
-.diag-context__key {
-  color: var(--color-primary);
-  flex-shrink: 0;
-  font-weight: 500;
-  min-width: 60px;
+.diagnostics-table :deep(.n-data-table__pagination .n-pagination) {
+  width: 100%;
 }
 
-.diag-context__value {
-  color: var(--color-on-surface-variant);
-  word-break: break-all;
-}
-
-.diagnostics-retention {
-  margin: 8px 2px 0;
-  color: var(--color-on-surface-variant);
-  font-size: 10px;
-  text-align: right;
-  opacity: 0.65;
+.diagnostics-table :deep(.n-pagination-prefix) {
+  margin-right: auto;
 }
 
 @media (max-width: 700px) {
   .diagnostics-actions {
     width: 100%;
     margin-left: 0;
-  }
-
-  .diag-entry__code {
-    min-width: 0;
   }
 }
 </style>

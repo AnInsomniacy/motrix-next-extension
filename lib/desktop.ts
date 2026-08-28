@@ -21,6 +21,19 @@ const NativeHostResponseSchema = z.discriminatedUnion('ok', [
 
 export type NativeHostErrorCode = z.output<typeof NativeHostErrorCodeSchema>;
 export type NativeMessageSender = (hostName: string, message: object) => Promise<unknown>;
+export type DesktopAction = 'OPEN_DESKTOP' | 'START_DESKTOP';
+export type DesktopActionResponse = { ok: true } | { ok: false; error: string };
+
+export function parseDesktopActionResponse(response: unknown): DesktopActionResponse {
+  if (response === null || typeof response !== 'object' || !('ok' in response)) {
+    return { ok: false, error: 'invalid_response' };
+  }
+  if (response.ok === true) return { ok: true };
+  return {
+    ok: false,
+    error: 'error' in response && typeof response.error === 'string' ? response.error : 'unknown',
+  };
+}
 
 export class DesktopActivationError extends Error {
   constructor(
@@ -51,6 +64,8 @@ export interface DesktopActivationOptions {
   activate: () => Promise<void>;
   /** Return true when both the desktop app and its engine are ready. */
   checkReady: () => Promise<boolean>;
+  /** Stop waiting when a readiness error cannot recover through polling. */
+  isFatalReadinessError?: (error: unknown) => boolean;
   /** Maximum time to wait for readiness. */
   maxWaitMs: number;
   /** Interval between readiness checks. */
@@ -61,23 +76,27 @@ export type ActivateDesktopAndWait = (options: DesktopActivationOptions) => Prom
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-async function checkReadySafely(check: () => Promise<boolean>): Promise<boolean> {
+async function checkReadySafely(
+  check: () => Promise<boolean>,
+  isFatal: ((error: unknown) => boolean) | undefined,
+): Promise<boolean> {
   try {
     return await check();
-  } catch {
+  } catch (error) {
+    if (isFatal?.(error)) throw error;
     return false;
   }
 }
 
 async function activateAndWaitForApi(options: DesktopActivationOptions): Promise<boolean> {
-  if (await checkReadySafely(options.checkReady)) return true;
+  if (await checkReadySafely(options.checkReady, options.isFatalReadinessError)) return true;
 
   await options.activate();
   const pollIntervalMs = options.pollIntervalMs ?? 500;
   const deadline = Date.now() + options.maxWaitMs;
   while (Date.now() < deadline) {
     await sleep(pollIntervalMs);
-    if (await checkReadySafely(options.checkReady)) return true;
+    if (await checkReadySafely(options.checkReady, options.isFatalReadinessError)) return true;
   }
   return false;
 }

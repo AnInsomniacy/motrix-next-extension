@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_CONNECTION_CONFIG,
+  DEFAULT_DIAGNOSTIC_SETTINGS,
   DEFAULT_DOWNLOAD_SETTINGS,
   DEFAULT_UI_PREFS,
   parseConnectionConfig,
+  parseDiagnosticSettings,
   parseDiagnosticEvents,
   parseDownloadSettings,
   parseSiteRules,
@@ -73,12 +75,20 @@ describe('persisted schema repair', () => {
     });
   });
 
+  it('repairs the diagnostic event limit', () => {
+    expect(parseDiagnosticSettings(null)).toEqual(DEFAULT_DIAGNOSTIC_SETTINGS);
+    expect(parseDiagnosticSettings({ maxEvents: 250 })).toEqual({ maxEvents: 250 });
+    expect(parseDiagnosticSettings({ maxEvents: 9 })).toEqual(DEFAULT_DIAGNOSTIC_SETTINGS);
+    expect(parseDiagnosticSettings({ maxEvents: 501 })).toEqual(DEFAULT_DIAGNOSTIC_SETTINGS);
+  });
+
   it('builds a complete settings snapshot from partial or corrupt storage', () => {
     expect(parseSnapshot(null)).toEqual({
       connection: DEFAULT_CONNECTION_CONFIG,
       settings: DEFAULT_DOWNLOAD_SETTINGS,
       siteRules: [],
       uiPrefs: DEFAULT_UI_PREFS,
+      diagnostics: DEFAULT_DIAGNOSTIC_SETTINGS,
     });
     expect(
       parseSnapshot({ connection: { port: 9000 }, settings: { enabled: false }, unknown: true }),

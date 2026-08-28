@@ -8,15 +8,15 @@
  */
 import { onMounted, onUnmounted, provide, ref } from 'vue';
 import { browser } from 'wxt/browser';
-import { NButton, NConfigProvider, NIcon } from 'naive-ui';
+import { NButton, NConfigProvider, NIcon, NSkeleton, NSpin } from 'naive-ui';
 import { AlertCircleOutline, PauseOutline, PlayOutline, RocketOutline } from '@vicons/ionicons5';
-import {
-  DesktopApiClient,
-  checkConnection,
-  type ConnectionStatus,
-  type StatResponse,
-} from '@/lib/api';
+import { DesktopApiClient, checkConnection, type StatResponse } from '@/lib/api';
 import { loadSnapshot, updateSettings } from '@/lib/storage';
+import {
+  parseDesktopActionResponse,
+  type DesktopAction,
+  type DesktopActionResponse,
+} from '@/lib/desktop';
 import {
   DEFAULT_CONNECTION_CONFIG,
   parseConnectionConfig,
@@ -40,15 +40,15 @@ const theme = useAppTheme();
 
 // ─── State ──────────────────────────────────────────────
 
-const status = ref<ConnectionStatus>('disconnected');
+type PopupPhase = 'initializing' | 'disconnected' | 'launching' | 'connected' | 'failed';
+
+const phase = ref<PopupPhase>('initializing');
 const version = ref<string | null>(null);
 const errorType = ref<string | null>(null);
 const connectionPort = ref(DEFAULT_CONNECTION_CONFIG.port);
 const globalStat = ref<StatResponse | null>(null);
-const loading = ref(true);
 const enabled = ref(true);
-const launching = ref(false);
-const activationFailed = ref(false);
+const opening = ref(false);
 
 const apiClient = new DesktopApiClient({ ...DEFAULT_CONNECTION_CONFIG });
 let stopPolling: (() => void) | null = null;
@@ -56,20 +56,22 @@ let stopStorageListener: (() => void) | null = null;
 
 // ─── Data Fetching ──────────────────────────────────────
 
-async function fetchData(): Promise<void> {
+async function fetchData(): Promise<boolean> {
   try {
     const result = await checkConnection(apiClient);
-    status.value = result.status;
     version.value = result.version;
     errorType.value = result.error ?? null;
     if (result.status === 'connected') {
-      activationFailed.value = false;
       globalStat.value = await apiClient.getStat();
+      phase.value = 'connected';
+      return true;
+    } else if (phase.value !== 'launching' && phase.value !== 'failed') {
+      phase.value = 'disconnected';
     }
+    return false;
   } catch {
-    status.value = 'disconnected';
-  } finally {
-    loading.value = false;
+    if (phase.value !== 'launching' && phase.value !== 'failed') phase.value = 'disconnected';
+    return false;
   }
 }
 
@@ -90,21 +92,33 @@ function openSettings(): void {
 }
 
 async function launchApp(): Promise<void> {
-  activationFailed.value = false;
-  launching.value = true;
+  phase.value = 'launching';
   try {
-    if (!(await sendBackgroundCommand('ACTIVATE_DESKTOP'))) throw new Error('Activation failed');
-    await fetchData();
+    const response = await sendDesktopAction('START_DESKTOP');
+    if (!response.ok) {
+      phase.value = 'failed';
+      return;
+    }
+    if (!(await fetchData())) phase.value = 'failed';
   } catch {
-    activationFailed.value = true;
-  } finally {
-    launching.value = false;
+    phase.value = 'failed';
   }
 }
 
-async function sendBackgroundCommand(
-  type: 'ACTIVATE_DESKTOP' | 'PAUSE_ALL' | 'RESUME_ALL',
-): Promise<boolean> {
+async function openApp(): Promise<void> {
+  opening.value = true;
+  try {
+    await sendDesktopAction('OPEN_DESKTOP');
+  } finally {
+    opening.value = false;
+  }
+}
+
+async function sendDesktopAction(type: DesktopAction): Promise<DesktopActionResponse> {
+  return parseDesktopActionResponse(await browser.runtime.sendMessage({ type }));
+}
+
+async function sendBackgroundCommand(type: 'PAUSE_ALL' | 'RESUME_ALL'): Promise<boolean> {
   const response: unknown = await browser.runtime.sendMessage({ type });
   return (
     response !== null && typeof response === 'object' && 'ok' in response && response.ok === true
@@ -161,7 +175,9 @@ onMounted(async () => {
   bindStorageChanges();
 
   const poller = usePolling({
-    fn: fetchData,
+    fn: async () => {
+      await fetchData();
+    },
     baseIntervalMs: 500,
     maxIntervalMs: 5000,
     backoffMultiplier: 2,
@@ -185,55 +201,106 @@ onUnmounted(() => {
     inline-theme-disabled
   >
     <div class="popup-root">
-      <!-- ── Skeleton (first poll in flight) ─────────────────── -->
-      <div v-if="loading" class="popup-skeleton" aria-busy="true">
+      <div v-if="phase === 'initializing'" class="popup-skeleton" aria-busy="true">
         <div class="popup-skeleton__header">
-          <span class="skeleton skeleton--logo" />
-          <span class="skeleton skeleton--chip" />
+          <NSkeleton width="64px" height="24px" />
+          <NSkeleton width="84px" height="18px" round />
           <span class="popup-skeleton__spacer" />
-          <span class="skeleton skeleton--switch" />
+          <NSkeleton width="96px" height="20px" round />
         </div>
         <div class="popup-skeleton__body">
-          <span class="skeleton skeleton--stat" />
-          <span class="skeleton skeleton--stat" />
+          <NSkeleton height="108px" :sharp="false" />
+          <NSkeleton height="108px" :sharp="false" />
         </div>
         <div class="popup-skeleton__footer">
-          <span class="skeleton skeleton--button" />
+          <NSkeleton width="140px" height="24px" :sharp="false" />
         </div>
       </div>
 
       <template v-else>
-        <!-- ── Header ──────────────────────────────────────────── -->
         <PopupHeader
-          :status="status"
+          :status="
+            phase === 'connected'
+              ? 'connected'
+              : phase === 'launching'
+                ? 'launching'
+                : 'disconnected'
+          "
           :version="version"
           :enabled="enabled"
           @settings="openSettings"
           @toggle-enabled="toggleEnabled"
         />
 
-        <!-- ── Disconnected Banner (error-type-specific) ──────── -->
-        <Transition name="fade-scale">
-          <div v-if="status !== 'connected'" class="popup-banner popup-banner--error">
-            <NIcon :size="16" class="popup-banner__icon">
-              <AlertCircleOutline />
-            </NIcon>
-            <div>
-              <Transition name="text-swap" mode="out-in">
-                <div v-if="activationFailed" key="activation">
+        <div class="popup-viewport">
+          <Transition name="phase-switch" mode="out-in">
+            <section
+              v-if="phase === 'launching'"
+              key="launching"
+              class="popup-page popup-launching"
+            >
+              <div class="popup-launching__content">
+                <NSpin size="large" />
+                <div class="popup-launching__copy" role="status" aria-live="polite">
+                  <h2>{{ i18n('popup_launching_title', 'Starting Motrix Next') }}</h2>
+                  <p>
+                    {{
+                      i18n('popup_launching_hint', 'Waiting for the desktop app to become ready…')
+                    }}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section
+              v-else-if="phase === 'connected' && globalStat"
+              key="connected"
+              class="popup-page"
+            >
+              <StatDashboard :stat="globalStat" :disabled="!enabled" />
+              <div class="popup-actions">
+                <div class="popup-actions__left">
+                  <NButton size="tiny" quaternary :disabled="!enabled" @click="pauseAll">
+                    <template #icon>
+                      <NIcon :size="12"><PauseOutline /></NIcon>
+                    </template>
+                    {{ i18n('popup_action_pause_all', 'Pause All') }}
+                  </NButton>
+                  <NButton size="tiny" quaternary :disabled="!enabled" @click="resumeAll">
+                    <template #icon>
+                      <NIcon :size="12"><PlayOutline /></NIcon>
+                    </template>
+                    {{ i18n('popup_action_resume_all', 'Resume All') }}
+                  </NButton>
+                </div>
+                <NButton size="tiny" type="primary" :loading="opening" @click="openApp">
+                  <template #icon>
+                    <NIcon :size="12"><RocketOutline /></NIcon>
+                  </template>
+                  {{ i18n('popup_action_open', 'Open Motrix Next') }}
+                </NButton>
+              </div>
+            </section>
+
+            <section v-else :key="phase" class="popup-page popup-unavailable">
+              <div class="popup-banner popup-banner--error">
+                <NIcon :size="16" class="popup-banner__icon">
+                  <AlertCircleOutline />
+                </NIcon>
+                <div v-if="phase === 'failed'">
                   <p class="popup-banner__title">
-                    {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
+                    {{ i18n('popup_launch_failed_title', 'Could not start Motrix Next') }}
                   </p>
                   <p class="popup-banner__hint">
                     {{
                       i18n(
-                        'popup_error_hint',
-                        'Make sure Motrix Next is running and API is enabled.',
+                        'popup_launch_failed_hint',
+                        'Check that Motrix Next is installed and its API settings are correct.',
                       )
                     }}
                   </p>
                 </div>
-                <div v-else-if="errorType === 'ApiAuthError'" key="auth">
+                <div v-else-if="errorType === 'ApiAuthError'">
                   <p class="popup-banner__title">
                     {{ i18n('popup_error_auth', 'API secret mismatch') }}
                   </p>
@@ -246,7 +313,7 @@ onUnmounted(() => {
                     }}
                   </p>
                 </div>
-                <div v-else-if="errorType === 'ApiTimeoutError'" key="timeout">
+                <div v-else-if="errorType === 'ApiTimeoutError'">
                   <p class="popup-banner__title">
                     {{ i18n('popup_error_timeout', 'Connection timed out') }}
                   </p>
@@ -260,7 +327,7 @@ onUnmounted(() => {
                     }}
                   </p>
                 </div>
-                <div v-else key="unreachable">
+                <div v-else>
                   <p class="popup-banner__title">
                     {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
                   </p>
@@ -274,51 +341,21 @@ onUnmounted(() => {
                     }}
                   </p>
                 </div>
-              </Transition>
-            </div>
-          </div>
-        </Transition>
-
-        <!-- ── Connected: Stat Dashboard ────────────────────────── -->
-        <StatDashboard
-          v-if="status === 'connected' && globalStat"
-          :stat="globalStat"
-          :disabled="!enabled"
-        />
-
-        <!-- ── Actions ─────────────────────────────────────────── -->
-        <div class="popup-actions">
-          <div v-if="status === 'connected'" class="popup-actions__left">
-            <NButton size="tiny" quaternary :disabled="!enabled" @click="pauseAll">
-              <template #icon>
-                <NIcon :size="12"><PauseOutline /></NIcon>
-              </template>
-              {{ i18n('popup_action_pause_all', 'Pause All') }}
-            </NButton>
-            <NButton size="tiny" quaternary :disabled="!enabled" @click="resumeAll">
-              <template #icon>
-                <NIcon :size="12"><PlayOutline /></NIcon>
-              </template>
-              {{ i18n('popup_action_resume_all', 'Resume All') }}
-            </NButton>
-          </div>
-          <div v-else class="popup-actions__left" />
-          <NButton size="tiny" type="primary" :loading="launching" @click="launchApp">
-            <template #icon>
-              <NIcon :size="12"><RocketOutline /></NIcon>
-            </template>
-            <Transition
-              :name="status === 'connected' ? 'text-swap' : 'text-swap-reverse'"
-              mode="out-in"
-            >
-              <span v-if="status === 'connected'" key="open">
-                {{ i18n('popup_action_open', 'Open Motrix Next') }}
-              </span>
-              <span v-else key="launch">
-                {{ i18n('popup_action_launch', 'Launch Motrix Next') }}
-              </span>
-            </Transition>
-          </NButton>
+              </div>
+              <div class="popup-actions popup-actions--unavailable">
+                <NButton size="tiny" type="primary" @click="launchApp">
+                  <template #icon>
+                    <NIcon :size="12"><RocketOutline /></NIcon>
+                  </template>
+                  {{
+                    phase === 'failed'
+                      ? i18n('popup_action_retry', 'Try Again')
+                      : i18n('popup_action_launch', 'Launch Motrix Next')
+                  }}
+                </NButton>
+              </div>
+            </section>
+          </Transition>
         </div>
       </template>
     </div>
@@ -358,59 +395,63 @@ onUnmounted(() => {
   flex: 1;
 }
 
+.popup-skeleton__body :deep(.n-skeleton) {
+  flex: 1;
+}
+
 .popup-skeleton__footer {
   display: flex;
   justify-content: flex-end;
 }
 
-.skeleton {
-  display: inline-block;
-  border-radius: 8px;
-  background: linear-gradient(
-    100deg,
-    var(--color-surface-container) 40%,
-    var(--color-surface-container-high) 50%,
-    var(--color-surface-container) 60%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+.popup-viewport {
+  min-height: 160px;
+  overflow: hidden;
 }
 
-.skeleton--logo {
-  width: 64px;
-  height: 24px;
+.popup-page {
+  min-height: 160px;
 }
 
-.skeleton--chip {
-  width: 84px;
-  height: 18px;
-  border-radius: 9999px;
+.popup-launching {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 48px;
+  padding: 0 20px;
+  text-align: center;
 }
 
-.skeleton--switch {
-  width: 96px;
-  height: 20px;
-  border-radius: 9999px;
+.popup-launching::after {
+  content: '';
 }
 
-.skeleton--stat {
-  flex: 1;
-  height: 108px;
-  border-radius: 12px;
+.popup-launching__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.skeleton--button {
-  width: 140px;
-  height: 24px;
+.popup-launching__copy h2 {
+  font-size: 14px;
+  font-weight: 600;
 }
 
-@keyframes skeleton-shimmer {
-  from {
-    background-position: 200% 0;
-  }
-  to {
-    background-position: -200% 0;
-  }
+.popup-launching__copy p {
+  margin-top: 2px;
+  color: var(--color-on-surface-variant);
+  font-size: 11px;
+}
+
+.popup-unavailable {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.popup-unavailable > .popup-banner {
+  align-self: center;
+  width: calc(100% - 32px);
+  margin: 0 16px;
 }
 
 /* ── Disconnected Banner ─────────────────────────────────────── */
@@ -458,5 +499,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.popup-actions--unavailable {
+  justify-content: flex-end;
 }
 </style>

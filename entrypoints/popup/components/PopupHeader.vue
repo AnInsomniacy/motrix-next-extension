@@ -19,7 +19,7 @@ import { useI18n } from '@/shared/i18n/engine';
 import NextLogo from '@/shared/components/NextLogo.vue';
 
 const props = defineProps<{
-  status: ConnectionStatus;
+  status: ConnectionStatus | 'launching';
   version: string | null;
   enabled: boolean;
 }>();
@@ -38,13 +38,23 @@ const { t: i18n } = useI18n();
       <NextLogo class="popup-header__logo" />
       <span
         class="popup-header__badge"
-        :class="status === 'connected' ? 'popup-header__badge--ok' : 'popup-header__badge--err'"
+        :class="{
+          'popup-header__badge--ok': status === 'connected',
+          'popup-header__badge--pending': status === 'launching',
+          'popup-header__badge--err': status === 'disconnected',
+        }"
       >
-        {{
-          status === 'connected'
-            ? i18n('popup_status_connected', 'Connected')
-            : i18n('popup_status_disconnected', 'Disconnected')
-        }}
+        <Transition name="text-swap" mode="out-in">
+          <span :key="status" class="popup-header__badge-text">
+            {{
+              status === 'connected'
+                ? i18n('popup_status_connected', 'Connected')
+                : status === 'launching'
+                  ? i18n('popup_status_launching', 'Starting')
+                  : i18n('popup_status_disconnected', 'Disconnected')
+            }}
+          </span>
+        </Transition>
       </span>
       <span v-if="version" class="popup-header__version">v{{ version }}</span>
     </div>
@@ -112,6 +122,13 @@ const { t: i18n } = useI18n();
   font-weight: 600;
   line-height: 1.4;
   letter-spacing: 0.02em;
+  transition:
+    color 0.2s var(--m3-ease-emphasized),
+    background-color 0.2s var(--m3-ease-emphasized);
+}
+
+.popup-header__badge-text {
+  display: inline-block;
 }
 
 .popup-header__badge--ok {
@@ -122,6 +139,11 @@ const { t: i18n } = useI18n();
 .popup-header__badge--err {
   background: color-mix(in srgb, var(--color-error) 12%, transparent);
   color: var(--color-error);
+}
+
+.popup-header__badge--pending {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
 }
 
 .popup-header__version {

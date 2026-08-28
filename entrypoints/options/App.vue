@@ -20,6 +20,7 @@ import { NConfigProvider, createDiscreteApi } from 'naive-ui';
 import {
   loadSnapshot,
   saveConnectionConfig,
+  saveDiagnosticSettings,
   saveSiteRules,
   saveSnapshot,
   updateSettings,
@@ -28,6 +29,7 @@ import {
 import {
   createDefaultSnapshot,
   parseConnectionConfig,
+  parseDiagnosticSettings,
   parseDiagnosticEvents,
   parseDownloadSettings,
   parseSiteRules,
@@ -118,12 +120,11 @@ const draft = ref<StorageSnapshot>(createDefaultSnapshot());
 const saved = ref<StorageSnapshot>(createDefaultSnapshot());
 const diagnosticEvents = ref<DiagnosticEvent[]>([]);
 const staged = ref<null | 'factory-reset' | 'backup-import'>(null);
-const includeConnectionSecretInBackup = ref(true);
 
 /** The draft-tracked (Save/Discard) subset of a snapshot. */
 function draftView(s: StorageSnapshot) {
   const { enabled: _e, interceptionScope: _s, ...tracked } = s.settings;
-  return { connection: s.connection, ...tracked };
+  return { connection: s.connection, diagnostics: s.diagnostics, ...tracked };
 }
 
 const isDirty = computed(
@@ -266,6 +267,7 @@ async function handleSave(): Promise<void> {
       staged.value = null;
     } else {
       await saveConnectionConfig(draft.value.connection);
+      await saveDiagnosticSettings(draft.value.diagnostics);
       const { enabled: _e, interceptionScope: _s, ...tracked } = draft.value.settings;
       await updateSettings({
         ...tracked,
@@ -330,7 +332,6 @@ function exportSettingsBackup(): void {
   try {
     const backup = createSettingsBackup(draft.value, {
       extensionVersion,
-      includeConnectionSecret: includeConnectionSecretInBackup.value,
     });
     const date = new Date().toISOString().slice(0, 10);
     downloadJson(`motrix-next-extension-settings-backup-${date}.json`, backup);
@@ -342,7 +343,7 @@ function exportSettingsBackup(): void {
 
 async function exportDiagnosticReport(): Promise<void> {
   try {
-    const { connection, settings, siteRules, uiPrefs } = draft.value;
+    const { connection, settings, siteRules, uiPrefs, diagnostics } = draft.value;
     const [diagnosticLog, permissions] = await Promise.all([
       getDiagnosticEvents(),
       browser.permissions.getAll(),
@@ -353,7 +354,7 @@ async function exportDiagnosticReport(): Promise<void> {
       extension: { version: extensionVersion, manifestVersion: 3 },
       browser: { userAgent: navigator.userAgent, language: navigator.language },
       permissions,
-      config: { connection: { port: connection.port }, settings, siteRules, uiPrefs },
+      config: { connection: { port: connection.port }, settings, siteRules, uiPrefs, diagnostics },
       diagnosticLog,
     });
   } catch {
@@ -456,6 +457,12 @@ function bindStorageChanges(): void {
       draft.value.uiPrefs = prefs;
       saved.value.uiPrefs = jsonClone(prefs);
       applyUiSideEffects(prefs);
+    }
+
+    if (changes.diagnostics?.newValue && !isDirty.value) {
+      const diagnostics = parseDiagnosticSettings(changes.diagnostics.newValue);
+      draft.value.diagnostics = diagnostics;
+      saved.value.diagnostics = jsonClone(diagnostics);
     }
   };
 
@@ -636,10 +643,10 @@ onUnmounted(() => {
               <div class="card">
                 <MaintenanceSection
                   :events="diagnosticEvents"
-                  :include-connection-secret="includeConnectionSecretInBackup"
+                  :max-diagnostic-events="draft.diagnostics.maxEvents"
+                  @update:max-diagnostic-events="draft.diagnostics.maxEvents = $event"
                   @export-settings="exportSettingsBackup"
                   @import-settings="importSettingsBackup"
-                  @update-include-connection-secret="includeConnectionSecretInBackup = $event"
                   @reset-settings="stageFactoryReset"
                   @clear-diagnostics="handleClearDiagnosticLog"
                   @export-diagnostics="exportDiagnosticReport"

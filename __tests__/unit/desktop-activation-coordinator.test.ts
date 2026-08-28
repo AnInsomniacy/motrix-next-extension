@@ -38,7 +38,7 @@ describe('createDesktopActivationCoordinator', () => {
     expect(checkReady).toHaveBeenCalledTimes(3);
   });
 
-  it('returns false when readiness polling times out', async () => {
+  it('times out on transient failures and stops immediately on fatal failures', async () => {
     const activate = vi.fn().mockResolvedValue(undefined);
     const checkReady = vi.fn().mockResolvedValue(false);
 
@@ -52,6 +52,18 @@ describe('createDesktopActivationCoordinator', () => {
     expect(result).toBe(false);
     expect(activate).toHaveBeenCalledTimes(1);
     expect(checkReady.mock.calls.length).toBeGreaterThanOrEqual(2);
+
+    const fatalError = new Error('fatal readiness failure');
+    const fatalActivate = vi.fn().mockResolvedValue(undefined);
+    await expect(
+      createDesktopActivationCoordinator()({
+        activate: fatalActivate,
+        checkReady: vi.fn().mockRejectedValue(fatalError),
+        isFatalReadinessError: (error) => error === fatalError,
+        maxWaitMs: 1000,
+      }),
+    ).rejects.toBe(fatalError);
+    expect(fatalActivate).not.toHaveBeenCalled();
   });
 
   it('coalesces concurrent attempts and clears pending state after completion', async () => {

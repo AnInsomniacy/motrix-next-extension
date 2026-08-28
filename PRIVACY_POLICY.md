@@ -65,6 +65,8 @@ The Extension stores the following user-configured preferences in `chrome.storag
 - Diagnostic event log (a local ring buffer of recent extension events for troubleshooting)
 
 This data never leaves your browser and is not accessible to any external service.
+User-initiated settings backups are downloaded locally as JSON and include the API secret so the
+backup is complete. The Extension never uploads backup files.
 
 ## Network Communication
 
@@ -100,7 +102,7 @@ The Extension does not integrate with, send data to, or receive data from any th
 
 - **Download metadata** is used transiently during interception and is not persisted
 - **User settings** remain in local storage until the user clears them or uninstalls the Extension
-- **Diagnostic logs** retain at most 100 events for 7 days. Logged URLs exclude credentials, query parameters, and fragments. Older events are removed automatically.
+- **Diagnostic logs** use a configurable event limit (100 by default, up to 500). Logged URLs exclude credentials, query parameters, and fragments. The oldest event is overwritten when the configured limit is reached.
 
 ## Children's Privacy
 

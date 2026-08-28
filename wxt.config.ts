@@ -7,6 +7,11 @@ import { localesPlugin } from './shared/i18n/locales-plugin';
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
+  dev: {
+    // Native extension CSP and injected Vite URLs must share one origin.
+    // Fail on duplicate dev servers instead of emitting an unloadable build.
+    server: { port: 3000 },
+  },
   zip: {
     artifactTemplate: '{{name}}-{{version}}-{{browser}}-mv3.zip',
   },

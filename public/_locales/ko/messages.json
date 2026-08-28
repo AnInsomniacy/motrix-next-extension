@@ -15,10 +15,6 @@
     "message": "연결 안 됨",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_status_not_configured": {
-    "message": "미설정",
-    "description": "Connection status badge when API secret is empty"
-  },
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
@@ -64,10 +60,6 @@
   "popup_error_unreachable": {
     "message": "Motrix Next에 연결할 수 없습니다",
     "description": "Error message when API is unreachable"
-  },
-  "popup_error_check_settings": {
-    "message": "설정 확인",
-    "description": "Button to navigate to settings when connection fails"
   },
   "options_title": {
     "message": "Motrix Next Extension · 설정",
@@ -137,10 +129,6 @@
         "content": "$1"
       }
     }
-  },
-  "popup_error_hint": {
-    "message": "Motrix Next가 실행 중이고 API가 활성화되어 있는지 확인하세요.",
-    "description": "Hint shown when connection fails"
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -547,10 +535,6 @@
     "message": "유효하지 않은 백업 파일",
     "description": "Toast shown when selected settings backup is invalid."
   },
-  "options_settings_backup_include_secret": {
-    "message": "API 비밀키 내보내기",
-    "description": "Switch label for including the API secret in exported settings backups."
-  },
   "options_diagnostics_filter_all": {
     "message": "전체",
     "description": "Filter label for all diagnostic levels"
@@ -579,18 +563,28 @@
     "message": "진단 보고서를 내보내지 못했습니다",
     "description": "Error shown when the diagnostic report cannot be exported"
   },
-  "options_diagnostics_retention": {
-    "message": "최근 $1개 이벤트 · $2일 후 삭제",
-    "description": "Diagnostic retention summary, $1 = maximum events and $2 = retention days",
-    "placeholders": {
-      "1": {
-        "content": "$1",
-        "example": "100"
-      },
-      "2": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
+  "popup_status_launching": {
+    "message": "시작 중",
+    "description": "Popup status while the desktop app is starting"
+  },
+  "popup_launching_title": {
+    "message": "Motrix Next 시작 중",
+    "description": "Popup launch progress title"
+  },
+  "popup_launching_hint": {
+    "message": "데스크톱 앱이 준비되기를 기다리는 중…",
+    "description": "Popup launch progress description"
+  },
+  "popup_launch_failed_title": {
+    "message": "Motrix Next를 시작할 수 없음",
+    "description": "Popup launch failure title"
+  },
+  "popup_launch_failed_hint": {
+    "message": "Motrix Next가 설치되어 있고 API 설정이 올바른지 확인하세요.",
+    "description": "Popup launch failure guidance"
+  },
+  "popup_action_retry": {
+    "message": "다시 시도",
+    "description": "Popup action to retry desktop launch"
   }
 }

@@ -128,7 +128,23 @@ export const UiPrefsSchema = lenient(
 export type UiPrefs = z.output<typeof UiPrefsSchema>;
 export type ThemePreference = UiPrefs['theme'];
 
-// ─── Diagnostic Log ─────────────────────────────────────
+// ─── Diagnostics ────────────────────────────────────────
+
+export const DIAGNOSTIC_EVENT_LIMIT_MIN = 10;
+export const DIAGNOSTIC_EVENT_LIMIT_MAX = 500;
+
+export const DiagnosticSettingsSchema = lenient(
+  z.object({
+    maxEvents: z
+      .number()
+      .int()
+      .min(DIAGNOSTIC_EVENT_LIMIT_MIN)
+      .max(DIAGNOSTIC_EVENT_LIMIT_MAX)
+      .catch(100),
+  }),
+);
+
+export type DiagnosticSettings = z.output<typeof DiagnosticSettingsSchema>;
 
 export const DIAGNOSTIC_MESSAGE_MAX_LENGTH = 240;
 export const DIAGNOSTIC_CONTEXT_KEY_MAX_LENGTH = 64;
@@ -195,6 +211,7 @@ export const StorageSnapshotSchema = lenient(
     settings: DownloadSettingsSchema,
     siteRules: SiteRulesSchema,
     uiPrefs: UiPrefsSchema,
+    diagnostics: DiagnosticSettingsSchema,
   }),
 );
 
@@ -209,6 +226,8 @@ export const DEFAULT_DOWNLOAD_SETTINGS: Readonly<DownloadSettings> = DownloadSet
   {},
 );
 export const DEFAULT_UI_PREFS: Readonly<UiPrefs> = UiPrefsSchema.parse({});
+export const DEFAULT_DIAGNOSTIC_SETTINGS: Readonly<DiagnosticSettings> =
+  DiagnosticSettingsSchema.parse({});
 
 /** Build a fresh, fully-defaulted mutable snapshot. */
 export function createDefaultSnapshot(): StorageSnapshot {
@@ -223,6 +242,8 @@ export const parseDownloadSettings = (input: unknown): DownloadSettings =>
   DownloadSettingsSchema.parse(input);
 export const parseSiteRules = (input: unknown): SiteRule[] => SiteRulesSchema.parse(input);
 export const parseUiPrefs = (input: unknown): UiPrefs => UiPrefsSchema.parse(input);
+export const parseDiagnosticSettings = (input: unknown): DiagnosticSettings =>
+  DiagnosticSettingsSchema.parse(input);
 export const parseDiagnosticEvents = (input: unknown): DiagnosticEvent[] =>
   DiagnosticEventsSchema.parse(input);
 export const parseSnapshot = (input: unknown): StorageSnapshot =>

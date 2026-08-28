@@ -1,14 +1,14 @@
 import {
   parseConnectionConfig,
+  parseDiagnosticSettings,
   parseDownloadSettings,
   parseSiteRules,
   parseUiPrefs,
-  type ConnectionConfig,
   type StorageSnapshot,
 } from './schema';
 
 export const SETTINGS_BACKUP_KIND = 'motrix-next-extension-settings' as const;
-export const SETTINGS_BACKUP_SCHEMA_VERSION = 2 as const;
+export const SETTINGS_BACKUP_SCHEMA_VERSION = 3 as const;
 
 export interface SettingsBackup {
   kind: typeof SETTINGS_BACKUP_KIND;
@@ -21,7 +21,6 @@ export interface SettingsBackup {
 export interface CreateSettingsBackupOptions {
   extensionVersion: string;
   exportedAt?: string;
-  includeConnectionSecret?: boolean;
 }
 
 export interface ParseSettingsBackupOptions {
@@ -46,21 +45,17 @@ export function createSettingsBackup(
   snapshot: StorageSnapshot,
   options: CreateSettingsBackupOptions,
 ): SettingsBackup {
-  const connection: Partial<ConnectionConfig> = {
-    port: snapshot.connection.port,
-    ...(options.includeConnectionSecret !== false ? { secret: snapshot.connection.secret } : {}),
-  };
-
   return {
     kind: SETTINGS_BACKUP_KIND,
     schemaVersion: SETTINGS_BACKUP_SCHEMA_VERSION,
     extensionVersion: options.extensionVersion,
     exportedAt: options.exportedAt ?? new Date().toISOString(),
     settings: {
-      connection: connection as ConnectionConfig,
+      connection: snapshot.connection,
       settings: snapshot.settings,
       siteRules: snapshot.siteRules,
       uiPrefs: snapshot.uiPrefs,
+      diagnostics: snapshot.diagnostics,
     },
   };
 }
@@ -98,5 +93,6 @@ export function parseSettingsBackup(
     settings: parseDownloadSettings(settings.settings),
     siteRules: parseSiteRules(settings.siteRules),
     uiPrefs: parseUiPrefs(settings.uiPrefs),
+    diagnostics: parseDiagnosticSettings(settings.diagnostics),
   };
 }

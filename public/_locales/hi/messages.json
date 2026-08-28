@@ -15,10 +15,6 @@
     "message": "डिस्कनेक्टेड",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_status_not_configured": {
-    "message": "कॉन्फ़िगर नहीं किया गया",
-    "description": "Connection status badge when API secret is empty"
-  },
   "popup_speed_download": {
     "message": "↓ $speed$",
     "description": "Download speed indicator",
@@ -64,10 +60,6 @@
   "popup_error_unreachable": {
     "message": "Motrix Next से कनेक्ट नहीं हो सका",
     "description": "Error message when API is unreachable"
-  },
-  "popup_error_check_settings": {
-    "message": "सेटिंग्स जांचें",
-    "description": "Button to navigate to settings when connection fails"
   },
   "options_title": {
     "message": "Motrix Next Extension · एक्सटेंशन सेटिंग्स",
@@ -137,10 +129,6 @@
         "content": "$1"
       }
     }
-  },
-  "popup_error_hint": {
-    "message": "सुनिश्चित करें कि Motrix Next चल रहा है और API सक्षम है।",
-    "description": "Hint shown when connection fails"
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -547,10 +535,6 @@
     "message": "बैकअप फाइल अमान्य है",
     "description": "Toast shown when selected settings backup is invalid."
   },
-  "options_settings_backup_include_secret": {
-    "message": "API Secret export करें",
-    "description": "Switch label for including the API secret in exported settings backups."
-  },
   "options_diagnostics_filter_all": {
     "message": "सभी",
     "description": "Filter label for all diagnostic levels"
@@ -579,18 +563,28 @@
     "message": "डायग्नोस्टिक रिपोर्ट निर्यात नहीं की जा सकी",
     "description": "Error shown when the diagnostic report cannot be exported"
   },
-  "options_diagnostics_retention": {
-    "message": "नवीनतम $1 इवेंट · $2 दिन बाद हटाए जाते हैं",
-    "description": "Diagnostic retention summary, $1 = maximum events and $2 = retention days",
-    "placeholders": {
-      "1": {
-        "content": "$1",
-        "example": "100"
-      },
-      "2": {
-        "content": "$2",
-        "example": "7"
-      }
-    }
+  "popup_status_launching": {
+    "message": "शुरू हो रहा है",
+    "description": "Popup status while the desktop app is starting"
+  },
+  "popup_launching_title": {
+    "message": "Motrix Next शुरू हो रहा है",
+    "description": "Popup launch progress title"
+  },
+  "popup_launching_hint": {
+    "message": "डेस्कटॉप ऐप के तैयार होने की प्रतीक्षा की जा रही है…",
+    "description": "Popup launch progress description"
+  },
+  "popup_launch_failed_title": {
+    "message": "Motrix Next शुरू नहीं हो सका",
+    "description": "Popup launch failure title"
+  },
+  "popup_launch_failed_hint": {
+    "message": "जाँचें कि Motrix Next इंस्टॉल है और उसकी API सेटिंग सही हैं।",
+    "description": "Popup launch failure guidance"
+  },
+  "popup_action_retry": {
+    "message": "फिर कोशिश करें",
+    "description": "Popup action to retry desktop launch"
   }
 }

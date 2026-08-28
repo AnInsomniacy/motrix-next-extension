@@ -1,10 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import {
-  MAX_DIAGNOSTIC_AGE_MS,
-  MAX_DIAGNOSTIC_EVENTS,
-  createDiagnosticJournal,
-} from '@/lib/diagnostics';
+import { createDiagnosticJournal } from '@/lib/diagnostics';
 import type { DiagnosticEvent } from '@/lib/schema';
+
+const TEST_MAX_EVENTS = 100;
 
 function storedEvent(id: string, ts: number): DiagnosticEvent {
   return {
@@ -30,6 +28,7 @@ describe('createDiagnosticJournal', () => {
     const journal = createDiagnosticJournal({
       load: vi.fn().mockResolvedValue([storedEvent('stored', 900)]),
       save,
+      maxEvents: TEST_MAX_EVENTS,
       now: () => 1000,
     });
 
@@ -53,6 +52,7 @@ describe('createDiagnosticJournal', () => {
     const journal = createDiagnosticJournal({
       load: vi.fn().mockResolvedValue([]),
       save,
+      maxEvents: TEST_MAX_EVENTS,
       now: () => 1000,
     });
     await journal.initialize();
@@ -76,6 +76,7 @@ describe('createDiagnosticJournal', () => {
         snapshots.push(events);
         if (snapshots.length === 1) await firstWrite.promise;
       }),
+      maxEvents: TEST_MAX_EVENTS,
       now: () => 1000,
     });
     await journal.initialize();
@@ -88,15 +89,18 @@ describe('createDiagnosticJournal', () => {
     expect(snapshots.at(-1)).toEqual([]);
   });
 
-  it('removes expired events and keeps the newest bounded set', async () => {
-    const now = MAX_DIAGNOSTIC_AGE_MS + 1000;
+  it('keeps old events until the bounded set evicts them', async () => {
     const journal = createDiagnosticJournal({
-      load: vi.fn().mockResolvedValue([storedEvent('expired', 0)]),
+      load: vi.fn().mockResolvedValue([storedEvent('oldest', 0)]),
       save: vi.fn().mockResolvedValue(undefined),
-      now: () => now,
+      maxEvents: TEST_MAX_EVENTS,
+      now: () => 10 * 365 * 24 * 60 * 60 * 1000,
     });
     await journal.initialize();
-    for (let index = 0; index < MAX_DIAGNOSTIC_EVENTS + 5; index += 1) {
+
+    expect(journal.getAll().map((event) => event.id)).toEqual(['oldest']);
+
+    for (let index = 0; index < TEST_MAX_EVENTS + 5; index += 1) {
       journal.append({
         level: 'info',
         code: 'download_delegated',
@@ -105,8 +109,8 @@ describe('createDiagnosticJournal', () => {
     }
     await journal.flush();
 
-    expect(journal.getAll()).toHaveLength(MAX_DIAGNOSTIC_EVENTS);
-    expect(journal.getAll().some((event) => event.id === 'expired')).toBe(false);
+    expect(journal.getAll()).toHaveLength(TEST_MAX_EVENTS);
+    expect(journal.getAll().some((event) => event.id === 'oldest')).toBe(false);
     expect(journal.getAll()[0]?.message).toBe('Event 5');
   });
 
@@ -114,6 +118,7 @@ describe('createDiagnosticJournal', () => {
     const journal = createDiagnosticJournal({
       load: vi.fn().mockResolvedValue([]),
       save: vi.fn().mockResolvedValue(undefined),
+      maxEvents: TEST_MAX_EVENTS,
       now: () => 1000,
     });
     await journal.initialize();
@@ -146,6 +151,7 @@ describe('createDiagnosticJournal', () => {
     const journal = createDiagnosticJournal({
       load: vi.fn().mockRejectedValue(new Error('storage unavailable')),
       save: vi.fn().mockResolvedValue(undefined),
+      maxEvents: TEST_MAX_EVENTS,
       onPersistError,
       now: () => 1000,
     });
@@ -163,6 +169,7 @@ describe('createDiagnosticJournal', () => {
     const journal = createDiagnosticJournal({
       load: vi.fn().mockResolvedValue([]),
       save: vi.fn().mockRejectedValue(error),
+      maxEvents: TEST_MAX_EVENTS,
       onPersistError,
       now: () => 1000,
     });
@@ -171,5 +178,49 @@ describe('createDiagnosticJournal', () => {
 
     await expect(journal.flush()).rejects.toThrow('quota exceeded');
     expect(onPersistError).toHaveBeenCalledWith(error);
+  });
+
+  it('trims the oldest events when the configured limit shrinks', async () => {
+    const save = vi.fn().mockResolvedValue(undefined);
+    const journal = createDiagnosticJournal({
+      load: vi
+        .fn()
+        .mockResolvedValue(
+          Array.from({ length: 12 }, (_, index) => storedEvent(`${index}`, index)),
+        ),
+      save,
+      maxEvents: 12,
+      now: () => 1000,
+    });
+    await journal.initialize();
+
+    journal.setMaxEvents(10);
+    await journal.flush();
+
+    expect(journal.getAll().map((event) => event.id)).toEqual(
+      Array.from({ length: 10 }, (_, index) => `${index + 2}`),
+    );
+    expect(save).toHaveBeenLastCalledWith(journal.getAll());
+  });
+
+  it('applies a changed limit before stored events are hydrated', async () => {
+    const save = vi.fn().mockResolvedValue(undefined);
+    const journal = createDiagnosticJournal({
+      load: vi
+        .fn()
+        .mockResolvedValue(
+          Array.from({ length: 12 }, (_, index) => storedEvent(`${index}`, index)),
+        ),
+      save,
+      maxEvents: 12,
+      now: () => 1000,
+    });
+
+    journal.setMaxEvents(10);
+    await journal.initialize();
+
+    expect(journal.getAll()).toHaveLength(10);
+    expect(journal.getAll()[0]?.id).toBe('2');
+    expect(save).toHaveBeenLastCalledWith(journal.getAll());
   });
 });

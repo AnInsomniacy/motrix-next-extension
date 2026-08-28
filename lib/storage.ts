@@ -8,12 +8,14 @@
 import { storage } from 'wxt/utils/storage';
 import {
   parseConnectionConfig,
+  parseDiagnosticSettings,
   parseDiagnosticEvents,
   parseDownloadSettings,
   parseSiteRules,
   parseSnapshot,
   parseUiPrefs,
   type ConnectionConfig,
+  type DiagnosticSettings,
   type DiagnosticEvent,
   type DownloadSettings,
   type SiteRule,
@@ -21,7 +23,13 @@ import {
   type UiPrefs,
 } from './schema';
 
-export const SETTINGS_STORAGE_KEYS = ['connection', 'settings', 'siteRules', 'uiPrefs'] as const;
+export const SETTINGS_STORAGE_KEYS = [
+  'connection',
+  'settings',
+  'siteRules',
+  'uiPrefs',
+  'diagnostics',
+] as const;
 export const DIAGNOSTIC_STORAGE_KEY = 'diagnosticLog' as const;
 export const STORAGE_KEYS = [...SETTINGS_STORAGE_KEYS, DIAGNOSTIC_STORAGE_KEY] as const;
 
@@ -70,6 +78,10 @@ export async function saveSiteRules(rules: SiteRule[]): Promise<void> {
 
 export async function saveUiPrefs(prefs: UiPrefs): Promise<void> {
   await storage.setItem(local('uiPrefs'), parseUiPrefs(prefs));
+}
+
+export async function saveDiagnosticSettings(settings: DiagnosticSettings): Promise<void> {
+  await storage.setItem(local('diagnostics'), parseDiagnosticSettings(settings));
 }
 
 export async function updateUiPrefs(patch: Partial<UiPrefs>): Promise<void> {

@@ -43,7 +43,7 @@
 - **Download bar control** — Optionally hides Chrome's native download shelf (Chromium 115+, not available on Firefox)
 - **Dark mode** — System / Light / Dark with 10 Material You color schemes
 - **i18n** — 27 languages including English, Hindi, Chinese, Japanese, Korean, French, German, Spanish, and more
-- **Diagnostics** — Privacy-sanitized outcome log with severity filters, seven-day retention, and one-click export
+- **Diagnostics** — Privacy-sanitized outcome log with severity filters, configurable bounded history (100 events by default), and one-click export
 
 ## Installation
 
