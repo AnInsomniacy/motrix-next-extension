@@ -9,8 +9,12 @@ import {
   type RequestHeaderMatchResult,
 } from '@/lib/download/request-context';
 import { parseFirefoxDownloadResponse } from '@/lib/download/firefox-response';
-import { DesktopApiClient } from '@/lib/api';
-import { activateDesktop, createDesktopActivationCoordinator } from '@/lib/desktop';
+import { ApiAuthError, DesktopApiClient } from '@/lib/api';
+import {
+  DesktopActivationError,
+  activateDesktop,
+  createDesktopActivationCoordinator,
+} from '@/lib/desktop';
 import {
   CONTEXT_MENU_CONTEXTS,
   CONTEXT_MENU_ID,
@@ -22,7 +26,7 @@ import {
   webRequest,
   type ExternalProtocol,
 } from '@/lib/browser';
-import { loadSnapshot, saveDiagnosticLog } from '@/lib/storage';
+import { loadDiagnosticEvents, loadSnapshot, saveDiagnosticEvents } from '@/lib/storage';
 import {
   DEFAULT_DOWNLOAD_SETTINGS,
   parseConnectionConfig,
@@ -33,7 +37,7 @@ import {
   type DownloadSettings,
   type SiteRule,
 } from '@/lib/schema';
-import { DiagnosticLog, type DiagnosticInput } from '@/lib/diagnostics';
+import { createDiagnosticJournal, type DiagnosticInput } from '@/lib/diagnostics';
 import { I18nEngine } from '@/shared/i18n/engine';
 import { FALLBACK_LOCALE, resolveLocaleId } from '@/shared/i18n/dictionaries';
 
@@ -44,22 +48,19 @@ export default defineBackground(() => {
   let configLoaded = false;
 
   const bgI18n = new I18nEngine(FALLBACK_LOCALE);
-  const diagnosticLog = new DiagnosticLog();
+  const diagnosticLog = createDiagnosticJournal({
+    load: loadDiagnosticEvents,
+    save: saveDiagnosticEvents,
+    onPersistError: (error) => {
+      console.warn('[MotrixNext] Diagnostic persistence failed:', error);
+    },
+  });
   const requestHeaderContexts = new RequestHeaderContextStore();
   const duplicateDownloadGuard = new DuplicateDownloadGuard();
   const desktopClient = new DesktopApiClient(parseConnectionConfig(null));
   const activateDesktopAndWait = createDesktopActivationCoordinator();
 
   // ─── Logging ──────────────────────────────────────────
-
-  async function persistDiagnosticLog(): Promise<void> {
-    try {
-      await saveDiagnosticLog(diagnosticLog.getAll());
-    } catch (e) {
-      // Console only — log() here would recurse.
-      console.warn('[MotrixNext] Diagnostic log persist failed:', e);
-    }
-  }
 
   function log(
     level: DiagnosticInput['level'],
@@ -68,7 +69,6 @@ export default defineBackground(() => {
     context?: DiagnosticInput['context'],
   ): void {
     diagnosticLog.append({ level, code, message, context });
-    void persistDiagnosticLog();
   }
 
   const logInfo = log.bind(null, 'info');
@@ -91,19 +91,12 @@ export default defineBackground(() => {
         const data = await loadSnapshot();
         settings = data.settings;
         siteRules = data.siteRules;
-        diagnosticLog.hydrate(data.diagnosticLog);
         desktopClient.updateConfig(data.connection);
         bgI18n.setLocale(effectiveLocale(data.uiPrefs.locale));
-        logInfo('config_loaded', 'Configuration loaded from storage', {
-          port: data.connection.port,
-          enabled: data.settings.enabled,
-          ruleCount: data.siteRules.length,
-        });
       } catch (e) {
-        logError(
-          'config_load_failed',
-          `Configuration load failed, using defaults: ${errorMessage(e)}`,
-        );
+        logError('config_load_failed', 'Configuration could not be loaded; defaults are active', {
+          error: errorMessage(e),
+        });
       } finally {
         configLoaded = true;
       }
@@ -129,7 +122,9 @@ export default defineBackground(() => {
 
   function applyDownloadBarPreferenceSafely(): void {
     applyDownloadBarPreference().catch((e) => {
-      logWarn('download_bar_error', `Download bar update failed: ${errorMessage(e)}`);
+      logWarn('download_bar_failed', 'Download bar preference could not be applied', {
+        error: errorMessage(e),
+      });
     });
   }
 
@@ -147,17 +142,17 @@ export default defineBackground(() => {
     cookies: {
       getAll: async (details) => {
         const granted = await hasCookieForwardingAccess().catch((e) => {
-          logWarn('permission_revoked', `Cookie permission check failed: ${errorMessage(e)}`);
+          logWarn('permission_check_failed', 'Cookie permission check failed', {
+            permission: 'cookies',
+            error: errorMessage(e),
+          });
           return false;
         });
         return granted ? browser.cookies.getAll(details) : [];
       },
     },
     diagnosticLog: {
-      append: (event) => {
-        diagnosticLog.append(event);
-        void persistDiagnosticLog();
-      },
+      append: diagnosticLog.append,
     },
     getSettings: () => settings,
     getSiteRules: () => siteRules,
@@ -175,9 +170,17 @@ export default defineBackground(() => {
         bgI18n.t('notification_duplicate_guard_body', 'Duplicate request skipped'),
       );
       try {
-        browser.notifications.create(payload.id, payload.options);
-      } catch (e) {
-        logWarn('notification_create_failed', `Notification create failed: ${errorMessage(e)}`);
+        void Promise.resolve(browser.notifications.create(payload.id, payload.options)).catch(
+          (error) => {
+            logWarn('notification_failed', 'Duplicate notification could not be shown', {
+              error: errorMessage(error),
+            });
+          },
+        );
+      } catch (error) {
+        logWarn('notification_failed', 'Duplicate notification could not be shown', {
+          error: errorMessage(error),
+        });
       }
     },
   });
@@ -215,7 +218,7 @@ export default defineBackground(() => {
     const listener = webRequest?.onBeforeSendHeaders;
     const browserName = import.meta.env.FIREFOX ? 'firefox' : 'chromium';
     if (!listener) {
-      logWarn('request_headers_listener_failed', 'Request header context listener unavailable', {
+      logWarn('request_headers_failed', 'Request header listener is unavailable', {
         browser: browserName,
         reason: 'missing-webRequest-listener',
       });
@@ -238,29 +241,27 @@ export default defineBackground(() => {
       try {
         listener.addListener(capture, { urls: ALL_HTTP_URLS }, extraInfoSpec);
         const degraded = extraInfoSpec !== fullSpec;
-        log(
-          degraded ? 'warn' : 'info',
-          degraded ? 'request_headers_listener_downgraded' : 'request_headers_listener_ready',
-          `Request header context listener ${degraded ? 'downgraded' : 'registered'}`,
-          { browser: browserName, extraHeaders: extraInfoSpec.includes('extraHeaders') },
-        );
+        if (degraded) {
+          logWarn('request_headers_degraded', 'Request header listener has limited access', {
+            browser: browserName,
+            extraHeaders: false,
+          });
+        }
         return;
       } catch (e) {
         if (extraInfoSpec === fullSpec && !fullSpec.includes('extraHeaders')) {
           // Degraded spec would be identical — report and stop.
-          logWarn(
-            'request_headers_listener_failed',
-            `Request header context listener unavailable: ${errorMessage(e)}`,
-            { browser: browserName },
-          );
+          logWarn('request_headers_failed', 'Request header listener could not be registered', {
+            browser: browserName,
+            error: errorMessage(e),
+          });
           return;
         }
         if (extraInfoSpec !== fullSpec) {
-          logWarn(
-            'request_headers_listener_failed',
-            `Request header context listener unavailable: ${errorMessage(e)}`,
-            { browser: browserName },
-          );
+          logWarn('request_headers_failed', 'Request header listener could not be registered', {
+            browser: browserName,
+            error: errorMessage(e),
+          });
         }
       }
     }
@@ -287,11 +288,11 @@ export default defineBackground(() => {
           if (configLoaded && !orchestrator.shouldClaimFirefoxResponse(parsed)) return;
 
           void handleFirefoxResponseTakeover(parsed).catch((error) => {
-            logError(
-              'download_handler_error',
-              `Firefox response takeover crashed: ${errorMessage(error)}`,
-              { url: parsed.url, mime: parsed.mime, filename: parsed.filename },
-            );
+            logError('download_handler_failed', 'Firefox response takeover failed', {
+              url: parsed.url,
+              mime: parsed.mime,
+              error: errorMessage(error),
+            });
           });
           return { cancel: true };
         },
@@ -299,7 +300,9 @@ export default defineBackground(() => {
         ['blocking', 'responseHeaders'],
       );
     } catch (e) {
-      logWarn('download_fallback', `Firefox response interception unavailable: ${errorMessage(e)}`);
+      logWarn('firefox_interception_failed', 'Firefox response interception is unavailable', {
+        error: errorMessage(e),
+      });
     }
   }
 
@@ -358,10 +361,10 @@ export default defineBackground(() => {
   }
 
   function logDownloadHandlerError(item: Browser.downloads.DownloadItem, error: unknown): void {
-    logError('download_handler_error', `Download handler crashed: ${errorMessage(error)}`, {
+    logError('download_handler_failed', 'Download handler failed', {
       url: item.url,
       mime: item.mime || '',
-      filename: item.filename || '',
+      error: errorMessage(error),
     });
   }
 
@@ -404,8 +407,15 @@ export default defineBackground(() => {
         title: contextMenuTitle(),
         contexts: CONTEXT_MENU_CONTEXTS as unknown as [Browser.contextMenus.ContextType],
       },
-      // Ignore "duplicate id" error on re-registration.
-      () => void browser.runtime.lastError,
+      () => {
+        const error = browser.runtime.lastError;
+        const message = error?.message ?? '';
+        if (message && !message.includes('duplicate')) {
+          logWarn('context_menu_failed', 'Context menu could not be registered', {
+            error: message,
+          });
+        }
+      },
     );
   }
 
@@ -413,18 +423,11 @@ export default defineBackground(() => {
     const rawUrl = extractContextMenuUrl(info);
     if (!rawUrl) return;
 
-    logInfo('context_menu_triggered', `Context menu download: ${rawUrl}`, {
-      url: rawUrl,
-      pageUrl: info.pageUrl ?? '',
-    });
-
     void ensureConfigLoaded().then(async () => {
       try {
-        await orchestrator.sendUrl(rawUrl, info.pageUrl ?? '');
-      } catch (e) {
-        logError('download_failed', `Context menu download failed: ${errorMessage(e)}`, {
-          url: rawUrl,
-        });
+        await orchestrator.sendUrl(rawUrl, info.pageUrl ?? '', { source: 'context-menu' });
+      } catch {
+        // The orchestrator records the terminal delivery failure.
       }
     });
   });
@@ -456,32 +459,76 @@ export default defineBackground(() => {
 
     const browserMode = settings.desktopUnavailable.action === 'browser';
     if (browserMode && !(await desktopClient.isReady())) {
-      logInfo('download_skipped', `Continued protocol in browser: ${msg.url}`, {
+      logWarn('download_restored_to_browser', 'Browser retained the protocol link', {
         url: msg.url,
         protocol: msg.protocol,
-        stage: 'desktop-unavailable',
+        reason: 'desktop-unavailable',
+        mode: 'continued',
       });
       return { disposition: 'browser' };
     }
 
-    logInfo('protocol_intercepted', `External protocol intercepted: ${msg.url}`, {
-      url: msg.url,
-      protocol: msg.protocol,
-    });
-
     try {
-      await orchestrator.sendUrl(msg.url, '', browserMode ? { allowActivation: false } : undefined);
-      return { disposition: 'handled' };
-    } catch (e) {
-      logError('download_failed', `Protocol download failed: ${errorMessage(e)}`, {
-        url: msg.url,
-        protocol: msg.protocol,
+      await orchestrator.sendUrl(msg.url, '', {
+        source: 'external-protocol',
+        allowActivation: !browserMode,
       });
+      return { disposition: 'handled' };
+    } catch {
+      // The orchestrator records the terminal delivery failure.
       return { disposition: browserMode ? 'browser' : 'handled' };
     }
   }
 
+  async function handleDesktopActivation(): Promise<{ ok: true } | { ok: false; error: string }> {
+    try {
+      await activateDesktopApp();
+      return { ok: true };
+    } catch (error) {
+      const code = error instanceof DesktopActivationError ? error.code : 'unknown';
+      logError('desktop_activation_failed', 'Motrix Next could not be activated', {
+        source: 'popup',
+        reason: code,
+      });
+      return { ok: false, error: code };
+    }
+  }
+
+  async function handleDesktopCommand(
+    action: 'pause-all' | 'resume-all',
+  ): Promise<{ ok: true } | { ok: false; error: string }> {
+    await ensureConfigLoaded();
+    try {
+      if (action === 'pause-all') await desktopClient.pauseAll();
+      else await desktopClient.resumeAll();
+      return { ok: true };
+    } catch (error) {
+      const authFailure = error instanceof ApiAuthError;
+      logError(
+        authFailure ? 'api_auth_failed' : 'api_unreachable',
+        authFailure
+          ? 'Motrix Next rejected the API credentials'
+          : 'Motrix Next could not complete the requested action',
+        { source: 'popup', action, error: errorMessage(error) },
+      );
+      return { ok: false, error: errorMessage(error) };
+    }
+  }
+
   browser.runtime.onMessage.addListener((msg) => {
+    if (msg === null || typeof msg !== 'object') return undefined;
+    if ('type' in msg && msg.type === 'ACTIVATE_DESKTOP') return handleDesktopActivation();
+    if ('type' in msg && msg.type === 'CLEAR_DIAGNOSTICS') {
+      return diagnosticLog.clear().then(() => ({ ok: true as const }));
+    }
+    if ('type' in msg && msg.type === 'GET_DIAGNOSTICS') {
+      return diagnosticLog.initialize().then(() => ({
+        ok: true as const,
+        events: diagnosticLog.getAll(),
+      }));
+    }
+    if ('type' in msg && msg.type === 'PAUSE_ALL') return handleDesktopCommand('pause-all');
+    if ('type' in msg && msg.type === 'RESUME_ALL') return handleDesktopCommand('resume-all');
     const protocolMessage = parseExternalProtocolMessage(msg);
     return protocolMessage ? handleExternalProtocol(protocolMessage) : undefined;
   });
@@ -503,14 +550,13 @@ export default defineBackground(() => {
     }
     if (changes.uiPrefs?.newValue) {
       bgI18n.setLocale(effectiveLocale(parseUiPrefs(changes.uiPrefs.newValue).locale));
-      browser.contextMenus.update(CONTEXT_MENU_ID, { title: contextMenuTitle() });
-    }
-
-    const meaningful = Object.keys(changes).filter((k) => k !== 'diagnosticLog');
-    if (meaningful.length > 0) {
-      logInfo('config_changed', `Configuration updated: ${meaningful.join(', ')}`, {
-        keys: meaningful.join(', '),
-      });
+      void browser.contextMenus
+        .update(CONTEXT_MENU_ID, { title: contextMenuTitle() })
+        .catch((error) => {
+          logWarn('context_menu_failed', 'Context menu title could not be updated', {
+            error: errorMessage(error),
+          });
+        });
     }
   });
 
@@ -520,44 +566,28 @@ export default defineBackground(() => {
     if (details.reason === 'install') {
       logInfo('extension_installed', 'Extension installed');
     } else if (details.reason === 'update') {
-      logInfo(
-        'extension_updated',
-        `Extension updated from ${details.previousVersion ?? 'unknown'}`,
-        {
-          previousVersion: details.previousVersion ?? 'unknown',
-          currentVersion: browser.runtime.getManifest().version,
-        },
-      );
+      logInfo('extension_updated', 'Extension was updated', {
+        previousVersion: details.previousVersion ?? 'unknown',
+        currentVersion: browser.runtime.getManifest().version,
+      });
     }
   });
 
   browser.permissions.onAdded?.addListener((permissions) => {
-    logInfo(
-      'permission_granted',
-      `Permissions granted: ${permissions.permissions?.join(', ') ?? 'origins'}`,
-      {
-        permissions: permissions.permissions?.join(', ') ?? '',
-        origins: permissions.origins?.join(', ') ?? '',
-      },
-    );
+    logInfo('permission_granted', 'Browser permissions were granted', {
+      permissions: permissions.permissions?.join(', ') ?? '',
+      origins: permissions.origins?.join(', ') ?? '',
+    });
   });
 
   browser.permissions.onRemoved?.addListener((permissions) => {
-    logWarn(
-      'permission_revoked',
-      `Permissions revoked: ${permissions.permissions?.join(', ') ?? 'origins'}`,
-      {
-        permissions: permissions.permissions?.join(', ') ?? '',
-        origins: permissions.origins?.join(', ') ?? '',
-      },
-    );
+    logWarn('permission_revoked', 'Browser permissions were revoked', {
+      permissions: permissions.permissions?.join(', ') ?? '',
+      origins: permissions.origins?.join(', ') ?? '',
+    });
   });
 
-  logInfo(
-    'extension_started',
-    `Service worker started (v${browser.runtime.getManifest().version})`,
-  );
-
+  void diagnosticLog.initialize();
   void ensureConfigLoaded().then(() => {
     // Register the context menu after the locale is loaded (i18n timing).
     registerContextMenu();

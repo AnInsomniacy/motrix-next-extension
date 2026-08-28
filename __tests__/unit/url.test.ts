@@ -1,119 +1,64 @@
-import { describe, it, expect } from 'vitest';
-import { extractFilenameFromUrl } from '../../lib/download/url';
+import { describe, expect, it } from 'vitest';
+import { extractFilenameFromUrl } from '@/lib/download/url';
+
+function dispositionUrl(value: string, key = 'response-content-disposition'): string {
+  return `https://cdn.example.com/hash?${key}=${encodeURIComponent(value)}`;
+}
 
 describe('extractFilenameFromUrl', () => {
-  // ── Existing pathname-based tests ──
-
-  it('extracts filename from a standard URL', () => {
-    expect(extractFilenameFromUrl('https://cdn.example.com/files/app-v2.0.zip')).toBe(
-      'app-v2.0.zip',
-    );
+  it('extracts and decodes usable path filenames', () => {
+    const cases: Array<readonly [string, string]> = [
+      ['https://cdn.example.com/a/app-v2.0.zip?token=secret', 'app-v2.0.zip'],
+      ['https://example.com/files/%E6%96%87%E4%BB%B6.zip', '文件.zip'],
+      ['https://example.com/a/b/release-notes.pdf', 'release-notes.pdf'],
+    ];
+    for (const [url, expected] of cases) expect(extractFilenameFromUrl(url)).toBe(expected);
   });
 
-  it('extracts filename ignoring query parameters', () => {
+  it('rejects paths that do not identify downloadable files', () => {
+    for (const url of [
+      'https://example.com/download',
+      'https://example.com/',
+      'magnet:?xt=urn:btih:abc',
+      'not-a-url',
+      '',
+    ]) {
+      expect(extractFilenameFromUrl(url)).toBeNull();
+    }
+  });
+
+  it('supports cloud Content-Disposition encodings and precedence', () => {
+    const cases: Array<readonly [string, string]> = [
+      [dispositionUrl('attachment; filename="test.zip"'), 'test.zip'],
+      [dispositionUrl("attachment; filename*=UTF-8''%E6%97%A0%E5%B8%B8.xmgic"), '无常.xmgic'],
+      [
+        dispositionUrl('attachment; filename="=?UTF-8?B?0JjRgtC+0LPQuF8yMDI2LmRvY3g=?="'),
+        'Итоги_2026.docx',
+      ],
+      [dispositionUrl('attachment; filename="=?UTF-8?Q?=E6=8A=A5=E5=91=8A.pdf?="'), '报告.pdf'],
+      [
+        dispositionUrl(
+          'attachment; filename="fallback.txt"; filename*=UTF-8\'\'%E4%B8%AD%E6%96%87.txt',
+        ),
+        '中文.txt',
+      ],
+      [dispositionUrl('attachment; filename="alt.zip"', 'content-disposition'), 'alt.zip'],
+    ];
+    for (const [url, expected] of cases) expect(extractFilenameFromUrl(url)).toBe(expected);
+  });
+
+  it('prefers valid response metadata and falls back from malformed metadata', () => {
     expect(
-      extractFilenameFromUrl('https://cdn.apple.com/ipsw/iPhone_Restore.ipsw?accessKey=abc'),
-    ).toBe('iPhone_Restore.ipsw');
-  });
-
-  it('decodes percent-encoded characters', () => {
-    expect(extractFilenameFromUrl('https://example.com/files/%E6%96%87%E4%BB%B6.zip')).toBe(
-      '文件.zip',
-    );
-  });
-
-  it('returns null for URLs without file extension', () => {
-    expect(extractFilenameFromUrl('https://example.com/download')).toBeNull();
-    expect(extractFilenameFromUrl('https://example.com/api/getFile')).toBeNull();
-  });
-
-  it('returns null for bare domain URLs', () => {
-    expect(extractFilenameFromUrl('https://example.com/')).toBeNull();
-    expect(extractFilenameFromUrl('https://example.com')).toBeNull();
-  });
-
-  it('returns null for invalid URLs', () => {
-    expect(extractFilenameFromUrl('not-a-url')).toBeNull();
-    expect(extractFilenameFromUrl('')).toBeNull();
-  });
-
-  it('handles URLs with multiple path segments', () => {
-    expect(extractFilenameFromUrl('https://cdn.example.com/a/b/c/release-notes.pdf')).toBe(
-      'release-notes.pdf',
-    );
-  });
-
-  it('handles magnet URIs (returns null — no path)', () => {
-    expect(extractFilenameFromUrl('magnet:?xt=urn:btih:abc123')).toBeNull();
-  });
-
-  // ── Content-Disposition query param extraction (cloud drive presigned URLs) ──
-
-  it('extracts filename from response-content-disposition query param (Quark/OSS)', () => {
-    const url =
-      'https://dl-pc-zb.pds.quark.cn/hash123?response-content-disposition=' +
-      encodeURIComponent('attachment; filename="test-file.zip"');
-    expect(extractFilenameFromUrl(url)).toBe('test-file.zip');
-  });
-
-  it('extracts filename from filename* with UTF-8 encoding (RFC 5987)', () => {
-    const cdValue = "attachment; filename*=UTF-8''%E6%97%A0%E5%B8%B8.xmgic";
-    const url =
-      'https://cdn.example.com/hash?' +
-      'response-content-disposition=' +
-      encodeURIComponent(cdValue);
-    expect(extractFilenameFromUrl(url)).toBe('无常.xmgic');
-  });
-
-  it('extracts filename from RFC 2047 base64 encoded-word Content-Disposition', () => {
-    const cdValue = 'attachment; filename="=?UTF-8?B?0JjRgtC+0LPQuF8yMDI2LmRvY3g=?="';
-    const url =
-      'https://cdn.example.com/hash?' +
-      'response-content-disposition=' +
-      encodeURIComponent(cdValue);
-    expect(extractFilenameFromUrl(url)).toBe('Итоги_2026.docx');
-  });
-
-  it('extracts filename from RFC 2047 quoted-printable encoded-word Content-Disposition', () => {
-    const cdValue = 'attachment; filename="=?UTF-8?Q?=E6=8A=A5=E5=91=8A.pdf?="';
-    const url =
-      'https://cdn.example.com/hash?' +
-      'response-content-disposition=' +
-      encodeURIComponent(cdValue);
-    expect(extractFilenameFromUrl(url)).toBe('报告.pdf');
-  });
-
-  it('prefers filename* over filename when both present', () => {
-    const cdValue =
-      'attachment; filename="fallback.txt"; filename*=UTF-8\'\'%E4%B8%AD%E6%96%87.txt';
-    const url =
-      'https://cdn.example.com/hash?' +
-      'response-content-disposition=' +
-      encodeURIComponent(cdValue);
-    expect(extractFilenameFromUrl(url)).toBe('中文.txt');
-  });
-
-  it('extracts from content-disposition query param (alternative key)', () => {
-    const url =
-      'https://cdn.example.com/hash?content-disposition=' +
-      encodeURIComponent('attachment; filename="alt-key.zip"');
-    expect(extractFilenameFromUrl(url)).toBe('alt-key.zip');
-  });
-
-  it('Content-Disposition query param takes priority over pathname', () => {
-    const url =
-      'https://cdn.example.com/real-path-file.zip?response-content-disposition=' +
-      encodeURIComponent('attachment; filename="override.zip"');
-    expect(extractFilenameFromUrl(url)).toBe('override.zip');
-  });
-
-  it('falls back to pathname when content-disposition param is malformed', () => {
-    const url = 'https://cdn.example.com/files/good.zip?response-content-disposition=garbage';
-    expect(extractFilenameFromUrl(url)).toBe('good.zip');
-  });
-
-  it('falls back to pathname when no content-disposition query param exists', () => {
-    const url = 'https://cdn.example.com/files/normal.zip?token=abc';
-    expect(extractFilenameFromUrl(url)).toBe('normal.zip');
+      extractFilenameFromUrl(
+        `https://cdn.example.com/path.zip?response-content-disposition=${encodeURIComponent(
+          'attachment; filename="override.zip"',
+        )}`,
+      ),
+    ).toBe('override.zip');
+    expect(
+      extractFilenameFromUrl(
+        'https://cdn.example.com/good.zip?response-content-disposition=garbage',
+      ),
+    ).toBe('good.zip');
   });
 });

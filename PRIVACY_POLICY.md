@@ -23,7 +23,7 @@ The Extension accesses the following data solely to perform its core functionali
 When a browser download is initiated and intercepted by the Extension, it reads:
 
 - **Download URL** — to forward to the local Motrix Next HTTP API
-- **Filename** — to display in diagnostics and pass to Motrix Next
+- **Filename** — to pass to Motrix Next when the browser provides a reliable name
 - **HTTP Referer** — to include with the task submission when available
 
 This data is sent only to the Motrix Next HTTP API running on `127.0.0.1` (localhost) — **never to any external server**.
@@ -100,7 +100,7 @@ The Extension does not integrate with, send data to, or receive data from any th
 
 - **Download metadata** is used transiently during interception and is not persisted
 - **User settings** remain in local storage until the user clears them or uninstalls the Extension
-- **Diagnostic logs** use a fixed-size ring buffer (default 100 entries) and are automatically overwritten
+- **Diagnostic logs** retain at most 100 events for 7 days. Logged URLs exclude credentials, query parameters, and fragments. Older events are removed automatically.
 
 ## Children's Privacy
 

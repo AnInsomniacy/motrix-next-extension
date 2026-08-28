@@ -550,5 +550,47 @@
   "options_settings_backup_include_secret": {
     "message": "خروجی گرفتن از کلید API",
     "description": "Switch label for including the API secret in exported settings backups."
+  },
+  "options_diagnostics_filter_all": {
+    "message": "همه",
+    "description": "Filter label for all diagnostic levels"
+  },
+  "options_diagnostics_filter_error": {
+    "message": "خطا",
+    "description": "Filter label for error diagnostic events"
+  },
+  "options_diagnostics_filter_warning": {
+    "message": "هشدار",
+    "description": "Filter label for warning diagnostic events"
+  },
+  "options_diagnostics_filter_info": {
+    "message": "اطلاعات",
+    "description": "Filter label for informational diagnostic events"
+  },
+  "options_diagnostics_filter_code": {
+    "message": "نوع رویداد",
+    "description": "Placeholder for the diagnostic event type filter"
+  },
+  "options_diagnostics_clear_error": {
+    "message": "پاک‌کردن رویدادهای عیب‌یابی ناموفق بود",
+    "description": "Error shown when diagnostic events cannot be cleared"
+  },
+  "options_diagnostics_export_error": {
+    "message": "خروجی‌گرفتن از گزارش عیب‌یابی ناموفق بود",
+    "description": "Error shown when the diagnostic report cannot be exported"
+  },
+  "options_diagnostics_retention": {
+    "message": "$1 رویداد اخیر · پس از $2 روز حذف می‌شوند",
+    "description": "Diagnostic retention summary, $1 = maximum events and $2 = retention days",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "100"
+      },
+      "2": {
+        "content": "$2",
+        "example": "7"
+      }
+    }
   }
 }

@@ -100,7 +100,7 @@ describe('Chromium takeover', () => {
     expect(deps.desktopClient?.isReady).not.toHaveBeenCalled();
   });
 
-  it('restarts in Chrome when browser fallback mode cannot reach the desktop', async () => {
+  it('restores Chrome downloads across desktop availability and routing failures', async () => {
     const settings = {
       ...DEFAULT_DOWNLOAD_SETTINGS,
       desktopUnavailable: {
@@ -108,53 +108,20 @@ describe('Chromium takeover', () => {
         action: 'browser' as const,
       },
     } satisfies DownloadSettings;
-    const deps = createDeps({ settings, ready: false });
-    const orchestrator = new DownloadOrchestrator(deps);
-
-    await expect(
-      orchestrator.handleChromiumTakeover(createDownloadItem(), Promise.resolve()),
-    ).resolves.toBe(false);
-    expect(deps.downloads.download).toHaveBeenCalledTimes(1);
-    expect(deps.desktopClient?.addDownload).not.toHaveBeenCalled();
-  });
-
-  it('restarts in Chrome when browser-mode desktop submission fails', async () => {
-    const settings = {
-      ...DEFAULT_DOWNLOAD_SETTINGS,
-      desktopUnavailable: {
-        ...DEFAULT_DOWNLOAD_SETTINGS.desktopUnavailable,
-        action: 'browser' as const,
-      },
-    } satisfies DownloadSettings;
-    const deps = createDeps({ settings, routeFails: true });
-    const orchestrator = new DownloadOrchestrator(deps);
-
-    await expect(
-      orchestrator.handleChromiumTakeover(createDownloadItem(), Promise.resolve()),
-    ).resolves.toBe(false);
-    expect(deps.downloads.download).toHaveBeenCalledTimes(1);
-  });
-
-  it('restarts in Chrome when native activation fails', async () => {
-    const deps = createDeps({ ready: false, activationResult: false });
-    const orchestrator = new DownloadOrchestrator(deps);
-
-    await expect(
-      orchestrator.handleChromiumTakeover(createDownloadItem(), Promise.resolve()),
-    ).resolves.toBe(false);
-    expect(deps.downloads.download).toHaveBeenCalledWith({
-      url: 'https://example.com/file.zip',
-    });
-    expect(deps.desktopClient?.addDownload).not.toHaveBeenCalled();
-  });
-
-  it('restarts in Chrome when launch-mode desktop submission fails', async () => {
-    const deps = createDeps({ routeFails: true });
-    const orchestrator = new DownloadOrchestrator(deps);
-
-    await expect(
-      orchestrator.handleChromiumTakeover(createDownloadItem(), Promise.resolve()),
-    ).resolves.toBe(false);
-    expect(deps.downloads.download).toHaveBeenCalledTimes(1);
+    for (const options of [
+      { settings, ready: false },
+      { settings, routeFails: true },
+      { ready: false, activationResult: false },
+      { routeFails: true },
+    ]) {
+      const deps = createDeps(options);
+      const orchestrator = new DownloadOrchestrator(deps);
+      await expect(
+        orchestrator.handleChromiumTakeover(createDownloadItem(), Promise.resolve()),
+      ).resolves.toBe(false);
+      expect(deps.downloads.download).toHaveBeenCalledWith({
+        url: 'https://example.com/file.zip',
+      });
+    }
   });
 });

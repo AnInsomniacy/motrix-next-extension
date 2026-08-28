@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { computed, onUnmounted, ref } from 'vue';
-import { NBadge, NButton, NEmpty, NFormItem, NIcon, NSwitch, NTag } from 'naive-ui';
+import { computed, onUnmounted, ref, watch } from 'vue';
+import { NBadge, NButton, NEmpty, NFormItem, NIcon, NSelect, NSwitch } from 'naive-ui';
 import {
   CloudDownloadOutline,
   CloudUploadOutline,
@@ -8,8 +8,9 @@ import {
   RefreshOutline,
   TrashOutline,
 } from '@vicons/ionicons5';
-import type { DiagnosticEvent } from '@/lib/schema';
+import type { DiagnosticEvent, DiagnosticLevel } from '@/lib/schema';
 import { useI18n } from '@/shared/i18n/engine';
+import CollapsePanel from '@/shared/components/CollapsePanel.vue';
 
 const props = defineProps<{
   events: DiagnosticEvent[];
@@ -25,19 +26,50 @@ const emit = defineEmits<{
   exportDiagnostics: [];
 }>();
 
-const { t: i18n } = useI18n();
+const { t: i18n, tSub: i18nSub } = useI18n();
 const fileInput = ref<globalThis.HTMLInputElement | null>(null);
 const confirmingReset = ref(false);
 const expandedId = ref<string | null>(null);
+const levelFilter = ref<'all' | DiagnosticLevel>('all');
+const codeFilter = ref<string | null>(null);
 let resetConfirmTimer: ReturnType<typeof setTimeout> | null = null;
 
-const LEVEL_TYPE: Record<string, 'success' | 'warning' | 'error'> = {
-  info: 'success',
-  warn: 'warning',
-  error: 'error',
-};
+const levelCounts = computed(() => ({
+  all: props.events.length,
+  error: props.events.filter((event) => event.level === 'error').length,
+  warn: props.events.filter((event) => event.level === 'warn').length,
+  info: props.events.filter((event) => event.level === 'info').length,
+}));
+const codeOptions = computed(() =>
+  [...new Set(props.events.map((event) => event.code))]
+    .sort()
+    .map((code) => ({ label: code, value: code })),
+);
+const filteredEvents = computed(() =>
+  props.events
+    .filter((event) => levelFilter.value === 'all' || event.level === levelFilter.value)
+    .filter((event) => codeFilter.value === null || event.code === codeFilter.value)
+    .reverse(),
+);
 
-const reversedEvents = computed(() => [...props.events].reverse());
+const levelOptions = computed<Array<{ value: 'all' | DiagnosticLevel; label: string }>>(() => [
+  { value: 'all', label: i18n('options_diagnostics_filter_all', 'All') },
+  { value: 'error', label: i18n('options_diagnostics_filter_error', 'Error') },
+  { value: 'warn', label: i18n('options_diagnostics_filter_warning', 'Warning') },
+  { value: 'info', label: i18n('options_diagnostics_filter_info', 'Info') },
+]);
+
+watch(
+  () => props.events,
+  (events) => {
+    if (codeFilter.value && !events.some((event) => event.code === codeFilter.value)) {
+      codeFilter.value = null;
+    }
+    if (expandedId.value && !events.some((event) => event.id === expandedId.value)) {
+      expandedId.value = null;
+    }
+  },
+);
 
 function clearResetConfirmTimer(): void {
   if (resetConfirmTimer) {
@@ -153,29 +185,74 @@ onUnmounted(clearResetConfirmTimer);
         <NBadge v-if="events.length" :value="events.length" :max="999" type="info" />
       </div>
 
-      <div class="maintenance-actions diagnostics-actions">
-        <NButton size="small" quaternary @click="emit('exportDiagnostics')">
-          <template #icon>
-            <NIcon :size="14"><DownloadOutline /></NIcon>
-          </template>
-          {{ i18n('options_diagnostics_export', 'Export Report') }}
-        </NButton>
-        <NButton size="small" quaternary type="error" @click="emit('clearDiagnostics')">
-          <template #icon>
-            <NIcon :size="14"><TrashOutline /></NIcon>
-          </template>
-          {{ i18n('options_diagnostics_clear', 'Clear Log') }}
-        </NButton>
+      <div class="diagnostics-toolbar">
+        <div
+          class="diagnostics-levels"
+          role="group"
+          :aria-label="i18n('options_section_diagnostics', 'Diagnostics')"
+        >
+          <button
+            v-for="option in levelOptions"
+            :key="option.value"
+            type="button"
+            class="diagnostics-level"
+            :class="{ active: levelFilter === option.value }"
+            @click="levelFilter = option.value"
+          >
+            {{ option.label }}
+            <span>{{ levelCounts[option.value] }}</span>
+          </button>
+        </div>
+
+        <NSelect
+          v-model:value="codeFilter"
+          class="diagnostics-code-filter"
+          size="small"
+          clearable
+          filterable
+          :options="codeOptions"
+          :placeholder="i18n('options_diagnostics_filter_code', 'Event type')"
+        />
+
+        <div class="maintenance-actions diagnostics-actions">
+          <NButton size="small" quaternary @click="emit('exportDiagnostics')">
+            <template #icon>
+              <NIcon :size="14"><DownloadOutline /></NIcon>
+            </template>
+            {{ i18n('options_diagnostics_export', 'Export Report') }}
+          </NButton>
+          <NButton size="small" quaternary type="error" @click="emit('clearDiagnostics')">
+            <template #icon>
+              <NIcon :size="14"><TrashOutline /></NIcon>
+            </template>
+            {{ i18n('options_diagnostics_clear', 'Clear Log') }}
+          </NButton>
+        </div>
       </div>
 
       <Transition name="fade" mode="out-in">
-        <div v-if="events.length" key="log" class="diag-log">
-          <div v-for="event in reversedEvents" :key="event.id" class="diag-entry-wrapper">
-            <div class="diag-entry" @click="event.context ? toggleExpand(event.id) : undefined">
+        <TransitionGroup
+          v-if="filteredEvents.length"
+          key="log"
+          name="list-item"
+          tag="div"
+          class="diag-log"
+        >
+          <div
+            v-for="event in filteredEvents"
+            :key="event.id"
+            class="diag-entry-wrapper"
+            :class="`diag-entry-wrapper--${event.level}`"
+          >
+            <button
+              type="button"
+              class="diag-entry"
+              :disabled="!event.context"
+              :aria-expanded="event.context ? expandedId === event.id : undefined"
+              :aria-label="`${event.level}: ${event.code}. ${event.message}`"
+              @click="event.context ? toggleExpand(event.id) : undefined"
+            >
               <span class="diag-entry__time">{{ formatTime(event.ts) }}</span>
-              <NTag :type="LEVEL_TYPE[event.level] ?? 'default'" size="tiny" round>
-                {{ event.level }}
-              </NTag>
               <code class="diag-entry__code">{{ event.code }}</code>
               <span class="diag-entry__msg">{{ event.message }}</span>
               <span
@@ -184,9 +261,9 @@ onUnmounted(clearResetConfirmTimer);
                 :class="{ expanded: expandedId === event.id }"
                 >›</span
               >
-            </div>
-            <Transition name="context-expand">
-              <div v-if="event.context && expandedId === event.id" class="diag-context">
+            </button>
+            <CollapsePanel :open="Boolean(event.context && expandedId === event.id)">
+              <div v-if="event.context" class="diag-context">
                 <div
                   v-for="(value, key) in event.context"
                   :key="String(key)"
@@ -196,9 +273,9 @@ onUnmounted(clearResetConfirmTimer);
                   <span class="diag-context__value">{{ value }}</span>
                 </div>
               </div>
-            </Transition>
+            </CollapsePanel>
           </div>
-        </div>
+        </TransitionGroup>
         <NEmpty
           v-else
           key="empty"
@@ -206,6 +283,16 @@ onUnmounted(clearResetConfirmTimer);
           :description="i18n('options_diagnostics_empty', 'No diagnostic events.')"
         />
       </Transition>
+
+      <p class="diagnostics-retention">
+        {{
+          i18nSub(
+            'options_diagnostics_retention',
+            ['100', '7'],
+            'Latest 100 events · Removed after 7 days',
+          )
+        }}
+      </p>
     </section>
   </div>
 </template>
@@ -232,8 +319,71 @@ onUnmounted(clearResetConfirmTimer);
   gap: 12px;
 }
 
-.diagnostics-actions {
+.diagnostics-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 12px;
+}
+
+.diagnostics-levels {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--color-surface-container-high);
+}
+
+.diagnostics-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  padding: 3px 8px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    color 0.15s cubic-bezier(0.2, 0, 0, 1),
+    background-color 0.15s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.diagnostics-level span {
+  font-family: var(--font-mono);
+  opacity: 0.65;
+}
+
+.diagnostics-level:hover {
+  color: var(--color-on-surface);
+}
+
+.diagnostics-level:active {
+  transform: scale(0.97);
+}
+
+.diagnostics-level.active {
+  background: var(--color-surface-container-highest);
+  color: var(--color-on-surface);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--color-on-surface) 12%, transparent);
+}
+
+.diagnostics-level:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.diagnostics-code-filter {
+  width: min(180px, 100%);
+}
+
+.diagnostics-actions {
+  margin-left: auto;
 }
 
 .diag-log {
@@ -241,32 +391,69 @@ onUnmounted(clearResetConfirmTimer);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  background: var(--color-surface-container-high);
+  gap: 3px;
+  background: var(--color-surface-container);
   border-radius: 10px;
-  padding: 8px;
+  padding: 6px;
 }
 
 .diag-entry-wrapper {
+  position: relative;
   border-radius: 6px;
   overflow: hidden;
   flex-shrink: 0;
+  background: color-mix(in srgb, var(--color-surface-container-high) 72%, transparent);
+}
+
+.diag-entry-wrapper::before {
+  position: absolute;
+  z-index: 1;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--color-outline);
+  content: '';
+}
+
+.diag-entry-wrapper--warn::before {
+  background: var(--color-warning);
+}
+
+.diag-entry-wrapper--error::before {
+  background: var(--color-error);
 }
 
 .diag-entry {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 12px;
   font-family: var(--font-mono);
-  padding: 5px 8px;
+  padding: 7px 9px 7px 11px;
+  border: 0;
   border-radius: 6px;
-  cursor: default;
-  transition: background-color 0.15s;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.diag-entry:hover {
+.diag-entry:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.diag-entry:hover:not(:disabled) {
   background: color-mix(in srgb, var(--color-on-surface) 4%, transparent);
+}
+
+.diag-entry:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
 }
 
 .diag-entry__time {
@@ -279,7 +466,7 @@ onUnmounted(clearResetConfirmTimer);
 .diag-entry__code {
   font-weight: 600;
   color: var(--color-on-surface);
-  flex-shrink: 0;
+  min-width: min(245px, 38%);
 }
 
 .diag-entry__msg {
@@ -304,7 +491,7 @@ onUnmounted(clearResetConfirmTimer);
 }
 
 .diag-context {
-  padding: 4px 8px 8px 30px;
+  padding: 2px 10px 9px 30px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -329,23 +516,22 @@ onUnmounted(clearResetConfirmTimer);
   word-break: break-all;
 }
 
-.context-expand-enter-active,
-.context-expand-leave-active {
-  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-  overflow: hidden;
+.diagnostics-retention {
+  margin: 8px 2px 0;
+  color: var(--color-on-surface-variant);
+  font-size: 10px;
+  text-align: right;
+  opacity: 0.65;
 }
 
-.context-expand-enter-from,
-.context-expand-leave-to {
-  opacity: 0;
-  max-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-}
+@media (max-width: 700px) {
+  .diagnostics-actions {
+    width: 100%;
+    margin-left: 0;
+  }
 
-.context-expand-enter-to,
-.context-expand-leave-from {
-  opacity: 1;
-  max-height: 200px;
+  .diag-entry__code {
+    min-width: 0;
+  }
 }
 </style>

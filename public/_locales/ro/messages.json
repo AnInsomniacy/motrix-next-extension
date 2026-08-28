@@ -550,5 +550,47 @@
   "options_settings_backup_include_secret": {
     "message": "Exportă secretul API",
     "description": "Switch label for including the API secret in exported settings backups."
+  },
+  "options_diagnostics_filter_all": {
+    "message": "Toate",
+    "description": "Filter label for all diagnostic levels"
+  },
+  "options_diagnostics_filter_error": {
+    "message": "Eroare",
+    "description": "Filter label for error diagnostic events"
+  },
+  "options_diagnostics_filter_warning": {
+    "message": "Avertisment",
+    "description": "Filter label for warning diagnostic events"
+  },
+  "options_diagnostics_filter_info": {
+    "message": "Informații",
+    "description": "Filter label for informational diagnostic events"
+  },
+  "options_diagnostics_filter_code": {
+    "message": "Tip eveniment",
+    "description": "Placeholder for the diagnostic event type filter"
+  },
+  "options_diagnostics_clear_error": {
+    "message": "Evenimentele de diagnosticare nu au putut fi șterse",
+    "description": "Error shown when diagnostic events cannot be cleared"
+  },
+  "options_diagnostics_export_error": {
+    "message": "Raportul de diagnosticare nu a putut fi exportat",
+    "description": "Error shown when the diagnostic report cannot be exported"
+  },
+  "options_diagnostics_retention": {
+    "message": "Cele mai recente $1 evenimente · Șterse după $2 zile",
+    "description": "Diagnostic retention summary, $1 = maximum events and $2 = retention days",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "100"
+      },
+      "2": {
+        "content": "$2",
+        "example": "7"
+      }
+    }
   }
 }

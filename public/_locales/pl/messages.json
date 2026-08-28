@@ -550,5 +550,47 @@
   "options_settings_backup_include_secret": {
     "message": "Eksportuj sekret API",
     "description": "Switch label for including the API secret in exported settings backups."
+  },
+  "options_diagnostics_filter_all": {
+    "message": "Wszystkie",
+    "description": "Filter label for all diagnostic levels"
+  },
+  "options_diagnostics_filter_error": {
+    "message": "Błąd",
+    "description": "Filter label for error diagnostic events"
+  },
+  "options_diagnostics_filter_warning": {
+    "message": "Ostrzeżenie",
+    "description": "Filter label for warning diagnostic events"
+  },
+  "options_diagnostics_filter_info": {
+    "message": "Informacja",
+    "description": "Filter label for informational diagnostic events"
+  },
+  "options_diagnostics_filter_code": {
+    "message": "Typ zdarzenia",
+    "description": "Placeholder for the diagnostic event type filter"
+  },
+  "options_diagnostics_clear_error": {
+    "message": "Nie udało się wyczyścić zdarzeń diagnostycznych",
+    "description": "Error shown when diagnostic events cannot be cleared"
+  },
+  "options_diagnostics_export_error": {
+    "message": "Nie udało się wyeksportować raportu diagnostycznego",
+    "description": "Error shown when the diagnostic report cannot be exported"
+  },
+  "options_diagnostics_retention": {
+    "message": "Najnowsze $1 zdarzeń · Usuwane po $2 dniach",
+    "description": "Diagnostic retention summary, $1 = maximum events and $2 = retention days",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "100"
+      },
+      "2": {
+        "content": "$2",
+        "example": "7"
+      }
+    }
   }
 }

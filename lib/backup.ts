@@ -15,7 +15,7 @@ export interface SettingsBackup {
   schemaVersion: typeof SETTINGS_BACKUP_SCHEMA_VERSION;
   extensionVersion: string;
   exportedAt: string;
-  settings: Omit<StorageSnapshot, 'diagnosticLog'>;
+  settings: StorageSnapshot;
 }
 
 export interface CreateSettingsBackupOptions {
@@ -98,6 +98,5 @@ export function parseSettingsBackup(
     settings: parseDownloadSettings(settings.settings),
     siteRules: parseSiteRules(settings.siteRules),
     uiPrefs: parseUiPrefs(settings.uiPrefs),
-    diagnosticLog: [],
   };
 }

@@ -1,17 +1,8 @@
 import { defineConfig } from 'wxt';
 import Components from 'unplugin-vue-components/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
-import { resolve } from 'node:path';
-import { mkdirSync } from 'node:fs';
 import { buildExtensionManifest } from './shared/manifest';
 import { localesPlugin } from './shared/i18n/locales-plugin';
-
-// Ensure persistent browser profile directories exist before chrome-launcher
-// attempts to write chrome-out.log. mkdirSync is idempotent with recursive.
-const CHROMIUM_PROFILE = resolve('.wxt/chrome-data');
-const FIREFOX_PROFILE = resolve('.wxt/firefox-data');
-mkdirSync(CHROMIUM_PROFILE, { recursive: true });
-mkdirSync(FIREFOX_PROFILE, { recursive: true });
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -20,13 +11,11 @@ export default defineConfig({
     artifactTemplate: '{{name}}-{{version}}-{{browser}}-mv3.zip',
   },
   webExt: {
-    // Reuse a persistent browser profile across dev restarts so that
-    // chrome.storage.local data (RPC secret, theme, etc.) is preserved.
-    chromiumProfile: CHROMIUM_PROFILE,
-    firefoxProfile: FIREFOX_PROFILE,
-    keepProfileChanges: true,
+    // Native Messaging registrations are scoped to the regular browser data
+    // root on macOS and Linux. Load the dev build into a normal browser profile.
+    disabled: true,
   },
-  manifest: ({ browser }) => buildExtensionManifest(browser),
+  manifest: ({ browser, mode }) => buildExtensionManifest(browser, mode),
   vite: () => ({
     build: {
       // WXT builds the service worker as an IIFE, so manual code-splitting is

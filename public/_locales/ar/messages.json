@@ -550,5 +550,47 @@
   "options_settings_backup_include_secret": {
     "message": "تصدير مفتاح API",
     "description": "Switch label for including the API secret in exported settings backups."
+  },
+  "options_diagnostics_filter_all": {
+    "message": "الكل",
+    "description": "Filter label for all diagnostic levels"
+  },
+  "options_diagnostics_filter_error": {
+    "message": "خطأ",
+    "description": "Filter label for error diagnostic events"
+  },
+  "options_diagnostics_filter_warning": {
+    "message": "تحذير",
+    "description": "Filter label for warning diagnostic events"
+  },
+  "options_diagnostics_filter_info": {
+    "message": "معلومات",
+    "description": "Filter label for informational diagnostic events"
+  },
+  "options_diagnostics_filter_code": {
+    "message": "نوع الحدث",
+    "description": "Placeholder for the diagnostic event type filter"
+  },
+  "options_diagnostics_clear_error": {
+    "message": "تعذر مسح أحداث التشخيص",
+    "description": "Error shown when diagnostic events cannot be cleared"
+  },
+  "options_diagnostics_export_error": {
+    "message": "تعذر تصدير تقرير التشخيص",
+    "description": "Error shown when the diagnostic report cannot be exported"
+  },
+  "options_diagnostics_retention": {
+    "message": "أحدث $1 حدث · تُحذف بعد $2 أيام",
+    "description": "Diagnostic retention summary, $1 = maximum events and $2 = retention days",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "100"
+      },
+      "2": {
+        "content": "$2",
+        "example": "7"
+      }
+    }
   }
 }

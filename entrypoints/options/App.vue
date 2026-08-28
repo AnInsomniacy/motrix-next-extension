@@ -9,7 +9,7 @@
  *                changes stay local until Save writes the whole snapshot
  *
  * Two persistence classes:
- *   - immediate (enabled, scope, site rules, uiPrefs, diagnostics) — written
+ *   - immediate (enabled, scope, site rules, uiPrefs) — written
  *     on change unless `staged`
  *   - draft-tracked (connection + behavior/rules details) — written on Save,
  *     compared through `draftView()` for the dirty flag
@@ -20,7 +20,6 @@ import { NConfigProvider, createDiscreteApi } from 'naive-ui';
 import {
   loadSnapshot,
   saveConnectionConfig,
-  saveDiagnosticLog,
   saveSiteRules,
   saveSnapshot,
   updateSettings,
@@ -34,6 +33,7 @@ import {
   parseSiteRules,
   parseUiPrefs,
   type DownloadSettings,
+  type DiagnosticEvent,
   type InterceptionScope,
   type SiteRule,
   type StorageSnapshot,
@@ -116,6 +116,7 @@ const extensionVersion = browser.runtime.getManifest().version;
 
 const draft = ref<StorageSnapshot>(createDefaultSnapshot());
 const saved = ref<StorageSnapshot>(createDefaultSnapshot());
+const diagnosticEvents = ref<DiagnosticEvent[]>([]);
 const staged = ref<null | 'factory-reset' | 'backup-import'>(null);
 const includeConnectionSecretInBackup = ref(true);
 
@@ -192,9 +193,30 @@ function handleLocaleChange(value: string): void {
   void persistImmediate(() => updateUiPrefs({ locale: value }));
 }
 
-function handleClearDiagnosticLog(): void {
-  draft.value.diagnosticLog = [];
-  void persistImmediate(() => saveDiagnosticLog([]));
+async function handleClearDiagnosticLog(): Promise<void> {
+  try {
+    const response: unknown = await browser.runtime.sendMessage({ type: 'CLEAR_DIAGNOSTICS' });
+    if (
+      response !== null &&
+      typeof response === 'object' &&
+      'ok' in response &&
+      response.ok === true
+    ) {
+      diagnosticEvents.value = [];
+      return;
+    }
+  } catch {
+    // The shared error message below covers transport and persistence failures.
+  }
+  toast.error(i18n('options_diagnostics_clear_error', 'Failed to clear diagnostic events'));
+}
+
+async function getDiagnosticEvents(): Promise<DiagnosticEvent[]> {
+  const response: unknown = await browser.runtime.sendMessage({ type: 'GET_DIAGNOSTICS' });
+  if (response === null || typeof response !== 'object' || !('events' in response)) {
+    throw new Error('Diagnostic journal unavailable');
+  }
+  return parseDiagnosticEvents(response.events);
 }
 
 // ─── Permission-gated Toggles ───────────────────────────
@@ -277,7 +299,7 @@ function stageSnapshot(snapshot: StorageSnapshot, mode: 'factory-reset' | 'backu
 }
 
 function stageFactoryReset(): void {
-  stageSnapshot({ ...createDefaultSnapshot(), diagnosticLog: [] }, 'factory-reset');
+  stageSnapshot(createDefaultSnapshot(), 'factory-reset');
   toast.info(i18n('options_factory_reset_ready', 'Defaults ready to save'));
 }
 
@@ -286,7 +308,7 @@ async function importSettingsBackup(file: globalThis.File): Promise<void> {
     const snapshot = parseSettingsBackup(await file.text(), {
       currentSecret: draft.value.connection.secret,
     });
-    stageSnapshot({ ...snapshot, diagnosticLog: draft.value.diagnosticLog }, 'backup-import');
+    stageSnapshot(snapshot, 'backup-import');
     toast.info(i18n('options_settings_backup_imported', 'Settings imported. Review and save.'));
   } catch {
     toast.error(i18n('options_settings_backup_invalid', 'Invalid backup file'));
@@ -318,15 +340,25 @@ function exportSettingsBackup(): void {
   }
 }
 
-function exportDiagnosticReport(): void {
-  const { connection, settings, siteRules, uiPrefs, diagnosticLog } = draft.value;
-  downloadJson(`motrix-next-diagnostic-${Date.now()}.json`, {
-    exportedAt: new Date().toISOString(),
-    extension: { version: extensionVersion, manifestVersion: 3 },
-    browser: { userAgent: navigator.userAgent, language: navigator.language },
-    config: { connection: { port: connection.port }, settings, siteRules, uiPrefs },
-    diagnosticLog,
-  });
+async function exportDiagnosticReport(): Promise<void> {
+  try {
+    const { connection, settings, siteRules, uiPrefs } = draft.value;
+    const [diagnosticLog, permissions] = await Promise.all([
+      getDiagnosticEvents(),
+      browser.permissions.getAll(),
+    ]);
+    downloadJson(`motrix-next-diagnostic-${Date.now()}.json`, {
+      formatVersion: 1,
+      exportedAt: new Date().toISOString(),
+      extension: { version: extensionVersion, manifestVersion: 3 },
+      browser: { userAgent: navigator.userAgent, language: navigator.language },
+      permissions,
+      config: { connection: { port: connection.port }, settings, siteRules, uiPrefs },
+      diagnosticLog,
+    });
+  } catch {
+    toast.error(i18n('options_diagnostics_export_error', 'Failed to export diagnostic report'));
+  }
 }
 
 // ─── Connection Test ────────────────────────────────────
@@ -372,10 +404,11 @@ async function gatePermissions(settings: DownloadSettings): Promise<void> {
 }
 
 async function loadFromStorage(): Promise<void> {
-  const data = await loadSnapshot();
+  const [data, events] = await Promise.all([loadSnapshot(), getDiagnosticEvents().catch(() => [])]);
   await gatePermissions(data.settings);
   draft.value = data;
   saved.value = jsonClone(data);
+  diagnosticEvents.value = events;
   applyUiSideEffects(data.uiPrefs);
 }
 
@@ -383,7 +416,13 @@ let stopStorageListener: (() => void) | null = null;
 
 function bindStorageChanges(): void {
   const listener: Parameters<typeof browser.storage.onChanged.addListener>[0] = (changes, area) => {
-    if (area !== 'local' || staged.value) return;
+    if (area !== 'local') return;
+
+    if (changes.diagnosticLog?.newValue) {
+      diagnosticEvents.value = parseDiagnosticEvents(changes.diagnosticLog.newValue);
+    }
+
+    if (staged.value) return;
 
     if (changes.connection?.newValue && !isDirty.value) {
       const connection = parseConnectionConfig(changes.connection.newValue);
@@ -417,10 +456,6 @@ function bindStorageChanges(): void {
       draft.value.uiPrefs = prefs;
       saved.value.uiPrefs = jsonClone(prefs);
       applyUiSideEffects(prefs);
-    }
-
-    if (changes.diagnosticLog?.newValue) {
-      draft.value.diagnosticLog = parseDiagnosticEvents(changes.diagnosticLog.newValue);
     }
   };
 
@@ -600,7 +635,7 @@ onUnmounted(() => {
               </h2>
               <div class="card">
                 <MaintenanceSection
-                  :events="draft.diagnosticLog"
+                  :events="diagnosticEvents"
                   :include-connection-secret="includeConnectionSecretInBackup"
                   @export-settings="exportSettingsBackup"
                   @import-settings="importSettingsBackup"

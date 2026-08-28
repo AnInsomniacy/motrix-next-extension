@@ -94,6 +94,13 @@ describe('automatic download fallback', () => {
     expect(deps.downloads.cancel).not.toHaveBeenCalled();
     expect(deps.downloads.erase).not.toHaveBeenCalled();
     expect(deps.activateDesktop).not.toHaveBeenCalled();
+    expect(deps.diagnosticLog.append).toHaveBeenCalledTimes(1);
+    expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 'download_restored_to_browser',
+        context: expect.objectContaining({ mode: 'continued', reason: 'desktop-unavailable' }),
+      }),
+    );
   });
 
   it('intercepts normally in browser mode when Motrix Next and its engine are ready', async () => {
@@ -106,6 +113,10 @@ describe('automatic download fallback', () => {
     expect(intercepted).toBe(true);
     expect(deps.desktopClient?.isReady).toHaveBeenCalledTimes(1);
     expect(calls).toEqual(['cancel', 'route']);
+    expect(deps.diagnosticLog.append).toHaveBeenCalledTimes(1);
+    expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'download_delegated' }),
+    );
   });
 
   it('keeps the original cancel-first flow in launch mode when the desktop app is running', async () => {
@@ -136,7 +147,12 @@ describe('automatic download fallback', () => {
   });
 
   it('restores the browser download when desktop submission fails in launch mode', async () => {
-    const deps = createDeps({ action: 'launch', ready: true, routeFails: true });
+    const deps = createDeps({
+      action: 'launch',
+      ready: true,
+      activationResult: true,
+      routeFails: true,
+    });
     const orchestrator = new DownloadOrchestrator(deps);
 
     const intercepted = await orchestrator.handleFirefoxCreatedDownload(createDownloadItem());
@@ -146,6 +162,9 @@ describe('automatic download fallback', () => {
     expect(deps.downloads.download).toHaveBeenCalledWith({
       url: 'https://example.com/file.zip',
     });
+    expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'download_restored_to_browser', level: 'warn' }),
+    );
   });
 
   it('restores the browser download when desktop activation fails', async () => {
@@ -166,6 +185,14 @@ describe('automatic download fallback', () => {
     expect(deps.downloads.download).toHaveBeenCalledWith({
       url: 'https://example.com/file.zip',
     });
+    expect(deps.diagnosticLog.append).toHaveBeenCalledTimes(1);
+    expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 'download_restored_to_browser',
+        level: 'warn',
+        context: expect.objectContaining({ reason: 'desktop-activation-failed' }),
+      }),
+    );
   });
 
   it('restores a Firefox response when desktop startup times out', async () => {

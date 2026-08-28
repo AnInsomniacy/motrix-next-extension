@@ -87,15 +87,38 @@ interface DownloadJob {
   finalUrl?: string;
   referer: string;
   cookie: { value: string; source: string };
-  displayName: string;
   filenameHint?: string;
   filenameSource: string;
   headerContext?: RequestHeaderContext;
   headerDiagnostics?: RequestHeaderDiagnostics;
+  source: DownloadSource;
 }
 
 interface SendOptions {
   allowActivation: boolean;
+}
+
+type DeliveryFailureReason =
+  | 'desktop-api-unavailable'
+  | 'api-auth-failed'
+  | 'api-unreachable'
+  | 'desktop-activation-disabled'
+  | 'desktop-activation-timeout'
+  | 'desktop-activation-failed'
+  | 'desktop-routing-failed';
+
+type DeliveryResult = { ok: true } | { ok: false; reason: DeliveryFailureReason; error?: string };
+
+type DownloadSource =
+  | 'chromium-download'
+  | 'firefox-download'
+  | 'firefox-response'
+  | 'context-menu'
+  | 'external-protocol';
+
+interface SendUrlOptions {
+  source: Extract<DownloadSource, 'context-menu' | 'external-protocol'>;
+  allowActivation?: boolean;
 }
 
 // ─── Filename Heuristics ────────────────────────────────
@@ -104,6 +127,7 @@ interface SendOptions {
 
 const UNRESOLVED_FILENAME = 'unresolved-filename';
 const GENERIC_FILENAME_HINTS = new Set(['download', UNRESOLVED_FILENAME]);
+const SILENT_SKIP_STAGES = new Set(['enabled', 'self-trigger', 'interception-scope', 'scheme']);
 type FilenameHintSource = 'browser-determined' | 'content-disposition' | 'download-item' | 'url';
 
 function extensionOf(filename: string): string {
@@ -203,19 +227,10 @@ export class DownloadOrchestrator {
     // The Firefox onCreated fallback can replay interrupted or completed
     // downloads after restarts. Only genuinely new downloads are eligible.
     if (item.state !== 'in_progress') {
-      this.log('download_skipped', `Skipped stale download (state=${item.state}): ${item.url}`, {
-        url: item.url,
-        state: item.state,
-        stage: 'state-guard',
-      });
       return false;
     }
 
     if (this.consumeBrowserFallback(item)) {
-      this.log('download_skipped', `Continuing Firefox response in browser: ${item.url}`, {
-        url: item.url,
-        stage: 'firefox-response-fallback',
-      });
       return false;
     }
 
@@ -235,11 +250,7 @@ export class DownloadOrchestrator {
     if (settings.desktopUnavailable.action === 'browser') {
       if (!(await this.isDesktopReady())) {
         this.deps.duplicateGuard?.release(duplicate.reservation);
-        this.log(
-          'download_fallback',
-          `Continuing in browser because Motrix Next is unavailable: ${effectiveUrl}`,
-          { url: effectiveUrl, target: 'browser' },
-        );
+        this.logBrowserFallback(item, 'desktop-unavailable', 'continued');
         return false;
       }
       if (!(await this.cancelBrowserDownload(item.id))) {
@@ -251,29 +262,23 @@ export class DownloadOrchestrator {
         this.deps.duplicateGuard?.release(duplicate.reservation);
         return false;
       }
-      if (!(await this.ensureDesktopActivated(effectiveUrl, settings))) {
+      const activation = await this.ensureDesktopActivated(settings);
+      if (!activation.ok) {
         this.deps.duplicateGuard?.release(duplicate.reservation);
-        await this.restartBrowserDownload(item);
+        await this.restartBrowserDownload(item, activation.reason, activation.error);
         return false;
       }
     }
 
-    const job = await this.buildJob(item, tabUrl);
-    const routed = await this.sendToDesktop(job, { allowActivation: false });
-    if (!routed) {
+    const job = await this.buildJob(item, tabUrl, 'firefox-download');
+    const delivery = await this.sendToDesktop(job, { allowActivation: false });
+    if (!delivery.ok) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      this.log(
-        'download_fallback',
-        `Restarting in Firefox after desktop routing failed: ${job.displayName}`,
-        { url: effectiveUrl, target: 'browser' },
-        'warn',
-      );
-      await this.restartBrowserDownload(item);
+      await this.restartBrowserDownload(item, delivery.reason, delivery.error);
       return false;
     }
 
     this.deps.duplicateGuard?.commit(duplicate.reservation);
-    this.logIntercepted(item, tabUrl, filterResult.stageName);
     return true;
   }
 
@@ -303,36 +308,27 @@ export class DownloadOrchestrator {
     if (settings.desktopUnavailable.action === 'browser') {
       if (!(await this.isDesktopReady())) {
         this.deps.duplicateGuard?.release(duplicate.reservation);
-        this.log(
-          'download_fallback',
-          `Restarting in Chrome because Motrix Next is unavailable: ${effectiveUrl}`,
-          { url: effectiveUrl, target: 'browser' },
-        );
-        await this.restartBrowserDownload(item);
+        await this.restartBrowserDownload(item, 'desktop-unavailable');
         return false;
       }
-    } else if (!(await this.ensureDesktopActivated(effectiveUrl, settings))) {
-      this.deps.duplicateGuard?.release(duplicate.reservation);
-      await this.restartBrowserDownload(item);
-      return false;
+    } else {
+      const activation = await this.ensureDesktopActivated(settings);
+      if (!activation.ok) {
+        this.deps.duplicateGuard?.release(duplicate.reservation);
+        await this.restartBrowserDownload(item, activation.reason, activation.error);
+        return false;
+      }
     }
 
-    const job = await this.buildJob(item, tabUrl);
-    const routed = await this.sendToDesktop(job, { allowActivation: false });
-    if (!routed) {
+    const job = await this.buildJob(item, tabUrl, 'chromium-download');
+    const delivery = await this.sendToDesktop(job, { allowActivation: false });
+    if (!delivery.ok) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      this.log(
-        'download_fallback',
-        `Restarting in Chrome after desktop routing failed: ${job.displayName}`,
-        { url: effectiveUrl, target: 'browser' },
-        'warn',
-      );
-      await this.restartBrowserDownload(item);
+      await this.restartBrowserDownload(item, delivery.reason, delivery.error);
       return false;
     }
 
     this.deps.duplicateGuard?.commit(duplicate.reservation);
-    this.logIntercepted(item, tabUrl, filterResult.stageName);
     return true;
   }
 
@@ -359,17 +355,15 @@ export class DownloadOrchestrator {
     const settings = this.deps.getSettings();
     if (settings.desktopUnavailable.action === 'browser') {
       if (!(await this.isDesktopReady())) {
-        this.log(
-          'download_fallback',
-          `Restarting in Firefox because Motrix Next is unavailable: ${effectiveUrl}`,
-          { url: effectiveUrl, target: 'browser' },
-        );
-        await this.restartBrowserDownload(item);
+        await this.restartBrowserDownload(item, 'desktop-unavailable');
         return false;
       }
-    } else if (!(await this.ensureDesktopActivated(effectiveUrl, settings))) {
-      await this.restartBrowserDownload(item);
-      return false;
+    } else {
+      const activation = await this.ensureDesktopActivated(settings);
+      if (!activation.ok) {
+        await this.restartBrowserDownload(item, activation.reason, activation.error);
+        return false;
+      }
     }
 
     const duplicate = this.reserveDuplicate(item);
@@ -378,22 +372,15 @@ export class DownloadOrchestrator {
       return true;
     }
 
-    const job = await this.buildJob(item, tabUrl);
-    const routed = await this.sendToDesktop(job, { allowActivation: false });
-    if (!routed) {
+    const job = await this.buildJob(item, tabUrl, 'firefox-response');
+    const delivery = await this.sendToDesktop(job, { allowActivation: false });
+    if (!delivery.ok) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      this.log(
-        'download_fallback',
-        `Restarting in Firefox after desktop routing failed: ${job.displayName}`,
-        { url: effectiveUrl, target: 'browser' },
-        'warn',
-      );
-      await this.restartBrowserDownload(item);
+      await this.restartBrowserDownload(item, delivery.reason, delivery.error);
       return false;
     }
 
     this.deps.duplicateGuard?.commit(duplicate.reservation);
-    this.logIntercepted(item, tabUrl, filterResult.stageName);
     return true;
   }
 
@@ -410,7 +397,7 @@ export class DownloadOrchestrator {
   async sendUrl(
     url: string,
     tabUrl: string,
-    options: Partial<SendOptions> = {},
+    options: SendUrlOptions,
   ): Promise<'routed-to-desktop' | 'duplicate-blocked'> {
     const extracted = extractFilenameFromUrl(url) ?? '';
     const filenameHint = extracted
@@ -431,20 +418,33 @@ export class DownloadOrchestrator {
       return 'duplicate-blocked';
     }
 
-    const routed = await this.sendToDesktop(
+    const delivery = await this.sendToDesktop(
       {
         url,
         referer: tabUrl,
         cookie: await this.resolveCookieHeader(url),
-        displayName,
         filenameHint,
         filenameSource: 'url',
+        source: options.source,
       },
       { allowActivation: options.allowActivation ?? true },
     );
-    if (!routed) {
+    if (!delivery.ok) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      throw new Error('Desktop app routing unavailable');
+      this.log(
+        delivery.reason === 'api-auth-failed' ? 'api_auth_failed' : 'download_delivery_failed',
+        delivery.reason === 'api-auth-failed'
+          ? 'Motrix Next rejected the API credentials'
+          : 'Download could not be delivered to Motrix Next',
+        {
+          url,
+          source: options.source,
+          reason: delivery.reason,
+          ...(delivery.error ? { error: delivery.error } : {}),
+        },
+        'error',
+      );
+      throw new Error(delivery.reason);
     }
 
     this.deps.duplicateGuard?.commit(duplicate.reservation);
@@ -473,16 +473,15 @@ export class DownloadOrchestrator {
       this.filterStages,
     );
 
-    if (verdict === 'skip') {
-      this.log('download_skipped', `Skipped by ${stageName ?? 'unknown'}: ${item.url}`, {
+    if (verdict === 'skip' && !SILENT_SKIP_STAGES.has(stageName ?? '')) {
+      this.log('download_skipped', 'Download was skipped by the filter', {
         url: item.url,
         stage: stageName ?? 'unknown',
         mime: item.mime,
         tabUrl,
       });
-      return null;
     }
-    return { tabUrl, stageName };
+    return verdict === 'skip' ? null : { tabUrl, stageName };
   }
 
   // ─── Desktop Activation ───────────────────────────────
@@ -492,37 +491,22 @@ export class DownloadOrchestrator {
   }
 
   /** Launch-mode activation: start the app and wait for its API. */
-  private async ensureDesktopActivated(url: string, settings: DownloadSettings): Promise<boolean> {
-    if (!this.deps.activateDesktop) return this.isDesktopReady();
+  private async ensureDesktopActivated(settings: DownloadSettings): Promise<DeliveryResult> {
+    if (!this.deps.activateDesktop) {
+      return (await this.isDesktopReady())
+        ? { ok: true }
+        : { ok: false, reason: 'desktop-api-unavailable' };
+    }
 
     const timeoutMs = settings.desktopUnavailable.startupTimeoutSeconds * 1000;
-    this.log('desktop_activation_attempt', `Activating desktop app for: ${url}`, {
-      url,
-      timeoutMs,
-    });
 
     try {
-      if (await this.deps.activateDesktop(timeoutMs)) {
-        this.log('desktop_activation_success', `Desktop app activated successfully for: ${url}`, {
-          url,
-        });
-        return true;
-      }
-      this.log(
-        'desktop_activation_timeout',
-        `Desktop activation timed out for: ${url}`,
-        { url, timeoutMs },
-        'warn',
-      );
+      return (await this.deps.activateDesktop(timeoutMs))
+        ? { ok: true }
+        : { ok: false, reason: 'desktop-activation-timeout' };
     } catch (e) {
-      this.log(
-        'download_fallback',
-        `Motrix Next could not be activated: ${errorMessage(e)}`,
-        { url, target: 'browser' },
-        'warn',
-      );
+      return { ok: false, reason: 'desktop-activation-failed', error: errorMessage(e) };
     }
-    return false;
   }
 
   private consumeBrowserFallback(item: { url: string; finalUrl: string }): boolean {
@@ -538,97 +522,70 @@ export class DownloadOrchestrator {
 
   // ─── Submission ───────────────────────────────────────
 
-  private async buildJob(item: DownloadCandidate, tabUrl: string): Promise<DownloadJob> {
+  private async buildJob(
+    item: DownloadCandidate,
+    tabUrl: string,
+    source: DownloadSource,
+  ): Promise<DownloadJob> {
     const effectiveUrl = item.finalUrl || item.url;
-    const { filename, source } = resolveBestFilenameHint(effectiveUrl, item);
+    const { filename, source: filenameSource } = resolveBestFilenameHint(effectiveUrl, item);
     return {
       url: effectiveUrl,
       finalUrl: effectiveUrl,
       referer: tabUrl,
       cookie: await this.resolveCookieHeader(effectiveUrl, item.requestHeaderContext),
-      displayName: filename || extractFilenameFromUrl(effectiveUrl) || UNRESOLVED_FILENAME,
       filenameHint: filename,
-      filenameSource: source,
+      filenameSource,
       headerContext: item.requestHeaderContext,
       headerDiagnostics: item.requestHeaderDiagnostics,
+      source,
     };
   }
 
   /**
    * Try the HTTP API, then activate Motrix Next and retry over HTTP.
    */
-  private async sendToDesktop(job: DownloadJob, options: SendOptions): Promise<boolean> {
-    if (!this.deps.desktopClient) return false;
+  private async sendToDesktop(job: DownloadJob, options: SendOptions): Promise<DeliveryResult> {
+    if (!this.deps.desktopClient) return { ok: false, reason: 'desktop-api-unavailable' };
 
     try {
       await this.submitToDesktopApi(job);
-      return true;
+      return { ok: true };
     } catch (e) {
       if (e instanceof ApiAuthError) {
-        this.log(
-          'api_auth_failed',
-          `HTTP API authentication failed: ${e.message}`,
-          { url: job.url },
-          'error',
-        );
-        return false;
+        return { ok: false, reason: 'api-auth-failed', error: e.message };
       }
-      if (!options.allowActivation) return false;
-      this.log(
-        'download_fallback',
-        `HTTP API failed, attempting desktop activation: ${errorMessage(e)}`,
-        { url: job.url },
-        'warn',
-      );
+      if (!options.allowActivation) {
+        return { ok: false, reason: 'api-unreachable', error: errorMessage(e) };
+      }
       return this.activateAndRetry(job);
     }
   }
 
   /** Activate the desktop app and retry the HTTP submission. */
-  private async activateAndRetry(job: DownloadJob): Promise<boolean> {
+  private async activateAndRetry(job: DownloadJob): Promise<DeliveryResult> {
     const settings = this.deps.getSettings();
-    if (settings.desktopUnavailable.action !== 'launch' || !this.deps.activateDesktop) return false;
+    if (settings.desktopUnavailable.action !== 'launch' || !this.deps.activateDesktop) {
+      return { ok: false, reason: 'desktop-activation-disabled' };
+    }
 
-    this.log('desktop_activation_attempt', `Activating desktop app for: ${job.displayName}`, {
-      url: job.url,
-    });
     try {
       const activated = await this.deps.activateDesktop(
         settings.desktopUnavailable.startupTimeoutSeconds * 1000,
       );
-      if (!activated) {
-        this.log(
-          'desktop_activation_timeout',
-          `Desktop activation timed out for: ${job.displayName}`,
-          { url: job.url },
-          'warn',
-        );
-        return false;
-      }
-      this.log(
-        'desktop_activation_success',
-        `Desktop app activated successfully for: ${job.displayName}`,
-        { url: job.url },
-      );
+      if (!activated) return { ok: false, reason: 'desktop-activation-timeout' };
+    } catch (e) {
+      return { ok: false, reason: 'desktop-activation-failed', error: errorMessage(e) };
+    }
+
+    try {
       await this.submitToDesktopApi(job, true);
-      return true;
+      return { ok: true };
     } catch (e) {
       if (e instanceof ApiAuthError) {
-        this.log(
-          'api_auth_failed',
-          `HTTP API authentication failed after activation: ${e.message}`,
-          { url: job.url },
-          'error',
-        );
-        return false;
+        return { ok: false, reason: 'api-auth-failed', error: e.message };
       }
-      this.log(
-        'download_fallback',
-        `Desktop activation or retry failed: ${errorMessage(e)}`,
-        { url: job.url },
-        'warn',
-      );
-      return false;
+      return { ok: false, reason: 'desktop-routing-failed', error: errorMessage(e) };
     }
   }
 
@@ -647,22 +604,19 @@ export class DownloadOrchestrator {
         : {}),
     });
 
-    this.log(
-      'download_routed',
-      `Routed via HTTP API${afterActivation ? ' (after activation)' : ''}: ${job.displayName} (${response.action})`,
-      {
-        url: job.url,
-        filename: job.displayName,
-        filenameSource: job.filenameSource,
-        action: response.action,
-        ...(response.gid ? { gid: response.gid } : {}),
-        hasCookie: job.cookie.value.length > 0,
-        cookieSource: job.cookie.source,
-        headerCount: job.headerContext?.requestHeaders.length ?? 0,
-        headerMatchReason:
-          job.headerDiagnostics?.reason ?? (job.headerContext ? 'matched' : 'not-found'),
-      },
-    );
+    this.log('download_delegated', 'Download sent to Motrix Next', {
+      url: job.url,
+      source: job.source,
+      filenameSource: job.filenameSource,
+      action: response.action,
+      activated: afterActivation,
+      ...(response.gid ? { gid: response.gid } : {}),
+      hasCookie: job.cookie.value.length > 0,
+      cookieSource: job.cookie.source,
+      headerCount: job.headerContext?.requestHeaders.length ?? 0,
+      headerMatchReason:
+        job.headerDiagnostics?.reason ?? (job.headerContext ? 'matched' : 'not-found'),
+    });
   }
 
   // ─── Duplicate Guard ──────────────────────────────────
@@ -682,7 +636,7 @@ export class DownloadOrchestrator {
     shouldNotify: boolean,
     extra: Record<string, string> = {},
   ): void {
-    this.log('download_duplicate_blocked', `Duplicate download blocked: ${url}`, {
+    this.log('download_duplicate_blocked', 'Duplicate download was blocked', {
       url,
       shouldNotify,
       ...extra,
@@ -710,8 +664,8 @@ export class DownloadOrchestrator {
       // Graceful degradation — never block the download on cookie failure.
       this.log(
         'cookie_collect_failed',
-        `Cookie collection failed: ${errorMessage(e)}`,
-        { url },
+        'Cookies could not be collected',
+        { url, error: errorMessage(e) },
         'warn',
       );
       return { value: '', source: 'none' };
@@ -727,8 +681,8 @@ export class DownloadOrchestrator {
     } catch (e) {
       this.log(
         'download_cancel_failed',
-        `Cancel failed for download ${id}: ${errorMessage(e)}`,
-        { downloadId: id },
+        'Browser download could not be cancelled',
+        { downloadId: id, error: errorMessage(e) },
         'warn',
       );
       return false;
@@ -748,8 +702,8 @@ export class DownloadOrchestrator {
     } catch (e) {
       this.log(
         'download_cancel_failed',
-        `Cancel failed for download ${id}: ${errorMessage(e)}`,
-        { downloadId: id },
+        'Browser download could not be cancelled',
+        { downloadId: id, error: errorMessage(e) },
         'warn',
       );
       return false;
@@ -760,32 +714,50 @@ export class DownloadOrchestrator {
     return true;
   }
 
-  private async restartBrowserDownload(item: DownloadCandidate): Promise<void> {
+  private logBrowserFallback(
+    item: DownloadCandidate,
+    reason: string,
+    mode: 'continued' | 'restarted',
+    error?: string,
+  ): void {
+    this.log(
+      'download_restored_to_browser',
+      'Browser retained the download',
+      {
+        url: item.finalUrl || item.url,
+        reason,
+        mode,
+        ...(error ? { error } : {}),
+      },
+      'warn',
+    );
+  }
+
+  private async restartBrowserDownload(
+    item: DownloadCandidate,
+    reason?: string,
+    deliveryError?: string,
+  ): Promise<void> {
     const url = item.url;
     for (const candidate of new Set([item.url, item.finalUrl].filter(Boolean))) {
       this.browserFallbacks.set(candidate, Date.now() + BROWSER_FALLBACK_TTL_MS);
     }
     try {
       await this.deps.downloads.download({ url });
+      if (reason) this.logBrowserFallback(item, reason, 'restarted', deliveryError);
     } catch (e) {
       this.log(
-        'download_failed',
-        `Browser fallback failed: ${errorMessage(e)}`,
-        { url, target: 'browser' },
+        'download_restore_failed',
+        'Browser could not restore the download',
+        {
+          url,
+          reason: reason ?? 'filter-skip',
+          error: errorMessage(e),
+          ...(deliveryError ? { deliveryError } : {}),
+        },
         'error',
       );
     }
-  }
-
-  private logIntercepted(item: DownloadCandidate, tabUrl: string, stageName: string | null): void {
-    this.log('download_intercepted', `Intercepted: ${item.url}`, {
-      url: item.url,
-      totalBytes: item.totalBytes,
-      mime: item.mime,
-      tabUrl,
-      ...(item.filename ? { filename: item.filename } : {}),
-      ...(stageName ? { stage: stageName } : {}),
-    });
   }
 
   private log(

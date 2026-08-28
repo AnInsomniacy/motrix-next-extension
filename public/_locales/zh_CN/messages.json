@@ -550,5 +550,47 @@
   "options_settings_backup_include_secret": {
     "message": "导出 API 密钥",
     "description": "Switch label for including the API secret in exported settings backups."
+  },
+  "options_diagnostics_filter_all": {
+    "message": "全部",
+    "description": "Filter label for all diagnostic levels"
+  },
+  "options_diagnostics_filter_error": {
+    "message": "错误",
+    "description": "Filter label for error diagnostic events"
+  },
+  "options_diagnostics_filter_warning": {
+    "message": "警告",
+    "description": "Filter label for warning diagnostic events"
+  },
+  "options_diagnostics_filter_info": {
+    "message": "信息",
+    "description": "Filter label for informational diagnostic events"
+  },
+  "options_diagnostics_filter_code": {
+    "message": "事件类型",
+    "description": "Placeholder for the diagnostic event type filter"
+  },
+  "options_diagnostics_clear_error": {
+    "message": "无法清除诊断事件",
+    "description": "Error shown when diagnostic events cannot be cleared"
+  },
+  "options_diagnostics_export_error": {
+    "message": "无法导出诊断报告",
+    "description": "Error shown when the diagnostic report cannot be exported"
+  },
+  "options_diagnostics_retention": {
+    "message": "最近 $1 条事件 · $2 天后自动删除",
+    "description": "Diagnostic retention summary, $1 = maximum events and $2 = retention days",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "100"
+      },
+      "2": {
+        "content": "$2",
+        "example": "7"
+      }
+    }
   }
 }

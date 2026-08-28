@@ -43,7 +43,7 @@
 - **Download bar control** — Optionally hides Chrome's native download shelf (Chromium 115+, not available on Firefox)
 - **Dark mode** — System / Light / Dark with 10 Material You color schemes
 - **i18n** — 27 languages including English, Hindi, Chinese, Japanese, Korean, French, German, Spanish, and more
-- **Diagnostics** — Built-in event log with severity levels and one-click export
+- **Diagnostics** — Privacy-sanitized outcome log with severity filters, seven-day retention, and one-click export
 
 ## Installation
 
@@ -136,8 +136,11 @@ No. This extension does **not** collect, store, or transmit any personal data. A
 # Install dependencies
 pnpm install
 
-# Start development server (launches WXT + Vite with hot reload)
+# Start the development server with hot reload
 pnpm dev
+
+# In a regular Chrome profile, open chrome://extensions and load:
+# .output/chrome-mv3-dev
 
 # Build for production
 pnpm build
@@ -162,7 +165,7 @@ motrix-next-extension/
 │   ├── desktop.ts              #   Native Messaging activation + readiness coordination
 │   ├── browser.ts              #   Permissions, context menu, webRequest helpers
 │   ├── backup.ts               #   Settings backup import/export
-│   ├── diagnostics.ts          #   Diagnostic event ring buffer
+│   ├── diagnostics.ts          #   Sanitized, serialized diagnostic journal
 │   └── download/               #   Orchestrator, filter pipeline, request context
 ├── shared/                     # Shared UI infrastructure
 │   ├── i18n/                   #   Runtime i18n engine + virtual:locales loader
@@ -174,22 +177,22 @@ motrix-next-extension/
 
 ### Scripts
 
-| Command              | Description                                           |
-| -------------------- | ----------------------------------------------------- |
-| `pnpm dev`           | Start WXT dev server with hot reload (Chrome)         |
-| `pnpm dev:firefox`   | Start WXT dev server with hot reload (Firefox)        |
-| `pnpm build`         | Production build → `.output/chromium-mv3/`            |
-| `pnpm build:firefox` | Production build → `.output/firefox-mv3/`             |
-| `pnpm zip`           | Package Chromium build as `.zip` for store submission |
-| `pnpm zip:firefox`   | Package Firefox build as `.zip` for AMO submission    |
-| `pnpm zip:all`       | Package both Chrome and Firefox builds                |
-| `pnpm test`          | Run all unit and integration tests                    |
-| `pnpm test:watch`    | Run tests in watch mode                               |
-| `pnpm compile`       | TypeScript type checking (`vue-tsc --noEmit`)         |
-| `pnpm lint`          | ESLint (flat config, Vue 3 + TypeScript)              |
-| `pnpm lint:i18n`     | Validate i18n key consistency across all locales      |
-| `pnpm format`        | Auto-format all files with Prettier                   |
-| `pnpm format:check`  | Verify formatting without writing                     |
+| Command              | Description                                             |
+| -------------------- | ------------------------------------------------------- |
+| `pnpm dev`           | Build the Chrome development extension with hot reload  |
+| `pnpm dev:firefox`   | Build the Firefox development extension with hot reload |
+| `pnpm build`         | Production build → `.output/chromium-mv3/`              |
+| `pnpm build:firefox` | Production build → `.output/firefox-mv3/`               |
+| `pnpm zip`           | Package Chromium build as `.zip` for store submission   |
+| `pnpm zip:firefox`   | Package Firefox build as `.zip` for AMO submission      |
+| `pnpm zip:all`       | Package both Chrome and Firefox builds                  |
+| `pnpm test`          | Run all unit and integration tests                      |
+| `pnpm test:watch`    | Run tests in watch mode                                 |
+| `pnpm compile`       | TypeScript type checking (`vue-tsc --noEmit`)           |
+| `pnpm lint`          | ESLint (flat config, Vue 3 + TypeScript)                |
+| `pnpm lint:i18n`     | Validate i18n key consistency across all locales        |
+| `pnpm format`        | Auto-format all files with Prettier                     |
+| `pnpm format:check`  | Verify formatting without writing                       |
 
 ### Testing
 

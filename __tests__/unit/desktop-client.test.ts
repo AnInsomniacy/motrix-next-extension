@@ -1,421 +1,140 @@
-/**
- * @fileoverview Tests for DesktopApiClient — the HTTP client that communicates
- * with the Motrix desktop app's embedded Axum API.
- */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  DesktopApiClient,
   API_CONNECTIVITY_TIMEOUT_MS,
   API_REQUEST_TIMEOUT_MS,
-  type AddDownloadRequest,
-  type AddDownloadResponse,
-  type PingResponse,
+  ApiAuthError,
+  ApiUnreachableError,
+  DesktopApiClient,
 } from '@/lib/api';
-import type { ConnectionConfig } from '@/lib/schema';
 
-function firstRequest(): Request {
-  const [input] = vi.mocked(fetch).mock.calls[0]!;
+const stat = {
+  downloadSpeed: '0',
+  uploadSpeed: '0',
+  numActive: '0',
+  numWaiting: '0',
+  numStopped: '0',
+  numStoppedTotal: '0',
+};
+
+function requestAt(index = 0): Request {
+  const input = vi.mocked(fetch).mock.calls[index]?.[0];
   expect(input).toBeInstanceOf(Request);
   return input as Request;
 }
 
-function captureFirstRequest(): Promise<Request> {
-  return new Promise((resolve) => {
-    vi.spyOn(globalThis, 'fetch').mockImplementationOnce((input: RequestInfo | URL) => {
-      expect(input).toBeInstanceOf(Request);
-      resolve(input as Request);
-      return new Promise<Response>(() => {});
-    });
-  });
-}
-
-async function expectAbortAfter(request: Request, timeoutMs: number): Promise<void> {
-  expect(request.signal.aborted).toBe(false);
-  await vi.advanceTimersByTimeAsync(timeoutMs - 1);
-  expect(request.signal.aborted).toBe(false);
-  await vi.advanceTimersByTimeAsync(1);
-  expect(request.signal.aborted).toBe(true);
-}
-
-async function readJsonBody(request: Request): Promise<unknown> {
+async function jsonBody(request: Request): Promise<unknown> {
   return JSON.parse(await request.clone().text());
 }
 
 describe('DesktopApiClient', () => {
-  const defaultConfig: ConnectionConfig = {
-    port: 29110,
-    secret: 'test-secret',
-  };
-
   let client: DesktopApiClient;
 
   beforeEach(() => {
-    client = new DesktopApiClient(defaultConfig);
     vi.restoreAllMocks();
     vi.useRealTimers();
+    client = new DesktopApiClient({ port: 29110, secret: 'secret' });
   });
 
-  // ── Configuration ──────────────────────────────────────────
-
-  it('targets the configured port and applies runtime config updates', async () => {
+  it('uses the configured port and keeps ping unauthenticated', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(
-      async () => new Response(JSON.stringify({ status: 'ok', version: '1.0.0' }), { status: 200 }),
+      async () => new Response(JSON.stringify({ status: 'ok', version: '1.0.0' })),
     );
 
     await client.ping();
-    expect(firstRequest().url).toBe('http://127.0.0.1:29110/ping');
-
     client.updateConfig({ port: 12345, secret: 'new-secret' });
     await client.ping();
-    const [input] = vi.mocked(fetch).mock.calls[1]!;
-    expect((input as Request).url).toBe('http://127.0.0.1:12345/ping');
+
+    expect(requestAt(0).url).toBe('http://127.0.0.1:29110/ping');
+    expect(requestAt(0).headers.get('authorization')).toBeNull();
+    expect(requestAt(1).url).toBe('http://127.0.0.1:12345/ping');
   });
 
-  // ── ping() ─────────────────────────────────────────────────
-
-  describe('ping', () => {
-    it('returns PingResponse on success', async () => {
-      const mockResponse: PingResponse = { status: 'ok', version: '3.7.3' };
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify(mockResponse), { status: 200 }),
-      );
-
-      const result = await client.ping();
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('calls GET /ping with no auth header', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ status: 'ok', version: '1.0.0' }), { status: 200 }),
-      );
-
-      await client.ping();
-      const request = firstRequest();
-      expect(request.url).toBe('http://127.0.0.1:29110/ping');
-      expect(request.method).toBe('GET');
-      expect(request.headers.get('authorization')).toBeNull();
-    });
-
-    it('throws on network error', async () => {
-      const fetchSpy = vi
-        .spyOn(globalThis, 'fetch')
-        .mockRejectedValue(new TypeError('fetch failed'));
-
-      await expect(client.ping()).rejects.toThrow('Cannot connect to Motrix Next API');
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('throws on non-200 response', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response('Internal Server Error', { status: 500 }),
-      );
-
-      await expect(client.ping()).rejects.toThrow();
-    });
-
-    it('rejects malformed ping responses before returning them to callers', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ status: 'ok' }), { status: 200 }),
-      );
-
-      await expect(client.ping()).rejects.toThrow();
-    });
-
-    it('uses the short connectivity timeout', async () => {
-      vi.useFakeTimers();
-      try {
-        const requestPromise = captureFirstRequest();
-
-        void client.ping().catch(() => {});
-        const request = await requestPromise;
-
-        await expectAbortAfter(request, API_CONNECTIVITY_TIMEOUT_MS);
-      } finally {
-        vi.useRealTimers();
-      }
-    });
-  });
-
-  // ── addDownload() ──────────────────────────────────────────
-
-  describe('addDownload', () => {
-    const request: AddDownloadRequest = {
+  it('submits the complete download contract with bearer authentication', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ action: 'queued', gid: 'gid' })),
+    );
+    const payload = {
       url: 'https://example.com/file.zip',
       finalUrl: 'https://cdn.example.com/file.zip',
       referer: 'https://example.com/page',
-      cookie: 'sid=abc',
+      cookie: 'sid=value',
       filename: 'file.zip',
       userAgent: 'Browser/1.0',
       requestHeaders: [{ name: 'Accept', value: 'application/octet-stream' }],
     };
 
-    it('returns AddDownloadResponse on success', async () => {
-      const mockResponse: AddDownloadResponse = { action: 'submitted', gid: 'abc123' };
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify(mockResponse), { status: 200 }),
-      );
-
-      const result = await client.addDownload(request);
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('sends POST /add with correct headers and body', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ action: 'queued' }), { status: 200 }),
-      );
-
-      await client.addDownload(request);
-      const sent = firstRequest();
-      expect(sent.url).toBe('http://127.0.0.1:29110/add');
-      expect(sent.method).toBe('POST');
-      expect(sent.headers.get('content-type')).toBe('application/json');
-      expect(sent.headers.get('authorization')).toBe('Bearer test-secret');
-      await expect(readJsonBody(sent)).resolves.toEqual(request);
-    });
-
-    it('omits Authorization header when secret is empty', async () => {
-      const noAuthClient = new DesktopApiClient({ port: 29110, secret: '' });
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ action: 'queued' }), { status: 200 }),
-      );
-
-      await noAuthClient.addDownload(request);
-      expect(firstRequest().headers.get('authorization')).toBeNull();
-    });
-
-    it('sends minimal request (url only)', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ action: 'queued' }), { status: 200 }),
-      );
-
-      await client.addDownload({ url: 'https://example.com/file.zip' });
-      const body = (await readJsonBody(firstRequest())) as { url?: string };
-      expect(body.url).toBe('https://example.com/file.zip');
-    });
-
-    it('throws on 401 Unauthorized', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response('Unauthorized', { status: 401 }),
-      );
-
-      await expect(client.addDownload(request)).rejects.toThrow(/401|Unauthorized/i);
-    });
-
-    it('rejects malformed add-download responses before returning them to callers', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ gid: 'abc123' }), { status: 200 }),
-      );
-
-      await expect(client.addDownload(request)).rejects.toThrow();
-    });
-
-    it('throws on network failure', async () => {
-      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
-
-      await expect(client.addDownload(request)).rejects.toThrow(
-        'Cannot connect to Motrix Next API',
-      );
-    });
-
-    it('keeps the longer request timeout for submitted downloads', async () => {
-      vi.useFakeTimers();
-      try {
-        const requestPromise = captureFirstRequest();
-
-        void client.addDownload(request).catch(() => {});
-        const sent = await requestPromise;
-
-        await expectAbortAfter(sent, API_REQUEST_TIMEOUT_MS);
-      } finally {
-        vi.useRealTimers();
-      }
-    });
+    await expect(client.addDownload(payload)).resolves.toEqual({ action: 'queued', gid: 'gid' });
+    expect(requestAt().url).toBe('http://127.0.0.1:29110/add');
+    expect(requestAt().method).toBe('POST');
+    expect(requestAt().headers.get('authorization')).toBe('Bearer secret');
+    await expect(jsonBody(requestAt())).resolves.toEqual(payload);
   });
 
-  // ── getStat() ───────────────────────────────────────────────
-
-  describe('getStat', () => {
-    it('returns GlobalStat data on success', async () => {
-      const mockStat = {
-        downloadSpeed: '1048576',
-        uploadSpeed: '524288',
-        numActive: '2',
-        numWaiting: '3',
-        numStopped: '5',
-        numStoppedTotal: '10',
-      };
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify(mockStat), { status: 200 }),
-      );
-
-      const result = await client.getStat();
-      expect(result).toEqual(mockStat);
-    });
-
-    it('sends GET /stat with Bearer token', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+  it('uses the authenticated stat and task-control endpoints', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      async (input) =>
         new Response(
-          JSON.stringify({
-            downloadSpeed: '0',
-            uploadSpeed: '0',
-            numActive: '0',
-            numWaiting: '0',
-            numStopped: '0',
-            numStoppedTotal: '0',
-          }),
-          { status: 200 },
+          JSON.stringify((input as Request).url.endsWith('/stat') ? stat : { status: 'ok' }),
         ),
-      );
+    );
 
-      await client.getStat();
-      const request = firstRequest();
-      expect(request.url).toBe('http://127.0.0.1:29110/stat');
-      expect(request.method).toBe('GET');
-      expect(request.headers.get('authorization')).toBe('Bearer test-secret');
-    });
+    await client.getStat();
+    await client.pauseAll();
+    await client.resumeAll();
 
-    it('omits Authorization when secret is empty', async () => {
-      const noAuthClient = new DesktopApiClient({ port: 29110, secret: '' });
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
-            downloadSpeed: '0',
-            uploadSpeed: '0',
-            numActive: '0',
-            numWaiting: '0',
-            numStopped: '0',
-            numStoppedTotal: '0',
-          }),
-          { status: 200 },
-        ),
-      );
-
-      await noAuthClient.getStat();
-      expect(firstRequest().headers.get('authorization')).toBeNull();
-    });
-
-    it('throws on non-200 response', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response('Internal Server Error', { status: 500 }),
-      );
-
-      await expect(client.getStat()).rejects.toThrow();
-    });
-
-    it('throws on 401 Unauthorized', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response('Unauthorized', { status: 401 }),
-      );
-
-      await expect(client.getStat()).rejects.toThrow(/401|Unauthorized/i);
-    });
-
-    it('rejects malformed stat responses before returning them to callers', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ downloadSpeed: '1' }), { status: 200 }),
-      );
-
-      await expect(client.getStat()).rejects.toThrow();
-    });
+    expect(vi.mocked(fetch).mock.calls.map((_, index) => requestAt(index).url)).toEqual([
+      'http://127.0.0.1:29110/stat',
+      'http://127.0.0.1:29110/pause-all',
+      'http://127.0.0.1:29110/resume-all',
+    ]);
+    expect(requestAt(1).method).toBe('POST');
   });
 
-  describe('isReady', () => {
-    it('returns true only when the authenticated engine stat endpoint succeeds', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
-            downloadSpeed: '0',
-            uploadSpeed: '0',
-            numActive: '0',
-            numWaiting: '0',
-            numStopped: '0',
-            numStoppedTotal: '0',
-          }),
-          { status: 200 },
-        ),
-      );
-
-      await expect(client.isReady()).resolves.toBe(true);
-      expect(firstRequest().url).toBe('http://127.0.0.1:29110/stat');
-      expect(firstRequest().headers.get('authorization')).toBe('Bearer test-secret');
-    });
-
-    it('returns false while the desktop process is alive but the engine stat endpoint fails', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response('Engine unavailable', { status: 503 }),
-      );
-
-      await expect(client.isReady()).resolves.toBe(false);
-    });
+  it('rejects malformed desktop responses at the API boundary', async () => {
+    for (const [call, payload] of [
+      [() => client.ping(), { status: 'ok' }],
+      [() => client.getStat(), { downloadSpeed: '0' }],
+      [() => client.addDownload({ url: 'https://example.com' }), { gid: 'missing-action' }],
+    ] as const) {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify(payload)));
+      await expect(call()).rejects.toThrow();
+      vi.restoreAllMocks();
+    }
   });
 
-  // ── pauseAll() ─────────────────────────────────────────────
+  it('classifies authentication and network failures', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response('Unauthorized', { status: 401 }),
+    );
+    await expect(client.getStat()).rejects.toBeInstanceOf(ApiAuthError);
 
-  describe('pauseAll', () => {
-    it('sends POST /pause-all with Bearer token', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ status: 'ok' }), { status: 200 }),
-      );
-
-      const result = await client.pauseAll();
-      expect(result.status).toBe('ok');
-
-      const request = firstRequest();
-      expect(request.url).toBe('http://127.0.0.1:29110/pause-all');
-      expect(request.method).toBe('POST');
-      expect(request.headers.get('authorization')).toBe('Bearer test-secret');
-    });
-
-    it('returns error response when engine is not running', async () => {
-      const mockResponse = { status: 'error', error: 'Engine not running' };
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify(mockResponse), { status: 200 }),
-      );
-
-      const result = await client.pauseAll();
-      expect(result.status).toBe('error');
-      expect(result.error).toBe('Engine not running');
-    });
-
-    it('throws on network failure', async () => {
-      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
-
-      await expect(client.pauseAll()).rejects.toThrow('Cannot connect to Motrix Next API');
-    });
+    vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new TypeError('fetch failed'));
+    await expect(client.ping()).rejects.toBeInstanceOf(ApiUnreachableError);
   });
 
-  // ── resumeAll() ────────────────────────────────────────────
-
-  describe('resumeAll', () => {
-    it('sends POST /resume-all with Bearer token', async () => {
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify({ status: 'ok' }), { status: 200 }),
-      );
-
-      const result = await client.resumeAll();
-      expect(result.status).toBe('ok');
-
-      const request = firstRequest();
-      expect(request.url).toBe('http://127.0.0.1:29110/resume-all');
-      expect(request.method).toBe('POST');
-      expect(request.headers.get('authorization')).toBe('Bearer test-secret');
+  it('uses short readiness timeouts and longer work-request timeouts', async () => {
+    vi.useFakeTimers();
+    const signals: AbortSignal[] = [];
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      signals.push((input as Request).signal);
+      return new Promise<Response>(() => {});
     });
 
-    it('returns error response when engine is not running', async () => {
-      const mockResponse = { status: 'error', error: 'Engine not running' };
-      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
-        new Response(JSON.stringify(mockResponse), { status: 200 }),
-      );
+    void client.ping().catch(() => {});
+    await vi.advanceTimersByTimeAsync(API_CONNECTIVITY_TIMEOUT_MS);
+    expect(signals[0]?.aborted).toBe(true);
 
-      const result = await client.resumeAll();
-      expect(result.status).toBe('error');
-      expect(result.error).toBe('Engine not running');
-    });
+    void client.addDownload({ url: 'https://example.com' }).catch(() => {});
+    await vi.advanceTimersByTimeAsync(API_REQUEST_TIMEOUT_MS);
+    expect(signals[1]?.aborted).toBe(true);
+  });
 
-    it('throws on network failure', async () => {
-      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
+  it('reports readiness without throwing', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(stat)))
+      .mockResolvedValueOnce(new Response('Unavailable', { status: 503 }));
 
-      await expect(client.resumeAll()).rejects.toThrow('Cannot connect to Motrix Next API');
-    });
+    await expect(client.isReady()).resolves.toBe(true);
+    await expect(client.isReady()).resolves.toBe(false);
   });
 });

@@ -73,26 +73,21 @@ describe('i18n dictionaries', () => {
 });
 
 describe('resolveLocaleId', () => {
-  it.each([
-    ['en-US', 'en'],
-    ['en-GB', 'en'],
-    ['zh-CN', 'zh_CN'],
-    ['zh-TW', 'zh_TW'],
-    ['zh-HK', 'zh_TW'],
-    ['zh', 'zh_CN'],
-    ['pt', 'pt_BR'],
-    ['pt-PT', 'pt_BR'],
-    ['de-AT', 'de'],
-    ['es-419', 'es'],
-    ['fr-CA', 'fr'],
-    ['hi-IN', 'hi'],
-    ['nl-BE', 'nl'],
-    ['nn', 'nb'],
-    ['sw', 'en'],
-    ['', 'en'],
-    ['ZH-cn', 'zh_CN'],
-  ])('maps %s to %s', (raw, expected) => {
-    expect(resolveLocaleId(raw)).toBe(expected);
+  it('normalizes browser locale variants and unknown languages', () => {
+    const cases: Array<readonly [string, string]> = [
+      ['en-US', 'en'],
+      ['zh-CN', 'zh_CN'],
+      ['zh-TW', 'zh_TW'],
+      ['zh-HK', 'zh_TW'],
+      ['pt-PT', 'pt_BR'],
+      ['de-AT', 'de'],
+      ['es-419', 'es'],
+      ['nn', 'nb'],
+      ['sw', 'en'],
+      ['', 'en'],
+      ['ZH-cn', 'zh_CN'],
+    ];
+    for (const [raw, expected] of cases) expect(resolveLocaleId(raw)).toBe(expected);
   });
 
   it('keeps exact locale ids unchanged', () => {

@@ -18,8 +18,13 @@ Before you start contributing, make sure you understand [GitHub flow](https://gu
 git clone https://github.com/AnInsomniacy/motrix-next-extension.git
 cd motrix-next-extension
 pnpm install
-pnpm dev    # Start WXT dev server with hot reload
+pnpm dev    # Build the development extension with hot reload
 ```
+
+Open `chrome://extensions` in a regular Chrome profile and load
+`.output/chrome-mv3-dev` as an unpacked extension. WXT does not launch an
+isolated browser because Native Messaging registrations follow the browser data
+root on macOS and Linux.
 
 Load the unpacked extension:
 

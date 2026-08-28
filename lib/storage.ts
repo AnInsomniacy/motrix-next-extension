@@ -21,13 +21,9 @@ import {
   type UiPrefs,
 } from './schema';
 
-export const STORAGE_KEYS = [
-  'connection',
-  'settings',
-  'siteRules',
-  'uiPrefs',
-  'diagnosticLog',
-] as const;
+export const SETTINGS_STORAGE_KEYS = ['connection', 'settings', 'siteRules', 'uiPrefs'] as const;
+export const DIAGNOSTIC_STORAGE_KEY = 'diagnosticLog' as const;
+export const STORAGE_KEYS = [...SETTINGS_STORAGE_KEYS, DIAGNOSTIC_STORAGE_KEY] as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[number];
 
@@ -37,9 +33,13 @@ const local = (key: StorageKey) => `local:${key}` as const;
 
 export async function loadSnapshot(): Promise<StorageSnapshot> {
   const entries = await Promise.all(
-    STORAGE_KEYS.map(async (key) => [key, await storage.getItem(local(key))] as const),
+    SETTINGS_STORAGE_KEYS.map(async (key) => [key, await storage.getItem(local(key))] as const),
   );
   return parseSnapshot(Object.fromEntries(entries));
+}
+
+export async function loadDiagnosticEvents(): Promise<DiagnosticEvent[]> {
+  return parseDiagnosticEvents(await storage.getItem(local(DIAGNOSTIC_STORAGE_KEY)));
 }
 
 export async function loadSettings(): Promise<DownloadSettings> {
@@ -76,11 +76,13 @@ export async function updateUiPrefs(patch: Partial<UiPrefs>): Promise<void> {
   await saveUiPrefs({ ...(await loadUiPrefs()), ...patch });
 }
 
-export async function saveDiagnosticLog(events: DiagnosticEvent[]): Promise<void> {
-  await storage.setItem(local('diagnosticLog'), parseDiagnosticEvents(events));
+export async function saveDiagnosticEvents(events: DiagnosticEvent[]): Promise<void> {
+  await storage.setItem(local(DIAGNOSTIC_STORAGE_KEY), parseDiagnosticEvents(events));
 }
 
 export async function saveSnapshot(snapshot: StorageSnapshot): Promise<void> {
   const validated = parseSnapshot(snapshot);
-  await storage.setItems(STORAGE_KEYS.map((key) => ({ key: local(key), value: validated[key] })));
+  await storage.setItems(
+    SETTINGS_STORAGE_KEYS.map((key) => ({ key: local(key), value: validated[key] })),
+  );
 }

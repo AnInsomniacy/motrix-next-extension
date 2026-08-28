@@ -23,7 +23,6 @@ function createSnapshot(): StorageSnapshot {
     },
     siteRules: [{ id: 'r1', pattern: '*.example.com', action: 'always-skip' }],
     uiPrefs: { theme: 'dark', colorScheme: 'amber', locale: 'en' },
-    diagnosticLog: [{ id: 'd1', ts: 1, level: 'info', code: 'config_loaded', message: 'loaded' }],
   };
 }
 
@@ -72,20 +71,16 @@ describe('settings backup', () => {
     ).toEqual({
       ...createSnapshot(),
       connection: { port: 29110, secret: 'local-secret' },
-      diagnosticLog: [],
     });
   });
 
-  it('imports a valid backup as a full storage snapshot with an empty diagnostic log', () => {
+  it('imports a valid backup as a settings snapshot', () => {
     const exported = createSettingsBackup(createSnapshot(), {
       extensionVersion: '1.2.19',
       exportedAt: '2026-06-02T00:00:00.000Z',
     });
 
-    expect(parseSettingsBackup(JSON.stringify(exported))).toEqual({
-      ...createSnapshot(),
-      diagnosticLog: [],
-    });
+    expect(parseSettingsBackup(JSON.stringify(exported))).toEqual(createSnapshot());
   });
 
   it('rejects files that are not Motrix Next settings backups', () => {

@@ -1,490 +1,102 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
+  DEFAULT_CONNECTION_CONFIG,
+  DEFAULT_DOWNLOAD_SETTINGS,
+  DEFAULT_UI_PREFS,
   parseConnectionConfig,
+  parseDiagnosticEvents,
   parseDownloadSettings,
   parseSiteRules,
-  parseUiPrefs,
   parseSnapshot,
+  parseUiPrefs,
 } from '@/lib/schema';
 
-// ─── ConnectionConfig Schema ────────────────────────────
-
-describe('parseConnectionConfig', () => {
-  it('returns valid config unchanged', () => {
-    const input = { port: 9999, secret: 'mysecret' };
-    const result = parseConnectionConfig(input);
-    expect(result).toEqual(input);
-  });
-
-  it('fills missing fields with defaults', () => {
-    const result = parseConnectionConfig({});
-    expect(result).toEqual({ port: 29110, secret: '' });
-  });
-
-  it('fills undefined input with defaults', () => {
-    const result = parseConnectionConfig(undefined);
-    expect(result).toEqual({ port: 29110, secret: '' });
-  });
-
-  it('replaces invalid port type with default', () => {
-    const result = parseConnectionConfig({ port: 'not-a-number' });
-    expect(result.port).toBe(29110);
-  });
-
-  it('clamps port below minimum to default', () => {
-    const result = parseConnectionConfig({ port: -1 });
-    expect(result.port).toBe(29110);
-  });
-
-  it('clamps port above maximum to default', () => {
-    const result = parseConnectionConfig({ port: 99999 });
-    expect(result.port).toBe(29110);
-  });
-
-  it('replaces invalid secret type with default', () => {
-    const result = parseConnectionConfig({ secret: 123 });
-    expect(result.secret).toBe('');
-  });
-
-  it('strips extra fields', () => {
-    const result = parseConnectionConfig({
-      port: 29110,
+describe('persisted schema repair', () => {
+  it('repairs invalid connection fields independently and strips extras', () => {
+    expect(parseConnectionConfig(null)).toEqual(DEFAULT_CONNECTION_CONFIG);
+    expect(parseConnectionConfig({ port: 9000, secret: 42, extra: true })).toEqual({
+      port: 9000,
       secret: '',
-      extra: true,
     });
-    expect(result).not.toHaveProperty('extra');
+    expect(parseConnectionConfig({ port: 1, secret: 'kept' })).toEqual({
+      port: DEFAULT_CONNECTION_CONFIG.port,
+      secret: 'kept',
+    });
   });
-});
 
-// ─── DownloadSettings Schema ────────────────────────────
-
-describe('parseDownloadSettings', () => {
-  it('returns valid settings unchanged', () => {
-    const input = {
+  it('defaults settings while preserving valid siblings of corrupt fields', () => {
+    expect(parseDownloadSettings(undefined)).toEqual(DEFAULT_DOWNLOAD_SETTINGS);
+    const repaired = parseDownloadSettings({
       enabled: false,
-      hideDownloadBar: true,
+      forwardCookies: 'invalid',
+      desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 999 },
+      interceptionScope: { magnet: false },
+    });
+    expect(repaired).toMatchObject({
+      enabled: false,
+      forwardCookies: true,
       desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
-      forwardRequestHeaders: false,
-      forwardCookies: true,
-      duplicateGuard: {
-        enabled: false,
-        windowSeconds: 25,
-      },
-      minimumFileSize: {
-        enabled: true,
-        sizeMb: 5,
-        unknownSizeAction: 'skip',
-      },
-      fileExtensionRule: {
-        enabled: true,
-        extensions: ['jpg', 'tar.gz'],
-        listedAction: 'skip',
-        unknownAction: 'intercept',
-      },
-      interceptionScope: {
-        browserDownloads: false,
-        magnet: true,
-        ed2k: false,
-        thunder: true,
-      },
-    };
-    const result = parseDownloadSettings(input);
-    expect(result).toEqual(input);
-  });
-
-  it('fills missing fields with defaults', () => {
-    const result = parseDownloadSettings({});
-    expect(result).toEqual({
-      enabled: true,
-      hideDownloadBar: false,
-      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
-      forwardRequestHeaders: true,
-      forwardCookies: true,
-      duplicateGuard: {
-        enabled: true,
-        windowSeconds: 10,
-      },
-      minimumFileSize: {
-        enabled: false,
-        sizeMb: 5,
-        unknownSizeAction: 'intercept',
-      },
-      fileExtensionRule: {
-        enabled: false,
-        extensions: [],
-        listedAction: 'skip',
-        unknownAction: 'intercept',
-      },
-      interceptionScope: {
-        browserDownloads: true,
-        magnet: true,
-        ed2k: true,
-        thunder: true,
-      },
+      interceptionScope: { browserDownloads: true, magnet: false, ed2k: true, thunder: true },
     });
   });
 
-  it('fills undefined input with defaults', () => {
-    const result = parseDownloadSettings(undefined);
-    expect(result).toEqual({
-      enabled: true,
-      hideDownloadBar: false,
-      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
-      forwardRequestHeaders: true,
-      forwardCookies: true,
-      duplicateGuard: {
-        enabled: true,
-        windowSeconds: 10,
-      },
-      minimumFileSize: {
-        enabled: false,
-        sizeMb: 5,
-        unknownSizeAction: 'intercept',
-      },
-      fileExtensionRule: {
-        enabled: false,
-        extensions: [],
-        listedAction: 'skip',
-        unknownAction: 'intercept',
-      },
-      interceptionScope: {
-        browserDownloads: true,
-        magnet: true,
-        ed2k: true,
-        thunder: true,
-      },
-    });
-  });
-
-  it('replaces invalid boolean with default', () => {
-    const result = parseDownloadSettings({ enabled: 'yes' });
-    expect(result.enabled).toBe(true);
-  });
-
-  it('strips extra fields', () => {
-    const result = parseDownloadSettings({ enabled: true, unknown: 42 });
-    expect(result).not.toHaveProperty('unknown');
-  });
-
-  it('accepts a one-second desktop startup timeout', () => {
-    const result = parseDownloadSettings({
-      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 1 },
-    });
-
-    expect(result.desktopUnavailable.startupTimeoutSeconds).toBe(1);
-  });
-
-  it('preserves valid sibling fields when one setting is corrupt', () => {
-    const result = parseDownloadSettings({
-      enabled: false,
-      hideDownloadBar: true,
-      desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
-      forwardRequestHeaders: false,
-      forwardCookies: true,
-      unknown: 42,
-    });
-
-    expect(result).toEqual({
-      enabled: false,
-      hideDownloadBar: true,
-      desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
-      forwardRequestHeaders: false,
-      forwardCookies: true,
-      duplicateGuard: {
-        enabled: true,
-        windowSeconds: 10,
-      },
-      minimumFileSize: {
-        enabled: false,
-        sizeMb: 5,
-        unknownSizeAction: 'intercept',
-      },
-      fileExtensionRule: {
-        enabled: false,
-        extensions: [],
-        listedAction: 'skip',
-        unknownAction: 'intercept',
-      },
-      interceptionScope: {
-        browserDownloads: true,
-        magnet: true,
-        ed2k: true,
-        thunder: true,
-      },
-    });
-    expect(result).not.toHaveProperty('unknown');
-  });
-
-  it('normalizes file extension rule values', () => {
-    const result = parseDownloadSettings({
-      fileExtensionRule: {
-        enabled: true,
-        extensions: ['.JPG', ' tar.gz ', '../bad', 'jpg'],
-        listedAction: 'intercept',
-        unknownAction: 'skip',
-      },
-    });
-
-    expect(result.fileExtensionRule).toEqual({
-      enabled: true,
-      extensions: ['jpg', 'tar.gz'],
-      listedAction: 'intercept',
-      unknownAction: 'skip',
-    });
-  });
-});
-
-// ─── SiteRules Schema ───────────────────────────────────
-
-describe('parseSiteRules', () => {
-  it('returns valid rules unchanged', () => {
-    const input = [
-      { id: 'rule-1', pattern: '*.github.com', action: 'always-intercept' as const },
-      { id: 'rule-2', pattern: 'example.com', action: 'always-skip' as const },
-    ];
-    const result = parseSiteRules(input);
-    expect(result).toEqual(input);
-  });
-
-  it('returns empty array for undefined input', () => {
-    const result = parseSiteRules(undefined);
-    expect(result).toEqual([]);
-  });
-
-  it('returns empty array for non-array input', () => {
-    const result = parseSiteRules('not-an-array');
-    expect(result).toEqual([]);
-  });
-
-  it('filters out rules with invalid action', () => {
-    const input = [
-      { id: 'rule-1', pattern: '*.github.com', action: 'always-intercept' },
-      { id: 'rule-2', pattern: 'bad.com', action: 'INVALID' },
-    ];
-    const result = parseSiteRules(input);
-    expect(result).toHaveLength(1);
-    expect(result[0]!.pattern).toBe('*.github.com');
-  });
-
-  it('filters out rules missing required fields', () => {
-    const input = [
-      { id: 'rule-1', pattern: '*.github.com', action: 'always-intercept' },
-      { pattern: 'no-id.com', action: 'always-skip' }, // missing id
-      { id: 'rule-3', action: 'always-skip' }, // missing pattern
-    ];
-    const result = parseSiteRules(input);
-    expect(result).toHaveLength(1);
-  });
-
-  it('strips extra fields from individual rules', () => {
-    const input = [{ id: 'r1', pattern: 'x.com', action: 'use-global', extra: true }];
-    const result = parseSiteRules(input);
-    expect(result[0]).not.toHaveProperty('extra');
-  });
-});
-
-// ─── UiPrefs Schema ─────────────────────────────────────
-
-describe('parseUiPrefs', () => {
-  it('returns valid prefs unchanged', () => {
-    const input = { theme: 'dark' as const, colorScheme: 'space', locale: 'zh_CN' };
-    const result = parseUiPrefs(input);
-    expect(result).toEqual(input);
-  });
-
-  it('fills missing fields with defaults', () => {
-    const result = parseUiPrefs({});
-    expect(result).toEqual({ theme: 'system', colorScheme: 'amber', locale: 'auto' });
-  });
-
-  it('fills undefined input with defaults', () => {
-    const result = parseUiPrefs(undefined);
-    expect(result).toEqual({ theme: 'system', colorScheme: 'amber', locale: 'auto' });
-  });
-
-  it('preserves valid locale values', () => {
-    expect(parseUiPrefs({ locale: 'en' }).locale).toBe('en');
-    expect(parseUiPrefs({ locale: 'zh_CN' }).locale).toBe('zh_CN');
-    expect(parseUiPrefs({ locale: 'auto' }).locale).toBe('auto');
-  });
-
-  it('defaults locale when missing', () => {
-    const result = parseUiPrefs({ theme: 'dark' });
-    expect(result.locale).toBe('auto');
-  });
-
-  it('replaces invalid theme with default', () => {
-    const result = parseUiPrefs({ theme: 'invalid-theme' });
-    expect(result.theme).toBe('system');
-  });
-
-  it('accepts all valid theme values', () => {
-    expect(parseUiPrefs({ theme: 'system' }).theme).toBe('system');
-    expect(parseUiPrefs({ theme: 'light' }).theme).toBe('light');
-    expect(parseUiPrefs({ theme: 'dark' }).theme).toBe('dark');
-  });
-
-  it('preserves valid sibling fields when one preference is corrupt', () => {
-    const result = parseUiPrefs({
-      theme: 'invalid-theme',
-      colorScheme: 'space',
-      locale: 'zh_CN',
-      unknown: true,
-    });
-
-    expect(result).toEqual({ theme: 'system', colorScheme: 'space', locale: 'zh_CN' });
-    expect(result).not.toHaveProperty('unknown');
-  });
-});
-
-// ─── Full Storage Schema ────────────────────────────────
-
-describe('parseSnapshot', () => {
-  it('returns fully defaulted storage for empty object', () => {
-    const result = parseSnapshot({});
-    expect(result.connection).toEqual({ port: 29110, secret: '' });
-    expect(result.settings).toEqual({
-      enabled: true,
-      hideDownloadBar: false,
-      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
-      forwardRequestHeaders: true,
-      forwardCookies: true,
-      duplicateGuard: {
-        enabled: true,
-        windowSeconds: 10,
-      },
-      minimumFileSize: {
-        enabled: false,
-        sizeMb: 5,
-        unknownSizeAction: 'intercept',
-      },
-      fileExtensionRule: {
-        enabled: false,
-        extensions: [],
-        listedAction: 'skip',
-        unknownAction: 'intercept',
-      },
-      interceptionScope: {
-        browserDownloads: true,
-        magnet: true,
-        ed2k: true,
-        thunder: true,
-      },
-    });
-    expect(result.siteRules).toEqual([]);
-    expect(result.uiPrefs).toEqual({ theme: 'system', colorScheme: 'amber', locale: 'auto' });
-    expect(result.diagnosticLog).toEqual([]);
-  });
-
-  it('returns fully defaulted storage for null input', () => {
-    const result = parseSnapshot(null);
-    expect(result.connection.port).toBe(29110);
-    expect(result.settings.enabled).toBe(true);
-  });
-
-  it('correctly parses a partial storage object', () => {
-    const result = parseSnapshot({
-      connection: { port: 9000 },
-      settings: { enabled: false },
-    });
-    expect(result.connection.port).toBe(9000);
-    expect(result.connection.secret).toBe(''); // defaulted
-    expect(result.settings.enabled).toBe(false);
-    expect(result.settings).toEqual({
-      enabled: false,
-      hideDownloadBar: false,
-      desktopUnavailable: { action: 'launch', startupTimeoutSeconds: 15 },
-      forwardRequestHeaders: true,
-      forwardCookies: true,
-      duplicateGuard: {
-        enabled: true,
-        windowSeconds: 10,
-      },
-      minimumFileSize: {
-        enabled: false,
-        sizeMb: 5,
-        unknownSizeAction: 'intercept',
-      },
-      fileExtensionRule: {
-        enabled: false,
-        extensions: [],
-        listedAction: 'skip',
-        unknownAction: 'intercept',
-      },
-      interceptionScope: {
-        browserDownloads: true,
-        magnet: true,
-        ed2k: true,
-        thunder: true,
-      },
-    });
-  });
-
-  it('strips unknown fields without discarding valid stored values', () => {
-    const result = parseSnapshot({
-      connection: { port: 16802, secret: 'token', extra: true },
-      settings: {
-        enabled: false,
-        hideDownloadBar: true,
-        desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
-        forwardRequestHeaders: false,
-        forwardCookies: true,
-        interceptionScope: {
-          browserDownloads: false,
-          magnet: false,
-          ed2k: true,
-          thunder: false,
+  it('normalizes persisted extension rules', () => {
+    expect(
+      parseDownloadSettings({
+        fileExtensionRule: {
+          enabled: true,
+          extensions: [' .JPG ', 'tar.gz', 'jpg', 'bad/path'],
+          listedAction: 'skip',
+          unknownAction: 'intercept',
         },
-        extra: 'ignored',
-      },
-      uiPrefs: { theme: 'dark', colorScheme: 'mint', locale: 'en', extra: true },
-    });
-
-    expect(result.connection).toEqual({ port: 16802, secret: 'token' });
-    expect(result.settings).toEqual({
-      enabled: false,
-      hideDownloadBar: true,
-      desktopUnavailable: { action: 'browser', startupTimeoutSeconds: 15 },
-      forwardRequestHeaders: false,
-      forwardCookies: true,
-      duplicateGuard: {
-        enabled: true,
-        windowSeconds: 10,
-      },
-      minimumFileSize: {
-        enabled: false,
-        sizeMb: 5,
-        unknownSizeAction: 'intercept',
-      },
-      fileExtensionRule: {
-        enabled: false,
-        extensions: [],
-        listedAction: 'skip',
-        unknownAction: 'intercept',
-      },
-      interceptionScope: {
-        browserDownloads: false,
-        magnet: false,
-        ed2k: true,
-        thunder: false,
-      },
-    });
-    expect(result.uiPrefs).toEqual({ theme: 'dark', colorScheme: 'mint', locale: 'en' });
+      }).fileExtensionRule.extensions,
+    ).toEqual(['jpg', 'tar.gz']);
   });
 
-  it('survives completely corrupt data gracefully', () => {
-    const result = parseSnapshot({
-      connection: 'garbage',
-      settings: 12345,
-      siteRules: 'not-an-array',
-      uiPrefs: null,
-      diagnosticLog: false,
+  it('keeps only structurally valid site rules', () => {
+    expect(
+      parseSiteRules([
+        { id: 'valid', pattern: '*.example.com', action: 'always-skip', extra: true },
+        { id: 'bad-action', pattern: '*', action: 'block' },
+        { pattern: '*', action: 'always-skip' },
+      ]),
+    ).toEqual([{ id: 'valid', pattern: '*.example.com', action: 'always-skip' }]);
+    expect(parseSiteRules('invalid')).toEqual([]);
+  });
+
+  it('repairs UI preferences without discarding valid values', () => {
+    expect(parseUiPrefs(null)).toEqual(DEFAULT_UI_PREFS);
+    expect(parseUiPrefs({ theme: 'dark', colorScheme: 1, locale: 'zh_CN' })).toEqual({
+      theme: 'dark',
+      colorScheme: 'amber',
+      locale: 'zh_CN',
     });
-    // All fields should be defaults — not throw
-    expect(result.connection).toEqual({ port: 29110, secret: '' });
-    expect(result.settings.enabled).toBe(true);
-    expect(result.siteRules).toEqual([]);
-    expect(result.uiPrefs.theme).toBe('system');
-    expect(result.diagnosticLog).toEqual([]);
+  });
+
+  it('builds a complete settings snapshot from partial or corrupt storage', () => {
+    expect(parseSnapshot(null)).toEqual({
+      connection: DEFAULT_CONNECTION_CONFIG,
+      settings: DEFAULT_DOWNLOAD_SETTINGS,
+      siteRules: [],
+      uiPrefs: DEFAULT_UI_PREFS,
+    });
+    expect(
+      parseSnapshot({ connection: { port: 9000 }, settings: { enabled: false }, unknown: true }),
+    ).toMatchObject({ connection: { port: 9000, secret: '' }, settings: { enabled: false } });
+  });
+
+  it('drops obsolete and oversized diagnostic events', () => {
+    expect(
+      parseDiagnosticEvents([
+        { id: 'old', ts: 1, level: 'info', code: 'config_loaded', message: 'Old event' },
+        {
+          id: 'large',
+          ts: 2,
+          level: 'error',
+          code: 'desktop_activation_failed',
+          message: 'x'.repeat(241),
+        },
+      ]),
+    ).toEqual([]);
   });
 });

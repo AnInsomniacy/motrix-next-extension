@@ -35,7 +35,7 @@ lib/
 ├── desktop.ts                   # motrixnext:// protocol URLs + wakeAndWaitForApi
 ├── browser.ts                   # Permissions, context menu, notifications, webRequest types
 ├── backup.ts                    # Settings backup export/import
-├── diagnostics.ts               # DiagnosticLog ring buffer
+├── diagnostics.ts               # Sanitized, serialized diagnostic journal
 ├── file-extensions.ts           # File extension normalization/matching
 └── download/
     ├── orchestrator.ts          # Interception flows: automatic, Firefox response, explicit
@@ -318,7 +318,7 @@ beta/prerelease tags are rejected.
 ## G. Code Conventions
 
 - **Plain functions over classes.** A class is justified only by real mutable state
-  (e.g. `DesktopApiClient`, `DiagnosticLog`, the TTL stores). Never introduce a
+  (e.g. `DesktopApiClient` and the TTL stores). Never introduce a
   class + interface pair just to make something mockable — tests use `vi.spyOn`/`vi.mock`
   and WXT's `fakeBrowser`.
 - **One source of truth.** Persisted types/defaults live in `lib/schema.ts` only.

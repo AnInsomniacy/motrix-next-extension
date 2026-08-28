@@ -16,7 +16,6 @@ import {
   type ConnectionStatus,
   type StatResponse,
 } from '@/lib/api';
-import { activateDesktop } from '@/lib/desktop';
 import { loadSnapshot, updateSettings } from '@/lib/storage';
 import {
   DEFAULT_CONNECTION_CONFIG,
@@ -48,6 +47,8 @@ const connectionPort = ref(DEFAULT_CONNECTION_CONFIG.port);
 const globalStat = ref<StatResponse | null>(null);
 const loading = ref(true);
 const enabled = ref(true);
+const launching = ref(false);
+const activationFailed = ref(false);
 
 const apiClient = new DesktopApiClient({ ...DEFAULT_CONNECTION_CONFIG });
 let stopPolling: (() => void) | null = null;
@@ -62,6 +63,7 @@ async function fetchData(): Promise<void> {
     version.value = result.version;
     errorType.value = result.error ?? null;
     if (result.status === 'connected') {
+      activationFailed.value = false;
       globalStat.value = await apiClient.getStat();
     }
   } catch {
@@ -74,12 +76,12 @@ async function fetchData(): Promise<void> {
 // ─── Actions ────────────────────────────────────────────
 
 async function pauseAll(): Promise<void> {
-  await apiClient.pauseAll().catch(() => {});
+  await sendBackgroundCommand('PAUSE_ALL');
   await fetchData();
 }
 
 async function resumeAll(): Promise<void> {
-  await apiClient.resumeAll().catch(() => {});
+  await sendBackgroundCommand('RESUME_ALL');
   await fetchData();
 }
 
@@ -87,10 +89,26 @@ function openSettings(): void {
   void browser.runtime.openOptionsPage();
 }
 
-function launchApp(): void {
-  void activateDesktop((hostName, message) =>
-    browser.runtime.sendNativeMessage(hostName, message),
-  ).catch(() => {});
+async function launchApp(): Promise<void> {
+  activationFailed.value = false;
+  launching.value = true;
+  try {
+    if (!(await sendBackgroundCommand('ACTIVATE_DESKTOP'))) throw new Error('Activation failed');
+    await fetchData();
+  } catch {
+    activationFailed.value = true;
+  } finally {
+    launching.value = false;
+  }
+}
+
+async function sendBackgroundCommand(
+  type: 'ACTIVATE_DESKTOP' | 'PAUSE_ALL' | 'RESUME_ALL',
+): Promise<boolean> {
+  const response: unknown = await browser.runtime.sendMessage({ type });
+  return (
+    response !== null && typeof response === 'object' && 'ok' in response && response.ok === true
+  );
 }
 
 /** Toggle interception; the background worker reacts via storage.onChanged. */
@@ -202,7 +220,20 @@ onUnmounted(() => {
             </NIcon>
             <div>
               <Transition name="text-swap" mode="out-in">
-                <div v-if="errorType === 'ApiAuthError'" key="auth">
+                <div v-if="activationFailed" key="activation">
+                  <p class="popup-banner__title">
+                    {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
+                  </p>
+                  <p class="popup-banner__hint">
+                    {{
+                      i18n(
+                        'popup_error_hint',
+                        'Make sure Motrix Next is running and API is enabled.',
+                      )
+                    }}
+                  </p>
+                </div>
+                <div v-else-if="errorType === 'ApiAuthError'" key="auth">
                   <p class="popup-banner__title">
                     {{ i18n('popup_error_auth', 'API secret mismatch') }}
                   </p>
@@ -272,7 +303,7 @@ onUnmounted(() => {
             </NButton>
           </div>
           <div v-else class="popup-actions__left" />
-          <NButton size="tiny" type="primary" @click="launchApp">
+          <NButton size="tiny" type="primary" :loading="launching" @click="launchApp">
             <template #icon>
               <NIcon :size="12"><RocketOutline /></NIcon>
             </template>

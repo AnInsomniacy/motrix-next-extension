@@ -130,54 +130,56 @@ export type ThemePreference = UiPrefs['theme'];
 
 // ─── Diagnostic Log ─────────────────────────────────────
 
+export const DIAGNOSTIC_MESSAGE_MAX_LENGTH = 240;
+export const DIAGNOSTIC_CONTEXT_KEY_MAX_LENGTH = 64;
+export const DIAGNOSTIC_CONTEXT_VALUE_MAX_LENGTH = 512;
+export const DIAGNOSTIC_CONTEXT_MAX_FIELDS = 12;
+
 export const DiagnosticCodeSchema = z.enum([
-  // API connectivity
   'api_auth_failed',
-  // Download interception lifecycle
-  'download_intercepted',
+  'api_unreachable',
+  'download_delegated',
   'download_skipped',
-  'download_fallback',
-  'download_failed',
-  'download_routed',
+  'download_restored_to_browser',
+  'download_restore_failed',
+  'download_delivery_failed',
   'download_duplicate_blocked',
   'download_cancel_failed',
-  'download_handler_error',
-  'request_headers_listener_ready',
-  'request_headers_listener_downgraded',
-  'request_headers_listener_failed',
-  // Desktop activation lifecycle
-  'desktop_activation_attempt',
-  'desktop_activation_success',
-  'desktop_activation_timeout',
-  // Cookie & permission
+  'download_handler_failed',
+  'request_headers_degraded',
+  'request_headers_failed',
+  'firefox_interception_failed',
+  'desktop_activation_failed',
   'cookie_collect_failed',
   'permission_granted',
   'permission_revoked',
-  // Extension lifecycle
-  'extension_started',
+  'permission_check_failed',
   'extension_installed',
   'extension_updated',
-  // Configuration
-  'config_loaded',
   'config_load_failed',
-  'config_changed',
-  // User-initiated actions
-  'context_menu_triggered',
-  'protocol_intercepted',
-  // Infrastructure
-  'download_bar_error',
-  'notification_create_failed',
+  'download_bar_failed',
+  'notification_failed',
+  'context_menu_failed',
 ]);
 
 export type DiagnosticCode = z.output<typeof DiagnosticCodeSchema>;
 
-export const DiagnosticEventSchema = z.object({
-  id: z.string(),
-  ts: z.number(),
+const DiagnosticContextValueSchema = z.union([
+  z.string().max(DIAGNOSTIC_CONTEXT_VALUE_MAX_LENGTH),
+  z.number().finite(),
+  z.boolean(),
+]);
+
+export const DiagnosticEventSchema = z.strictObject({
+  id: z.string().min(1).max(96),
+  ts: z.number().finite().nonnegative(),
   level: z.enum(['info', 'warn', 'error']),
   code: DiagnosticCodeSchema,
-  message: z.string(),
-  context: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
+  message: z.string().min(1).max(DIAGNOSTIC_MESSAGE_MAX_LENGTH),
+  context: z
+    .record(z.string().min(1).max(DIAGNOSTIC_CONTEXT_KEY_MAX_LENGTH), DiagnosticContextValueSchema)
+    .refine((value) => Object.keys(value).length <= DIAGNOSTIC_CONTEXT_MAX_FIELDS)
+    .optional(),
 });
 
 export type DiagnosticEvent = z.output<typeof DiagnosticEventSchema>;
@@ -193,7 +195,6 @@ export const StorageSnapshotSchema = lenient(
     settings: DownloadSettingsSchema,
     siteRules: SiteRulesSchema,
     uiPrefs: UiPrefsSchema,
-    diagnosticLog: DiagnosticEventsSchema,
   }),
 );
 

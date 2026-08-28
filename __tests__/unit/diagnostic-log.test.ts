@@ -1,145 +1,175 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { DiagnosticLog } from '@/lib/diagnostics';
-import { MAX_DIAGNOSTIC_EVENTS } from '@/lib/diagnostics';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  MAX_DIAGNOSTIC_AGE_MS,
+  MAX_DIAGNOSTIC_EVENTS,
+  createDiagnosticJournal,
+} from '@/lib/diagnostics';
 import type { DiagnosticEvent } from '@/lib/schema';
 
-// ─── Tests ──────────────────────────────────────────────
+function storedEvent(id: string, ts: number): DiagnosticEvent {
+  return {
+    id,
+    ts,
+    level: 'info',
+    code: 'download_delegated',
+    message: 'Stored event',
+  };
+}
 
-describe('DiagnosticLog', () => {
-  let log: DiagnosticLog;
-
-  beforeEach(() => {
-    log = new DiagnosticLog(5); // small max for testing
+function deferred(): { promise: Promise<void>; resolve: () => void } {
+  let resolve = () => {};
+  const promise = new Promise<void>((done) => {
+    resolve = done;
   });
+  return { promise, resolve };
+}
 
-  describe('default capacity', () => {
-    it('uses MAX_DIAGNOSTIC_EVENTS (100) as default capacity', () => {
-      expect(MAX_DIAGNOSTIC_EVENTS).toBe(100);
-
-      const productionLog = new DiagnosticLog();
-      for (let i = 0; i < 150; i++) {
-        productionLog.append({ level: 'info', code: 'config_loaded', message: `Event ${i}` });
-      }
-
-      const events = productionLog.getAll();
-      expect(events).toHaveLength(100);
-      // Oldest events should be dropped (0-49), newest kept (50-149)
-      expect(events[0]?.message).toBe('Event 50');
-      expect(events[99]?.message).toBe('Event 149');
-    });
-  });
-
-  describe('append', () => {
-    it('adds an event with auto-generated id and timestamp', () => {
-      log.append({ level: 'info', code: 'config_loaded', message: 'Connected to Motrix Next' });
-
-      const events = log.getAll();
-      expect(events).toHaveLength(1);
-      expect(events[0]?.id).toBeDefined();
-      expect(events[0]?.id).not.toBe('');
-      expect(events[0]?.ts).toBeGreaterThan(0);
-      expect(events[0]?.level).toBe('info');
-      expect(events[0]?.code).toBe('config_loaded');
-      expect(events[0]?.message).toBe('Connected to Motrix Next');
+describe('createDiagnosticJournal', () => {
+  it('hydrates before pending events and persists the merged journal', async () => {
+    const save = vi.fn().mockResolvedValue(undefined);
+    const journal = createDiagnosticJournal({
+      load: vi.fn().mockResolvedValue([storedEvent('stored', 900)]),
+      save,
+      now: () => 1000,
     });
 
-    it('preserves optional context', () => {
-      log.append({
-        level: 'error',
-        code: 'download_failed',
-        message: 'Failed',
-        context: { url: 'https://example.com', retryCount: 2 },
+    journal.append({ level: 'warn', code: 'download_skipped', message: 'Pending event' });
+    await journal.initialize();
+
+    expect(journal.getAll().map((event) => event.id)).toEqual([
+      'stored',
+      expect.stringMatching(/^diag_/),
+    ]);
+    expect(save).toHaveBeenLastCalledWith(journal.getAll());
+  });
+
+  it('serializes writes and persists the newest snapshot last', async () => {
+    const firstWrite = deferred();
+    const snapshots: DiagnosticEvent[][] = [];
+    const save = vi.fn().mockImplementation(async (events: DiagnosticEvent[]) => {
+      snapshots.push(events);
+      if (snapshots.length === 1) await firstWrite.promise;
+    });
+    const journal = createDiagnosticJournal({
+      load: vi.fn().mockResolvedValue([]),
+      save,
+      now: () => 1000,
+    });
+    await journal.initialize();
+
+    journal.append({ level: 'info', code: 'download_delegated', message: 'First' });
+    journal.append({ level: 'warn', code: 'download_skipped', message: 'Second' });
+    firstWrite.resolve();
+    await journal.flush();
+
+    expect(snapshots).toHaveLength(2);
+    expect(snapshots[0]).toHaveLength(1);
+    expect(snapshots[1]).toHaveLength(2);
+  });
+
+  it('persists clear after an older write already started', async () => {
+    const firstWrite = deferred();
+    const snapshots: DiagnosticEvent[][] = [];
+    const journal = createDiagnosticJournal({
+      load: vi.fn().mockResolvedValue([]),
+      save: vi.fn().mockImplementation(async (events: DiagnosticEvent[]) => {
+        snapshots.push(events);
+        if (snapshots.length === 1) await firstWrite.promise;
+      }),
+      now: () => 1000,
+    });
+    await journal.initialize();
+    journal.append({ level: 'info', code: 'download_delegated', message: 'Event' });
+
+    const clearing = journal.clear();
+    firstWrite.resolve();
+    await clearing;
+
+    expect(snapshots.at(-1)).toEqual([]);
+  });
+
+  it('removes expired events and keeps the newest bounded set', async () => {
+    const now = MAX_DIAGNOSTIC_AGE_MS + 1000;
+    const journal = createDiagnosticJournal({
+      load: vi.fn().mockResolvedValue([storedEvent('expired', 0)]),
+      save: vi.fn().mockResolvedValue(undefined),
+      now: () => now,
+    });
+    await journal.initialize();
+    for (let index = 0; index < MAX_DIAGNOSTIC_EVENTS + 5; index += 1) {
+      journal.append({
+        level: 'info',
+        code: 'download_delegated',
+        message: `Event ${index}`,
       });
+    }
+    await journal.flush();
 
-      const events = log.getAll();
-      expect(events[0]?.context).toEqual({ url: 'https://example.com', retryCount: 2 });
-    });
-
-    it('generates unique ids for each event', () => {
-      log.append({ level: 'info', code: 'config_loaded', message: 'A' });
-      log.append({ level: 'info', code: 'config_loaded', message: 'B' });
-
-      const events = log.getAll();
-      expect(events[0]?.id).not.toBe(events[1]?.id);
-    });
+    expect(journal.getAll()).toHaveLength(MAX_DIAGNOSTIC_EVENTS);
+    expect(journal.getAll().some((event) => event.id === 'expired')).toBe(false);
+    expect(journal.getAll()[0]?.message).toBe('Event 5');
   });
 
-  describe('ring buffer behavior', () => {
-    it('limits events to max capacity', () => {
-      for (let i = 0; i < 10; i++) {
-        log.append({ level: 'info', code: 'config_loaded', message: `Event ${i}` });
-      }
+  it('sanitizes URLs, protocol payloads, control characters, and oversized context', async () => {
+    const journal = createDiagnosticJournal({
+      load: vi.fn().mockResolvedValue([]),
+      save: vi.fn().mockResolvedValue(undefined),
+      now: () => 1000,
+    });
+    await journal.initialize();
 
-      const events = log.getAll();
-      expect(events).toHaveLength(5);
+    journal.append({
+      level: 'error',
+      code: 'desktop_activation_failed',
+      message: 'Failed\nwith\tcontrol characters',
+      context: {
+        url: 'https://user:pass@example.com/file.zip?token=secret#fragment',
+        pageUrl: 'magnet:?xt=urn:btih:secret',
+        error: 'x'.repeat(700),
+        ...Object.fromEntries(Array.from({ length: 20 }, (_, index) => [`key${index}`, index])),
+      },
     });
 
-    it('keeps the most recent events when buffer overflows', () => {
-      for (let i = 0; i < 8; i++) {
-        log.append({ level: 'info', code: 'config_loaded', message: `Event ${i}` });
-      }
-
-      const events = log.getAll();
-      expect(events).toHaveLength(5);
-      expect(events[0]?.message).toBe('Event 3');
-      expect(events[4]?.message).toBe('Event 7');
+    expect(journal.getAll()[0]).toMatchObject({
+      message: 'Failed with control characters',
+      context: {
+        url: 'https://example.com/file.zip',
+        pageUrl: 'magnet:[redacted]',
+      },
     });
+    expect(String(journal.getAll()[0]?.context?.error).length).toBeLessThanOrEqual(512);
+    expect(Object.keys(journal.getAll()[0]?.context ?? {})).toHaveLength(12);
   });
 
-  describe('getAll', () => {
-    it('returns empty array when no events', () => {
-      expect(log.getAll()).toEqual([]);
+  it('continues with pending events when stored diagnostics cannot be read', async () => {
+    const onPersistError = vi.fn();
+    const journal = createDiagnosticJournal({
+      load: vi.fn().mockRejectedValue(new Error('storage unavailable')),
+      save: vi.fn().mockResolvedValue(undefined),
+      onPersistError,
+      now: () => 1000,
     });
+    journal.append({ level: 'warn', code: 'download_skipped', message: 'Pending' });
 
-    it('returns events in chronological order', () => {
-      log.append({ level: 'info', code: 'config_loaded', message: 'First' });
-      log.append({ level: 'warn', code: 'config_changed', message: 'Second' });
-      log.append({ level: 'error', code: 'download_failed', message: 'Third' });
+    await journal.initialize();
 
-      const events = log.getAll();
-      expect(events[0]?.message).toBe('First');
-      expect(events[1]?.message).toBe('Second');
-      expect(events[2]?.message).toBe('Third');
-    });
-
-    it('returns a copy that does not mutate internal state', () => {
-      log.append({ level: 'info', code: 'config_loaded', message: 'Original' });
-
-      const events = log.getAll();
-      events.pop();
-
-      expect(log.getAll()).toHaveLength(1);
-    });
+    expect(journal.getAll()).toHaveLength(1);
+    expect(onPersistError).toHaveBeenCalledTimes(1);
   });
 
-  describe('hydrate', () => {
-    it('restores events from a serialized array', () => {
-      const events: DiagnosticEvent[] = [
-        { id: 'a', ts: 1000, level: 'info', code: 'config_loaded', message: 'Restored' },
-        { id: 'b', ts: 2000, level: 'warn', code: 'config_changed', message: 'Warn' },
-      ];
-
-      log.hydrate(events);
-
-      const result = log.getAll();
-      expect(result).toHaveLength(2);
-      expect(result[0]?.id).toBe('a');
-      expect(result[1]?.id).toBe('b');
+  it('reports persistence failures to explicit callers', async () => {
+    const error = new Error('quota exceeded');
+    const onPersistError = vi.fn();
+    const journal = createDiagnosticJournal({
+      load: vi.fn().mockResolvedValue([]),
+      save: vi.fn().mockRejectedValue(error),
+      onPersistError,
+      now: () => 1000,
     });
+    await journal.initialize();
+    journal.append({ level: 'info', code: 'download_delegated', message: 'Event' });
 
-    it('truncates to max capacity when hydrating excess events', () => {
-      const events: DiagnosticEvent[] = Array.from({ length: 10 }, (_, i) => ({
-        id: String(i),
-        ts: i * 1000,
-        level: 'info' as const,
-        code: 'config_loaded' as const,
-        message: `Event ${i}`,
-      }));
-
-      log.hydrate(events);
-
-      expect(log.getAll()).toHaveLength(5);
-      expect(log.getAll()[0]?.message).toBe('Event 5');
-    });
+    await expect(journal.flush()).rejects.toThrow('quota exceeded');
+    expect(onPersistError).toHaveBeenCalledWith(error);
   });
 });

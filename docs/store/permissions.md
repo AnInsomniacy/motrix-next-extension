@@ -15,7 +15,7 @@ The 'downloads' permission is the core of this extension's functionality. On Chr
 ### `storage`
 
 ```
-Used to persist user-configured settings in chrome.storage.local, including: API connection parameters (port number, authentication token), download behavior preferences (enabled/disabled, auto-launch, cookie forwarding, download bar visibility), per-site interception rules, appearance preferences (theme, color scheme, language), and a diagnostic event log for troubleshooting. No data is ever sent to any remote server — all storage is local-only.
+Used to persist user-configured settings in chrome.storage.local, including: API connection parameters (port number, authentication token), download behavior preferences (enabled/disabled, auto-launch, cookie forwarding, download bar visibility), per-site interception rules, appearance preferences (theme, color scheme, language), and a privacy-sanitized diagnostic event log for troubleshooting. No data is ever sent to any remote server — all storage is local-only.
 ```
 
 ### `contextMenus`
