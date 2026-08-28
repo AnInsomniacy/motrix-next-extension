@@ -629,8 +629,24 @@
     "message": "إدخال",
     "description": "Unit suffix for the diagnostic log entry limit input"
   },
-  "options_diagnostics_view_context": {
+  "options_diagnostics_view_details": {
     "message": "عرض تفاصيل الحدث",
-    "description": "Accessible label for opening diagnostic event context"
+    "description": "Accessible label for opening diagnostic event details"
+  },
+  "options_diagnostics_details_title": {
+    "message": "تفاصيل الحدث",
+    "description": "Title of the diagnostic event details drawer"
+  },
+  "options_diagnostics_details_message": {
+    "message": "الرسالة",
+    "description": "Heading for the diagnostic event message"
+  },
+  "options_diagnostics_details_context": {
+    "message": "السياق",
+    "description": "Heading for diagnostic event context fields"
+  },
+  "options_diagnostics_clear_confirm": {
+    "message": "تأكيد المسح",
+    "description": "Second-click confirmation label for clearing diagnostic logs"
   }
 }

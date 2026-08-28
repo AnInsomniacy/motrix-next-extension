@@ -629,8 +629,24 @@
     "message": "записів",
     "description": "Unit suffix for the diagnostic log entry limit input"
   },
-  "options_diagnostics_view_context": {
+  "options_diagnostics_view_details": {
     "message": "Переглянути відомості про подію",
-    "description": "Accessible label for opening diagnostic event context"
+    "description": "Accessible label for opening diagnostic event details"
+  },
+  "options_diagnostics_details_title": {
+    "message": "Відомості про подію",
+    "description": "Title of the diagnostic event details drawer"
+  },
+  "options_diagnostics_details_message": {
+    "message": "Повідомлення",
+    "description": "Heading for the diagnostic event message"
+  },
+  "options_diagnostics_details_context": {
+    "message": "Контекст",
+    "description": "Heading for diagnostic event context fields"
+  },
+  "options_diagnostics_clear_confirm": {
+    "message": "Підтвердити очищення",
+    "description": "Second-click confirmation label for clearing diagnostic logs"
   }
 }

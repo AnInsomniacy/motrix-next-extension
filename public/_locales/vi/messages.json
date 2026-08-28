@@ -629,8 +629,24 @@
     "message": "mục",
     "description": "Unit suffix for the diagnostic log entry limit input"
   },
-  "options_diagnostics_view_context": {
+  "options_diagnostics_view_details": {
     "message": "Xem chi tiết sự kiện",
-    "description": "Accessible label for opening diagnostic event context"
+    "description": "Accessible label for opening diagnostic event details"
+  },
+  "options_diagnostics_details_title": {
+    "message": "Chi tiết sự kiện",
+    "description": "Title of the diagnostic event details drawer"
+  },
+  "options_diagnostics_details_message": {
+    "message": "Thông báo",
+    "description": "Heading for the diagnostic event message"
+  },
+  "options_diagnostics_details_context": {
+    "message": "Ngữ cảnh",
+    "description": "Heading for diagnostic event context fields"
+  },
+  "options_diagnostics_clear_confirm": {
+    "message": "Xác nhận xóa",
+    "description": "Second-click confirmation label for clearing diagnostic logs"
   }
 }

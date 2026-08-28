@@ -629,8 +629,24 @@
     "message": "件",
     "description": "Unit suffix for the diagnostic log entry limit input"
   },
-  "options_diagnostics_view_context": {
+  "options_diagnostics_view_details": {
     "message": "イベントの詳細を表示",
-    "description": "Accessible label for opening diagnostic event context"
+    "description": "Accessible label for opening diagnostic event details"
+  },
+  "options_diagnostics_details_title": {
+    "message": "イベント詳細",
+    "description": "Title of the diagnostic event details drawer"
+  },
+  "options_diagnostics_details_message": {
+    "message": "メッセージ",
+    "description": "Heading for the diagnostic event message"
+  },
+  "options_diagnostics_details_context": {
+    "message": "コンテキスト",
+    "description": "Heading for diagnostic event context fields"
+  },
+  "options_diagnostics_clear_confirm": {
+    "message": "消去を確認",
+    "description": "Second-click confirmation label for clearing diagnostic logs"
   }
 }

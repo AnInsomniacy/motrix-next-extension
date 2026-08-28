@@ -629,8 +629,24 @@
     "message": "entries",
     "description": "Unit suffix for the diagnostic log entry limit input"
   },
-  "options_diagnostics_view_context": {
+  "options_diagnostics_view_details": {
     "message": "View event details",
-    "description": "Accessible label for opening diagnostic event context"
+    "description": "Accessible label for opening diagnostic event details"
+  },
+  "options_diagnostics_details_title": {
+    "message": "Event details",
+    "description": "Title of the diagnostic event details drawer"
+  },
+  "options_diagnostics_details_message": {
+    "message": "Message",
+    "description": "Heading for the diagnostic event message"
+  },
+  "options_diagnostics_details_context": {
+    "message": "Context",
+    "description": "Heading for diagnostic event context fields"
+  },
+  "options_diagnostics_clear_confirm": {
+    "message": "Confirm Clear",
+    "description": "Second-click confirmation label for clearing diagnostic logs"
   }
 }

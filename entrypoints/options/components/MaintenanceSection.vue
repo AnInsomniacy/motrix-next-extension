@@ -3,13 +3,11 @@ import { computed, h, onUnmounted, ref, watch } from 'vue';
 import {
   NButton,
   NButtonGroup,
-  NCode,
   NDataTable,
   NEmpty,
   NFormItem,
   NIcon,
   NInputNumber,
-  NPopover,
   NSelect,
   NTag,
   type DataTableColumns,
@@ -18,7 +16,6 @@ import {
 import {
   CloudDownloadOutline,
   CloudUploadOutline,
-  CodeSlashOutline,
   DownloadOutline,
   RefreshOutline,
   TrashOutline,
@@ -30,6 +27,8 @@ import {
   type DiagnosticLevel,
 } from '@/lib/schema';
 import { useI18n } from '@/shared/i18n/engine';
+import ClearDiagnosticsButtonLabel from './ClearDiagnosticsButtonLabel.vue';
+import DiagnosticDetailsPopover from './DiagnosticDetailsPopover.vue';
 
 const props = defineProps<{
   events: DiagnosticEvent[];
@@ -48,11 +47,15 @@ const emit = defineEmits<{
 const { effectiveLocale, t: i18n, tSub: i18nSub } = useI18n();
 const fileInput = ref<globalThis.HTMLInputElement | null>(null);
 const confirmingReset = ref(false);
+const confirmingClearDiagnostics = ref(false);
+const clearConfirmationSeconds = ref(0);
 const levelFilter = ref<'all' | DiagnosticLevel>('all');
 const codeFilter = ref<string | null>(null);
 const diagnosticPage = ref(1);
 let resetConfirmTimer: ReturnType<typeof setTimeout> | null = null;
+let clearConfirmationTimer: ReturnType<typeof setInterval> | null = null;
 
+const CLEAR_CONFIRMATION_SECONDS = 4;
 const DIAGNOSTIC_PAGE_SIZE = 10;
 const DIAGNOSTIC_ROW_HEIGHT = 38;
 const DIAGNOSTIC_BODY_HEIGHT = DIAGNOSTIC_PAGE_SIZE * DIAGNOSTIC_ROW_HEIGHT;
@@ -104,51 +107,6 @@ const diagnosticDateTimeFormatter = computed(
 
 const diagnosticColumns = computed<DataTableColumns<DiagnosticEvent>>(() => [
   {
-    title: '',
-    key: 'context',
-    width: 36,
-    render: (event) => {
-      if (!event.context) return null;
-      return h(
-        NPopover,
-        {
-          maxWidth: 420,
-          placement: 'right-start',
-          scrollable: true,
-          trigger: 'click',
-        },
-        {
-          trigger: () =>
-            h(
-              NButton,
-              {
-                'aria-label': i18n('options_diagnostics_view_context', 'View event details'),
-                circle: true,
-                size: 'tiny',
-                text: true,
-              },
-              {
-                icon: () => h(NIcon, { size: 16 }, { default: () => h(CodeSlashOutline) }),
-              },
-            ),
-          default: () =>
-            h(NCode, {
-              code: JSON.stringify(event.context, null, 2),
-              internalNoHighlight: true,
-              language: 'json',
-              style: {
-                display: 'block',
-                fontSize: '11px',
-                maxHeight: '220px',
-                overflow: 'auto',
-              },
-              wordWrap: true,
-            }),
-        },
-      );
-    },
-  },
-  {
     title: i18n('options_diagnostics_column_time', 'Time'),
     key: 'ts',
     width: 108,
@@ -178,6 +136,19 @@ const diagnosticColumns = computed<DataTableColumns<DiagnosticEvent>>(() => [
     key: 'message',
     minWidth: 260,
     ellipsis: { tooltip: true },
+  },
+  {
+    title: '',
+    key: 'details',
+    width: 40,
+    align: 'center',
+    render: (event) =>
+      h(DiagnosticDetailsPopover, {
+        event,
+        formattedTime: formatDateTime(event.ts),
+        levelLabel: diagnosticLevelLabel(event.level),
+        tagType: LEVEL_TAG_TYPES[event.level],
+      }),
   },
 ]);
 
@@ -222,6 +193,15 @@ function clearResetConfirmTimer(): void {
   }
 }
 
+function cancelClearDiagnosticsConfirmation(): void {
+  if (clearConfirmationTimer) {
+    clearInterval(clearConfirmationTimer);
+    clearConfirmationTimer = null;
+  }
+  confirmingClearDiagnostics.value = false;
+  clearConfirmationSeconds.value = 0;
+}
+
 function chooseBackupFile(): void {
   fileInput.value?.click();
 }
@@ -248,6 +228,21 @@ function handleResetClick(): void {
   }, 4000);
 }
 
+function handleClearDiagnosticsClick(): void {
+  if (confirmingClearDiagnostics.value) {
+    cancelClearDiagnosticsConfirmation();
+    emit('clearDiagnostics');
+    return;
+  }
+
+  confirmingClearDiagnostics.value = true;
+  clearConfirmationSeconds.value = CLEAR_CONFIRMATION_SECONDS;
+  clearConfirmationTimer = setInterval(() => {
+    clearConfirmationSeconds.value -= 1;
+    if (clearConfirmationSeconds.value <= 0) cancelClearDiagnosticsConfirmation();
+  }, 1000);
+}
+
 function handleMaxDiagnosticEvents(value: number | null): void {
   if (value !== null) emit('update:maxDiagnosticEvents', value);
 }
@@ -266,7 +261,14 @@ function formatTime(ts: number): string {
   return diagnosticDateTimeFormatter.value.format(d);
 }
 
-onUnmounted(clearResetConfirmTimer);
+function formatDateTime(ts: number): string {
+  return diagnosticDateTimeFormatter.value.format(new Date(ts));
+}
+
+onUnmounted(() => {
+  clearResetConfirmTimer();
+  cancelClearDiagnosticsConfirmation();
+});
 </script>
 
 <template>
@@ -368,17 +370,23 @@ onUnmounted(clearResetConfirmTimer);
         />
 
         <div class="maintenance-actions diagnostics-actions">
-          <NButton size="small" quaternary @click="emit('exportDiagnostics')">
+          <NButton size="small" @click="emit('exportDiagnostics')">
             <template #icon>
               <NIcon :size="14"><DownloadOutline /></NIcon>
             </template>
             {{ i18n('options_diagnostics_export', 'Export Report') }}
           </NButton>
-          <NButton size="small" quaternary type="error" @click="emit('clearDiagnostics')">
+          <NButton ghost size="small" type="error" @click="handleClearDiagnosticsClick">
             <template #icon>
               <NIcon :size="14"><TrashOutline /></NIcon>
             </template>
-            {{ i18n('options_diagnostics_clear', 'Clear Log') }}
+            <ClearDiagnosticsButtonLabel
+              :clear-label="i18n('options_diagnostics_clear', 'Clear Log')"
+              :confirm-label="i18n('options_diagnostics_clear_confirm', 'Confirm Clear')"
+              :confirming="confirmingClearDiagnostics"
+              :seconds="clearConfirmationSeconds"
+              :seconds-suffix="i18n('options_seconds_suffix', 's')"
+            />
           </NButton>
         </div>
       </div>
