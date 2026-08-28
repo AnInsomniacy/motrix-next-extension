@@ -38,17 +38,17 @@ export interface WakeOptions {
    * user can confirm the browser's protocol dialog.
    */
   openProtocol: () => Promise<() => void>;
-  /** Return true when the desktop API is reachable. */
-  checkApi: () => Promise<boolean>;
-  /** Maximum time to wait for the API to come up (ms). */
+  /** Return true when the desktop app and its engine are ready. */
+  checkReady: () => Promise<boolean>;
+  /** Maximum time to wait for readiness (ms). */
   maxWaitMs: number;
-  /** Interval between API checks (ms). */
+  /** Interval between readiness checks (ms). */
   pollIntervalMs?: number;
 }
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-async function isReachable(check: () => Promise<boolean>): Promise<boolean> {
+async function checkReadySafely(check: () => Promise<boolean>): Promise<boolean> {
   try {
     return await check();
   } catch {
@@ -57,23 +57,23 @@ async function isReachable(check: () => Promise<boolean>): Promise<boolean> {
 }
 
 /**
- * Wake the desktop app via the custom protocol and poll until its API is
- * reachable or `maxWaitMs` expires.
+ * Wake the desktop app via the custom protocol and poll until the app and
+ * engine are ready or `maxWaitMs` expires.
  *
- * @returns true if the API became reachable.
+ * @returns true if the desktop app and engine became ready.
  */
 export async function wakeAndWaitForApi(options: WakeOptions): Promise<boolean> {
   const pollIntervalMs = options.pollIntervalMs ?? 500;
 
   // The app may already be running — skip the protocol tab entirely.
-  if (await isReachable(options.checkApi)) return true;
+  if (await checkReadySafely(options.checkReady)) return true;
 
   const closeTab = await options.openProtocol();
   try {
     const deadline = Date.now() + options.maxWaitMs;
     while (Date.now() < deadline) {
       await sleep(pollIntervalMs);
-      if (await isReachable(options.checkApi)) return true;
+      if (await checkReadySafely(options.checkReady)) return true;
     }
     return false;
   } finally {

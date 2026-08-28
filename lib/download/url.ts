@@ -106,7 +106,7 @@ export function extractFilenameFromContentDisposition(header: string): string | 
 export function isCookieCollectableUrl(url: string): boolean {
   try {
     const protocol = new URL(url).protocol;
-    return protocol === 'http:' || protocol === 'https:' || protocol === 'ftp:';
+    return protocol === 'http:' || protocol === 'https:';
   } catch {
     return false;
   }

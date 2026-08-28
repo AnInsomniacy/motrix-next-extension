@@ -13,7 +13,7 @@ import type { DownloadSettings, SiteRule } from '@/lib/schema';
 import { matchesFileExtension, resolveFileExtension } from '@/lib/file-extensions';
 import { extractFilenameFromUrl } from './url';
 
-export const INTERCEPTABLE_SCHEMES = ['http:', 'https:', 'ftp:'] as const;
+export const INTERCEPTABLE_SCHEMES = ['http:', 'https:'] as const;
 
 export interface FilterContext {
   url: string;
@@ -93,7 +93,7 @@ const interceptionScope: FilterStage = {
   evaluate: (_ctx, config) => (config.interceptionScope.browserDownloads ? null : 'skip'),
 };
 
-/** Only http/https/ftp — reject blob:, data:, chrome:, about:, etc. */
+/** Only HTTP and HTTPS downloads can be handed to the maintained engine. */
 const scheme: FilterStage = {
   name: 'scheme',
   evaluate: (ctx) => {

@@ -4,14 +4,14 @@ import { wakeAndWaitForApi } from '@/lib/desktop';
 describe('wakeAndWaitForApi', () => {
   // ─── wakeAndWaitForApi ─────────────────────────────────
 
-  it('skips protocol launch if API is already reachable', async () => {
+  it('skips protocol launch if the desktop app and engine are ready', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    const checkApi = vi.fn().mockResolvedValue(true);
+    const checkReady = vi.fn().mockResolvedValue(true);
 
     const result = await wakeAndWaitForApi({
       openProtocol,
-      checkApi,
+      checkReady,
       maxWaitMs: 5000,
       pollIntervalMs: 100,
     });
@@ -19,21 +19,21 @@ describe('wakeAndWaitForApi', () => {
     expect(result).toBe(true);
     expect(openProtocol).not.toHaveBeenCalled();
     expect(closeTab).not.toHaveBeenCalled();
-    expect(checkApi).toHaveBeenCalledTimes(1);
+    expect(checkReady).toHaveBeenCalledTimes(1);
   });
 
-  it('launches protocol and polls until API becomes reachable', async () => {
+  it('launches protocol and polls until the desktop app and engine become ready', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
     let callCount = 0;
-    const checkApi = vi.fn().mockImplementation(async () => {
+    const checkReady = vi.fn().mockImplementation(async () => {
       callCount++;
       return callCount >= 3; // Succeeds on 3rd poll
     });
 
     const result = await wakeAndWaitForApi({
       openProtocol,
-      checkApi,
+      checkReady,
       maxWaitMs: 10000,
       pollIntervalMs: 50,
     });
@@ -41,17 +41,17 @@ describe('wakeAndWaitForApi', () => {
     expect(result).toBe(true);
     expect(openProtocol).toHaveBeenCalledTimes(1);
     expect(closeTab).toHaveBeenCalledTimes(1); // Tab closed after success
-    expect(checkApi).toHaveBeenCalledTimes(3);
+    expect(checkReady).toHaveBeenCalledTimes(3);
   });
 
   it('returns false and closes the protocol tab when polling times out', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    const checkApi = vi.fn().mockResolvedValue(false);
+    const checkReady = vi.fn().mockResolvedValue(false);
 
     const result = await wakeAndWaitForApi({
       openProtocol,
-      checkApi,
+      checkReady,
       maxWaitMs: 300,
       pollIntervalMs: 50,
     });
@@ -59,14 +59,14 @@ describe('wakeAndWaitForApi', () => {
     expect(result).toBe(false);
     expect(openProtocol).toHaveBeenCalledTimes(1);
     expect(closeTab).toHaveBeenCalledTimes(1);
-    expect(checkApi.mock.calls.length).toBeGreaterThanOrEqual(2);
+    expect(checkReady.mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('treats checkApi exceptions as unreachable (continues polling)', async () => {
+  it('treats readiness check failures as not ready and continues polling', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
     let callCount = 0;
-    const checkApi = vi.fn().mockImplementation(async () => {
+    const checkReady = vi.fn().mockImplementation(async () => {
       callCount++;
       if (callCount < 3) throw new Error('ECONNREFUSED');
       return true;
@@ -74,22 +74,22 @@ describe('wakeAndWaitForApi', () => {
 
     const result = await wakeAndWaitForApi({
       openProtocol,
-      checkApi,
+      checkReady,
       maxWaitMs: 10000,
       pollIntervalMs: 50,
     });
 
     expect(result).toBe(true);
     expect(closeTab).toHaveBeenCalledTimes(1);
-    expect(checkApi).toHaveBeenCalledTimes(3);
+    expect(checkReady).toHaveBeenCalledTimes(3);
   });
 
   it('starts an independent protocol launch for each concurrent wake request', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    const checkApi = vi.fn().mockResolvedValue(false);
+    const checkReady = vi.fn().mockResolvedValue(false);
 
-    const deps = { openProtocol, checkApi, maxWaitMs: 50, pollIntervalMs: 10 };
+    const deps = { openProtocol, checkReady, maxWaitMs: 50, pollIntervalMs: 10 };
 
     const [r1, r2] = await Promise.all([wakeAndWaitForApi(deps), wakeAndWaitForApi(deps)]);
 
@@ -101,22 +101,22 @@ describe('wakeAndWaitForApi', () => {
   it('resets state after completion so subsequent calls work', async () => {
     const closeTab = vi.fn();
     const openProtocol = vi.fn().mockResolvedValue(closeTab);
-    const checkApi = vi.fn().mockResolvedValue(false);
+    const checkReady = vi.fn().mockResolvedValue(false);
 
     // First call: timeout
     const r1 = await wakeAndWaitForApi({
       openProtocol,
-      checkApi,
+      checkReady,
       maxWaitMs: 100,
       pollIntervalMs: 30,
     });
     expect(r1).toBe(false);
 
     // Second call: immediate success
-    checkApi.mockResolvedValue(true);
+    checkReady.mockResolvedValue(true);
     const r2 = await wakeAndWaitForApi({
       openProtocol,
-      checkApi,
+      checkReady,
       maxWaitMs: 5000,
       pollIntervalMs: 50,
     });

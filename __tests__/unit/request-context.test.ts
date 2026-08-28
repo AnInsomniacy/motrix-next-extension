@@ -14,6 +14,7 @@ describe('request header context', () => {
         { name: 'User-Agent', value: 'Browser/1.0' },
         { name: 'Accept', value: 'application/octet-stream' },
         { name: 'Accept-Language', value: 'en-US,en;q=0.9' },
+        { name: 'Accept-Encoding', value: 'gzip, br' },
         { name: 'Sec-Fetch-Site', value: 'same-origin' },
         { name: 'X-Custom-Token', value: 'secret' },
       ],

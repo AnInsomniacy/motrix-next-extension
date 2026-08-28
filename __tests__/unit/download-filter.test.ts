@@ -105,9 +105,9 @@ describe('SchemeStage', () => {
     expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
   });
 
-  it('returns null for ftp URLs', () => {
+  it('returns skip for FTP URLs', () => {
     const ctx = createContext({ url: 'ftp://example.com/file.zip' });
-    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBeNull();
+    expect(stage.evaluate(ctx, DEFAULT_SETTINGS)).toBe('skip');
   });
 
   it('returns skip for blob URLs', () => {

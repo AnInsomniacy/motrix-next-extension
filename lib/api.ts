@@ -188,10 +188,20 @@ export class DesktopApiClient {
     );
   }
 
-  /** Non-throwing reachability check. */
-  async isReachable(): Promise<boolean> {
+  /** Non-throwing readiness check for both the desktop app and its engine. */
+  async isReady(): Promise<boolean> {
     try {
-      await this.ping();
+      await this.request(
+        'stat',
+        StatResponseSchema,
+        {
+          method: 'GET',
+          headers: this.authHeaders(),
+          timeout: API_CONNECTIVITY_TIMEOUT_MS,
+          retry: 0,
+        },
+        'Check readiness',
+      );
       return true;
     } catch {
       return false;

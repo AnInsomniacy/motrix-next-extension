@@ -186,7 +186,7 @@ export default defineBackground(() => {
     desktopClient,
     wakeDesktop: (timeoutMs) =>
       wakeAndWaitForApi({
-        checkApi: () => desktopClient.isReachable(),
+        checkReady: () => desktopClient.isReady(),
         openProtocol: () => openProtocolTab(buildProtocolUrl('new')),
         maxWaitMs: timeoutMs,
       }),
@@ -375,7 +375,7 @@ export default defineBackground(() => {
   function isPotentialChromiumDownload(item: Browser.downloads.DownloadItem): boolean {
     if (item.state !== 'in_progress' || item.byExtensionId) return false;
     try {
-      return ['http:', 'https:', 'ftp:'].includes(new URL(item.url).protocol);
+      return ['http:', 'https:'].includes(new URL(item.url).protocol);
     } catch {
       return false;
     }
@@ -479,7 +479,7 @@ export default defineBackground(() => {
     }
 
     const browserMode = settings.desktopUnavailable.action === 'browser';
-    if (browserMode && !(await desktopClient.isReachable())) {
+    if (browserMode && !(await desktopClient.isReady())) {
       logInfo('download_skipped', `Continued protocol in browser: ${msg.url}`, {
         url: msg.url,
         protocol: msg.protocol,

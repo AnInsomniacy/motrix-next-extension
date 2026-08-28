@@ -319,6 +319,36 @@ describe('DesktopApiClient', () => {
     });
   });
 
+  describe('isReady', () => {
+    it('returns true only when the authenticated engine stat endpoint succeeds', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            downloadSpeed: '0',
+            uploadSpeed: '0',
+            numActive: '0',
+            numWaiting: '0',
+            numStopped: '0',
+            numStoppedTotal: '0',
+          }),
+          { status: 200 },
+        ),
+      );
+
+      await expect(client.isReady()).resolves.toBe(true);
+      expect(firstRequest().url).toBe('http://127.0.0.1:29110/stat');
+      expect(firstRequest().headers.get('authorization')).toBe('Bearer test-secret');
+    });
+
+    it('returns false while the desktop process is alive but the engine stat endpoint fails', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('Engine unavailable', { status: 503 }),
+      );
+
+      await expect(client.isReady()).resolves.toBe(false);
+    });
+  });
+
   // ── pauseAll() ─────────────────────────────────────────────
 
   describe('pauseAll', () => {

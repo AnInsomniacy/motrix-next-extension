@@ -58,9 +58,9 @@ function createMockDownloadCandidate(overrides?: Partial<DownloadCandidate>): Do
   return { ...candidate, ...overrides };
 }
 
-function createDesktopClient(reachable = true, secret = 'secret'): DesktopApiClient {
+function createDesktopClient(ready = true, secret = 'secret'): DesktopApiClient {
   const client = new DesktopApiClient({ port: 29110, secret });
-  vi.spyOn(client, 'isReachable').mockResolvedValue(reachable);
+  vi.spyOn(client, 'isReady').mockResolvedValue(ready);
   return client;
 }
 
@@ -232,11 +232,11 @@ describe('DownloadOrchestrator', () => {
 
       await orch.handleFirefoxResponseTakeover(createMockDownloadCandidate());
       vi.mocked(responseDeps.downloads.cancel).mockClear();
-      vi.mocked(desktopClient.isReachable).mockClear();
+      vi.mocked(desktopClient.isReady).mockClear();
 
       expect(await orch.handleFirefoxCreatedDownload(createMockDownloadItem())).toBe(false);
       expect(responseDeps.downloads.cancel).not.toHaveBeenCalled();
-      expect(desktopClient.isReachable).not.toHaveBeenCalled();
+      expect(desktopClient.isReady).not.toHaveBeenCalled();
     });
   });
 

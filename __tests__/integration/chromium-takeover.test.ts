@@ -25,12 +25,12 @@ function createDownloadItem(): DownloadItem {
 
 function createDeps(options?: {
   settings?: DownloadSettings;
-  reachable?: boolean;
+  ready?: boolean;
   routeFails?: boolean;
   cancellation?: Promise<void>;
 }): OrchestratorDeps {
   const desktopClient = new DesktopApiClient({ port: 29110, secret: '' });
-  vi.spyOn(desktopClient, 'isReachable').mockResolvedValue(options?.reachable ?? true);
+  vi.spyOn(desktopClient, 'isReady').mockResolvedValue(options?.ready ?? true);
   vi.spyOn(desktopClient, 'addDownload').mockImplementation(async () => {
     if (options?.routeFails) throw new Error('Connection lost');
     return { action: 'queued' };
@@ -95,7 +95,7 @@ describe('Chromium takeover', () => {
     expect(deps.downloads.download).toHaveBeenCalledWith({
       url: 'https://example.com/file.zip',
     });
-    expect(deps.desktopClient?.isReachable).not.toHaveBeenCalled();
+    expect(deps.desktopClient?.isReady).not.toHaveBeenCalled();
   });
 
   it('restarts in Chrome when browser fallback mode cannot reach the desktop', async () => {
@@ -106,7 +106,7 @@ describe('Chromium takeover', () => {
         action: 'browser' as const,
       },
     } satisfies DownloadSettings;
-    const deps = createDeps({ settings, reachable: false });
+    const deps = createDeps({ settings, ready: false });
     const orchestrator = new DownloadOrchestrator(deps);
 
     await expect(

@@ -43,11 +43,11 @@ export interface OrchestratorDeps {
   getSettings: () => DownloadSettings;
   getSiteRules: () => SiteRule[];
   duplicateGuard?: DuplicateDownloadGuard;
-  /** Primary submission path when reachable. */
+  /** Primary submission path when the desktop app and engine are ready. */
   desktopClient?: DesktopApiClient;
   /**
    * Wake the desktop app via protocol handler and wait for its HTTP API.
-   * Returns true when the app became reachable within the timeout.
+   * Returns true when the desktop app and engine became ready within the timeout.
    */
   wakeDesktop?: (timeoutMs: number) => Promise<boolean>;
   /** Last-resort deep link (`motrixnext://new?url=...`) for explicit commands. */
@@ -236,7 +236,7 @@ export class DownloadOrchestrator {
 
     const settings = this.deps.getSettings();
     if (settings.desktopUnavailable.action === 'browser') {
-      if (!(await this.isDesktopReachable())) {
+      if (!(await this.isDesktopReady())) {
         this.deps.duplicateGuard?.release(duplicate.reservation);
         this.log(
           'download_fallback',
@@ -300,7 +300,7 @@ export class DownloadOrchestrator {
 
     const settings = this.deps.getSettings();
     if (settings.desktopUnavailable.action === 'browser') {
-      if (!(await this.isDesktopReachable())) {
+      if (!(await this.isDesktopReady())) {
         this.deps.duplicateGuard?.release(duplicate.reservation);
         this.log(
           'download_fallback',
@@ -363,7 +363,7 @@ export class DownloadOrchestrator {
 
     const settings = this.deps.getSettings();
     if (settings.desktopUnavailable.action === 'browser') {
-      if (!(await this.isDesktopReachable())) {
+      if (!(await this.isDesktopReady())) {
         this.log(
           'download_fallback',
           `Restarting in Firefox because Motrix Next is unavailable: ${effectiveUrl}`,
@@ -500,13 +500,13 @@ export class DownloadOrchestrator {
 
   // ─── Desktop Activation ───────────────────────────────
 
-  private async isDesktopReachable(): Promise<boolean> {
-    return this.deps.desktopClient ? this.deps.desktopClient.isReachable() : false;
+  private async isDesktopReady(): Promise<boolean> {
+    return this.deps.desktopClient ? this.deps.desktopClient.isReady() : false;
   }
 
   /** Launch-mode activation: wake the app and wait for its API. */
   private async activateDesktop(url: string, settings: DownloadSettings): Promise<boolean> {
-    if (!this.deps.wakeDesktop) return this.isDesktopReachable();
+    if (!this.deps.wakeDesktop) return this.isDesktopReady();
 
     const timeoutMs = settings.desktopUnavailable.startupTimeoutSeconds * 1000;
     this.log('download_wake_attempt', `Waking desktop app for: ${url}`, { url, timeoutMs });
