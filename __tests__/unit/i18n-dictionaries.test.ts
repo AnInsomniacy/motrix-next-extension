@@ -54,6 +54,11 @@ describe('i18n dictionaries', () => {
     expect(DICTIONARIES.en!['popup_speed_download']).toBe('↓ $1');
     expect(DICTIONARIES.en!['popup_error_timeout_hint']).toContain('$1');
     expect(DICTIONARIES.en!['popup_error_timeout_hint']).not.toContain('$1$');
+    expect(DICTIONARIES.en!['options_diagnostics_pagination']).toBe('$1 of $2 · max $3');
+    expect(DICTIONARIES.zh_CN!['options_diagnostics_pagination']).toBe('$1 / $2 · 最多 $3 条');
+    expect(DICTIONARIES.en!['options_diagnostics_log_entry_limit']).toBe('Log entry limit');
+    expect(DICTIONARIES.zh_CN!['options_diagnostics_log_entry_limit']).toBe('日志条目上限');
+    expect(DICTIONARIES.zh_CN!['options_diagnostics_view_context']).toBe('查看事件详情');
 
     for (const id of LOCALE_IDS) {
       for (const [key, value] of Object.entries(DICTIONARIES[id]!)) {
