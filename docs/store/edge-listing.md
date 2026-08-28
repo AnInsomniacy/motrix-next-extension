@@ -37,7 +37,7 @@ KEY FEATURES
 
 • Cookie Forwarding (Optional) — Grant enhanced permissions to forward session cookies to aria2, enabling authenticated downloads from private file hosts.
 
-• Auto-Launch — When Motrix Next is not running, the extension can automatically launch it via the motrixnext:// protocol, wait for the RPC service, then retry the download.
+• Auto-Launch — When Motrix Next is not running, the extension activates it through its allowlisted Native Messaging host, waits for the local API, then retries the download.
 
 • Completion Notifications — Get desktop notifications when downloads are sent and when they finish.
 

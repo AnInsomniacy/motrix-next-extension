@@ -145,10 +145,10 @@ export const DiagnosticCodeSchema = z.enum([
   'request_headers_listener_ready',
   'request_headers_listener_downgraded',
   'request_headers_listener_failed',
-  // Wake lifecycle
-  'download_wake_attempt',
-  'wake_success',
-  'wake_timeout',
+  // Desktop activation lifecycle
+  'desktop_activation_attempt',
+  'desktop_activation_success',
+  'desktop_activation_timeout',
   // Cookie & permission
   'cookie_collect_failed',
   'permission_granted',

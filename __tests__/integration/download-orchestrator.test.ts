@@ -80,9 +80,6 @@ function createMockDeps(overrides: Partial<OrchestratorDeps> = {}): Orchestrator
       ...DEFAULT_DOWNLOAD_SETTINGS,
     } satisfies DownloadSettings),
     getSiteRules: vi.fn().mockReturnValue([] as SiteRule[]),
-    openProtocolNewTask: vi
-      .fn<(url: string, referer: string, filename?: string) => Promise<void>>()
-      .mockResolvedValue(undefined),
     ...overrides,
   };
 }
@@ -110,7 +107,6 @@ describe('DownloadOrchestrator', () => {
 
       expect(intercepted).toBe(false);
       expect(deps.downloads.cancel).not.toHaveBeenCalled();
-      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
     });
 
     it('skips downloads with state "interrupted" (resumed after reboot)', async () => {
@@ -120,7 +116,6 @@ describe('DownloadOrchestrator', () => {
 
       expect(intercepted).toBe(false);
       expect(deps.downloads.cancel).not.toHaveBeenCalled();
-      expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
     });
 
     it('logs download_skipped with state-guard stage for stale items', async () => {
@@ -164,7 +159,6 @@ describe('DownloadOrchestrator', () => {
       expect(intercepted).toBe(true);
       expect(addDownload).toHaveBeenCalledTimes(1);
       expect(responseDeps.downloads.cancel).not.toHaveBeenCalled();
-      expect(responseDeps.openProtocolNewTask).not.toHaveBeenCalled();
     });
 
     it('restarts in Firefox when the desktop API is unavailable', async () => {
@@ -191,7 +185,6 @@ describe('DownloadOrchestrator', () => {
       expect(responseDeps.downloads.download).toHaveBeenCalledWith({
         url: 'https://example.com/file.zip',
       });
-      expect(responseDeps.openProtocolNewTask).not.toHaveBeenCalled();
     });
 
     it('restarts in Firefox when browser-mode submission fails', async () => {
@@ -250,7 +243,6 @@ describe('DownloadOrchestrator', () => {
         .mockResolvedValue({ action: 'queued' });
       const cookieDeps = createMockDeps({
         desktopClient,
-        openProtocolNewTask: undefined,
         getSettings: vi.fn().mockReturnValue({
           ...DEFAULT_DOWNLOAD_SETTINGS,
           forwardCookies: true,
@@ -280,7 +272,7 @@ describe('DownloadOrchestrator', () => {
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
-      const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
+      const apiDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(apiDeps);
 
       await orch.handleFirefoxCreatedDownload(
@@ -309,7 +301,7 @@ describe('DownloadOrchestrator', () => {
     it('logs only header context counts and booleans after HTTP routing', async () => {
       const desktopClient = createDesktopClient();
       vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({ action: 'queued' });
-      const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
+      const apiDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(apiDeps);
 
       await orch.handleFirefoxCreatedDownload(
@@ -342,7 +334,7 @@ describe('DownloadOrchestrator', () => {
     it('logs request-header match reason when no cached context is available', async () => {
       const desktopClient = createDesktopClient();
       vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({ action: 'queued' });
-      const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
+      const apiDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(apiDeps);
 
       await orch.handleFirefoxCreatedDownload(
@@ -373,7 +365,7 @@ describe('DownloadOrchestrator', () => {
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
-      const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
+      const apiDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(apiDeps);
 
       await orch.handleFirefoxCreatedDownload(
@@ -398,7 +390,7 @@ describe('DownloadOrchestrator', () => {
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
-      const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
+      const apiDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(apiDeps);
 
       await orch.handleFirefoxCreatedDownload(
@@ -423,7 +415,7 @@ describe('DownloadOrchestrator', () => {
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
-      const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
+      const apiDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(apiDeps);
 
       await orch.handleFirefoxCreatedDownload(
@@ -450,7 +442,7 @@ describe('DownloadOrchestrator', () => {
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
-      const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
+      const apiDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(apiDeps);
 
       await orch.handleFirefoxCreatedDownload(
@@ -476,7 +468,7 @@ describe('DownloadOrchestrator', () => {
       const addDownload = vi
         .spyOn(desktopClient, 'addDownload')
         .mockResolvedValue({ action: 'queued' });
-      const apiDeps = createMockDeps({ desktopClient, openProtocolNewTask: undefined });
+      const apiDeps = createMockDeps({ desktopClient });
       const orch = new DownloadOrchestrator(apiDeps);
 
       await orch.handleFirefoxCreatedDownload(
@@ -502,7 +494,6 @@ describe('DownloadOrchestrator', () => {
       vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({ action: 'queued' });
       const cookieDeps = createMockDeps({
         desktopClient,
-        openProtocolNewTask: undefined,
         getSettings: vi.fn().mockReturnValue({
           ...DEFAULT_DOWNLOAD_SETTINGS,
           forwardCookies: true,
@@ -530,7 +521,6 @@ describe('DownloadOrchestrator', () => {
       const getAll = vi.fn().mockResolvedValue([{ name: 'xf_session', value: 'abc' }]);
       const cookieDeps = createMockDeps({
         desktopClient,
-        openProtocolNewTask: undefined,
         getSettings: vi.fn().mockReturnValue({
           ...DEFAULT_DOWNLOAD_SETTINGS,
           forwardCookies: true,
@@ -561,46 +551,64 @@ describe('DownloadOrchestrator', () => {
     });
   });
 
-  // ─── sendUrl — unified deep-link routing ───────────────
+  // ─── sendUrl — HTTP routing with native activation ─────
 
   describe('sendUrl — routes all URLs to desktop', () => {
-    it('routes HTTP URL to desktop via deep link', async () => {
-      const result = await orchestrator.sendUrl(
-        'https://example.com/file.zip',
-        'https://example.com',
-      );
+    function createUrlDeps() {
+      const desktopClient = createDesktopClient();
+      const addDownload = vi
+        .spyOn(desktopClient, 'addDownload')
+        .mockResolvedValue({ action: 'queued' });
+      const urlDeps = createMockDeps({ desktopClient });
+      return { addDownload, urlDeps, orch: new DownloadOrchestrator(urlDeps) };
+    }
 
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/file.zip',
-        'https://example.com',
+    it('routes HTTP URLs through the desktop API', async () => {
+      const { addDownload, orch } = createUrlDeps();
+      const result = await orch.sendUrl('https://example.com/file.zip', 'https://example.com');
+
+      expect(addDownload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: 'https://example.com/file.zip',
+          referer: 'https://example.com',
+        }),
       );
       expect(result).toBe('routed-to-desktop');
     });
 
-    it('routes magnet URI to desktop', async () => {
-      const result = await orchestrator.sendUrl('magnet:?xt=urn:btih:abc123', '');
+    it('routes magnet URIs through the desktop API', async () => {
+      const { addDownload, orch } = createUrlDeps();
+      const result = await orch.sendUrl('magnet:?xt=urn:btih:abc123', '');
 
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith('magnet:?xt=urn:btih:abc123', '');
+      expect(addDownload).toHaveBeenCalledWith(
+        expect.objectContaining({ url: 'magnet:?xt=urn:btih:abc123' }),
+      );
       expect(result).toBe('routed-to-desktop');
     });
 
-    it('routes torrent URL to desktop', async () => {
-      const result = await orchestrator.sendUrl(
-        'https://example.com/linux.torrent',
-        'https://example.com',
+    it('activates Motrix Next and retries the desktop API', async () => {
+      const desktopClient = createDesktopClient(false);
+      const addDownload = vi
+        .spyOn(desktopClient, 'addDownload')
+        .mockRejectedValueOnce(new Error('offline'))
+        .mockResolvedValueOnce({ action: 'queued' });
+      const activateDesktop = vi.fn().mockResolvedValue(true);
+      const activationDeps = createMockDeps({ desktopClient, activateDesktop });
+      const orch = new DownloadOrchestrator(activationDeps);
+
+      await expect(orch.sendUrl('https://example.com/file.zip', '')).resolves.toBe(
+        'routed-to-desktop',
       );
 
-      expect(deps.openProtocolNewTask).toHaveBeenCalledWith(
-        'https://example.com/linux.torrent',
-        'https://example.com',
-      );
-      expect(result).toBe('routed-to-desktop');
+      expect(activateDesktop).toHaveBeenCalledWith(15_000);
+      expect(addDownload).toHaveBeenCalledTimes(2);
     });
 
     it('logs download_routed diagnostic event', async () => {
-      await orchestrator.sendUrl('https://example.com/file.zip', '');
+      const { urlDeps, orch } = createUrlDeps();
+      await orch.sendUrl('https://example.com/file.zip', '');
 
-      expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
+      expect(urlDeps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({
           code: 'download_routed',
           level: 'info',
@@ -608,19 +616,18 @@ describe('DownloadOrchestrator', () => {
       );
     });
 
-    it('throws when openProtocolNewTask is unavailable', async () => {
-      const noDeps = createMockDeps({ openProtocolNewTask: undefined });
-      const orch = new DownloadOrchestrator(noDeps);
+    it('throws when the desktop API is unavailable', async () => {
+      const orch = new DownloadOrchestrator(createMockDeps());
 
       await expect(orch.sendUrl('https://example.com/file.zip', '')).rejects.toThrow();
     });
 
-    it('does not fall back to deep-link when HTTP API authentication fails', async () => {
+    it('does not activate the desktop after an authentication failure', async () => {
       const desktopClient = new DesktopApiClient({ port: 29110, secret: 'wrong-secret' });
       vi.spyOn(desktopClient, 'addDownload').mockRejectedValue(new ApiAuthError());
       const authDeps = createMockDeps({
         desktopClient,
-        wakeDesktop: vi.fn().mockResolvedValue(true),
+        activateDesktop: vi.fn().mockResolvedValue(true),
       });
       const orch = new DownloadOrchestrator(authDeps);
 
@@ -628,8 +635,7 @@ describe('DownloadOrchestrator', () => {
         'Desktop app routing unavailable',
       );
 
-      expect(authDeps.wakeDesktop).not.toHaveBeenCalled();
-      expect(authDeps.openProtocolNewTask).not.toHaveBeenCalled();
+      expect(authDeps.activateDesktop).not.toHaveBeenCalled();
       expect(authDeps.diagnosticLog.append).toHaveBeenCalledWith(
         expect.objectContaining({
           code: 'api_auth_failed',

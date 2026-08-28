@@ -26,6 +26,7 @@ function createDownloadItem(): DownloadItem {
 function createDeps(options?: {
   settings?: DownloadSettings;
   ready?: boolean;
+  activationResult?: boolean;
   routeFails?: boolean;
   cancellation?: Promise<void>;
 }): OrchestratorDeps {
@@ -46,6 +47,7 @@ function createDeps(options?: {
     getSettings: () => options?.settings ?? DEFAULT_DOWNLOAD_SETTINGS,
     getSiteRules: () => [] as SiteRule[],
     desktopClient,
+    activateDesktop: vi.fn().mockResolvedValue(options?.activationResult ?? true),
   };
 }
 
@@ -125,6 +127,29 @@ describe('Chromium takeover', () => {
       },
     } satisfies DownloadSettings;
     const deps = createDeps({ settings, routeFails: true });
+    const orchestrator = new DownloadOrchestrator(deps);
+
+    await expect(
+      orchestrator.handleChromiumTakeover(createDownloadItem(), Promise.resolve()),
+    ).resolves.toBe(false);
+    expect(deps.downloads.download).toHaveBeenCalledTimes(1);
+  });
+
+  it('restarts in Chrome when native activation fails', async () => {
+    const deps = createDeps({ ready: false, activationResult: false });
+    const orchestrator = new DownloadOrchestrator(deps);
+
+    await expect(
+      orchestrator.handleChromiumTakeover(createDownloadItem(), Promise.resolve()),
+    ).resolves.toBe(false);
+    expect(deps.downloads.download).toHaveBeenCalledWith({
+      url: 'https://example.com/file.zip',
+    });
+    expect(deps.desktopClient?.addDownload).not.toHaveBeenCalled();
+  });
+
+  it('restarts in Chrome when launch-mode desktop submission fails', async () => {
+    const deps = createDeps({ routeFails: true });
     const orchestrator = new DownloadOrchestrator(deps);
 
     await expect(

@@ -29,12 +29,9 @@ const REQUIRED_PERMISSIONS = [
   'notifications',
   'webRequest',
   'cookies',
+  'nativeMessaging',
 ] as const;
-const FIREFOX_REQUIRED_PERMISSIONS = [
-  ...REQUIRED_PERMISSIONS.slice(0, -1),
-  'webRequestBlocking',
-  'cookies',
-] as const;
+const FIREFOX_REQUIRED_PERMISSIONS = [...REQUIRED_PERMISSIONS, 'webRequestBlocking'] as const;
 const LOOPBACK_HOST_PERMISSIONS = ['http://127.0.0.1/*', 'http://localhost/*'] as const;
 const BROAD_DOWNLOAD_ORIGINS = ['https://*/*', 'http://*/*'] as const;
 

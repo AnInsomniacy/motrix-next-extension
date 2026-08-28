@@ -8,7 +8,7 @@
  *   responses before its native download starts.
  *
  * Explicit flow (context menu, protocol links):
- *   submit over HTTP → wake and retry → deep-link protocol.
+ *   submit over HTTP → activate Motrix Next → retry over HTTP.
  */
 import type { DownloadSettings, SiteRule } from '@/lib/schema';
 import type { DiagnosticInput } from '@/lib/diagnostics';
@@ -46,12 +46,10 @@ export interface OrchestratorDeps {
   /** Primary submission path when the desktop app and engine are ready. */
   desktopClient?: DesktopApiClient;
   /**
-   * Wake the desktop app via protocol handler and wait for its HTTP API.
+   * Activate the desktop app through Native Messaging and wait for its HTTP API.
    * Returns true when the desktop app and engine became ready within the timeout.
    */
-  wakeDesktop?: (timeoutMs: number) => Promise<boolean>;
-  /** Last-resort deep link (`motrixnext://new?url=...`) for explicit commands. */
-  openProtocolNewTask?: (url: string, referer: string, filename?: string) => Promise<void>;
+  activateDesktop?: (timeoutMs: number) => Promise<boolean>;
   onDuplicateBlocked?: () => void;
 }
 
@@ -97,8 +95,7 @@ interface DownloadJob {
 }
 
 interface SendOptions {
-  allowWake: boolean;
-  allowProtocol: boolean;
+  allowActivation: boolean;
 }
 
 // ─── Filename Heuristics ────────────────────────────────
@@ -254,21 +251,25 @@ export class DownloadOrchestrator {
         this.deps.duplicateGuard?.release(duplicate.reservation);
         return false;
       }
-      if (!(await this.activateDesktop(effectiveUrl, settings))) {
+      if (!(await this.ensureDesktopActivated(effectiveUrl, settings))) {
         this.deps.duplicateGuard?.release(duplicate.reservation);
-        return true;
+        await this.restartBrowserDownload(item);
+        return false;
       }
     }
 
     const job = await this.buildJob(item, tabUrl);
-    const routed = await this.sendToDesktop(job, { allowWake: false, allowProtocol: false });
+    const routed = await this.sendToDesktop(job, { allowActivation: false });
     if (!routed) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      this.log('download_failed', `Discarded after desktop routing failed: ${job.displayName}`, {
-        url: effectiveUrl,
-        target: 'discard',
-      });
-      return true;
+      this.log(
+        'download_fallback',
+        `Restarting in Firefox after desktop routing failed: ${job.displayName}`,
+        { url: effectiveUrl, target: 'browser' },
+        'warn',
+      );
+      await this.restartBrowserDownload(item);
+      return false;
     }
 
     this.deps.duplicateGuard?.commit(duplicate.reservation);
@@ -310,30 +311,24 @@ export class DownloadOrchestrator {
         await this.restartBrowserDownload(item);
         return false;
       }
-    } else if (!(await this.activateDesktop(effectiveUrl, settings))) {
+    } else if (!(await this.ensureDesktopActivated(effectiveUrl, settings))) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      return true;
+      await this.restartBrowserDownload(item);
+      return false;
     }
 
     const job = await this.buildJob(item, tabUrl);
-    const routed = await this.sendToDesktop(job, { allowWake: false, allowProtocol: false });
+    const routed = await this.sendToDesktop(job, { allowActivation: false });
     if (!routed) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      if (settings.desktopUnavailable.action === 'browser') {
-        this.log(
-          'download_fallback',
-          `Restarting in Chrome after desktop routing failed: ${job.displayName}`,
-          { url: effectiveUrl, target: 'browser' },
-          'warn',
-        );
-        await this.restartBrowserDownload(item);
-        return false;
-      }
-      this.log('download_failed', `Discarded after desktop routing failed: ${job.displayName}`, {
-        url: effectiveUrl,
-        target: 'discard',
-      });
-      return true;
+      this.log(
+        'download_fallback',
+        `Restarting in Chrome after desktop routing failed: ${job.displayName}`,
+        { url: effectiveUrl, target: 'browser' },
+        'warn',
+      );
+      await this.restartBrowserDownload(item);
+      return false;
     }
 
     this.deps.duplicateGuard?.commit(duplicate.reservation);
@@ -348,7 +343,7 @@ export class DownloadOrchestrator {
 
   /**
    * Route a Firefox response that the blocking listener already cancelled.
-   * Browser-mode failures recreate one Firefox-owned download.
+   * Any failed desktop handoff recreates one Firefox-owned download.
    *
    * @returns true when the response remains owned by Motrix Next.
    */
@@ -372,8 +367,9 @@ export class DownloadOrchestrator {
         await this.restartBrowserDownload(item);
         return false;
       }
-    } else if (!(await this.activateDesktop(effectiveUrl, settings))) {
-      return true;
+    } else if (!(await this.ensureDesktopActivated(effectiveUrl, settings))) {
+      await this.restartBrowserDownload(item);
+      return false;
     }
 
     const duplicate = this.reserveDuplicate(item);
@@ -383,24 +379,17 @@ export class DownloadOrchestrator {
     }
 
     const job = await this.buildJob(item, tabUrl);
-    const routed = await this.sendToDesktop(job, { allowWake: false, allowProtocol: false });
+    const routed = await this.sendToDesktop(job, { allowActivation: false });
     if (!routed) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      if (settings.desktopUnavailable.action === 'browser') {
-        this.log(
-          'download_fallback',
-          `Restarting in Firefox after desktop routing failed: ${job.displayName}`,
-          { url: effectiveUrl, target: 'browser' },
-          'warn',
-        );
-        await this.restartBrowserDownload(item);
-        return false;
-      }
-      this.log('download_failed', `Discarded after desktop routing failed: ${job.displayName}`, {
-        url: effectiveUrl,
-        target: 'discard',
-      });
-      return true;
+      this.log(
+        'download_fallback',
+        `Restarting in Firefox after desktop routing failed: ${job.displayName}`,
+        { url: effectiveUrl, target: 'browser' },
+        'warn',
+      );
+      await this.restartBrowserDownload(item);
+      return false;
     }
 
     this.deps.duplicateGuard?.commit(duplicate.reservation);
@@ -451,13 +440,11 @@ export class DownloadOrchestrator {
         filenameHint,
         filenameSource: 'url',
       },
-      { allowWake: options.allowWake ?? true, allowProtocol: options.allowProtocol ?? true },
+      { allowActivation: options.allowActivation ?? true },
     );
     if (!routed) {
       this.deps.duplicateGuard?.release(duplicate.reservation);
-      throw new Error(
-        'Desktop app routing unavailable: neither HTTP API nor protocol handler provided',
-      );
+      throw new Error('Desktop app routing unavailable');
     }
 
     this.deps.duplicateGuard?.commit(duplicate.reservation);
@@ -504,24 +491,34 @@ export class DownloadOrchestrator {
     return this.deps.desktopClient ? this.deps.desktopClient.isReady() : false;
   }
 
-  /** Launch-mode activation: wake the app and wait for its API. */
-  private async activateDesktop(url: string, settings: DownloadSettings): Promise<boolean> {
-    if (!this.deps.wakeDesktop) return this.isDesktopReady();
+  /** Launch-mode activation: start the app and wait for its API. */
+  private async ensureDesktopActivated(url: string, settings: DownloadSettings): Promise<boolean> {
+    if (!this.deps.activateDesktop) return this.isDesktopReady();
 
     const timeoutMs = settings.desktopUnavailable.startupTimeoutSeconds * 1000;
-    this.log('download_wake_attempt', `Waking desktop app for: ${url}`, { url, timeoutMs });
+    this.log('desktop_activation_attempt', `Activating desktop app for: ${url}`, {
+      url,
+      timeoutMs,
+    });
 
     try {
-      if (await this.deps.wakeDesktop(timeoutMs)) {
-        this.log('wake_success', `Desktop app woke successfully for: ${url}`, { url });
+      if (await this.deps.activateDesktop(timeoutMs)) {
+        this.log('desktop_activation_success', `Desktop app activated successfully for: ${url}`, {
+          url,
+        });
         return true;
       }
-      this.log('wake_timeout', `Wake timed out for: ${url}`, { url, timeoutMs }, 'warn');
+      this.log(
+        'desktop_activation_timeout',
+        `Desktop activation timed out for: ${url}`,
+        { url, timeoutMs },
+        'warn',
+      );
     } catch (e) {
       this.log(
         'download_fallback',
-        `Motrix Next could not be started: ${errorMessage(e)}`,
-        { url, target: 'discard' },
+        `Motrix Next could not be activated: ${errorMessage(e)}`,
+        { url, target: 'browser' },
         'warn',
       );
     }
@@ -558,96 +555,68 @@ export class DownloadOrchestrator {
   }
 
   /**
-   * Try the HTTP API, then wake+retry, then the deep-link protocol.
-   * @returns true if the download reached the desktop app by any path.
+   * Try the HTTP API, then activate Motrix Next and retry over HTTP.
    */
   private async sendToDesktop(job: DownloadJob, options: SendOptions): Promise<boolean> {
-    if (this.deps.desktopClient) {
-      try {
-        await this.submitToDesktopApi(job);
-        return true;
-      } catch (e) {
-        if (e instanceof ApiAuthError) {
-          this.log(
-            'api_auth_failed',
-            `HTTP API authentication failed: ${e.message}`,
-            { url: job.url },
-            'error',
-          );
-          return false;
-        }
-        this.log(
-          'download_fallback',
-          `HTTP API failed, attempting wake: ${errorMessage(e)}`,
-          { url: job.url },
-          'warn',
-        );
-        const wokeAndRetried = await this.wakeAndRetry(job, options);
-        if (wokeAndRetried !== null) return wokeAndRetried;
-      }
-    }
+    if (!this.deps.desktopClient) return false;
 
-    if (options.allowProtocol && this.deps.openProtocolNewTask) {
-      const protocolFilenameHint =
-        job.filenameHint !== extractFilenameFromUrl(job.url) ? job.filenameHint : undefined;
-      if (protocolFilenameHint) {
-        await this.deps.openProtocolNewTask(job.url, job.referer, protocolFilenameHint);
-      } else {
-        await this.deps.openProtocolNewTask(job.url, job.referer);
-      }
-      this.log('download_routed', `Routed via deep-link: ${job.displayName}`, {
-        url: job.url,
-        filename: job.displayName,
-        filenameSource: job.filenameSource,
-        transport: 'deep-link',
-      });
+    try {
+      await this.submitToDesktopApi(job);
       return true;
+    } catch (e) {
+      if (e instanceof ApiAuthError) {
+        this.log(
+          'api_auth_failed',
+          `HTTP API authentication failed: ${e.message}`,
+          { url: job.url },
+          'error',
+        );
+        return false;
+      }
+      if (!options.allowActivation) return false;
+      this.log(
+        'download_fallback',
+        `HTTP API failed, attempting desktop activation: ${errorMessage(e)}`,
+        { url: job.url },
+        'warn',
+      );
+      return this.activateAndRetry(job);
     }
-
-    return false;
   }
 
-  /**
-   * Wake the desktop app and retry the HTTP submission.
-   * @returns true/false when the attempt concluded the flow, null to
-   *          continue to the deep-link fallback.
-   */
-  private async wakeAndRetry(job: DownloadJob, options: SendOptions): Promise<boolean | null> {
+  /** Activate the desktop app and retry the HTTP submission. */
+  private async activateAndRetry(job: DownloadJob): Promise<boolean> {
     const settings = this.deps.getSettings();
-    if (
-      settings.desktopUnavailable.action !== 'launch' ||
-      !options.allowWake ||
-      !this.deps.wakeDesktop
-    ) {
-      return null;
-    }
+    if (settings.desktopUnavailable.action !== 'launch' || !this.deps.activateDesktop) return false;
 
-    this.log('download_wake_attempt', `Waking desktop app for: ${job.displayName}`, {
+    this.log('desktop_activation_attempt', `Activating desktop app for: ${job.displayName}`, {
       url: job.url,
     });
     try {
-      const woke = await this.deps.wakeDesktop(
+      const activated = await this.deps.activateDesktop(
         settings.desktopUnavailable.startupTimeoutSeconds * 1000,
       );
-      if (!woke) {
+      if (!activated) {
         this.log(
-          'wake_timeout',
-          `Wake timed out for: ${job.displayName}`,
+          'desktop_activation_timeout',
+          `Desktop activation timed out for: ${job.displayName}`,
           { url: job.url },
           'warn',
         );
-        return null;
+        return false;
       }
-      this.log('wake_success', `Desktop app woke successfully for: ${job.displayName}`, {
-        url: job.url,
-      });
+      this.log(
+        'desktop_activation_success',
+        `Desktop app activated successfully for: ${job.displayName}`,
+        { url: job.url },
+      );
       await this.submitToDesktopApi(job, true);
       return true;
     } catch (e) {
       if (e instanceof ApiAuthError) {
         this.log(
           'api_auth_failed',
-          `HTTP API authentication failed after wake: ${e.message}`,
+          `HTTP API authentication failed after activation: ${e.message}`,
           { url: job.url },
           'error',
         );
@@ -655,15 +624,15 @@ export class DownloadOrchestrator {
       }
       this.log(
         'download_fallback',
-        `Wake+retry failed, falling back to deep-link: ${errorMessage(e)}`,
+        `Desktop activation or retry failed: ${errorMessage(e)}`,
         { url: job.url },
         'warn',
       );
-      return null;
+      return false;
     }
   }
 
-  private async submitToDesktopApi(job: DownloadJob, afterWake = false): Promise<void> {
+  private async submitToDesktopApi(job: DownloadJob, afterActivation = false): Promise<void> {
     if (!this.deps.desktopClient) throw new Error('Desktop API unavailable');
 
     const response = await this.deps.desktopClient.addDownload({
@@ -680,7 +649,7 @@ export class DownloadOrchestrator {
 
     this.log(
       'download_routed',
-      `Routed via HTTP API${afterWake ? ' (after wake)' : ''}: ${job.displayName} (${response.action})`,
+      `Routed via HTTP API${afterActivation ? ' (after activation)' : ''}: ${job.displayName} (${response.action})`,
       {
         url: job.url,
         filename: job.displayName,

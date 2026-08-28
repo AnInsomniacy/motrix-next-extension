@@ -1,50 +1,63 @@
-/**
- * Desktop app integration outside the HTTP API: the `motrixnext://` deep-link
- * protocol and the wake-then-poll launch flow.
- */
+/** Native Messaging activation and readiness coordination for Motrix Next. */
+import { z } from 'zod';
 
-export const MOTRIX_NEXT_PROTOCOL = 'motrixnext';
+z.config({ jitless: true });
 
-export type ProtocolAction = 'new' | 'tasks';
+export const MOTRIX_NEXT_NATIVE_HOST = 'com.motrix.next.browser';
 
-/**
- * Build a `motrixnext://` protocol URL.
- *
- *   buildProtocolUrl()                      → "motrixnext://"
- *   buildProtocolUrl('tasks')               → "motrixnext://tasks"
- *   buildProtocolUrl('new', { url: ... })   → "motrixnext://new?url=..."
- */
-export function buildProtocolUrl(
-  action?: ProtocolAction,
-  params?: Record<string, string | undefined>,
-): string {
-  const base = `${MOTRIX_NEXT_PROTOCOL}://`;
-  if (!action) return base;
+const NativeHostErrorCodeSchema = z.enum([
+  'untrusted_caller',
+  'incomplete_frame',
+  'invalid_size',
+  'invalid_request',
+  'activation_failed',
+  'response_failed',
+]);
 
-  const query = Object.entries(params ?? {})
-    .filter((entry): entry is [string, string] => Boolean(entry[1]))
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-    .join('&');
+const NativeHostResponseSchema = z.discriminatedUnion('ok', [
+  z.strictObject({ ok: z.literal(true) }),
+  z.strictObject({ ok: z.literal(false), error: NativeHostErrorCodeSchema }),
+]);
 
-  return query ? `${base}${action}?${query}` : `${base}${action}`;
+export type NativeHostErrorCode = z.output<typeof NativeHostErrorCodeSchema>;
+export type NativeMessageSender = (hostName: string, message: object) => Promise<unknown>;
+
+export class DesktopActivationError extends Error {
+  constructor(
+    public readonly code: NativeHostErrorCode | 'host_unavailable' | 'invalid_response',
+    public readonly cause?: unknown,
+  ) {
+    super(`Motrix Next activation failed: ${code}`);
+    this.name = 'DesktopActivationError';
+  }
 }
 
-// ─── Wake ───────────────────────────────────────────────
+/** Activate Motrix Next through its allowlisted one-shot native host. */
+export async function activateDesktop(sendNativeMessage: NativeMessageSender): Promise<void> {
+  let rawResponse: unknown;
+  try {
+    rawResponse = await sendNativeMessage(MOTRIX_NEXT_NATIVE_HOST, { action: 'activate' });
+  } catch (error) {
+    throw new DesktopActivationError('host_unavailable', error);
+  }
 
-export interface WakeOptions {
-  /**
-   * Open the motrixnext:// protocol URL in a tab and return a cleanup
-   * function that closes it. The tab must stay open until cleanup so the
-   * user can confirm the browser's protocol dialog.
-   */
-  openProtocol: () => Promise<() => void>;
-  /** Return true when the desktop app and its engine are ready. */
+  const response = NativeHostResponseSchema.safeParse(rawResponse);
+  if (!response.success) throw new DesktopActivationError('invalid_response', response.error);
+  if (!response.data.ok) throw new DesktopActivationError(response.data.error);
+}
+
+export interface DesktopActivationOptions {
+  /** Activate the desktop app through Native Messaging. */
+  activate: () => Promise<void>;
+  /** Return true when both the desktop app and its engine are ready. */
   checkReady: () => Promise<boolean>;
-  /** Maximum time to wait for readiness (ms). */
+  /** Maximum time to wait for readiness. */
   maxWaitMs: number;
-  /** Interval between readiness checks (ms). */
+  /** Interval between readiness checks. */
   pollIntervalMs?: number;
 }
+
+export type ActivateDesktopAndWait = (options: DesktopActivationOptions) => Promise<boolean>;
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -56,27 +69,28 @@ async function checkReadySafely(check: () => Promise<boolean>): Promise<boolean>
   }
 }
 
-/**
- * Wake the desktop app via the custom protocol and poll until the app and
- * engine are ready or `maxWaitMs` expires.
- *
- * @returns true if the desktop app and engine became ready.
- */
-export async function wakeAndWaitForApi(options: WakeOptions): Promise<boolean> {
-  const pollIntervalMs = options.pollIntervalMs ?? 500;
-
-  // The app may already be running — skip the protocol tab entirely.
+async function activateAndWaitForApi(options: DesktopActivationOptions): Promise<boolean> {
   if (await checkReadySafely(options.checkReady)) return true;
 
-  const closeTab = await options.openProtocol();
-  try {
-    const deadline = Date.now() + options.maxWaitMs;
-    while (Date.now() < deadline) {
-      await sleep(pollIntervalMs);
-      if (await checkReadySafely(options.checkReady)) return true;
-    }
-    return false;
-  } finally {
-    closeTab();
+  await options.activate();
+  const pollIntervalMs = options.pollIntervalMs ?? 500;
+  const deadline = Date.now() + options.maxWaitMs;
+  while (Date.now() < deadline) {
+    await sleep(pollIntervalMs);
+    if (await checkReadySafely(options.checkReady)) return true;
   }
+  return false;
+}
+
+/** Create one coordinator that coalesces concurrent activation attempts. */
+export function createDesktopActivationCoordinator(): ActivateDesktopAndWait {
+  let pending: Promise<boolean> | null = null;
+
+  return (options) => {
+    if (pending) return pending;
+    pending = activateAndWaitForApi(options).finally(() => {
+      pending = null;
+    });
+    return pending;
+  };
 }

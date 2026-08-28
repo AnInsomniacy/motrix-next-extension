@@ -10,7 +10,7 @@ import {
 } from '@/lib/download/request-context';
 import { parseFirefoxDownloadResponse } from '@/lib/download/firefox-response';
 import { DesktopApiClient } from '@/lib/api';
-import { buildProtocolUrl, wakeAndWaitForApi } from '@/lib/desktop';
+import { activateDesktop, createDesktopActivationCoordinator } from '@/lib/desktop';
 import {
   CONTEXT_MENU_CONTEXTS,
   CONTEXT_MENU_ID,
@@ -48,6 +48,7 @@ export default defineBackground(() => {
   const requestHeaderContexts = new RequestHeaderContextStore();
   const duplicateDownloadGuard = new DuplicateDownloadGuard();
   const desktopClient = new DesktopApiClient(parseConnectionConfig(null));
+  const activateDesktopAndWait = createDesktopActivationCoordinator();
 
   // ─── Logging ──────────────────────────────────────────
 
@@ -132,32 +133,10 @@ export default defineBackground(() => {
     });
   }
 
-  // ─── Protocol Tab Lifecycle ───────────────────────────
-
-  /**
-   * Open a motrixnext:// URL in a focused tab (so the browser's protocol
-   * confirmation dialog is visible) and clean the tab up once the handoff
-   * completes — Chrome navigates it to about:blank after "Open".
-   */
-  async function openProtocolTab(url: string): Promise<() => void> {
-    const tab = await browser.tabs.create({ url, active: true });
-    const tabId = tab.id;
-    if (!tabId) return () => {};
-
-    const close = () => {
-      browser.tabs.onUpdated.removeListener(onUpdated);
-      browser.tabs.remove(tabId).catch(() => {});
-    };
-    const onUpdated = (id: number, info: { url?: string }) => {
-      if (id === tabId && info.url === 'about:blank') close();
-    };
-    browser.tabs.onUpdated.addListener(onUpdated);
-    // Safety net: clean up after 30s regardless.
-    setTimeout(close, 30_000);
-    return close;
-  }
-
   // ─── Orchestrator ─────────────────────────────────────
+
+  const activateDesktopApp = () =>
+    activateDesktop((hostName, message) => browser.runtime.sendNativeMessage(hostName, message));
 
   const orchestrator = new DownloadOrchestrator({
     downloads: {
@@ -184,15 +163,12 @@ export default defineBackground(() => {
     getSiteRules: () => siteRules,
     duplicateGuard: duplicateDownloadGuard,
     desktopClient,
-    wakeDesktop: (timeoutMs) =>
-      wakeAndWaitForApi({
+    activateDesktop: (timeoutMs) =>
+      activateDesktopAndWait({
+        activate: activateDesktopApp,
         checkReady: () => desktopClient.isReady(),
-        openProtocol: () => openProtocolTab(buildProtocolUrl('new')),
         maxWaitMs: timeoutMs,
       }),
-    openProtocolNewTask: async (url, referer, filename) => {
-      await openProtocolTab(buildProtocolUrl('new', { url, referer, filename }));
-    },
     onDuplicateBlocked: () => {
       const payload = buildDuplicateDownloadNotification(
         bgI18n.t('notification_duplicate_guard_title', 'Task submitted'),
@@ -494,11 +470,7 @@ export default defineBackground(() => {
     });
 
     try {
-      await orchestrator.sendUrl(
-        msg.url,
-        '',
-        browserMode ? { allowWake: false, allowProtocol: false } : undefined,
-      );
+      await orchestrator.sendUrl(msg.url, '', browserMode ? { allowActivation: false } : undefined);
       return { disposition: 'handled' };
     } catch (e) {
       logError('download_failed', `Protocol download failed: ${errorMessage(e)}`, {

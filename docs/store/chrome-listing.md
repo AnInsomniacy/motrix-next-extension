@@ -48,7 +48,7 @@ Motrix Next Extension seamlessly bridges your browser with the Motrix Next deskt
   Grant enhanced permissions to forward session cookies to aria2 — enabling authenticated downloads from private file hosts.
 
 • Auto-Launch
-  When Motrix Next is not running, the extension can automatically launch it via the motrixnext:// protocol, wait for the RPC service to become available, then retry the download.
+  When Motrix Next is not running, the extension can activate it through its allowlisted Native Messaging host, wait for the local API to become ready, then retry the download.
 
 • Download Bar Control (Optional)
   Hide Chrome's native download shelf after a download has been intercepted, keeping your browser clean.

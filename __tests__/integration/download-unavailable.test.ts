@@ -34,8 +34,8 @@ type DownloadLifecycleDeps = OrchestratorDeps;
 function createDeps(options?: {
   action?: 'launch' | 'browser';
   ready?: boolean;
-  wakeResult?: boolean;
-  wakeFails?: boolean;
+  activationResult?: boolean;
+  activationFails?: boolean;
   routeFails?: boolean;
   calls?: string[];
 }): DownloadLifecycleDeps {
@@ -44,7 +44,7 @@ function createDeps(options?: {
   vi.spyOn(desktopClient, 'isReady').mockResolvedValue(ready);
   if (options?.routeFails) {
     vi.spyOn(desktopClient, 'addDownload').mockRejectedValue(new ApiUnreachableError());
-  } else if (ready || options?.wakeResult) {
+  } else if (ready || options?.activationResult) {
     vi.spyOn(desktopClient, 'addDownload').mockImplementation(async () => {
       options?.calls?.push('route');
       return { action: 'queued' };
@@ -73,12 +73,11 @@ function createDeps(options?: {
     getSettings: () => settings,
     getSiteRules: () => [] as SiteRule[],
     desktopClient,
-    wakeDesktop: vi.fn().mockImplementation(async () => {
-      options?.calls?.push('wake');
-      if (options?.wakeFails) throw new Error('Protocol launch failed');
-      return options?.wakeResult ?? false;
+    activateDesktop: vi.fn().mockImplementation(async () => {
+      options?.calls?.push('activate');
+      if (options?.activationFails) throw new Error('Native host activation failed');
+      return options?.activationResult ?? false;
     }),
-    openProtocolNewTask: vi.fn().mockResolvedValue(undefined),
   };
 
   return deps as DownloadLifecycleDeps;
@@ -94,8 +93,7 @@ describe('automatic download fallback', () => {
     expect(intercepted).toBe(false);
     expect(deps.downloads.cancel).not.toHaveBeenCalled();
     expect(deps.downloads.erase).not.toHaveBeenCalled();
-    expect(deps.wakeDesktop).not.toHaveBeenCalled();
-    expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
+    expect(deps.activateDesktop).not.toHaveBeenCalled();
   });
 
   it('intercepts normally in browser mode when Motrix Next and its engine are ready', async () => {
@@ -115,7 +113,7 @@ describe('automatic download fallback', () => {
     const deps = createDeps({
       action: 'launch',
       ready: true,
-      wakeResult: true,
+      activationResult: true,
       calls,
     });
     const orchestrator = new DownloadOrchestrator(deps);
@@ -123,55 +121,62 @@ describe('automatic download fallback', () => {
     const intercepted = await orchestrator.handleFirefoxCreatedDownload(createDownloadItem());
 
     expect(intercepted).toBe(true);
-    expect(calls).toEqual(['cancel', 'wake', 'route']);
+    expect(calls).toEqual(['cancel', 'activate', 'route']);
   });
 
   it('waits for Firefox startup using the configured timeout before intercepting', async () => {
-    const deps = createDeps({ action: 'launch', ready: false, wakeResult: true });
+    const deps = createDeps({ action: 'launch', ready: false, activationResult: true });
     const orchestrator = new DownloadOrchestrator(deps);
 
     const intercepted = await orchestrator.handleFirefoxResponseTakeover(createDownloadCandidate());
 
     expect(intercepted).toBe(true);
-    expect(deps.wakeDesktop).toHaveBeenCalledWith(15_000);
+    expect(deps.activateDesktop).toHaveBeenCalledWith(15_000);
     expect(deps.desktopClient?.addDownload).toHaveBeenCalledTimes(1);
-    expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
   });
 
-  it('discards the browser download when desktop submission fails in launch mode', async () => {
+  it('restores the browser download when desktop submission fails in launch mode', async () => {
     const deps = createDeps({ action: 'launch', ready: true, routeFails: true });
     const orchestrator = new DownloadOrchestrator(deps);
 
     const intercepted = await orchestrator.handleFirefoxCreatedDownload(createDownloadItem());
 
-    expect(intercepted).toBe(true);
+    expect(intercepted).toBe(false);
     expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
-    expect(deps.openProtocolNewTask).not.toHaveBeenCalled();
+    expect(deps.downloads.download).toHaveBeenCalledWith({
+      url: 'https://example.com/file.zip',
+    });
   });
 
-  it('discards the browser download when desktop startup fails', async () => {
+  it('restores the browser download when desktop activation fails', async () => {
     const calls: string[] = [];
     const deps = createDeps({
       action: 'launch',
       ready: false,
-      wakeFails: true,
+      activationFails: true,
       calls,
     });
     const orchestrator = new DownloadOrchestrator(deps);
 
     const intercepted = await orchestrator.handleFirefoxCreatedDownload(createDownloadItem());
 
-    expect(intercepted).toBe(true);
+    expect(intercepted).toBe(false);
     expect(deps.downloads.cancel).toHaveBeenCalledWith(1);
-    expect(calls).toEqual(['cancel', 'wake']);
+    expect(calls).toEqual(['cancel', 'activate']);
+    expect(deps.downloads.download).toHaveBeenCalledWith({
+      url: 'https://example.com/file.zip',
+    });
   });
 
-  it('cancels a Firefox response when desktop startup times out', async () => {
-    const deps = createDeps({ action: 'launch', ready: false, wakeResult: false });
+  it('restores a Firefox response when desktop startup times out', async () => {
+    const deps = createDeps({ action: 'launch', ready: false, activationResult: false });
     const orchestrator = new DownloadOrchestrator(deps);
 
-    expect(await orchestrator.handleFirefoxResponseTakeover(createDownloadCandidate())).toBe(true);
+    expect(await orchestrator.handleFirefoxResponseTakeover(createDownloadCandidate())).toBe(false);
 
-    expect(deps.wakeDesktop).toHaveBeenCalledTimes(1);
+    expect(deps.activateDesktop).toHaveBeenCalledTimes(1);
+    expect(deps.downloads.download).toHaveBeenCalledWith({
+      url: 'https://example.com/file.zip',
+    });
   });
 });

@@ -16,7 +16,7 @@ import {
   type ConnectionStatus,
   type StatResponse,
 } from '@/lib/api';
-import { buildProtocolUrl } from '@/lib/desktop';
+import { activateDesktop } from '@/lib/desktop';
 import { loadSnapshot, updateSettings } from '@/lib/storage';
 import {
   DEFAULT_CONNECTION_CONFIG,
@@ -88,9 +88,9 @@ function openSettings(): void {
 }
 
 function launchApp(): void {
-  // Connected: focus the existing window. Disconnected: wake via the OS.
-  const url = status.value === 'connected' ? buildProtocolUrl('tasks') : buildProtocolUrl();
-  void browser.tabs.create({ url, active: true });
+  void activateDesktop((hostName, message) =>
+    browser.runtime.sendNativeMessage(hostName, message),
+  ).catch(() => {});
 }
 
 /** Toggle interception; the background worker reacts via storage.onChanged. */

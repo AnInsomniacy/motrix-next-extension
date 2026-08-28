@@ -38,7 +38,7 @@
 - **Magnet & torrent** — `magnet:` URIs and `.torrent` files are automatically captured and routed to aria2
 - **Cookie forwarding** — Cookie forwarding is enabled by default for authenticated downloads and uses required cookie and site permissions
 - **Real-time dashboard** — Popup shows live download/upload speeds, active/waiting/completed task counts
-- **Auto-launch** — Launches Motrix Next via `motrixnext://` protocol when not running, waits for API, then retries
+- **Auto-launch** — Activates Motrix Next through its allowlisted Native Messaging host, waits for API readiness, then retries
 - **Failure notifications** — Alerts when an intercepted download cannot be delivered to Motrix Next
 - **Download bar control** — Optionally hides Chrome's native download shelf (Chromium 115+, not available on Firefox)
 - **Dark mode** — System / Light / Dark with 10 Material You color schemes
@@ -159,7 +159,7 @@ motrix-next-extension/
 │   ├── schema.ts               #   Zod schemas — single source of types + defaults
 │   ├── storage.ts              #   Schema-validated browser.storage access
 │   ├── api.ts                  #   Desktop HTTP API client + error taxonomy
-│   ├── desktop.ts              #   motrixnext:// protocol + wake flow
+│   ├── desktop.ts              #   Native Messaging activation + readiness coordination
 │   ├── browser.ts              #   Permissions, context menu, webRequest helpers
 │   ├── backup.ts               #   Settings backup import/export
 │   ├── diagnostics.ts          #   Diagnostic event ring buffer

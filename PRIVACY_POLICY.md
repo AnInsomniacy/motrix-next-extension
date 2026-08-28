@@ -50,7 +50,7 @@ Cookie forwarding is enabled by default and uses the required cookie and site pe
 - These cookies are forwarded to the local Motrix Next HTTP API
 - This enables authenticated downloads (e.g., from file hosting services that require login)
 - **Cookies are never sent to any external server** — only to the locally running Motrix Next instance
-- Cookies are not included in `motrixnext://` protocol fallback URLs
+- Cookies are never sent to the activation-only Native Messaging host
 
 The user can disable cookie forwarding in Settings at any time.
 
@@ -87,6 +87,7 @@ Where `{port}` is the user-configured API port (default: 24110).
 | `notifications`                            | Show desktop notifications for download events                                      |
 | `webRequest`                               | Read filtered request headers and filename response headers for delegated downloads |
 | `cookies`                                  | Forward cookies to local Motrix Next for authenticated downloads                    |
+| `nativeMessaging`                          | Activate the installed Motrix Next desktop application                              |
 | `downloads.ui` _(optional)_                | Hide the browser download bar after interception                                    |
 | `http://127.0.0.1/*`, `http://localhost/*` | Communicate with the local Motrix Next HTTP API                                     |
 | `https://*/*`, `http://*/*`                | Read cookies and request/response metadata for delegated downloads                  |
