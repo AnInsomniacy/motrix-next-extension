@@ -1,20 +1,10 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Language selector section for the Options page.
- *
- * ALL labels in this section are bilingual:
- *   - Auto:  "跟随系统 / Auto" with detected language name
- *   - Each locale: "中文 / Chinese", "日本語 / Japanese", "English"
- *   - Sorted alphabetically by English exonym
- *
- * The bilingual pattern: native text from t() + English text from tEn().
- * When they're identical (i.e. English locale), no duplication.
- */
+/** Language selector section for the Options page. */
 import { computed } from 'vue';
 import { NIcon } from 'naive-ui';
 import { GlobeOutline } from '@vicons/ionicons5';
 import { useI18n } from '@/shared/i18n/engine';
-import { SUPPORTED_LOCALES, type LocaleEntry } from '@/shared/i18n/dictionaries';
+import { SUPPORTED_LOCALES, type LocaleEntry } from '@/shared/i18n/locales';
 
 const { t, tEn, effectiveLocale } = useI18n();
 

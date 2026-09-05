@@ -1,5 +1,5 @@
 name: Quality Gate
-description: Run the repository quality gate with optional build and package checks.
+description: Run the repository quality gate with optional browser builds.
 
 inputs:
   working-directory:
@@ -10,12 +10,6 @@ inputs:
     default: 'false'
   build_firefox:
     description: Run the Firefox production build.
-    default: 'false'
-  package_chromium:
-    description: Run the Chromium zip package command.
-    default: 'false'
-  package_firefox:
-    description: Run the Firefox zip package command.
     default: 'false'
 
 runs:
@@ -57,15 +51,3 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: pnpm build:firefox
-
-    - name: Package extension (Chromium)
-      if: ${{ inputs.package_chromium == 'true' }}
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: pnpm zip
-
-    - name: Package extension (Firefox)
-      if: ${{ inputs.package_firefox == 'true' }}
-      shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: pnpm zip:firefox

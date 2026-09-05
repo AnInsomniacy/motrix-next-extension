@@ -13,7 +13,7 @@ export interface DuplicateDownloadReservation {
   keys: string[];
 }
 
-export type DuplicateDownloadDecision =
+type DuplicateDownloadDecision =
   | { blocked: true; shouldNotify: boolean }
   | { blocked: false; reservation?: DuplicateDownloadReservation };
 
@@ -21,8 +21,6 @@ interface GuardEntry {
   expiresAt: number;
   notified: boolean;
 }
-
-const MAX_WINDOW_SECONDS = 300;
 
 function canonicalUrl(value: string): string {
   try {
@@ -59,10 +57,6 @@ function knownSize(input: DuplicateDownloadInput): number | null {
   return null;
 }
 
-function windowMs(settings: DuplicateDownloadGuardSettings): number {
-  return Math.max(1, Math.min(MAX_WINDOW_SECONDS, settings.windowSeconds)) * 1000;
-}
-
 export class DuplicateDownloadGuard {
   private readonly entries = new Map<string, GuardEntry>();
 
@@ -72,7 +66,7 @@ export class DuplicateDownloadGuard {
     input: DuplicateDownloadInput,
     settings: DuplicateDownloadGuardSettings,
   ): DuplicateDownloadDecision {
-    if (!settings.enabled || settings.windowSeconds <= 0) {
+    if (!settings.enabled) {
       return { blocked: false };
     }
 
@@ -88,7 +82,7 @@ export class DuplicateDownloadGuard {
     }
 
     const entry: GuardEntry = {
-      expiresAt: now + windowMs(settings),
+      expiresAt: now + settings.windowSeconds * 1000,
       notified: false,
     };
     for (const key of keys) {
@@ -96,17 +90,6 @@ export class DuplicateDownloadGuard {
     }
 
     return { blocked: false, reservation: { keys } };
-  }
-
-  commit(reservation: DuplicateDownloadReservation | undefined): void {
-    if (!reservation) return;
-    const now = this.now();
-    for (const key of reservation.keys) {
-      const entry = this.entries.get(key);
-      if (entry && entry.expiresAt <= now) {
-        this.entries.delete(key);
-      }
-    }
   }
 
   release(reservation: DuplicateDownloadReservation | undefined): void {

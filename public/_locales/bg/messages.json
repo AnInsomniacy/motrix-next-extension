@@ -15,28 +15,6 @@
     "message": "Изключен",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_speed_download": {
-    "message": "↓ $speed$",
-    "description": "Download speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_speed_upload": {
-    "message": "↑ $speed$",
-    "description": "Upload speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_no_active_tasks": {
-    "message": "Няма активни изтегляния",
-    "description": "Message when there are no active download tasks"
-  },
   "popup_action_pause_all": {
     "message": "Пауза на всички",
     "description": "Button to pause all active downloads"
@@ -61,10 +39,6 @@
     "message": "Не може да се свърже с Motrix Next",
     "description": "Error message when API is unreachable"
   },
-  "options_title": {
-    "message": "Motrix Next Extension · Настройки",
-    "description": "Options page title"
-  },
   "options_section_connection": {
     "message": "Връзка",
     "description": "Settings section for API connection"
@@ -80,10 +54,6 @@
   "options_enabled_label": {
     "message": "Активиране на прехващане",
     "description": "Toggle label for enabling/disabling download interception"
-  },
-  "options_notify_label": {
-    "message": "Известия",
-    "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
     "message": "Правила",
@@ -116,19 +86,6 @@
   "context_menu_download": {
     "message": "Изтегли с Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
-  },
-  "popup_title": {
-    "message": "Motrix Next",
-    "description": "Popup header title"
-  },
-  "popup_speed_active_count": {
-    "message": "$count$ активни",
-    "description": "Number of active downloads in speed bar",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -190,14 +147,6 @@
   "options_save_error": {
     "message": "Запазването на настройките не успя",
     "description": "Toast when saving settings fails"
-  },
-  "options_unsaved_title": {
-    "message": "Незапазени промени",
-    "description": "Dialog title when leaving with unsaved changes"
-  },
-  "options_unsaved_message": {
-    "message": "Имате незапазени промени. Запазете преди напускане?",
-    "description": "Dialog body when leaving with unsaved changes"
   },
   "options_changes_indicator": {
     "message": "Незапазени промени",
@@ -262,10 +211,6 @@
   "options_rule_use_global": {
     "message": "Глобална настройка",
     "description": "Site rule action: follow the global setting"
-  },
-  "task_name_unknown": {
-    "message": "Неизвестен",
-    "description": "Fallback name when a task filename cannot be resolved"
   },
   "popup_error_auth": {
     "message": "API secret mismatch",
@@ -486,10 +431,6 @@
   "options_file_extension_action_skip": {
     "message": "Използвай браузъра",
     "description": "Option label for leaving a matched extension in the browser."
-  },
-  "options_factory_reset_title": {
-    "message": "Нулиране",
-    "description": "Factory reset section title."
   },
   "options_factory_reset_button": {
     "message": "Нулиране на настройките",

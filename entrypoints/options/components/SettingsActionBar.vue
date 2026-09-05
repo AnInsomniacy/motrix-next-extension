@@ -1,15 +1,5 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Sticky save/discard action bar for the Options page.
- *
- * Uses CSS Grid `grid-template-rows: 0fr → 1fr` for smooth expand/collapse.
- * This is the industry-standard approach that avoids the jank of `height`
- * or `max-height` animations — grid track sizing is handled efficiently
- * by the browser's layout engine without per-frame reflow.
- *
- * @see https://css-tricks.com/css-grid-can-do-auto-height-transitions/
- * @see /motrix-next/src/components/preference/PreferenceActionBar.vue
- */
+/** Sticky save/discard action bar for the Options page. */
 import { NButton, NIcon } from 'naive-ui';
 import { SaveOutline, ArrowUndoOutline } from '@vicons/ionicons5';
 

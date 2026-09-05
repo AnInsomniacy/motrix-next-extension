@@ -1,47 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApiAuthError, DesktopApiClient } from '@/lib/api';
-import {
-  DownloadOrchestrator,
-  type DownloadItem,
-  type OrchestratorDeps,
-} from '@/lib/download/orchestrator';
+import { ApiAuthError } from '@/lib/api';
+import { DownloadOrchestrator, type OrchestratorDeps } from '@/lib/download/orchestrator';
 import type { RequestHeaderContext } from '@/lib/download/request-context';
-import { DEFAULT_DOWNLOAD_SETTINGS, type SiteRule } from '@/lib/schema';
+import { DEFAULT_DOWNLOAD_SETTINGS } from '@/lib/schema';
+import { downloadItem as item, downloadDeps as deps } from '../fixtures/download';
 
-function item(overrides: Partial<DownloadItem> = {}): DownloadItem {
-  return {
-    id: 1,
-    url: 'https://example.com/file.zip',
-    finalUrl: 'https://example.com/file.zip',
-    filename: 'file.zip',
-    fileSize: 10_000_000,
-    totalBytes: 10_000_000,
-    mime: 'application/zip',
-    state: 'in_progress',
-    referrer: 'https://example.com/page',
-    ...overrides,
-  };
-}
-
-function desktopClient(ready = true): DesktopApiClient {
-  const client = new DesktopApiClient({ port: 29110, secret: '' });
-  vi.spyOn(client, 'isReady').mockResolvedValue(ready);
+function desktopClient(ready = true) {
+  const client = deps().desktopClient;
+  vi.mocked(client.isReady).mockResolvedValue(ready);
   return client;
-}
-
-function deps(overrides: Partial<OrchestratorDeps> = {}): OrchestratorDeps {
-  return {
-    downloads: {
-      cancel: vi.fn().mockResolvedValue(undefined),
-      erase: vi.fn().mockResolvedValue(undefined),
-      download: vi.fn().mockResolvedValue(2),
-    },
-    diagnosticLog: { append: vi.fn() },
-    getSettings: vi.fn().mockReturnValue(structuredClone(DEFAULT_DOWNLOAD_SETTINGS)),
-    getSiteRules: vi.fn().mockReturnValue([] as SiteRule[]),
-    activateDesktop: vi.fn().mockResolvedValue(true),
-    ...overrides,
-  };
 }
 
 describe('DownloadOrchestrator', () => {
@@ -72,11 +39,12 @@ describe('DownloadOrchestrator', () => {
     expect(add).toHaveBeenCalledTimes(1);
 
     add.mockRejectedValue(new Error('offline'));
-    const fallback = new DownloadOrchestrator(successDeps);
+    const fallbackDeps = deps({ desktopClient: client });
+    const fallback = new DownloadOrchestrator(fallbackDeps);
     await expect(fallback.handleFirefoxResponseTakeover(candidate)).resolves.toBe(false);
-    expect(successDeps.downloads.download).toHaveBeenCalledWith({ url: candidate.url });
+    expect(fallbackDeps.downloads.download).toHaveBeenCalledWith({ url: candidate.url });
     await expect(fallback.handleFirefoxCreatedDownload(item())).resolves.toBe(false);
-    expect(successDeps.downloads.cancel).not.toHaveBeenCalled();
+    expect(fallbackDeps.downloads.cancel).not.toHaveBeenCalled();
   });
 
   it('forwards the complete authenticated request context without logging sensitive values', async () => {

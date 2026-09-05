@@ -1,54 +1,32 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DesktopApiClient } from '@/lib/api';
 import { startChromiumTakeover } from '@/lib/download/chromium-takeover';
-import {
-  DownloadOrchestrator,
-  type DownloadItem,
-  type OrchestratorDeps,
-} from '@/lib/download/orchestrator';
-import { DEFAULT_DOWNLOAD_SETTINGS, type DownloadSettings, type SiteRule } from '@/lib/schema';
+import { DownloadOrchestrator } from '@/lib/download/orchestrator';
+import { DEFAULT_DOWNLOAD_SETTINGS, type DownloadSettings } from '@/lib/schema';
+import { downloadItem, downloadDeps } from '../fixtures/download';
 
-function createDownloadItem(): DownloadItem {
-  return {
-    id: 1,
-    url: 'https://example.com/file.zip',
+const createDownloadItem = () =>
+  downloadItem({
     finalUrl: 'https://cdn.example.com/file.zip',
-    filename: 'file.zip',
     filenameSource: 'browser-determined',
-    fileSize: 10_000_000,
-    totalBytes: 10_000_000,
-    mime: 'application/zip',
-    state: 'in_progress',
-    referrer: 'https://example.com/page',
-  };
-}
-
-function createDeps(options?: {
-  settings?: DownloadSettings;
-  ready?: boolean;
-  activationResult?: boolean;
-  routeFails?: boolean;
-  cancellation?: Promise<void>;
-}): OrchestratorDeps {
-  const desktopClient = new DesktopApiClient({ port: 29110, secret: '' });
-  vi.spyOn(desktopClient, 'isReady').mockResolvedValue(options?.ready ?? true);
-  vi.spyOn(desktopClient, 'addDownload').mockImplementation(async () => {
-    if (options?.routeFails) throw new Error('Connection lost');
-    return { action: 'queued' };
   });
 
-  return {
-    downloads: {
-      cancel: vi.fn().mockReturnValue(options?.cancellation ?? Promise.resolve()),
-      erase: vi.fn().mockResolvedValue(undefined),
-      download: vi.fn().mockResolvedValue(2),
-    },
-    diagnosticLog: { append: vi.fn() },
-    getSettings: () => options?.settings ?? DEFAULT_DOWNLOAD_SETTINGS,
-    getSiteRules: () => [] as SiteRule[],
-    desktopClient,
-    activateDesktop: vi.fn().mockResolvedValue(options?.activationResult ?? true),
-  };
+function createDeps(
+  options: {
+    settings?: DownloadSettings;
+    ready?: boolean;
+    activationResult?: boolean;
+    routeFails?: boolean;
+    cancellation?: Promise<void>;
+  } = {},
+) {
+  const settings = options.settings ?? DEFAULT_DOWNLOAD_SETTINGS;
+  const deps = downloadDeps({ getSettings: () => settings });
+  vi.mocked(deps.desktopClient.isReady).mockResolvedValue(options.ready ?? true);
+  if (options.routeFails)
+    vi.mocked(deps.desktopClient.addDownload).mockRejectedValue(new Error('Connection lost'));
+  vi.mocked(deps.activateDesktop).mockResolvedValue(options.activationResult ?? true);
+  if (options.cancellation) vi.mocked(deps.downloads.cancel).mockReturnValue(options.cancellation);
+  return deps;
 }
 
 describe('Chromium takeover', () => {
@@ -75,11 +53,11 @@ describe('Chromium takeover', () => {
     const orchestrator = new DownloadOrchestrator(deps);
     const takeover = orchestrator.handleChromiumTakeover(createDownloadItem(), cancellation);
 
-    expect(deps.desktopClient?.addDownload).not.toHaveBeenCalled();
+    expect(deps.desktopClient.addDownload).not.toHaveBeenCalled();
     finishCancellation?.();
     await expect(takeover).resolves.toBe(true);
     expect(deps.downloads.erase).toHaveBeenCalledWith({ id: 1 });
-    expect(deps.desktopClient?.addDownload).toHaveBeenCalledTimes(1);
+    expect(deps.desktopClient.addDownload).toHaveBeenCalledTimes(1);
     expect(deps.downloads.download).not.toHaveBeenCalled();
   });
 
@@ -97,7 +75,7 @@ describe('Chromium takeover', () => {
     expect(deps.downloads.download).toHaveBeenCalledWith({
       url: 'https://example.com/file.zip',
     });
-    expect(deps.desktopClient?.isReady).not.toHaveBeenCalled();
+    expect(deps.desktopClient.isReady).not.toHaveBeenCalled();
   });
 
   it('restores Chrome downloads across desktop availability and routing failures', async () => {

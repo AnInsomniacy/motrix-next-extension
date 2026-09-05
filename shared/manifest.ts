@@ -1,27 +1,4 @@
-export type ExtensionBrowser = 'chromium' | 'firefox' | string;
-
-export interface ExtensionManifest {
-  name: string;
-  description: string;
-  default_locale: string;
-  key?: string;
-  permissions: string[];
-  optional_permissions: string[];
-  host_permissions: string[];
-  optional_host_permissions: string[];
-  browser_specific_settings?: {
-    gecko: {
-      id: string;
-      strict_min_version: string;
-      data_collection_permissions: {
-        required: string[];
-      };
-    };
-    gecko_android?: {
-      strict_min_version: string;
-    };
-  };
-}
+import type { UserManifest } from 'wxt';
 
 export const CHROME_EXTENSION_ID = 'ofeajdebdjajhkmcmamagokecnbephhl';
 export const CHROME_EXTENSION_PUBLIC_KEY =
@@ -40,12 +17,13 @@ const FIREFOX_REQUIRED_PERMISSIONS = [...REQUIRED_PERMISSIONS, 'webRequestBlocki
 const LOOPBACK_HOST_PERMISSIONS = ['http://127.0.0.1/*', 'http://localhost/*'] as const;
 const BROAD_DOWNLOAD_ORIGINS = ['https://*/*', 'http://*/*'] as const;
 
-export function buildExtensionManifest(browser: ExtensionBrowser, mode: string): ExtensionManifest {
-  const optionalPermissions = browser === 'firefox' ? [] : ['downloads.ui'];
+export function buildExtensionManifest(browser: string, mode: string) {
+  const optionalPermissions: UserManifest['optional_permissions'] =
+    browser === 'firefox' ? [] : ['downloads.ui'];
   const permissions =
     browser === 'firefox' ? [...FIREFOX_REQUIRED_PERMISSIONS] : [...REQUIRED_PERMISSIONS];
 
-  return {
+  const manifest = {
     name: '__MSG_ext_name__',
     description: '__MSG_ext_description__',
     default_locale: 'en',
@@ -73,4 +51,5 @@ export function buildExtensionManifest(browser: ExtensionBrowser, mode: string):
         }
       : {}),
   };
+  return manifest satisfies UserManifest;
 }

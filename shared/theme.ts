@@ -16,7 +16,7 @@ import { parseUiPrefs, type ThemePreference, type UiPrefs } from '@/lib/schema';
 
 // ─── Color Schemes ──────────────────────────────────────
 
-export interface ColorSchemeDefinition {
+interface ColorSchemeDefinition {
   /** Unique identifier stored in config (kebab-case). */
   id: string;
   /** i18n key for the scheme name. */
@@ -39,15 +39,12 @@ export const COLOR_SCHEMES: ColorSchemeDefinition[] = [
   { id: 'sakura', labelKey: 'options_color_scheme_sakura', seed: '#EC4899' },
 ];
 
-export function resolveScheme(id: string | undefined): ColorSchemeDefinition {
+function resolveScheme(id: string | undefined): ColorSchemeDefinition {
   return COLOR_SCHEMES.find((s) => s.id === id) ?? COLOR_SCHEMES[0]!;
 }
 
 /** Resolve a theme preference to the effective light/dark class. */
-export function resolveThemeClass(
-  preference: ThemePreference,
-  systemIsDark: boolean,
-): 'light' | 'dark' {
+function resolveThemeClass(preference: ThemePreference, systemIsDark: boolean): 'light' | 'dark' {
   if (preference === 'dark') return 'dark';
   if (preference === 'light') return 'light';
   return systemIsDark ? 'dark' : 'light';
@@ -93,13 +90,13 @@ const SURFACE_TONES = {
   },
 } as const;
 
-export interface ThemeVarsInput {
+interface ThemeVarsInput {
   readonly seedHex: string;
   readonly isDark: boolean;
 }
 
 /** Generate every themed CSS custom property for a seed + mode. */
-export function createThemeVars({ seedHex, isDark }: ThemeVarsInput): Record<string, string> {
+function createThemeVars({ seedHex, isDark }: ThemeVarsInput): Record<string, string> {
   const m3Theme = themeFromSourceColor(argbFromHex(seedHex));
   const scheme = isDark ? m3Theme.schemes.dark : m3Theme.schemes.light;
   const json = scheme.toJSON() as Record<string, number>;
@@ -134,7 +131,7 @@ export function createThemeVars({ seedHex, isDark }: ThemeVarsInput): Record<str
 }
 
 /** Apply the theme to the document: class on <html> + CSS variables. */
-export function applyThemeToDocument(prefs: UiPrefs, systemIsDark: boolean): void {
+function applyThemeToDocument(prefs: UiPrefs, systemIsDark: boolean): void {
   const themeClass = resolveThemeClass(prefs.theme, systemIsDark);
   document.documentElement.className = themeClass;
   const vars = createThemeVars({
@@ -148,13 +145,7 @@ export function applyThemeToDocument(prefs: UiPrefs, systemIsDark: boolean): voi
 
 // ─── Pre-mount Bootstrap ────────────────────────────────
 
-const BOOTSTRAP_KEY = '__MOTRIX_NEXT_BOOTSTRAPPED_UI_PREFS__';
-
-declare global {
-  interface Window {
-    __MOTRIX_NEXT_BOOTSTRAPPED_UI_PREFS__?: UiPrefs;
-  }
-}
+let bootstrappedPrefs: UiPrefs | undefined;
 
 /**
  * Apply the persisted theme before Vue mounts so the first rendered frame
@@ -165,12 +156,8 @@ export async function bootstrapStoredTheme(storage: {
 }): Promise<UiPrefs> {
   const prefs = parseUiPrefs(await storage.getItem('local:uiPrefs').catch(() => null));
   applyThemeToDocument(prefs, window.matchMedia('(prefers-color-scheme: dark)').matches);
-  window[BOOTSTRAP_KEY] = prefs;
+  bootstrappedPrefs = prefs;
   return prefs;
-}
-
-export function getBootstrappedUiPrefs(): UiPrefs | undefined {
-  return window[BOOTSTRAP_KEY];
 }
 
 // ─── Naive UI Overrides ─────────────────────────────────
@@ -264,19 +251,7 @@ function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverr
       colorWarning: surface('--color-surface-container-high'),
       colorError: surface('--color-surface-container-high'),
     },
-    Dialog: {
-      color: surface('--color-surface-container-high'),
-      textColor: onSurface,
-      titleTextColor: onSurface,
-    },
     Switch: { railColorActive: primary },
-    Tabs: {
-      tabTextColorActiveLine: primary,
-      tabTextColorActiveBar: primary,
-      tabTextColorHoverLine: primary,
-      tabTextColorHoverBar: primary,
-      barColor: primary,
-    },
     Tag: {
       textColorCheckable: onSurfaceVariant,
       textColorHoverCheckable: primary,
@@ -306,7 +281,7 @@ function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverr
  * sync, and produces Naive UI provider props.
  */
 export function useAppTheme() {
-  const bootstrapped = getBootstrappedUiPrefs();
+  const bootstrapped = bootstrappedPrefs;
   const mode = ref<ThemePreference>(bootstrapped?.theme ?? 'system');
   const colorSchemeId = ref(bootstrapped?.colorScheme ?? COLOR_SCHEMES[0]!.id);
 
@@ -332,10 +307,6 @@ export function useAppTheme() {
   const themeOverrides = computed(() => buildThemeOverrides(seedHex.value, isDark.value));
 
   return {
-    /** Raw preference: 'system' | 'light' | 'dark'. */
-    mode,
-    colorSchemeId,
-    isDark,
     naiveTheme,
     themeOverrides,
     setMode: (value: ThemePreference) => {

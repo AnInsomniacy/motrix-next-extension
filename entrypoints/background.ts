@@ -42,7 +42,8 @@ import {
 } from '@/lib/schema';
 import { createDiagnosticJournal, type DiagnosticInput } from '@/lib/diagnostics';
 import { I18nEngine } from '@/shared/i18n/engine';
-import { FALLBACK_LOCALE, resolveLocaleId } from '@/shared/i18n/dictionaries';
+import { resolveLocaleId } from '@/shared/i18n/dictionaries';
+import { FALLBACK_LOCALE } from '@/shared/i18n/locales';
 
 export default defineBackground(() => {
   // ─── State (restored from storage on each SW wake) ────
@@ -198,7 +199,6 @@ export default defineBackground(() => {
     reason: 'not-found',
     context: undefined,
     source: undefined,
-    ageMs: undefined,
   };
 
   function matchRequestHeaders(
@@ -207,15 +207,6 @@ export default defineBackground(() => {
   ): RequestHeaderMatchResult {
     if (!settings.forwardRequestHeaders) return HEADER_MATCH_DISABLED;
     return consume ? requestHeaderContexts.match(item) : requestHeaderContexts.peek(item);
-  }
-
-  function headerDiagnostics(match: RequestHeaderMatchResult) {
-    return {
-      enabled: settings.forwardRequestHeaders,
-      matched: match.matched,
-      reason: settings.forwardRequestHeaders ? match.reason : ('disabled' as const),
-      ...(match.source ? { source: match.source } : {}),
-    };
   }
 
   /** Capture outgoing request headers for later forwarding to the desktop app. */
@@ -278,7 +269,9 @@ export default defineBackground(() => {
     await orchestrator.handleFirefoxResponseTakeover({
       ...candidate,
       requestHeaderContext: match.context,
-      requestHeaderDiagnostics: headerDiagnostics(match),
+      requestHeaderMatchReason: settings.forwardRequestHeaders
+        ? match.reason
+        : ('disabled' as const),
     });
   }
 
@@ -336,7 +329,9 @@ export default defineBackground(() => {
       state: item.state || 'in_progress',
       referrer: item.referrer || '',
       requestHeaderContext: match.context,
-      requestHeaderDiagnostics: headerDiagnostics(match),
+      requestHeaderMatchReason: settings.forwardRequestHeaders
+        ? match.reason
+        : ('disabled' as const),
     };
   }
 

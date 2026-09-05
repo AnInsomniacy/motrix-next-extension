@@ -51,17 +51,17 @@ pnpm zip:firefox     # Firefox store package
 
 ## 📐 Code Guidelines
 
-- **Dependency Injection everywhere.** All services accept API adapters via constructor — never import `chrome.*` directly. This enables comprehensive unit testing without browser environment mocks.
+- **Keep dependencies explicit.** Use plain functions and WXT browser APIs. Introduce adapters only where they clarify a real boundary; avoid test-only service interfaces.
 - **Pure functions first.** Theme resolution, notification building, filter evaluation — keep them stateless and side-effect-free.
-- **Graceful degradation.** Silently catch API errors for features that may not exist on older browsers (e.g., `setUiOptions` on Chrome < 115).
+- **Handle real failures.** Preserve browser downloads when desktop delivery fails. Validate external inputs and respect browser-specific APIs and permissions.
 - Use `<script setup lang="ts">` with Composition API for all Vue components.
 - Keep service files focused — one responsibility per module.
 
 ## 🧪 Testing
 
-- Follow **TDD** (Red → Green → Refactor) for new services and utilities.
+- Keep tests focused on download ownership, recovery, data boundaries, and confirmed regressions.
 - Tests live in `__tests__/unit/` and `__tests__/integration/`.
-- All services are tested through their DI interfaces — no browser API mocking required.
+- Use Vitest mocks for external effects and fake timers for scheduling. Share small fixtures where setup repeats.
 - Run the test site for manual interception verification:
   ```bash
   npx serve test-site -p 3001
@@ -126,7 +126,7 @@ The extension uses Chrome's native i18n system with `messages.json` files under 
 1. Create a new directory under `public/_locales/` with the Chrome locale code (e.g. `public/_locales/ko/`)
 2. Copy `public/_locales/en/messages.json` as a template
 3. Translate all messages
-4. Register the locale module in `shared/i18n/dictionaries.ts`
+4. Register the locale in `shared/i18n/locales.ts` and run `pnpm lint:i18n`
 5. Submit a Pull Request
 
 ## 💬 Commit Messages
@@ -194,7 +194,7 @@ Using AI tools (Copilot, Claude, ChatGPT, Cursor, etc.) to assist development is
 
 1. You must **review and understand every line** you submit, whether you wrote it or an AI did.
 2. You must be able to **explain any change** if asked during review.
-3. Tests must be written **before** implementation (TDD), not bolted on after.
+3. Add tests when they protect meaningful behavior. Avoid wrapper tests, copied implementation assertions, and duplicate checks.
 4. All checks must **pass locally** before pushing — not after a chain of fix commits.
 
 **Disclosure:**

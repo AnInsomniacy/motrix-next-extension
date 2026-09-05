@@ -3,7 +3,7 @@ export interface RequestHeader {
   value: string;
 }
 
-export interface RawRequestHeader {
+interface RawRequestHeader {
   name?: string;
   value?: string;
 }
@@ -17,7 +17,7 @@ export interface RequestHeaderContext {
   requestHeaders: RequestHeader[];
 }
 
-export type RequestHeaderMatchSource = 'finalUrl' | 'url';
+type RequestHeaderMatchSource = 'finalUrl' | 'url';
 export type RequestHeaderMatchReason = 'matched' | 'not-found' | 'expired';
 
 export interface RequestHeaderMatchResult {
@@ -25,16 +25,15 @@ export interface RequestHeaderMatchResult {
   reason: RequestHeaderMatchReason;
   context?: RequestHeaderContext;
   source?: RequestHeaderMatchSource;
-  ageMs?: number;
 }
 
-export interface CaptureRequestHeaderContextInput {
+interface CaptureRequestHeaderContextInput {
   url: string;
   requestHeaders?: RawRequestHeader[];
   now?: number;
 }
 
-export type RequestHeaderBrowser = 'chromium' | 'firefox';
+type RequestHeaderBrowser = 'chromium' | 'firefox';
 
 const DEFAULT_TTL_MS = 30_000;
 const DEFAULT_MAX_ENTRIES = 512;
@@ -57,14 +56,6 @@ const CANONICAL_REQUEST_HEADERS = new Map<string, string>([
 const USER_AGENT_HEADER = 'user-agent';
 const REFERER_HEADER = 'referer';
 const COOKIE_HEADER = 'cookie';
-const FORBIDDEN_HEADER_NAMES = new Set([
-  'authorization',
-  'connection',
-  'content-length',
-  'host',
-  'range',
-  'transfer-encoding',
-]);
 
 function canonicalUrl(url: string): string {
   try {
@@ -74,10 +65,6 @@ function canonicalUrl(url: string): string {
   } catch {
     return url;
   }
-}
-
-function isForbiddenHeaderName(name: string): boolean {
-  return FORBIDDEN_HEADER_NAMES.has(name) || name.startsWith('proxy-') || name.startsWith('if-');
 }
 
 function sanitizeHeaderValue(value: string): string {
@@ -118,7 +105,6 @@ export function captureRequestHeaderContext(
     if (!header.name || header.value == null) continue;
 
     const normalizedName = header.name.trim().toLowerCase();
-    if (!normalizedName || isForbiddenHeaderName(normalizedName)) continue;
 
     const value = sanitizeHeaderValue(header.value);
     if (!value) continue;
@@ -205,26 +191,17 @@ export class RequestHeaderContextStore {
         continue;
       }
 
-      if (consume) this.consume(context);
+      if (consume) this.byUrl.delete(key);
       return {
         matched: true,
         reason: 'matched',
         context: cloneContext(context),
         source,
-        ageMs: Math.max(0, now - context.createdAt),
       };
     }
 
     this.prune(now);
     return { matched: false, reason: sawExpiredCandidate ? 'expired' : 'not-found' };
-  }
-
-  private consume(context: RequestHeaderContext): void {
-    for (const [key, candidate] of this.byUrl) {
-      if (candidate === context) {
-        this.byUrl.delete(key);
-      }
-    }
   }
 
   private prune(now: number = this.now()): void {

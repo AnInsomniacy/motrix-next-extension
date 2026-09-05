@@ -32,14 +32,14 @@
 ## Features
 
 - **Download interception** — Automatically captures browser downloads and routes them to Motrix Next for multi-threaded acceleration
-- **Smart filtering** — 5-stage pipeline: global toggle → self-trigger guard → URL scheme → per-site rules → document MIME guard
+- **Smart filtering** — Ordered checks for interception settings, extension-owned downloads, URL schemes, site rules, MIME types, file extensions, and minimum file size
 - **Per-site rules** — Glob-pattern rules (e.g. `*.github.com`) to always intercept, always skip, or defer to global settings
 - **Context menu** — Right-click any link, image, audio, or video → "Download with Motrix Next"
 - **Magnet & torrent** — `magnet:` URIs and `.torrent` files are automatically captured and routed to aria2
 - **Cookie forwarding** — Cookie forwarding is enabled by default for authenticated downloads and uses required cookie and site permissions
 - **Real-time dashboard** — Popup shows live download/upload speeds, active/waiting/completed task counts
 - **Auto-launch** — Activates Motrix Next through its allowlisted Native Messaging host, waits for API readiness, then retries
-- **Failure notifications** — Alerts when an intercepted download cannot be delivered to Motrix Next
+- **Duplicate notifications** — Alerts when a repeated download request is skipped
 - **Download bar control** — Optionally hides Chrome's native download shelf (Chromium 115+, not available on Firefox)
 - **Dark mode** — System / Light / Dark with 10 Material You color schemes
 - **i18n** — 27 languages including English, Hindi, Chinese, Japanese, Korean, French, German, Spanish, and more

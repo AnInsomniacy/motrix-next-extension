@@ -25,7 +25,14 @@ describe('I18nEngine', () => {
   it('replaces positional placeholders through the Vue context', () => {
     const ctx = createI18n('en');
 
-    expect(ctx.tSub('popup_speed_download', ['10 MB/s'])).toBe('↓ 10 MB/s');
+    expect(ctx.tSub('options_diagnostics_pagination', ['1–10', '25', '100'])).toBe(
+      '1–10 of 25 · max 100',
+    );
+    ctx.setLocale('zh_CN');
+    expect(ctx.t('options_diagnostics_clear_confirm')).toBe('确认清除');
+    expect(ctx.tSub('options_diagnostics_pagination', ['1–10', '25', '100'])).toBe(
+      '1–10 / 25 · 最多 100 条',
+    );
     expect(ctx.tSub('missing_key', ['A', 'B'], '$1 and $2')).toBe('A and B');
   });
 

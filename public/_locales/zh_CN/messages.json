@@ -15,28 +15,6 @@
     "message": "未连接",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_speed_download": {
-    "message": "↓ $speed$",
-    "description": "下载速度指示器",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_speed_upload": {
-    "message": "↑ $speed$",
-    "description": "上传速度指示器",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_no_active_tasks": {
-    "message": "没有活跃的下载任务",
-    "description": "Message when there are no active download tasks"
-  },
   "popup_action_pause_all": {
     "message": "全部暂停",
     "description": "暂停所有活跃下载的按钮"
@@ -61,10 +39,6 @@
     "message": "无法连接到 Motrix Next",
     "description": "Error message when API is unreachable"
   },
-  "options_title": {
-    "message": "Motrix Next Extension · 设置",
-    "description": "设置页标题"
-  },
   "options_section_connection": {
     "message": "连接",
     "description": "Settings section for API connection"
@@ -80,10 +54,6 @@
   "options_enabled_label": {
     "message": "启用下载拦截",
     "description": "启用/禁用下载拦截的开关"
-  },
-  "options_notify_label": {
-    "message": "通知",
-    "description": "启用通知的开关"
   },
   "options_section_rules": {
     "message": "规则",
@@ -116,19 +86,6 @@
   "context_menu_download": {
     "message": "使用 Motrix Next 下载",
     "description": "使用 Motrix Next 下载链接的右键菜单项"
-  },
-  "popup_title": {
-    "message": "Motrix Next",
-    "description": "弹窗标题"
-  },
-  "popup_speed_active_count": {
-    "message": "$count$ 个活跃",
-    "description": "速度栏中活跃下载数量",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -190,14 +147,6 @@
   "options_save_error": {
     "message": "保存设置失败",
     "description": "保存失败的提示"
-  },
-  "options_unsaved_title": {
-    "message": "未保存的更改",
-    "description": "离开带有未保存更改时的对话框标题"
-  },
-  "options_unsaved_message": {
-    "message": "你有未保存的更改。要在离开前保存吗？",
-    "description": "离开带有未保存更改时的对话框内容"
   },
   "options_changes_indicator": {
     "message": "有未保存的更改",
@@ -262,10 +211,6 @@
   "options_rule_use_global": {
     "message": "使用全局设置",
     "description": "站点规则操作：遵循全局设置"
-  },
-  "task_name_unknown": {
-    "message": "未知",
-    "description": "无法解析任务文件名时的兜底名称"
   },
   "popup_error_auth": {
     "message": "API 密钥不匹配",
@@ -486,10 +431,6 @@
   "options_file_extension_action_skip": {
     "message": "使用浏览器",
     "description": "Option label for leaving a matched extension in the browser."
-  },
-  "options_factory_reset_title": {
-    "message": "重置",
-    "description": "Factory reset section title."
   },
   "options_factory_reset_button": {
     "message": "恢复默认设置",

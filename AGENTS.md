@@ -32,7 +32,7 @@ lib/
 ├── schema.ts                    # Zod schemas — single source of persisted types + defaults
 ├── storage.ts                   # Schema-validated load/save over browser.storage.local
 ├── api.ts                       # DesktopApiClient (ky) + error taxonomy + checkConnection
-├── desktop.ts                   # motrixnext:// protocol URLs + wakeAndWaitForApi
+├── desktop.ts                   # Native Messaging activation + API readiness
 ├── browser.ts                   # Permissions, context menu, notifications, webRequest types
 ├── backup.ts                    # Settings backup export/import
 ├── diagnostics.ts               # Sanitized, serialized diagnostic journal
@@ -50,7 +50,8 @@ shared/
 ├── theme.ts                     # Entire theme system: schemes, M3 CSS vars, bootstrap, useAppTheme()
 ├── i18n/
 │   ├── engine.ts                # I18nEngine (worker) + createI18n/useI18n (Vue)
-│   ├── dictionaries.ts          # Locale registry; data via virtual:locales
+│   ├── locales.ts               # Shared locale registry
+│   ├── dictionaries.ts          # Translation data via virtual:locales
 │   └── locales-plugin.ts        # Vite plugin aggregating public/_locales/ at build time
 ├── json.ts                      # jsonClone / deepEqual for JSON-safe data
 ├── use-polling.ts               # Visibility-aware polling with backoff
@@ -115,9 +116,8 @@ platform's standard temporary directory.
 ### Adding a New Language
 
 1. Create `public/_locales/{code}/messages.json` (copy `en` as template and translate).
-2. Add one entry to `SUPPORTED_LOCALES` in `shared/i18n/dictionaries.ts`.
-3. Add the locale code to `LOCALES` in `scripts/lint-i18n.ts`.
-4. Run `pnpm lint:i18n` to verify key parity.
+2. Add one entry to `SUPPORTED_LOCALES` in `shared/i18n/locales.ts`.
+3. Run `pnpm lint:i18n` to verify registration, message structure, placeholders, and key parity.
 
 The dictionary data itself is aggregated automatically by the `virtual:locales` plugin —
 no imports, aliases, or module declarations to touch.
@@ -149,11 +149,10 @@ The release workflow (`.github/workflows/release.yml`) is triggered by `on: rele
 | Track          | Version Example | Git Tag         | GitHub Release | Store Publishing           |
 | -------------- | --------------- | --------------- | -------------- | -------------------------- |
 | **Beta**       | `1.0.8-beta.1`  | `v1.0.8-beta.1` | Prerelease ✅  | None (local sideload only) |
-| **Production** | `1.0.8`         | `v1.0.8`        | Full release   | Chrome + Firefox + Edge    |
+| **Production** | `1.0.8`         | `v1.0.8`        | Full release   | Separate manual workflow   |
 
-The CI pipeline uses `github.event.release.prerelease` to gate store publishing.
-Prerelease tags produce GitHub Release artifacts only. Production releases automatically
-submit to all three browser extension stores.
+GitHub Releases produce downloadable artifacts. Store publishing is a separate manual
+workflow that accepts production releases only. Creating a Release never submits to stores.
 
 ### How to Publish a Beta (Testing)
 
@@ -206,7 +205,7 @@ All code changes must be finalized before starting. Execute in strict order:
 
 | Store            | Method                          | Secrets Required                                                                          |
 | ---------------- | ------------------------------- | ----------------------------------------------------------------------------------------- |
-| Chrome Web Store | `chrome-webstore-upload-cli`    | `CHROME_EXTENSION_ID`, `CHROME_CLIENT_ID`, `CHROME_CLIENT_SECRET`, `CHROME_REFRESH_TOKEN` |
+| Chrome Web Store | Chrome Web Store API v2         | `CHROME_EXTENSION_ID`, `CHROME_CLIENT_ID`, `CHROME_CLIENT_SECRET`, `CHROME_REFRESH_TOKEN` |
 | Firefox AMO      | `web-ext sign --channel listed` | `FIREFOX_API_KEY`, `FIREFOX_API_SECRET`                                                   |
 | Edge Add-ons     | REST API v1                     | `EDGE_PRODUCT_ID`, `EDGE_CLIENT_ID`, `EDGE_API_KEY`                                       |
 
@@ -308,10 +307,10 @@ beta/prerelease tags are rejected.
 
 ### Shared Actions
 
-| Action                            | Responsibility                        |
-| --------------------------------- | ------------------------------------- |
-| `.github/actions/setup-node-pnpm` | Node 22, pnpm 10, dependency install  |
-| `.github/actions/quality-gate`    | Compile, test, lint, i18n, formatting |
+| Action                            | Responsibility                                                   |
+| --------------------------------- | ---------------------------------------------------------------- |
+| `.github/actions/setup-node-pnpm` | Node from `.nvmrc`, pnpm from `package.json`, dependency install |
+| `.github/actions/quality-gate`    | Compile, test, lint, i18n, formatting                            |
 
 ---
 

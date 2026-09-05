@@ -1,5 +1,5 @@
 declare module 'virtual:locales' {
-  /** Record<localeId, Chrome i18n messages.json content>. */
+  /** Chrome messages aggregated by the build plugin. */
   const locales: Record<string, Record<string, unknown>>;
   export default locales;
 }

@@ -19,19 +19,26 @@ function mockClient(overrides: {
       vi.fn<() => Promise<PingResponse>>().mockResolvedValue({ status: 'ok', version: '3.7.3' }),
     getStat:
       overrides.getStat ??
-      vi
-        .fn<() => Promise<StatResponse>>()
-        .mockResolvedValue({ downloadSpeed: '0' } as StatResponse),
+      vi.fn<() => Promise<StatResponse>>().mockResolvedValue({
+        downloadSpeed: '0',
+        uploadSpeed: '0',
+        numActive: '0',
+        numWaiting: '0',
+        numStopped: '0',
+        numStoppedTotal: '0',
+      }),
   };
 }
 
 describe('checkConnection', () => {
   it('returns connected when both ping and getStat succeed', async () => {
-    const result = await checkConnection(mockClient({}));
+    const client = mockClient({});
+    const result = await checkConnection(client);
 
     expect(result.status).toBe('connected');
     expect(result.version).toBe('3.7.3');
-    expect(result.error).toBeUndefined();
+    expect(result).toHaveProperty('stat.downloadSpeed', '0');
+    expect(client.getStat).toHaveBeenCalledTimes(1);
   });
 
   it('returns auth error with ping version when getStat rejects with 401', async () => {
@@ -41,7 +48,7 @@ describe('checkConnection', () => {
 
     expect(result.status).toBe('disconnected');
     expect(result.version).toBe('3.7.3'); // version from ping survives auth failure
-    expect(result.error).toBe('ApiAuthError');
+    expect(result).toHaveProperty('error', 'ApiAuthError');
   });
 
   it('classifies non-authentication failures without exposing a stale version', async () => {

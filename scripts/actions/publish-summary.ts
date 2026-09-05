@@ -1,6 +1,6 @@
 import { appendStepSummary, optionalEnv, requiredEnv } from './workflow-utils';
 
-export function pipelineResult(result: string): string {
+function pipelineResult(result: string): string {
   switch (result) {
     case 'success':
       return 'Passed';
@@ -13,7 +13,7 @@ export function pipelineResult(result: string): string {
   }
 }
 
-export function storeResult(result: string, outcome: string): string {
+function storeResult(result: string, outcome: string): string {
   if (result === 'failure') return 'Failed';
   if (result === 'skipped') return 'Skipped';
   if (result !== 'success') return result || 'Unknown';
@@ -39,7 +39,7 @@ export function storeResult(result: string, outcome: string): string {
   }
 }
 
-export function renderPublishSummary(input: {
+function renderPublishSummary(input: {
   chromeOutcome: string;
   chromeResult: string;
   edgeOutcome: string;
@@ -73,7 +73,7 @@ export function renderPublishSummary(input: {
   ].join('\n');
 }
 
-export function writePublishSummaryFromEnv(): void {
+function writePublishSummaryFromEnv(): void {
   appendStepSummary(
     renderPublishSummary({
       chromeOutcome: optionalEnv('CHROME_OUTCOME'),

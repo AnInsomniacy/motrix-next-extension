@@ -11,7 +11,7 @@ import {
   stringField,
 } from './workflow-utils';
 
-export type EdgeVariableUpdateInput = {
+type EdgeVariableUpdateInput = {
   operationId: string;
   runId: string;
   submittedAt: string;
@@ -56,7 +56,7 @@ export function extractOperationIdFromLocation(location: string): string {
   return operationId;
 }
 
-export function buildEdgeVariableUpdates(input: EdgeVariableUpdateInput): Record<string, string> {
+function buildEdgeVariableUpdates(input: EdgeVariableUpdateInput): Record<string, string> {
   return {
     EDGE_LAST_OPERATION_ID: input.operationId,
     EDGE_LAST_OPERATION_VERSION: input.version,
@@ -130,7 +130,7 @@ export function decideEdgePreflightAction(
   return { action: 'publish', outcome: 'published', reason: 'Edge Add-ons can accept upload' };
 }
 
-export async function publishEdgeFromEnv(): Promise<void> {
+async function publishEdgeFromEnv(): Promise<void> {
   const productId = requiredEnv('EDGE_PRODUCT_ID');
   const clientId = requiredEnv('EDGE_CLIENT_ID');
   const apiKey = requiredEnv('EDGE_API_KEY');

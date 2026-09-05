@@ -14,14 +14,6 @@ function storedEvent(id: string, ts: number): DiagnosticEvent {
   };
 }
 
-function deferred(): { promise: Promise<void>; resolve: () => void } {
-  let resolve = () => {};
-  const promise = new Promise<void>((done) => {
-    resolve = done;
-  });
-  return { promise, resolve };
-}
-
 describe('createDiagnosticJournal', () => {
   it('hydrates before pending events and persists the merged journal', async () => {
     const save = vi.fn().mockResolvedValue(undefined);
@@ -43,7 +35,7 @@ describe('createDiagnosticJournal', () => {
   });
 
   it('serializes writes and persists the newest snapshot last', async () => {
-    const firstWrite = deferred();
+    const firstWrite = Promise.withResolvers<void>();
     const snapshots: DiagnosticEvent[][] = [];
     const save = vi.fn().mockImplementation(async (events: DiagnosticEvent[]) => {
       snapshots.push(events);
@@ -68,7 +60,7 @@ describe('createDiagnosticJournal', () => {
   });
 
   it('persists clear after an older write already started', async () => {
-    const firstWrite = deferred();
+    const firstWrite = Promise.withResolvers<void>();
     const snapshots: DiagnosticEvent[][] = [];
     const journal = createDiagnosticJournal({
       load: vi.fn().mockResolvedValue([]),

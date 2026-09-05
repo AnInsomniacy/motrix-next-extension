@@ -1,98 +1,22 @@
-import {
-  parseConnectionConfig,
-  parseDiagnosticSettings,
-  parseDownloadSettings,
-  parseSiteRules,
-  parseUiPrefs,
-  type StorageSnapshot,
-} from './schema';
-
-export const SETTINGS_BACKUP_KIND = 'motrix-next-extension-settings' as const;
-export const SETTINGS_BACKUP_SCHEMA_VERSION = 3 as const;
-
-export interface SettingsBackup {
-  kind: typeof SETTINGS_BACKUP_KIND;
-  schemaVersion: typeof SETTINGS_BACKUP_SCHEMA_VERSION;
-  extensionVersion: string;
-  exportedAt: string;
-  settings: StorageSnapshot;
-}
-
-export interface CreateSettingsBackupOptions {
-  extensionVersion: string;
-  exportedAt?: string;
-}
-
-export interface ParseSettingsBackupOptions {
-  currentSecret?: string;
-}
-
-export class SettingsBackupError extends Error {
-  constructor(message = 'Invalid settings backup') {
-    super(message);
-    this.name = 'SettingsBackupError';
-  }
-}
-
-function readObject(value: unknown): Record<string, unknown> {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    throw new SettingsBackupError();
-  }
-  return value as Record<string, unknown>;
-}
+import { SettingsBackupSchema, SETTINGS_BACKUP_KIND, type StorageSnapshot } from './schema';
 
 export function createSettingsBackup(
   snapshot: StorageSnapshot,
-  options: CreateSettingsBackupOptions,
-): SettingsBackup {
-  return {
+  options: { extensionVersion: string; exportedAt?: string },
+) {
+  return SettingsBackupSchema.parse({
     kind: SETTINGS_BACKUP_KIND,
-    schemaVersion: SETTINGS_BACKUP_SCHEMA_VERSION,
+    schemaVersion: SettingsBackupSchema.shape.schemaVersion.value,
     extensionVersion: options.extensionVersion,
     exportedAt: options.exportedAt ?? new Date().toISOString(),
-    settings: {
-      connection: snapshot.connection,
-      settings: snapshot.settings,
-      siteRules: snapshot.siteRules,
-      uiPrefs: snapshot.uiPrefs,
-      diagnostics: snapshot.diagnostics,
-    },
-  };
+    settings: snapshot,
+  });
 }
 
-export function parseSettingsBackup(
-  json: string,
-  options: ParseSettingsBackupOptions = {},
-): StorageSnapshot {
-  let parsed: unknown;
+export function parseSettingsBackup(json: string): StorageSnapshot {
   try {
-    parsed = JSON.parse(json);
+    return SettingsBackupSchema.parse(JSON.parse(json)).settings;
   } catch {
-    throw new SettingsBackupError();
+    throw new Error('Invalid settings backup');
   }
-
-  const envelope = readObject(parsed);
-  if (
-    envelope.kind !== SETTINGS_BACKUP_KIND ||
-    envelope.schemaVersion !== SETTINGS_BACKUP_SCHEMA_VERSION
-  ) {
-    throw new SettingsBackupError();
-  }
-
-  const settings = readObject(envelope.settings);
-  const connection = parseConnectionConfig(settings.connection);
-  const rawConnection = readObject(settings.connection);
-  return {
-    connection: {
-      ...connection,
-      secret:
-        typeof rawConnection.secret === 'string'
-          ? connection.secret
-          : (options.currentSecret ?? ''),
-    },
-    settings: parseDownloadSettings(settings.settings),
-    siteRules: parseSiteRules(settings.siteRules),
-    uiPrefs: parseUiPrefs(settings.uiPrefs),
-    diagnostics: parseDiagnosticSettings(settings.diagnostics),
-  };
 }

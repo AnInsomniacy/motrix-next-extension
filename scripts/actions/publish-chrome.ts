@@ -1,4 +1,10 @@
 import { readFile } from 'node:fs/promises';
+import {
+  getGoogleAccessToken,
+  readChromeRevision,
+  type ChromeConfig,
+  type ChromeRevision,
+} from './store-api';
 
 import {
   fetchJson,
@@ -8,21 +14,7 @@ import {
   requiredEnv,
   setOutput,
   stringField,
-  numberField,
 } from './workflow-utils';
-
-type ChromeConfig = {
-  clientId: string;
-  clientSecret: string;
-  extensionId: string;
-  publisherId: string;
-  refreshToken: string;
-};
-
-type ChromeRevision = {
-  state: string;
-  version: string;
-};
 
 type ChromeStoreStatus = {
   lastAsyncUploadState: string;
@@ -84,7 +76,7 @@ export function decideChromePublishAction(
   return { action: 'publish', outcome: 'published', reason: 'Chrome Web Store can accept upload' };
 }
 
-export async function publishChromeFromEnv(): Promise<void> {
+async function publishChromeFromEnv(): Promise<void> {
   const config = {
     clientId: requiredEnv('CHROME_CLIENT_ID'),
     clientSecret: requiredEnv('CHROME_CLIENT_SECRET'),
@@ -116,38 +108,6 @@ export async function publishChromeFromEnv(): Promise<void> {
     'outcome',
     publish.state === 'PENDING_REVIEW' ? 'published-state-pending' : 'published',
   );
-}
-
-function readChromeRevision(revision: unknown): ChromeRevision {
-  const channels =
-    isRecord(revision) && Array.isArray(revision.distributionChannels)
-      ? revision.distributionChannels
-      : [];
-  const channel =
-    channels.find((candidate) => numberField(candidate, 'deployPercentage') === 100) ||
-    channels.find((candidate) => isRecord(candidate)) ||
-    {};
-  return {
-    state: stringField(revision, 'state'),
-    version: stringField(channel, 'crxVersion'),
-  };
-}
-
-async function getGoogleAccessToken(config: ChromeConfig): Promise<string> {
-  const body = new URLSearchParams({
-    client_id: config.clientId,
-    client_secret: config.clientSecret,
-    refresh_token: config.refreshToken,
-    grant_type: 'refresh_token',
-  });
-  const data = await fetchJson('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
-  });
-  const token = stringField(data, 'access_token');
-  if (!token) throw new Error('Chrome OAuth token response did not include access_token');
-  return token;
 }
 
 async function fetchChromeStatus(config: ChromeConfig, token: string): Promise<ChromeStoreStatus> {

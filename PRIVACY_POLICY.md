@@ -75,7 +75,7 @@ The Extension makes network requests **only** to the following local addresses:
 - `http://127.0.0.1:{port}` — Motrix Next HTTP API
 - `http://localhost:{port}` — Motrix Next HTTP API (alternative)
 
-Where `{port}` is the user-configured API port (default: 24110).
+Where `{port}` is the user-configured API port (default: 29110).
 
 **The Extension does not communicate with any remote servers, cloud services, analytics platforms, or third-party APIs.**
 

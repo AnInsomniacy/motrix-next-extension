@@ -1,12 +1,5 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Site rules management section.
- *
- * CRUD interface for per-site download rules. Uses Naive UI NInput,
- * NSelect, NButton, NTag for the rule list, and Vue TransitionGroup
- * for animated list operations (matching desktop TaskItemActions.vue
- * list animation pattern).
- */
+/** Site rules management section. */
 import { ref, computed } from 'vue';
 import { NInput, NSelect, NButton, NTag, NIcon, NEmpty } from 'naive-ui';
 import { CloseOutline, AddOutline } from '@vicons/ionicons5';

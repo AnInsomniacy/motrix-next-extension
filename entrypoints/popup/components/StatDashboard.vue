@@ -1,13 +1,5 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Global stat dashboard for the popup.
- *
- * Replaces the per-task card list with a high-level summary:
- *   - Hero speed display (download left, upload right)
- *   - Task count strip (active / waiting / stopped)
- *
- *   - Idle state dims with a smooth opacity transition
- */
+/** Global stat dashboard for the popup. */
 import { computed } from 'vue';
 import { NIcon } from 'naive-ui';
 import {

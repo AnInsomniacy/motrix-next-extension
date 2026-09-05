@@ -6,7 +6,13 @@
  * Endpoints: GET /ping (no auth), GET /stat, POST /add, POST /pause-all,
  * POST /resume-all (Bearer auth when a secret is configured).
  */
-import ky, { HTTPError, TimeoutError, type KyInstance, type Options as KyOptions } from 'ky';
+import ky, {
+  HTTPError,
+  NetworkError,
+  TimeoutError,
+  type KyInstance,
+  type Options as KyOptions,
+} from 'ky';
 import { z } from 'zod';
 import type { ConnectionConfig } from './schema';
 import type { RequestHeader } from './download/request-context';
@@ -20,12 +26,12 @@ export const API_CONNECTIVITY_TIMEOUT_MS = 500;
 /** Timeout for API requests that perform real work. */
 export const API_REQUEST_TIMEOUT_MS = 5000;
 /** Retry attempts for failed API calls. */
-export const API_MAX_RETRIES = 1;
+const API_MAX_RETRIES = 1;
 
 // ─── Errors ─────────────────────────────────────────────
 
 /** API communication error. Subclasses classify the failure mode. */
-export class ApiError extends Error {
+class ApiError extends Error {
   constructor(
     message: string,
     public readonly cause?: unknown,
@@ -57,8 +63,7 @@ export class ApiTimeoutError extends ApiError {
 }
 
 // ─── Response Schemas ───────────────────────────────────
-// Intentionally non-strict: the desktop app may add fields without
-// breaking older extensions.
+// Validate the fields consumed by the extension at the HTTP boundary.
 
 const PingResponseSchema = z.object({ status: z.string(), version: z.string() });
 
@@ -81,10 +86,10 @@ const AddDownloadResponseSchema = z.object({
 
 export type PingResponse = z.output<typeof PingResponseSchema>;
 export type StatResponse = z.output<typeof StatResponseSchema>;
-export type ActionResponse = z.output<typeof ActionResponseSchema>;
-export type AddDownloadResponse = z.output<typeof AddDownloadResponseSchema>;
+type ActionResponse = z.output<typeof ActionResponseSchema>;
+type AddDownloadResponse = z.output<typeof AddDownloadResponseSchema>;
 
-export interface AddDownloadRequest {
+interface AddDownloadRequest {
   url: string;
   finalUrl?: string;
   referer?: string;
@@ -134,7 +139,7 @@ export class DesktopApiClient {
       const payload = await this.http(path, options).json<unknown>();
       return schema.parse(payload);
     } catch (error) {
-      throw await normalizeApiError(
+      throw normalizeApiError(
         error,
         label,
         typeof options.timeout === 'number' ? options.timeout : API_REQUEST_TIMEOUT_MS,
@@ -214,26 +219,15 @@ export class DesktopApiClient {
  * This is the ONLY place errors are classified — downstream code uses
  * `instanceof` exclusively.
  */
-async function normalizeApiError(
-  error: unknown,
-  label: string,
-  timeoutMs: number,
-): Promise<unknown> {
+function normalizeApiError(error: unknown, label: string, timeoutMs: number): unknown {
   if (error instanceof HTTPError) {
     if (error.response.status === 401) return new ApiAuthError(error);
-    const detail = await error.response.text().then(
-      (body) => (body ? ` — ${body.slice(0, 200)}` : ''),
-      () => '',
-    );
+    const detail =
+      typeof error.data === 'string' && error.data ? ` — ${error.data.slice(0, 200)}` : '';
     return new ApiError(`${label} failed: HTTP ${error.response.status}${detail}`, error);
   }
   if (error instanceof TimeoutError) return new ApiTimeoutError(timeoutMs);
-  // ky wraps fetch's TypeError into its own Error with a "network error"
-  // message; match both shapes.
-  if (error instanceof TypeError) return new ApiUnreachableError(error);
-  if (error instanceof Error && error.message.includes('network error')) {
-    return new ApiUnreachableError(error);
-  }
+  if (error instanceof NetworkError) return new ApiUnreachableError(error);
   return error;
 }
 
@@ -241,12 +235,9 @@ async function normalizeApiError(
 
 export type ConnectionStatus = 'connected' | 'disconnected';
 
-export interface ConnectionResult {
-  status: ConnectionStatus;
-  version: string | null;
-  /** Error class name for i18n mapping when disconnected. */
-  error?: string;
-}
+type ConnectionResult =
+  | { status: 'connected'; version: string; stat: StatResponse }
+  | { status: 'disconnected'; version: string | null; error: string };
 
 /**
  * Two-step connection verification:
@@ -259,8 +250,8 @@ export async function checkConnection(
   let version: string | null = null;
   try {
     version = (await client.ping()).version;
-    await client.getStat();
-    return { status: 'connected', version };
+    const stat = await client.getStat();
+    return { status: 'connected', version, stat };
   } catch (error) {
     return {
       status: 'disconnected',

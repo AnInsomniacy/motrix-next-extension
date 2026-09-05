@@ -1,10 +1,5 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Download rule settings section.
- *
- * Groups rule-like decisions that change whether downloads are routed,
- * skipped, or treated as duplicates.
- */
+/** Download rule settings section. */
 import { computed } from 'vue';
 import { NDynamicTags, NFormItem, NInputNumber, NSelect, NSwitch } from 'naive-ui';
 import CollapsePanel from '@/shared/components/CollapsePanel.vue';
@@ -91,7 +86,7 @@ const extensionActionOptions = computed(() => [
                   (v: number | null) => emit('update:duplicateGuard', { windowSeconds: v ?? 10 })
                 "
               >
-                <template #suffix>s</template>
+                <template #suffix>{{ i18n('options_seconds_suffix', 's') }}</template>
               </NInputNumber>
             </NFormItem>
           </div>

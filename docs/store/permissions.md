@@ -27,7 +27,7 @@ Adds a single "Download with Motrix Next" context menu item that appears when ri
 ### `notifications`
 
 ```
-Displays a brief desktop notification when an intercepted download cannot be delivered to Motrix Next. The desktop app owns normal task start, progress, completion, and error notifications.
+Displays a brief desktop notification when the duplicate guard skips a repeated download request. The desktop app owns normal task start, progress, completion, and error notifications.
 ```
 
 ### `webRequest`
@@ -89,7 +89,7 @@ Intercept browser downloads and delegate them to the Motrix Next desktop downloa
 ### Permission Justification Summary
 
 ```
-This extension intercepts browser downloads and sends them to a locally running download manager (Motrix Next). Required permissions: 'downloads' to intercept browser downloads, 'webRequest' to observe filtered request headers, 'storage' for local settings persistence, 'contextMenus' for the right-click download option, 'notifications' for delivery failure alerts, 'cookies' for authenticated download forwarding, and 'nativeMessaging' to activate the installed Motrix Next application. Firefox also uses 'webRequest' and 'webRequestBlocking' to handle attachment and binary responses before its native save dialog opens. Required host permissions include localhost for the Motrix Next HTTP API plus broad HTTP/HTTPS origins so cookie forwarding and request context forwarding work for downloads from any site. The only optional permission is 'downloads.ui' for hiding the Chromium download bar. No data is collected, transmitted, or shared with any external service.
+This extension intercepts browser downloads and sends them to a locally running download manager (Motrix Next). Required permissions: 'downloads' to intercept browser downloads, 'webRequest' to observe filtered request headers, 'storage' for local settings persistence, 'contextMenus' for the right-click download option, 'notifications' for duplicate download alerts, 'cookies' for authenticated download forwarding, and 'nativeMessaging' to activate the installed Motrix Next application. Firefox also uses 'webRequest' and 'webRequestBlocking' to handle attachment and binary responses before its native save dialog opens. Required host permissions include localhost for the Motrix Next HTTP API plus broad HTTP/HTTPS origins so cookie forwarding and request context forwarding work for downloads from any site. The only optional permission is 'downloads.ui' for hiding the Chromium download bar. No data is collected, transmitted, or shared with any external service.
 ```
 
 ### Data Use Disclosures

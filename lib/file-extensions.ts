@@ -1,4 +1,4 @@
-export function normalizeFileExtension(value: string): string | null {
+function normalizeFileExtension(value: string): string | null {
   const normalized = value.trim().toLowerCase().replace(/^\.+/, '');
   if (!normalized) return null;
   if (!/^[a-z0-9]+(?:\.[a-z0-9]+)*$/.test(normalized)) return null;

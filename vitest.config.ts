@@ -7,7 +7,6 @@ export default defineConfig({
   // import.meta.env.* flags; localesPlugin serves virtual:locales.
   plugins: [WxtVitest(), localesPlugin()],
   test: {
-    globals: true,
     environment: 'happy-dom',
     include: ['__tests__/**/*.test.ts'],
     coverage: {

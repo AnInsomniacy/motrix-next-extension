@@ -1,19 +1,21 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createDesktopActivationCoordinator } from '@/lib/desktop';
 
 describe('createDesktopActivationCoordinator', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
   it('skips activation when the desktop app and engine are ready', async () => {
     const activate = vi.fn().mockResolvedValue(undefined);
     const checkReady = vi.fn().mockResolvedValue(true);
 
-    const result = await createDesktopActivationCoordinator()({
+    const pending = createDesktopActivationCoordinator()({
       activate,
       checkReady,
       maxWaitMs: 5000,
-      pollIntervalMs: 10,
     });
 
-    expect(result).toBe(true);
+    await vi.runAllTimersAsync();
+    expect(await pending).toBe(true);
     expect(activate).not.toHaveBeenCalled();
     expect(checkReady).toHaveBeenCalledTimes(1);
   });
@@ -26,14 +28,14 @@ describe('createDesktopActivationCoordinator', () => {
       return true;
     });
 
-    const result = await createDesktopActivationCoordinator()({
+    const pending = createDesktopActivationCoordinator()({
       activate,
       checkReady,
       maxWaitMs: 1000,
-      pollIntervalMs: 10,
     });
 
-    expect(result).toBe(true);
+    await vi.runAllTimersAsync();
+    expect(await pending).toBe(true);
     expect(activate).toHaveBeenCalledTimes(1);
     expect(checkReady).toHaveBeenCalledTimes(3);
   });
@@ -42,14 +44,14 @@ describe('createDesktopActivationCoordinator', () => {
     const activate = vi.fn().mockResolvedValue(undefined);
     const checkReady = vi.fn().mockResolvedValue(false);
 
-    const result = await createDesktopActivationCoordinator()({
+    const pending = createDesktopActivationCoordinator()({
       activate,
       checkReady,
       maxWaitMs: 40,
-      pollIntervalMs: 10,
     });
 
-    expect(result).toBe(false);
+    await vi.runAllTimersAsync();
+    expect(await pending).toBe(false);
     expect(activate).toHaveBeenCalledTimes(1);
     expect(checkReady.mock.calls.length).toBeGreaterThanOrEqual(2);
 
@@ -70,17 +72,16 @@ describe('createDesktopActivationCoordinator', () => {
     const activate = vi.fn().mockResolvedValue(undefined);
     const checkReady = vi.fn().mockResolvedValue(false);
     const activateAndWait = createDesktopActivationCoordinator();
-    const options = { activate, checkReady, maxWaitMs: 40, pollIntervalMs: 10 };
+    const options = { activate, checkReady, maxWaitMs: 40 };
 
     const first = activateAndWait(options);
     const second = activateAndWait(options);
 
     expect(first).toBe(second);
+    await vi.runAllTimersAsync();
     await expect(Promise.all([first, second])).resolves.toEqual([false, false]);
     expect(activate).toHaveBeenCalledTimes(1);
     checkReady.mockResolvedValue(true);
-    await expect(
-      activateAndWait({ activate, checkReady, maxWaitMs: 100, pollIntervalMs: 10 }),
-    ).resolves.toBe(true);
+    await expect(activateAndWait({ activate, checkReady, maxWaitMs: 100 })).resolves.toBe(true);
   });
 });

@@ -60,9 +60,9 @@ async function fetchData(): Promise<boolean> {
   try {
     const result = await checkConnection(apiClient);
     version.value = result.version;
-    errorType.value = result.error ?? null;
+    errorType.value = result.status === 'disconnected' ? result.error : null;
     if (result.status === 'connected') {
-      globalStat.value = await apiClient.getStat();
+      globalStat.value = result.stat;
       phase.value = 'connected';
       return true;
     } else if (phase.value !== 'launching' && phase.value !== 'failed') {
@@ -175,12 +175,9 @@ onMounted(async () => {
   bindStorageChanges();
 
   const poller = usePolling({
-    fn: async () => {
-      await fetchData();
-    },
+    fn: fetchData,
     baseIntervalMs: 500,
     maxIntervalMs: 5000,
-    backoffMultiplier: 2,
   });
   poller.start();
   stopPolling = () => poller.stop();

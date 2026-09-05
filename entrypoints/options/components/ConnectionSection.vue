@@ -1,14 +1,5 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Connection settings section.
- *
- * API port/secret configuration with a "Test Connection" button
- * and status feedback. Uses Naive UI NInput, NInputNumber, NButton,
- * NTag, and NIcon for visual consistency with the desktop Advanced.vue.
- *
- * After the REST API migration, the extension communicates exclusively
- * via the embedded Axum HTTP API.
- */
+/** Connection settings section. */
 import { computed } from 'vue';
 import { NFormItem, NInput, NInputNumber, NButton, NTag, NIcon } from 'naive-ui';
 import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
@@ -36,7 +27,7 @@ const { t: i18n } = useI18n();
 
 const isConnected = computed(() => props.status === 'connected');
 
-/** Map error class names from ConnectionService to i18n keys. */
+/** Map API error names to translated messages. */
 const ERROR_I18N: Record<string, [key: string, fallback: string]> = {
   ApiUnreachableError: ['error_api_unreachable', 'Cannot connect to Motrix Next'],
   ApiAuthError: ['error_api_auth', 'API secret is incorrect'],

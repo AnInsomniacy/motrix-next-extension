@@ -1,14 +1,10 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import {
   buildDecision,
   isActiveFirefoxReviewStatus,
-  renderStoreStatusReport,
   resolveEdgeStoreStatus,
   type StoreStatusRow,
 } from '@/scripts/actions/store-status';
-import { renderPublishSummary } from '@/scripts/actions/publish-summary';
 import {
   decideChromePublishAction,
   isBlockingChromeSubmissionState,
@@ -19,7 +15,6 @@ import {
   decideFirefoxPublishAction,
 } from '@/scripts/actions/publish-firefox';
 import {
-  buildEdgeVariableUpdates,
   decideEdgePreflightAction,
   classifyEdgePublishOperation,
   extractOperationIdFromLocation,
@@ -41,14 +36,10 @@ function chromeStatus(submittedVersion: string, state: string, liveVersion = '1.
 }
 
 describe('release workflow decisions', () => {
-  it('normalizes production releases and keeps workflow scripts on the checked-out tooling', () => {
+  it('accepts production release tags and rejects prereleases', () => {
     expect(normalizeReleaseInput('1.2.3')).toBe('v1.2.3');
     expect(normalizeReleaseInput('v1.2.3')).toBe('v1.2.3');
     expect(() => normalizeReleaseInput('1.2.3-beta.1')).toThrow('production SemVer');
-
-    const workflow = readFileSync(resolve(process.cwd(), '.github/workflows/publish.yml'), 'utf8');
-    expect(workflow).toContain('working-directory: workflow');
-    expect(workflow).toContain('../workflow/node_modules/.bin/tsx');
   });
 
   it('covers Chrome publish, review, terminal, and existing-version decisions', () => {
@@ -89,26 +80,13 @@ describe('release workflow decisions', () => {
     );
   });
 
-  it('validates Edge operation identifiers and repository state updates', () => {
+  it('validates Edge operation identifiers', () => {
     expect(
       extractOperationIdFromLocation(
         'https://api.addons.microsoftedge.microsoft.com/v1/products/id/operations/op-123',
       ),
     ).toBe('op-123');
     expect(() => extractOperationIdFromLocation('')).toThrow('Location header');
-    expect(
-      buildEdgeVariableUpdates({
-        operationId: 'op-123',
-        runId: '100',
-        submittedAt: '2026-05-02T00:00:00.000Z',
-        version: '1.2.3',
-      }),
-    ).toEqual({
-      EDGE_LAST_OPERATION_ID: 'op-123',
-      EDGE_LAST_OPERATION_RUN_ID: '100',
-      EDGE_LAST_OPERATION_SUBMITTED_AT: '2026-05-02T00:00:00.000Z',
-      EDGE_LAST_OPERATION_VERSION: '1.2.3',
-    });
   });
 
   it('handles tracked Edge preflight state without reusing stale operations', async () => {
@@ -206,20 +184,7 @@ describe('release workflow decisions', () => {
     ).toBe('Submission in progress');
   });
 
-  it('renders publish and store summaries with blockers and incomplete states', () => {
-    const publish = renderPublishSummary({
-      chromeOutcome: 'published',
-      chromeResult: 'success',
-      edgeOutcome: 'published-state-pending-not-saved',
-      edgeResult: 'success',
-      firefoxOutcome: 'published',
-      firefoxResult: 'success',
-      qualityGateResult: 'success',
-      tag: 'v1.2.4',
-      version: '1.2.4',
-    });
-    expect(publish).toContain('| Edge Add-ons | Success, status pending, state not saved |');
-
+  it('reports incomplete publishability data', () => {
     const rows: StoreStatusRow[] = [
       {
         store: 'Firefox AMO',
@@ -241,13 +206,5 @@ describe('release workflow decisions', () => {
       },
     ];
     expect(buildDecision('1.2.3', rows)).toContain('incomplete publishability data');
-    expect(
-      renderStoreStatusReport({
-        checkedAt: '2026-05-02T00:00:00.000Z',
-        releaseTag: 'v1.2.3',
-        releaseVersion: '1.2.3',
-        stores: rows,
-      }),
-    ).toContain('### Decision');
   });
 });

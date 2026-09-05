@@ -1,84 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  DICTIONARIES,
-  FALLBACK_LOCALE,
-  SUPPORTED_LOCALES,
-  resolveLocaleId,
-} from '@/shared/i18n/dictionaries';
-
-const LOCALE_IDS = [
-  'ar',
-  'bg',
-  'ca',
-  'de',
-  'el',
-  'en',
-  'es',
-  'fa',
-  'fr',
-  'hi',
-  'hu',
-  'id',
-  'it',
-  'ja',
-  'ko',
-  'nb',
-  'nl',
-  'pl',
-  'pt_BR',
-  'ro',
-  'ru',
-  'th',
-  'tr',
-  'uk',
-  'vi',
-  'zh_CN',
-  'zh_TW',
-] as const;
-
-describe('i18n dictionaries', () => {
-  it('registers the supported locales and dictionaries', () => {
-    expect(FALLBACK_LOCALE).toBe('en');
-    expect(SUPPORTED_LOCALES.map((locale) => locale.id)).toEqual(LOCALE_IDS);
-
-    for (const locale of SUPPORTED_LOCALES) {
-      expect(locale.endonym, `${locale.id}: endonym`).toBeTruthy();
-      expect(locale.exonym, `${locale.id}: exonym`).toBeTruthy();
-      expect(DICTIONARIES[locale.id], `${locale.id}: dictionary`).toBeDefined();
-    }
-  });
-
-  it('flattens Chrome i18n messages into string dictionaries', () => {
-    expect(DICTIONARIES.en!['popup_status_connected']).toBe('Connected');
-    expect(DICTIONARIES.zh_CN!['popup_status_connected']).toBe('已连接');
-    expect(DICTIONARIES.en!['popup_speed_download']).toBe('↓ $1');
-    expect(DICTIONARIES.en!['popup_error_timeout_hint']).toContain('$1');
-    expect(DICTIONARIES.en!['popup_error_timeout_hint']).not.toContain('$1$');
-    expect(DICTIONARIES.en!['options_diagnostics_pagination']).toBe('$1 of $2 · max $3');
-    expect(DICTIONARIES.zh_CN!['options_diagnostics_pagination']).toBe('$1 / $2 · 最多 $3 条');
-    expect(DICTIONARIES.en!['options_diagnostics_log_entry_limit']).toBe('Log entry limit');
-    expect(DICTIONARIES.zh_CN!['options_diagnostics_log_entry_limit']).toBe('日志条目上限');
-    expect(DICTIONARIES.zh_CN!['options_diagnostics_view_details']).toBe('查看事件详情');
-    expect(DICTIONARIES.zh_CN!['options_diagnostics_details_title']).toBe('事件详情');
-    expect(DICTIONARIES.en!['options_diagnostics_clear_confirm']).toBe('Confirm Clear');
-    expect(DICTIONARIES.zh_CN!['options_diagnostics_clear_confirm']).toBe('确认清除');
-
-    for (const id of LOCALE_IDS) {
-      for (const [key, value] of Object.entries(DICTIONARIES[id]!)) {
-        expect(typeof value, `${id}.${key}: type`).toBe('string');
-        expect(value.trim(), `${id}.${key}: value`).not.toBe('');
-      }
-    }
-  });
-
-  it('keeps every locale aligned with the English reference keys', () => {
-    const enKeys = Object.keys(DICTIONARIES.en!).sort();
-
-    for (const id of LOCALE_IDS) {
-      expect(Object.keys(DICTIONARIES[id]!).sort(), `${id}: keys`).toEqual(enKeys);
-    }
-  });
-});
+import { resolveLocaleId } from '@/shared/i18n/dictionaries';
+import { SUPPORTED_LOCALES } from '@/shared/i18n/locales';
 
 describe('resolveLocaleId', () => {
   it('normalizes browser locale variants and unknown languages', () => {
@@ -99,7 +21,7 @@ describe('resolveLocaleId', () => {
   });
 
   it('keeps exact locale ids unchanged', () => {
-    for (const id of LOCALE_IDS) {
+    for (const { id } of SUPPORTED_LOCALES) {
       expect(resolveLocaleId(id), id).toBe(id);
     }
   });

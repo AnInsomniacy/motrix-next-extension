@@ -14,7 +14,7 @@ export function normalizeReleaseInput(input: string): string {
   return tag;
 }
 
-export function assertProductionRelease(tag: string, isPrerelease: boolean): string {
+function assertProductionRelease(tag: string, isPrerelease: boolean): string {
   const version = tag.startsWith('v') ? tag.slice(1) : tag;
   if (isPrerelease || !/^\d+\.\d+\.\d+$/.test(version)) {
     throw new Error(`${tag} is not a production SemVer tag`);
@@ -22,10 +22,7 @@ export function assertProductionRelease(tag: string, isPrerelease: boolean): str
   return version;
 }
 
-export function resolveProductionRelease(
-  input: string,
-  repo: string,
-): { tag: string; version: string } {
+function resolveProductionRelease(input: string, repo: string): { tag: string; version: string } {
   const normalized = normalizeReleaseInput(input || 'latest');
   const tag =
     normalized === 'latest'

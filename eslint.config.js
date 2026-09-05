@@ -67,12 +67,4 @@ export default tseslint.config(
       'vue/attributes-order': 'off',
     },
   },
-
-  // ─── Test files relaxation ──────────────────────────────
-  {
-    files: ['__tests__/**/*.ts'],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-    },
-  },
 );

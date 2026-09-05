@@ -15,28 +15,6 @@
     "message": "قطع شده",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_speed_download": {
-    "message": "↓ $speed$",
-    "description": "Download speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_speed_upload": {
-    "message": "↑ $speed$",
-    "description": "Upload speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_no_active_tasks": {
-    "message": "دانلود فعالی وجود ندارد",
-    "description": "Message when there are no active download tasks"
-  },
   "popup_action_pause_all": {
     "message": "توقف همه",
     "description": "Button to pause all active downloads"
@@ -61,10 +39,6 @@
     "message": "اتصال به Motrix Next ممکن نیست",
     "description": "Error message when API is unreachable"
   },
-  "options_title": {
-    "message": "Motrix Next Extension · تنظیمات",
-    "description": "Options page title"
-  },
   "options_section_connection": {
     "message": "اتصال",
     "description": "Settings section for API connection"
@@ -80,10 +54,6 @@
   "options_enabled_label": {
     "message": "فعال‌سازی رهگیری دانلود",
     "description": "Toggle label for enabling/disabling download interception"
-  },
-  "options_notify_label": {
-    "message": "اعلان‌ها",
-    "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
     "message": "قوانین",
@@ -116,19 +86,6 @@
   "context_menu_download": {
     "message": "دانلود با Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
-  },
-  "popup_title": {
-    "message": "Motrix Next",
-    "description": "Popup header title"
-  },
-  "popup_speed_active_count": {
-    "message": "$count$ فعال",
-    "description": "Number of active downloads in speed bar",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -190,14 +147,6 @@
   "options_save_error": {
     "message": "خطا در ذخیره تنظیمات",
     "description": "Toast when saving settings fails"
-  },
-  "options_unsaved_title": {
-    "message": "تغییرات ذخیره نشده",
-    "description": "Dialog title when leaving with unsaved changes"
-  },
-  "options_unsaved_message": {
-    "message": "تغییرات ذخیره نشده دارید. قبل از خروج ذخیره شود؟",
-    "description": "Dialog body when leaving with unsaved changes"
   },
   "options_changes_indicator": {
     "message": "تغییرات ذخیره نشده",
@@ -262,10 +211,6 @@
   "options_rule_use_global": {
     "message": "استفاده از تنظیم عمومی",
     "description": "Site rule action: follow the global setting"
-  },
-  "task_name_unknown": {
-    "message": "ناشناخته",
-    "description": "Fallback name when a task filename cannot be resolved"
   },
   "popup_error_auth": {
     "message": "API secret mismatch",
@@ -486,10 +431,6 @@
   "options_file_extension_action_skip": {
     "message": "استفاده از مرورگر",
     "description": "Option label for leaving a matched extension in the browser."
-  },
-  "options_factory_reset_title": {
-    "message": "بازنشانی",
-    "description": "Factory reset section title."
   },
   "options_factory_reset_button": {
     "message": "بازنشانی تنظیمات",

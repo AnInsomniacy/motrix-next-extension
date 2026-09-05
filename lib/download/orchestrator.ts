@@ -35,22 +35,21 @@ export interface OrchestratorDeps {
     erase: (query: { id: number }) => Promise<void>;
     download: (options: { url: string }) => Promise<number>;
   };
-  /** Optional cookies API for forwarding auth cookies to the desktop app. */
-  cookies?: {
+  cookies: {
     getAll: (details: { url: string }) => Promise<Array<{ name: string; value: string }>>;
   };
   diagnosticLog: { append: (event: DiagnosticInput) => void };
   getSettings: () => DownloadSettings;
   getSiteRules: () => SiteRule[];
-  duplicateGuard?: DuplicateDownloadGuard;
+  duplicateGuard: DuplicateDownloadGuard;
   /** Primary submission path when the desktop app and engine are ready. */
-  desktopClient?: DesktopApiClient;
+  desktopClient: DesktopApiClient;
   /**
    * Activate the desktop app through Native Messaging and wait for its HTTP API.
    * Returns true when the desktop app and engine became ready within the timeout.
    */
-  activateDesktop?: (timeoutMs: number) => Promise<boolean>;
-  onDuplicateBlocked?: () => void;
+  activateDesktop: (timeoutMs: number) => Promise<boolean>;
+  onDuplicateBlocked: () => void;
 }
 
 /** Download data shared by browser downloads and Firefox response interception. */
@@ -65,20 +64,13 @@ export interface DownloadCandidate {
   byExtensionId?: string;
   referrer?: string;
   requestHeaderContext?: RequestHeaderContext;
-  requestHeaderDiagnostics?: RequestHeaderDiagnostics;
+  requestHeaderMatchReason?: RequestHeaderMatchReason | 'disabled';
 }
 
 /** Shape of a browser DownloadItem as received from chrome.downloads events. */
 export interface DownloadItem extends DownloadCandidate {
   id: number;
   state: string;
-}
-
-export interface RequestHeaderDiagnostics {
-  enabled: boolean;
-  matched: boolean;
-  reason: RequestHeaderMatchReason | 'disabled';
-  source?: 'finalUrl' | 'url';
 }
 
 /** Everything needed to submit one download to the desktop app. */
@@ -90,7 +82,7 @@ interface DownloadJob {
   filenameHint?: string;
   filenameSource: string;
   headerContext?: RequestHeaderContext;
-  headerDiagnostics?: RequestHeaderDiagnostics;
+  headerMatchReason?: RequestHeaderMatchReason | 'disabled';
   source: DownloadSource;
 }
 
@@ -99,7 +91,7 @@ interface SendOptions {
 }
 
 type DeliveryFailureReason =
-  | 'desktop-api-unavailable'
+  | 'desktop-unavailable'
   | 'api-auth-failed'
   | 'api-unreachable'
   | 'desktop-activation-disabled'
@@ -192,17 +184,9 @@ function resolveBestFilenameHint(
   url: string,
   item: Pick<DownloadCandidate, 'filename' | 'filenameSource'>,
 ): { filename?: string; source: string } {
-  const candidates: Array<{ filename: string; source: FilenameHintSource }> = [
-    {
-      filename: item.filename,
-      source: item.filenameSource ?? 'download-item',
-    },
-  ];
-  for (const candidate of candidates) {
-    const filename = resolveFilenameHint(url, candidate);
-    if (filename) return { filename, source: candidate.source };
-  }
-  return { source: 'none' };
+  const source = item.filenameSource ?? 'download-item';
+  const filename = resolveFilenameHint(url, { filename: item.filename, source });
+  return filename ? { filename, source } : { source: 'none' };
 }
 
 // ─── Orchestrator ───────────────────────────────────────
@@ -248,38 +232,26 @@ export class DownloadOrchestrator {
 
     const settings = this.deps.getSettings();
     if (settings.desktopUnavailable.action === 'browser') {
-      if (!(await this.isDesktopReady())) {
-        this.deps.duplicateGuard?.release(duplicate.reservation);
+      if (!(await this.deps.desktopClient.isReady())) {
+        this.deps.duplicateGuard.release(duplicate.reservation);
         this.logBrowserFallback(item, 'desktop-unavailable', 'continued');
         return false;
       }
-      if (!(await this.cancelBrowserDownload(item.id))) {
-        this.deps.duplicateGuard?.release(duplicate.reservation);
-        return false;
-      }
-    } else {
-      if (!(await this.cancelBrowserDownload(item.id))) {
-        this.deps.duplicateGuard?.release(duplicate.reservation);
-        return false;
-      }
+    }
+    if (!(await this.cancelBrowserDownload(item.id))) {
+      this.deps.duplicateGuard.release(duplicate.reservation);
+      return false;
+    }
+    if (settings.desktopUnavailable.action === 'launch') {
       const activation = await this.ensureDesktopActivated(settings);
       if (!activation.ok) {
-        this.deps.duplicateGuard?.release(duplicate.reservation);
+        this.deps.duplicateGuard.release(duplicate.reservation);
         await this.restartBrowserDownload(item, activation.reason, activation.error);
         return false;
       }
     }
 
-    const job = await this.buildJob(item, tabUrl, 'firefox-download');
-    const delivery = await this.sendToDesktop(job, { allowActivation: false });
-    if (!delivery.ok) {
-      this.deps.duplicateGuard?.release(duplicate.reservation);
-      await this.restartBrowserDownload(item, delivery.reason, delivery.error);
-      return false;
-    }
-
-    this.deps.duplicateGuard?.commit(duplicate.reservation);
-    return true;
+    return this.deliverClaimedDownload(item, tabUrl, 'firefox-download', duplicate.reservation);
   }
 
   /**
@@ -305,31 +277,14 @@ export class DownloadOrchestrator {
     }
 
     const settings = this.deps.getSettings();
-    if (settings.desktopUnavailable.action === 'browser') {
-      if (!(await this.isDesktopReady())) {
-        this.deps.duplicateGuard?.release(duplicate.reservation);
-        await this.restartBrowserDownload(item, 'desktop-unavailable');
-        return false;
-      }
-    } else {
-      const activation = await this.ensureDesktopActivated(settings);
-      if (!activation.ok) {
-        this.deps.duplicateGuard?.release(duplicate.reservation);
-        await this.restartBrowserDownload(item, activation.reason, activation.error);
-        return false;
-      }
-    }
-
-    const job = await this.buildJob(item, tabUrl, 'chromium-download');
-    const delivery = await this.sendToDesktop(job, { allowActivation: false });
-    if (!delivery.ok) {
-      this.deps.duplicateGuard?.release(duplicate.reservation);
-      await this.restartBrowserDownload(item, delivery.reason, delivery.error);
+    const readiness = await this.prepareDesktop(settings);
+    if (!readiness.ok) {
+      this.deps.duplicateGuard.release(duplicate.reservation);
+      await this.restartBrowserDownload(item, readiness.reason, readiness.error);
       return false;
     }
 
-    this.deps.duplicateGuard?.commit(duplicate.reservation);
-    return true;
+    return this.deliverClaimedDownload(item, tabUrl, 'chromium-download', duplicate.reservation);
   }
 
   shouldClaimChromiumDownload(item: DownloadItem): boolean {
@@ -353,17 +308,10 @@ export class DownloadOrchestrator {
     const effectiveUrl = item.finalUrl || item.url;
 
     const settings = this.deps.getSettings();
-    if (settings.desktopUnavailable.action === 'browser') {
-      if (!(await this.isDesktopReady())) {
-        await this.restartBrowserDownload(item, 'desktop-unavailable');
-        return false;
-      }
-    } else {
-      const activation = await this.ensureDesktopActivated(settings);
-      if (!activation.ok) {
-        await this.restartBrowserDownload(item, activation.reason, activation.error);
-        return false;
-      }
+    const readiness = await this.prepareDesktop(settings);
+    if (!readiness.ok) {
+      await this.restartBrowserDownload(item, readiness.reason, readiness.error);
+      return false;
     }
 
     const duplicate = this.reserveDuplicate(item);
@@ -372,16 +320,7 @@ export class DownloadOrchestrator {
       return true;
     }
 
-    const job = await this.buildJob(item, tabUrl, 'firefox-response');
-    const delivery = await this.sendToDesktop(job, { allowActivation: false });
-    if (!delivery.ok) {
-      this.deps.duplicateGuard?.release(duplicate.reservation);
-      await this.restartBrowserDownload(item, delivery.reason, delivery.error);
-      return false;
-    }
-
-    this.deps.duplicateGuard?.commit(duplicate.reservation);
-    return true;
+    return this.deliverClaimedDownload(item, tabUrl, 'firefox-response', duplicate.reservation);
   }
 
   shouldClaimFirefoxResponse(item: DownloadCandidate): boolean {
@@ -430,7 +369,7 @@ export class DownloadOrchestrator {
       { allowActivation: options.allowActivation ?? true },
     );
     if (!delivery.ok) {
-      this.deps.duplicateGuard?.release(duplicate.reservation);
+      this.deps.duplicateGuard.release(duplicate.reservation);
       this.log(
         delivery.reason === 'api-auth-failed' ? 'api_auth_failed' : 'download_delivery_failed',
         delivery.reason === 'api-auth-failed'
@@ -447,15 +386,12 @@ export class DownloadOrchestrator {
       throw new Error(delivery.reason);
     }
 
-    this.deps.duplicateGuard?.commit(duplicate.reservation);
     return 'routed-to-desktop';
   }
 
   // ─── Candidate Evaluation ─────────────────────────────
 
-  private evaluateCandidate(
-    item: DownloadCandidate,
-  ): { tabUrl: string; stageName: string | null } | null {
+  private evaluateCandidate(item: DownloadCandidate): { tabUrl: string } | null {
     const tabUrl = item.requestHeaderContext?.referer || item.referrer || '';
     const ctx: FilterContext = {
       url: item.url,
@@ -481,23 +417,21 @@ export class DownloadOrchestrator {
         tabUrl,
       });
     }
-    return verdict === 'skip' ? null : { tabUrl, stageName };
+    return verdict === 'skip' ? null : { tabUrl };
   }
 
   // ─── Desktop Activation ───────────────────────────────
 
-  private async isDesktopReady(): Promise<boolean> {
-    return this.deps.desktopClient ? this.deps.desktopClient.isReady() : false;
+  private async prepareDesktop(settings: DownloadSettings): Promise<DeliveryResult> {
+    if (settings.desktopUnavailable.action === 'launch')
+      return this.ensureDesktopActivated(settings);
+    return (await this.deps.desktopClient.isReady())
+      ? { ok: true }
+      : { ok: false, reason: 'desktop-unavailable' };
   }
 
   /** Launch-mode activation: start the app and wait for its API. */
   private async ensureDesktopActivated(settings: DownloadSettings): Promise<DeliveryResult> {
-    if (!this.deps.activateDesktop) {
-      return (await this.isDesktopReady())
-        ? { ok: true }
-        : { ok: false, reason: 'desktop-api-unavailable' };
-    }
-
     const timeoutMs = settings.desktopUnavailable.startupTimeoutSeconds * 1000;
 
     try {
@@ -522,6 +456,22 @@ export class DownloadOrchestrator {
 
   // ─── Submission ───────────────────────────────────────
 
+  private async deliverClaimedDownload(
+    item: DownloadCandidate,
+    tabUrl: string,
+    source: DownloadSource,
+    reservation: DuplicateDownloadReservation | undefined,
+  ): Promise<boolean> {
+    const job = await this.buildJob(item, tabUrl, source);
+    const delivery = await this.sendToDesktop(job, { allowActivation: false });
+    if (!delivery.ok) {
+      this.deps.duplicateGuard.release(reservation);
+      await this.restartBrowserDownload(item, delivery.reason, delivery.error);
+      return false;
+    }
+    return true;
+  }
+
   private async buildJob(
     item: DownloadCandidate,
     tabUrl: string,
@@ -537,7 +487,7 @@ export class DownloadOrchestrator {
       filenameHint: filename,
       filenameSource,
       headerContext: item.requestHeaderContext,
-      headerDiagnostics: item.requestHeaderDiagnostics,
+      headerMatchReason: item.requestHeaderMatchReason,
       source,
     };
   }
@@ -546,8 +496,6 @@ export class DownloadOrchestrator {
    * Try the HTTP API, then activate Motrix Next and retry over HTTP.
    */
   private async sendToDesktop(job: DownloadJob, options: SendOptions): Promise<DeliveryResult> {
-    if (!this.deps.desktopClient) return { ok: false, reason: 'desktop-api-unavailable' };
-
     try {
       await this.submitToDesktopApi(job);
       return { ok: true };
@@ -565,7 +513,7 @@ export class DownloadOrchestrator {
   /** Activate the desktop app and retry the HTTP submission. */
   private async activateAndRetry(job: DownloadJob): Promise<DeliveryResult> {
     const settings = this.deps.getSettings();
-    if (settings.desktopUnavailable.action !== 'launch' || !this.deps.activateDesktop) {
+    if (settings.desktopUnavailable.action !== 'launch') {
       return { ok: false, reason: 'desktop-activation-disabled' };
     }
 
@@ -590,8 +538,6 @@ export class DownloadOrchestrator {
   }
 
   private async submitToDesktopApi(job: DownloadJob, afterActivation = false): Promise<void> {
-    if (!this.deps.desktopClient) throw new Error('Desktop API unavailable');
-
     const response = await this.deps.desktopClient.addDownload({
       url: job.url,
       finalUrl: job.finalUrl || undefined,
@@ -614,8 +560,7 @@ export class DownloadOrchestrator {
       hasCookie: job.cookie.value.length > 0,
       cookieSource: job.cookie.source,
       headerCount: job.headerContext?.requestHeaders.length ?? 0,
-      headerMatchReason:
-        job.headerDiagnostics?.reason ?? (job.headerContext ? 'matched' : 'not-found'),
+      headerMatchReason: job.headerMatchReason ?? (job.headerContext ? 'matched' : 'not-found'),
     });
   }
 
@@ -626,9 +571,7 @@ export class DownloadOrchestrator {
   ):
     | { blocked: true; shouldNotify: boolean }
     | { blocked: false; reservation?: DuplicateDownloadReservation } {
-    return this.deps.duplicateGuard
-      ? this.deps.duplicateGuard.reserve(input, this.deps.getSettings().duplicateGuard)
-      : { blocked: false };
+    return this.deps.duplicateGuard.reserve(input, this.deps.getSettings().duplicateGuard);
   }
 
   private reportDuplicate(
@@ -641,7 +584,7 @@ export class DownloadOrchestrator {
       shouldNotify,
       ...extra,
     });
-    if (shouldNotify) this.deps.onDuplicateBlocked?.();
+    if (shouldNotify) this.deps.onDuplicateBlocked();
   }
 
   // ─── Cookies ──────────────────────────────────────────
@@ -655,7 +598,7 @@ export class DownloadOrchestrator {
     const captured = headerContext?.cookie?.trim();
     if (captured) return { value: captured, source: 'request-header' };
 
-    if (!this.deps.cookies || !isCookieCollectableUrl(url)) return { value: '', source: 'none' };
+    if (!isCookieCollectableUrl(url)) return { value: '', source: 'none' };
     try {
       const cookies = await this.deps.cookies.getAll({ url });
       const value = cookies.map((c) => `${c.name}=${c.value}`).join('; ');

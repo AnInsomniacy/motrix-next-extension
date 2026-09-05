@@ -15,28 +15,6 @@
     "message": "연결 안 됨",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_speed_download": {
-    "message": "↓ $speed$",
-    "description": "Download speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_speed_upload": {
-    "message": "↑ $speed$",
-    "description": "Upload speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_no_active_tasks": {
-    "message": "활성 다운로드 없음",
-    "description": "Message when there are no active download tasks"
-  },
   "popup_action_pause_all": {
     "message": "모두 일시정지",
     "description": "Button to pause all active downloads"
@@ -61,10 +39,6 @@
     "message": "Motrix Next에 연결할 수 없습니다",
     "description": "Error message when API is unreachable"
   },
-  "options_title": {
-    "message": "Motrix Next Extension · 설정",
-    "description": "Options page title"
-  },
   "options_section_connection": {
     "message": "연결",
     "description": "Settings section for API connection"
@@ -80,10 +54,6 @@
   "options_enabled_label": {
     "message": "다운로드 가로채기 활성화",
     "description": "Toggle label for enabling/disabling download interception"
-  },
-  "options_notify_label": {
-    "message": "알림",
-    "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
     "message": "규칙",
@@ -116,19 +86,6 @@
   "context_menu_download": {
     "message": "Motrix Next로 다운로드",
     "description": "Context menu item for downloading a link with Motrix Next"
-  },
-  "popup_title": {
-    "message": "Motrix Next",
-    "description": "Popup header title"
-  },
-  "popup_speed_active_count": {
-    "message": "$count$개 활성",
-    "description": "Number of active downloads in speed bar",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -190,14 +147,6 @@
   "options_save_error": {
     "message": "설정 저장 실패",
     "description": "Toast when saving settings fails"
-  },
-  "options_unsaved_title": {
-    "message": "저장되지 않은 변경사항",
-    "description": "Dialog title when leaving with unsaved changes"
-  },
-  "options_unsaved_message": {
-    "message": "저장되지 않은 변경사항이 있습니다. 나가기 전에 저장하시겠습니까?",
-    "description": "Dialog body when leaving with unsaved changes"
   },
   "options_changes_indicator": {
     "message": "저장되지 않은 변경사항",
@@ -262,10 +211,6 @@
   "options_rule_use_global": {
     "message": "전역 설정 사용",
     "description": "Site rule action: follow the global setting"
-  },
-  "task_name_unknown": {
-    "message": "알 수 없음",
-    "description": "Fallback name when a task filename cannot be resolved"
   },
   "popup_error_auth": {
     "message": "API 비밀키 불일치",
@@ -486,10 +431,6 @@
   "options_file_extension_action_skip": {
     "message": "브라우저 사용",
     "description": "Option label for leaving a matched extension in the browser."
-  },
-  "options_factory_reset_title": {
-    "message": "초기화",
-    "description": "Factory reset section title."
   },
   "options_factory_reset_button": {
     "message": "설정 초기화",

@@ -19,8 +19,8 @@ const NativeHostResponseSchema = z.discriminatedUnion('ok', [
   z.strictObject({ ok: z.literal(false), error: NativeHostErrorCodeSchema }),
 ]);
 
-export type NativeHostErrorCode = z.output<typeof NativeHostErrorCodeSchema>;
-export type NativeMessageSender = (hostName: string, message: object) => Promise<unknown>;
+type NativeHostErrorCode = z.output<typeof NativeHostErrorCodeSchema>;
+type NativeMessageSender = (hostName: string, message: object) => Promise<unknown>;
 export type DesktopAction = 'OPEN_DESKTOP' | 'START_DESKTOP';
 export type DesktopActionResponse = { ok: true } | { ok: false; error: string };
 
@@ -59,7 +59,7 @@ export async function activateDesktop(sendNativeMessage: NativeMessageSender): P
   if (!response.data.ok) throw new DesktopActivationError(response.data.error);
 }
 
-export interface DesktopActivationOptions {
+interface DesktopActivationOptions {
   /** Activate the desktop app through Native Messaging. */
   activate: () => Promise<void>;
   /** Return true when both the desktop app and its engine are ready. */
@@ -68,11 +68,9 @@ export interface DesktopActivationOptions {
   isFatalReadinessError?: (error: unknown) => boolean;
   /** Maximum time to wait for readiness. */
   maxWaitMs: number;
-  /** Interval between readiness checks. */
-  pollIntervalMs?: number;
 }
 
-export type ActivateDesktopAndWait = (options: DesktopActivationOptions) => Promise<boolean>;
+type ActivateDesktopAndWait = (options: DesktopActivationOptions) => Promise<boolean>;
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -92,10 +90,9 @@ async function activateAndWaitForApi(options: DesktopActivationOptions): Promise
   if (await checkReadySafely(options.checkReady, options.isFatalReadinessError)) return true;
 
   await options.activate();
-  const pollIntervalMs = options.pollIntervalMs ?? 500;
   const deadline = Date.now() + options.maxWaitMs;
   while (Date.now() < deadline) {
-    await sleep(pollIntervalMs);
+    await sleep(500);
     if (await checkReadySafely(options.checkReady, options.isFatalReadinessError)) return true;
   }
   return false;

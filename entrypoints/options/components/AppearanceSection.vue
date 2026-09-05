@@ -1,14 +1,5 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Appearance section: theme toggle + color scheme picker.
- *
- * - System / Light / Dark toggle (NRadioGroup)
- * - 10 preset color scheme swatches with checkmark SVG
- *
- * Both controls persist immediately (no dirty tracking).
- *
- * @see /motrix-next/src/components/preference/Basic.vue L575-598
- */
+/** Appearance section: theme toggle + color scheme picker. */
 import { NRadioGroup, NRadioButton, NFormItem, NIcon, NTooltip } from 'naive-ui';
 import { SunnyOutline, MoonOutline, DesktopOutline } from '@vicons/ionicons5';
 import { COLOR_SCHEMES } from '@/shared/theme';
@@ -63,7 +54,6 @@ const { t: i18n } = useI18n();
     </NFormItem>
 
     <!-- Color Scheme Picker -->
-    <!-- Ref: desktop Basic.vue L575-598 -->
     <NFormItem
       class="settings-row"
       :show-feedback="false"
@@ -109,7 +99,6 @@ const { t: i18n } = useI18n();
 }
 
 /* ── Color Scheme Picker ─────────────────────────────────────────── */
-/* Ref: desktop Basic.vue L866-907                                    */
 .color-scheme-picker {
   display: flex;
   gap: 8px;

@@ -1,12 +1,12 @@
 /**
- * Thin, typed helpers over `browser.*` APIs: optional permissions, context
+ * Thin, typed helpers over `browser.*` APIs: permissions, context
  * menu definitions, notifications, external protocol links, and the
  * webRequest listener types WXT's cross-browser typings omit.
  */
 import { browser, type Browser } from 'wxt/browser';
 import type { InterceptionScope } from './schema';
 
-// ─── Optional Permissions ───────────────────────────────
+// ─── Permissions ───────────────────────────────
 
 const COOKIE_FORWARDING_PERMISSION: Browser.permissions.Permissions = {
   permissions: ['cookies'],
@@ -56,7 +56,7 @@ export function buildDuplicateDownloadNotification(title: string, message: strin
 export type ExternalProtocol = Exclude<keyof InterceptionScope, 'browserDownloads'>;
 export type ExternalProtocolDisposition = 'handled' | 'browser';
 
-export interface ExternalProtocolLink {
+interface ExternalProtocolLink {
   protocol: ExternalProtocol;
   url: string;
 }
@@ -75,7 +75,7 @@ function findExternalProtocolLink(target: EventTarget | null): ExternalProtocolL
   return protocol ? { protocol, url: href } : null;
 }
 
-export interface ExternalProtocolClickHandlerDeps {
+interface ExternalProtocolClickHandlerDeps {
   shouldIntercept: (link: ExternalProtocolLink) => boolean;
   sendProtocol: (link: ExternalProtocolLink) => Promise<ExternalProtocolDisposition>;
   openInBrowser: (url: string) => void;
@@ -101,9 +101,9 @@ export function createExternalProtocolClickHandler(deps: ExternalProtocolClickHa
 // ─── webRequest Types ───────────────────────────────────
 // WXT's cross-browser typings omit Firefox's blocking listener contract.
 
-export type WebRequestHeader = { name?: string; value?: string };
+type WebRequestHeader = { name?: string; value?: string };
 
-export interface WebRequestHeadersDetails {
+interface WebRequestHeadersDetails {
   url: string;
   method: string;
   type: string;
@@ -113,7 +113,7 @@ export interface WebRequestHeadersDetails {
   responseHeaders?: WebRequestHeader[];
 }
 
-export interface WebRequestApi {
+interface WebRequestApi {
   onBeforeSendHeaders?: {
     addListener: (
       callback: (details: { url: string; requestHeaders?: WebRequestHeader[] }) => void,

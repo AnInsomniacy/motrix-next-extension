@@ -1,12 +1,12 @@
 import type { DownloadCandidate } from './orchestrator';
 import { normalizeFilename, parseContentDispositionHeader } from './url';
 
-export interface FirefoxResponseHeader {
+interface FirefoxResponseHeader {
   name?: string;
   value?: string;
 }
 
-export interface FirefoxResponseDetails {
+interface FirefoxResponseDetails {
   url: string;
   method: string;
   type: string;

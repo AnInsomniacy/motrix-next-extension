@@ -1,10 +1,5 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Download behavior settings section.
- *
- * Toggle switches for controlling download interception behavior.
- * Uses Naive UI NSwitch, matching the desktop Basic.vue controls.
- */
+/** Download behavior settings section. */
 import { computed } from 'vue';
 import { NFormItem, NInputNumber, NSelect, NSwitch } from 'naive-ui';
 import CollapsePanel from '@/shared/components/CollapsePanel.vue';

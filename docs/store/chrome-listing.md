@@ -27,7 +27,7 @@ Motrix Next Extension seamlessly bridges your browser with the Motrix Next deskt
   Captures browser downloads and routes them to aria2 for multi-threaded acceleration. Works transparently — just download as you normally would.
 
 • Smart Filtering Pipeline
-  A 5-stage filter decides what to intercept: global toggle → self-trigger guard → URL scheme check → per-site rules → document MIME guard.
+  Ordered checks apply interception settings, extension ownership, URL schemes, site rules, MIME types, file extensions, and minimum file size.
 
 • Per-Site Rules
   Add glob-pattern rules (e.g. *.github.com) to always intercept, always skip, or defer to global settings for specific domains.
@@ -44,8 +44,8 @@ Motrix Next Extension seamlessly bridges your browser with the Motrix Next deskt
 • Real-Time Dashboard
   The popup displays live download/upload speeds, active/waiting/completed task counts, and connection status.
 
-• Cookie Forwarding (Optional)
-  Grant enhanced permissions to forward session cookies to aria2 — enabling authenticated downloads from private file hosts.
+• Cookie Forwarding
+  Forward cookies to the local desktop app for authenticated downloads. Enabled by default and configurable in Settings.
 
 • Auto-Launch
   When Motrix Next is not running, the extension can activate it through its allowlisted Native Messaging host, wait for the local API to become ready, then retry the download.
@@ -53,14 +53,14 @@ Motrix Next Extension seamlessly bridges your browser with the Motrix Next deskt
 • Download Bar Control (Optional)
   Hide Chrome's native download shelf after a download has been intercepted, keeping your browser clean.
 
-• Completion Notifications
-  Get desktop notifications when downloads are sent to aria2 and when they finish.
+• Duplicate Notifications
+  Get a brief notification when a repeated download request is skipped.
 
 • Appearance Customization
   Choose from System/Light/Dark themes and 10 Material You color schemes.
 
 • Multi-Language Support
-  Full English, Chinese (Simplified), and Japanese localization.
+  Localized settings and dashboard in 27 languages.
 
 • Diagnostics
   Built-in event log with severity levels for troubleshooting interception issues.
@@ -96,7 +96,7 @@ Productivity
 ## Language
 
 ```
-English, Chinese (Simplified), Japanese
+27 languages, including English, Chinese (Simplified and Traditional), and Japanese.
 ```
 
 ## Privacy Policy URL

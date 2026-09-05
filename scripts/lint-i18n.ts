@@ -1,150 +1,61 @@
-/**
- * @fileoverview i18n lint script for Chrome extension messages.
- *
- * Checks for:
- * 1. Duplicate keys in JSON files (JSON.parse silently uses last-wins)
- * 2. Key mismatches between locales (en is the reference)
- * 3. Empty message values
- *
- * Usage: npx tsx scripts/lint-i18n.ts
- */
-import { readFileSync, existsSync } from 'node:fs';
+/** Validate locale registration, message structure, placeholders, and key parity. */
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { z } from 'zod';
+import { FALLBACK_LOCALE, SUPPORTED_LOCALES } from '../shared/i18n/locales';
 
-// ─── Config ─────────────────────────────────────────────
+const localesDir = resolve(import.meta.dirname, '..', 'public', '_locales');
+const MessagesSchema = z.record(
+  z.string(),
+  z.object({
+    message: z.string().trim().min(1),
+    placeholders: z.record(z.string(), z.object({ content: z.string().min(1) })).optional(),
+  }),
+);
 
-const LOCALES_DIR = resolve(import.meta.dirname ?? '.', '..', 'public', '_locales');
-const REFERENCE_LOCALE = 'en';
-const LOCALES = [
-  'ar',
-  'bg',
-  'ca',
-  'de',
-  'el',
-  'en',
-  'es',
-  'fa',
-  'fr',
-  'hi',
-  'hu',
-  'id',
-  'it',
-  'ja',
-  'ko',
-  'nb',
-  'nl',
-  'pl',
-  'pt_BR',
-  'ro',
-  'ru',
-  'th',
-  'tr',
-  'uk',
-  'vi',
-  'zh_CN',
-  'zh_TW',
-];
+function readLocale(id: string) {
+  const text = readFileSync(resolve(localesDir, id, 'messages.json'), 'utf8');
+  // Locale files use Prettier's two-space indentation.
+  const keys = [...text.matchAll(/^ {2}"([^"]+)"\s*:/gm)].map((match) => match[1]);
+  if (new Set(keys).size !== keys.length) throw new Error(`[${id}] Duplicate message keys`);
+  const parsed = MessagesSchema.safeParse(JSON.parse(text));
+  if (!parsed.success) throw new Error(`[${id}] Invalid messages: ${parsed.error.message}`);
 
-// ─── Duplicate Key Detection ────────────────────────────
-// JSON.parse doesn't detect duplicates — we parse the raw text with regex.
-
-function findDuplicateKeys(filePath: string): string[] {
-  const content = readFileSync(filePath, 'utf-8');
-  // Match only top-level message keys (2-space indent, value is an object).
-  // This avoids matching nested keys like "placeholders" inside a message.
-  const keyRegex = /^ {2}"([^"]+)"\s*:\s*\{/gm;
-  const seen = new Map<string, number>();
-  const duplicates: string[] = [];
-
-  let match: RegExpExecArray | null;
-  while ((match = keyRegex.exec(content)) !== null) {
-    const key = match[1]!;
-    const count = (seen.get(key) ?? 0) + 1;
-    seen.set(key, count);
-    if (count === 2) duplicates.push(key);
+  for (const [key, entry] of Object.entries(parsed.data)) {
+    for (const match of entry.message.matchAll(/\$([a-zA-Z][\w]*)\$/g)) {
+      if (!Object.hasOwn(entry.placeholders ?? {}, match[1]!)) {
+        throw new Error(`[${id}] Undefined placeholder in ${key}: ${match[0]}`);
+      }
+    }
   }
-
-  return duplicates;
+  return Object.keys(parsed.data).sort();
 }
 
-// ─── Key Consistency Check ──────────────────────────────
-
-function getKeys(filePath: string): Set<string> {
-  const content = readFileSync(filePath, 'utf-8');
-  const data = JSON.parse(content) as Record<string, unknown>;
-  return new Set(Object.keys(data));
-}
-
-// ─── Empty Message Check ────────────────────────────────
-
-function findEmptyMessages(filePath: string): string[] {
-  const content = readFileSync(filePath, 'utf-8');
-  const data = JSON.parse(content) as Record<string, { message?: string }>;
-  return Object.entries(data)
-    .filter(
-      ([, v]) => typeof v === 'object' && v !== null && (!v.message || v.message.trim() === ''),
-    )
-    .map(([k]) => k);
-}
-
-// ─── Main ───────────────────────────────────────────────
-
-let hasErrors = false;
-
-for (const locale of LOCALES) {
-  const filePath = resolve(LOCALES_DIR, locale, 'messages.json');
-  if (!existsSync(filePath)) {
-    console.error(`❌ Locale file missing: ${filePath}`);
-    hasErrors = true;
-    continue;
+try {
+  const referenceKeys = readLocale(FALLBACK_LOCALE);
+  const ids = SUPPORTED_LOCALES.map((locale) => locale.id).sort();
+  const directories = readdirSync(localesDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+  if (new Set(ids).size !== ids.length || ids.join() !== directories.join()) {
+    throw new Error('Registered locales and locale directories must match exactly');
   }
-
-  // Check duplicates
-  const dups = findDuplicateKeys(filePath);
-  if (dups.length > 0) {
-    console.error(`❌ [${locale}] Duplicate keys: ${dups.join(', ')}`);
-    hasErrors = true;
+  for (const locale of SUPPORTED_LOCALES) {
+    if (!locale.endonym.trim() || !locale.exonym.trim())
+      throw new Error(`[${locale.id}] Missing display name`);
+    if (locale.id === FALLBACK_LOCALE) continue;
+    const keys = readLocale(locale.id);
+    const missing = referenceKeys.filter((key) => !keys.includes(key));
+    const extra = keys.filter((key) => !referenceKeys.includes(key));
+    if (missing.length || extra.length) {
+      throw new Error(
+        `[${locale.id}] Missing keys: ${missing.join(', ')}; extra keys: ${extra.join(', ')}`,
+      );
+    }
   }
-
-  // Check empty messages
-  const empty = findEmptyMessages(filePath);
-  if (empty.length > 0) {
-    console.error(`❌ [${locale}] Empty messages: ${empty.join(', ')}`);
-    hasErrors = true;
-  }
-}
-
-// Check key consistency between locales
-const refPath = resolve(LOCALES_DIR, REFERENCE_LOCALE, 'messages.json');
-const refKeys = getKeys(refPath);
-
-for (const locale of LOCALES) {
-  if (locale === REFERENCE_LOCALE) continue;
-  const locPath = resolve(LOCALES_DIR, locale, 'messages.json');
-  if (!existsSync(locPath)) continue;
-
-  const locKeys = getKeys(locPath);
-
-  const missingInLoc = [...refKeys].filter((k) => !locKeys.has(k));
-  const extraInLoc = [...locKeys].filter((k) => !refKeys.has(k));
-
-  if (missingInLoc.length > 0) {
-    console.error(
-      `❌ [${locale}] Missing keys (present in ${REFERENCE_LOCALE}): ${missingInLoc.join(', ')}`,
-    );
-    hasErrors = true;
-  }
-  if (extraInLoc.length > 0) {
-    console.error(
-      `⚠️  [${locale}] Extra keys (not in ${REFERENCE_LOCALE}): ${extraInLoc.join(', ')}`,
-    );
-    // Extra keys are a warning, not an error
-  }
-}
-
-if (hasErrors) {
-  console.error('\ni18n lint failed.');
-  process.exit(1);
-} else {
-  console.log('✅ i18n lint passed — no duplicate keys, all locales consistent.');
+  console.log(`i18n checks passed for ${ids.length} locales.`);
+} catch (error) {
+  console.error(error instanceof Error ? error.message : error);
+  process.exitCode = 1;
 }

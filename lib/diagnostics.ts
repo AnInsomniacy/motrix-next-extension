@@ -17,7 +17,7 @@ export interface DiagnosticInput {
   context?: Record<string, string | number | boolean>;
 }
 
-export interface DiagnosticJournalOptions {
+interface DiagnosticJournalOptions {
   load: () => Promise<DiagnosticEvent[]>;
   save: (events: DiagnosticEvent[]) => Promise<void>;
   maxEvents: number;
@@ -25,7 +25,7 @@ export interface DiagnosticJournalOptions {
   onPersistError?: (error: unknown) => void;
 }
 
-export interface DiagnosticJournal {
+interface DiagnosticJournal {
   initialize: () => Promise<void>;
   append: (input: DiagnosticInput) => void;
   clear: () => Promise<void>;
@@ -46,7 +46,7 @@ function sanitizeText(value: string, max: number): string {
   return truncate(withoutRawUrls, max);
 }
 
-export function sanitizeDiagnosticUrl(value: string): string {
+function sanitizeDiagnosticUrl(value: string): string {
   const protocol = /^([a-z][a-z\d+.-]*):/i.exec(value)?.[1]?.toLowerCase();
   if (protocol && !['http', 'https'].includes(protocol)) return `${protocol}:[redacted]`;
 

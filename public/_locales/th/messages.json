@@ -15,28 +15,6 @@
     "message": "ตัดการเชื่อมต่อ",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_speed_download": {
-    "message": "↓ $speed$",
-    "description": "Download speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_speed_upload": {
-    "message": "↑ $speed$",
-    "description": "Upload speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_no_active_tasks": {
-    "message": "ไม่มีการดาวน์โหลดที่กำลังทำงาน",
-    "description": "Message when there are no active download tasks"
-  },
   "popup_action_pause_all": {
     "message": "หยุดชั่วคราวทั้งหมด",
     "description": "Button to pause all active downloads"
@@ -61,10 +39,6 @@
     "message": "ไม่สามารถเชื่อมต่อกับ Motrix Next ได้",
     "description": "Error message when API is unreachable"
   },
-  "options_title": {
-    "message": "Motrix Next Extension · ตั้งค่า",
-    "description": "Options page title"
-  },
   "options_section_connection": {
     "message": "การเชื่อมต่อ",
     "description": "Settings section for API connection"
@@ -80,10 +54,6 @@
   "options_enabled_label": {
     "message": "เปิดใช้งานการดักจับดาวน์โหลด",
     "description": "Toggle label for enabling/disabling download interception"
-  },
-  "options_notify_label": {
-    "message": "การแจ้งเตือน",
-    "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
     "message": "กฎ",
@@ -116,19 +86,6 @@
   "context_menu_download": {
     "message": "ดาวน์โหลดด้วย Motrix Next",
     "description": "Context menu item for downloading a link with Motrix Next"
-  },
-  "popup_title": {
-    "message": "Motrix Next",
-    "description": "Popup header title"
-  },
-  "popup_speed_active_count": {
-    "message": "$count$ กำลังทำงาน",
-    "description": "Number of active downloads in speed bar",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -190,14 +147,6 @@
   "options_save_error": {
     "message": "บันทึกการตั้งค่าไม่สำเร็จ",
     "description": "Toast when saving settings fails"
-  },
-  "options_unsaved_title": {
-    "message": "การเปลี่ยนแปลงที่ยังไม่ได้บันทึก",
-    "description": "Dialog title when leaving with unsaved changes"
-  },
-  "options_unsaved_message": {
-    "message": "คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก ต้องการบันทึกก่อนออกหรือไม่?",
-    "description": "Dialog body when leaving with unsaved changes"
   },
   "options_changes_indicator": {
     "message": "การเปลี่ยนแปลงที่ยังไม่ได้บันทึก",
@@ -262,10 +211,6 @@
   "options_rule_use_global": {
     "message": "ใช้การตั้งค่าส่วนกลาง",
     "description": "Site rule action: follow the global setting"
-  },
-  "task_name_unknown": {
-    "message": "ไม่ทราบ",
-    "description": "Fallback name when a task filename cannot be resolved"
   },
   "popup_error_auth": {
     "message": "API secret mismatch",
@@ -486,10 +431,6 @@
   "options_file_extension_action_skip": {
     "message": "ใช้เบราว์เซอร์",
     "description": "Option label for leaving a matched extension in the browser."
-  },
-  "options_factory_reset_title": {
-    "message": "รีเซ็ต",
-    "description": "Factory reset section title."
   },
   "options_factory_reset_button": {
     "message": "รีเซ็ตการตั้งค่า",

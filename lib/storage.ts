@@ -23,17 +23,15 @@ import {
   type UiPrefs,
 } from './schema';
 
-export const SETTINGS_STORAGE_KEYS = [
+const SETTINGS_STORAGE_KEYS = [
   'connection',
   'settings',
   'siteRules',
   'uiPrefs',
   'diagnostics',
 ] as const;
-export const DIAGNOSTIC_STORAGE_KEY = 'diagnosticLog' as const;
-export const STORAGE_KEYS = [...SETTINGS_STORAGE_KEYS, DIAGNOSTIC_STORAGE_KEY] as const;
-
-export type StorageKey = (typeof STORAGE_KEYS)[number];
+const DIAGNOSTIC_STORAGE_KEY = 'diagnosticLog' as const;
+type StorageKey = (typeof SETTINGS_STORAGE_KEYS)[number] | typeof DIAGNOSTIC_STORAGE_KEY;
 
 const local = (key: StorageKey) => `local:${key}` as const;
 
@@ -50,11 +48,11 @@ export async function loadDiagnosticEvents(): Promise<DiagnosticEvent[]> {
   return parseDiagnosticEvents(await storage.getItem(local(DIAGNOSTIC_STORAGE_KEY)));
 }
 
-export async function loadSettings(): Promise<DownloadSettings> {
+async function loadSettings(): Promise<DownloadSettings> {
   return parseDownloadSettings(await storage.getItem(local('settings')));
 }
 
-export async function loadUiPrefs(): Promise<UiPrefs> {
+async function loadUiPrefs(): Promise<UiPrefs> {
   return parseUiPrefs(await storage.getItem(local('uiPrefs')));
 }
 
@@ -64,7 +62,7 @@ export async function saveConnectionConfig(config: ConnectionConfig): Promise<vo
   await storage.setItem(local('connection'), parseConnectionConfig(config));
 }
 
-export async function saveSettings(settings: DownloadSettings): Promise<void> {
+async function saveSettings(settings: DownloadSettings): Promise<void> {
   await storage.setItem(local('settings'), parseDownloadSettings(settings));
 }
 
@@ -76,7 +74,7 @@ export async function saveSiteRules(rules: SiteRule[]): Promise<void> {
   await storage.setItem(local('siteRules'), parseSiteRules(rules));
 }
 
-export async function saveUiPrefs(prefs: UiPrefs): Promise<void> {
+async function saveUiPrefs(prefs: UiPrefs): Promise<void> {
   await storage.setItem(local('uiPrefs'), parseUiPrefs(prefs));
 }
 

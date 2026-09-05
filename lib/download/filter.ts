@@ -13,7 +13,7 @@ import type { DownloadSettings, SiteRule } from '@/lib/schema';
 import { matchesFileExtension, resolveFileExtension } from '@/lib/file-extensions';
 import { extractFilenameFromUrl } from './url';
 
-export const INTERCEPTABLE_SCHEMES = ['http:', 'https:'] as const;
+const INTERCEPTABLE_SCHEMES = ['http:', 'https:'] as const;
 
 export interface FilterContext {
   url: string;
@@ -26,14 +26,14 @@ export interface FilterContext {
   byExtensionId?: string;
 }
 
-export type FilterVerdict = 'intercept' | 'skip';
+type FilterVerdict = 'intercept' | 'skip';
 
-export interface FilterStage {
+interface FilterStage {
   readonly name: string;
   evaluate: (ctx: FilterContext, config: DownloadSettings) => FilterVerdict | null;
 }
 
-export interface FilterPipelineResult {
+interface FilterPipelineResult {
   verdict: FilterVerdict;
   /** Stage that produced the terminal verdict; null when all stages passed. */
   stageName: string | null;

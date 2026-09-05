@@ -1,86 +1,38 @@
 import { describe, expect, it, vi } from 'vitest';
 import { DownloadOrchestrator } from '@/lib/download/orchestrator';
-import type {
-  DownloadCandidate,
-  DownloadItem,
-  OrchestratorDeps,
-} from '@/lib/download/orchestrator';
-import { DesktopApiClient } from '@/lib/api';
 import { ApiUnreachableError } from '@/lib/api';
-import { DEFAULT_DOWNLOAD_SETTINGS } from '@/lib/schema';
-import type { DownloadSettings, SiteRule } from '@/lib/schema';
+import { createDefaultSnapshot } from '@/lib/schema';
+import { downloadItem as createDownloadItem, downloadDeps } from '../fixtures/download';
 
-function createDownloadItem(): DownloadItem {
-  return {
-    id: 1,
-    url: 'https://example.com/file.zip',
-    finalUrl: 'https://example.com/file.zip',
-    filename: 'file.zip',
-    fileSize: 10_000_000,
-    totalBytes: 10_000_000,
-    mime: 'application/zip',
-    state: 'in_progress',
-    referrer: 'https://example.com/page',
-  };
-}
-
-function createDownloadCandidate(): DownloadCandidate {
-  const { id: _id, state: _state, ...candidate } = createDownloadItem();
-  return candidate;
-}
-
-type DownloadLifecycleDeps = OrchestratorDeps;
-
-function createDeps(options?: {
-  action?: 'launch' | 'browser';
-  ready?: boolean;
-  activationResult?: boolean;
-  activationFails?: boolean;
-  routeFails?: boolean;
-  calls?: string[];
-}): DownloadLifecycleDeps {
-  const desktopClient = new DesktopApiClient({ port: 29110, secret: '' });
-  const ready = options?.ready ?? false;
-  vi.spyOn(desktopClient, 'isReady').mockResolvedValue(ready);
-  if (options?.routeFails) {
-    vi.spyOn(desktopClient, 'addDownload').mockRejectedValue(new ApiUnreachableError());
-  } else if (ready || options?.activationResult) {
-    vi.spyOn(desktopClient, 'addDownload').mockImplementation(async () => {
-      options?.calls?.push('route');
-      return { action: 'queued' };
-    });
-  } else {
-    vi.spyOn(desktopClient, 'addDownload').mockRejectedValue(new ApiUnreachableError());
-  }
-
-  const settings = {
-    ...DEFAULT_DOWNLOAD_SETTINGS,
-    desktopUnavailable: {
-      action: options?.action ?? 'browser',
-      startupTimeoutSeconds: 15,
-    },
-  } as unknown as DownloadSettings;
-
-  const deps = {
-    downloads: {
-      cancel: vi.fn().mockImplementation(async () => {
-        options?.calls?.push('cancel');
-      }),
-      erase: vi.fn().mockResolvedValue(undefined),
-      download: vi.fn().mockResolvedValue(2),
-    },
-    diagnosticLog: { append: vi.fn() },
-    getSettings: () => settings,
-    getSiteRules: () => [] as SiteRule[],
-    desktopClient,
-    activateDesktop: vi.fn().mockImplementation(async () => {
-      options?.calls?.push('activate');
-      if (options?.activationFails) throw new Error('Native host activation failed');
-      return options?.activationResult ?? false;
-    }),
-  };
-
-  return deps as DownloadLifecycleDeps;
+function createDeps(
+  options: {
+    action?: 'launch' | 'browser';
+    ready?: boolean;
+    activationResult?: boolean;
+    activationFails?: boolean;
+    routeFails?: boolean;
+    calls?: string[];
+  } = {},
+) {
+  const settings = createDefaultSnapshot().settings;
+  settings.desktopUnavailable.action = options.action ?? 'browser';
+  const deps = downloadDeps({ getSettings: () => settings });
+  vi.mocked(deps.desktopClient.isReady).mockResolvedValue(options.ready ?? false);
+  vi.mocked(deps.desktopClient.addDownload).mockImplementation(async () => {
+    if (options.routeFails || !(options.ready || options.activationResult))
+      throw new ApiUnreachableError();
+    options.calls?.push('route');
+    return { action: 'queued' };
+  });
+  vi.mocked(deps.downloads.cancel).mockImplementation(async () => {
+    options.calls?.push('cancel');
+  });
+  vi.mocked(deps.activateDesktop).mockImplementation(async () => {
+    options.calls?.push('activate');
+    if (options.activationFails) throw new Error('Native host activation failed');
+    return options.activationResult ?? false;
+  });
+  return deps;
 }
 
 describe('automatic download fallback', () => {
@@ -111,7 +63,7 @@ describe('automatic download fallback', () => {
     const intercepted = await orchestrator.handleFirefoxCreatedDownload(createDownloadItem());
 
     expect(intercepted).toBe(true);
-    expect(deps.desktopClient?.isReady).toHaveBeenCalledTimes(1);
+    expect(deps.desktopClient.isReady).toHaveBeenCalledTimes(1);
     expect(calls).toEqual(['cancel', 'route']);
     expect(deps.diagnosticLog.append).toHaveBeenCalledTimes(1);
     expect(deps.diagnosticLog.append).toHaveBeenCalledWith(
@@ -139,11 +91,11 @@ describe('automatic download fallback', () => {
     const deps = createDeps({ action: 'launch', ready: false, activationResult: true });
     const orchestrator = new DownloadOrchestrator(deps);
 
-    const intercepted = await orchestrator.handleFirefoxResponseTakeover(createDownloadCandidate());
+    const intercepted = await orchestrator.handleFirefoxResponseTakeover(createDownloadItem());
 
     expect(intercepted).toBe(true);
     expect(deps.activateDesktop).toHaveBeenCalledWith(15_000);
-    expect(deps.desktopClient?.addDownload).toHaveBeenCalledTimes(1);
+    expect(deps.desktopClient.addDownload).toHaveBeenCalledTimes(1);
   });
 
   it('restores the browser download when desktop submission fails in launch mode', async () => {
@@ -199,7 +151,7 @@ describe('automatic download fallback', () => {
     const deps = createDeps({ action: 'launch', ready: false, activationResult: false });
     const orchestrator = new DownloadOrchestrator(deps);
 
-    expect(await orchestrator.handleFirefoxResponseTakeover(createDownloadCandidate())).toBe(false);
+    expect(await orchestrator.handleFirefoxResponseTakeover(createDownloadItem())).toBe(false);
 
     expect(deps.activateDesktop).toHaveBeenCalledTimes(1);
     expect(deps.downloads.download).toHaveBeenCalledWith({

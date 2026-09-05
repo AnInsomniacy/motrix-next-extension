@@ -14,7 +14,7 @@ import contentDisposition from 'content-disposition';
 import { decodeMimeWords } from 'lettercoder';
 import sanitizeFilename from 'sanitize-filename';
 
-export interface ParsedContentDisposition {
+interface ParsedContentDisposition {
   type: string;
   filename?: string;
 }
@@ -98,7 +98,7 @@ export function extractFilenameFromUrl(url: string): string | null {
   }
 }
 
-export function extractFilenameFromContentDisposition(header: string): string | null {
+function extractFilenameFromContentDisposition(header: string): string | null {
   return parseContentDispositionHeader(header)?.filename ?? null;
 }
 

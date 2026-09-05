@@ -17,7 +17,8 @@ import {
   type NDateLocale,
   type NLocale,
 } from 'naive-ui';
-import { DICTIONARIES, FALLBACK_LOCALE, resolveLocaleId } from './dictionaries';
+import { DICTIONARIES, resolveLocaleId } from './dictionaries';
+import { FALLBACK_LOCALE } from './locales';
 
 const FALLBACK_DICT = DICTIONARIES[FALLBACK_LOCALE]!;
 
@@ -50,7 +51,7 @@ export class I18nEngine {
 
 // ─── Vue Integration ────────────────────────────────────
 
-export interface I18nContext {
+interface I18nContext {
   /** Raw user preference: 'auto' | 'en' | 'zh_CN' | ... */
   locale: Ref<string>;
   /** Resolved effective locale after 'auto' detection. */
@@ -65,7 +66,7 @@ export interface I18nContext {
 
 export const I18N_KEY: InjectionKey<I18nContext> = Symbol('i18n');
 
-export interface CreateI18nOptions {
+interface CreateI18nOptions {
   localeApi?: { getUILanguage: () => string };
 }
 

@@ -1,15 +1,7 @@
-import crypto from 'node:crypto';
+import { createAmoJwt, getFirefoxVersions } from './store-api';
 import { join } from 'node:path';
 
-import {
-  fetchJson,
-  isRecord,
-  optionalEnv,
-  requiredEnv,
-  runCommand,
-  setOutput,
-  stringField,
-} from './workflow-utils';
+import { optionalEnv, requiredEnv, runCommand, setOutput, stringField } from './workflow-utils';
 
 type FirefoxPublishDecision = {
   action: 'publish' | 'skip';
@@ -57,13 +49,13 @@ export function buildFirefoxSignArgs(input: FirefoxSignArgsInput): string[] {
   ];
 }
 
-export async function publishFirefoxFromEnv(): Promise<void> {
+async function publishFirefoxFromEnv(): Promise<void> {
   const apiKey = requiredEnv('FIREFOX_API_KEY');
   const apiSecret = requiredEnv('FIREFOX_API_SECRET');
   const version = requiredEnv('VERSION');
   const slug = optionalEnv('FIREFOX_ADDON_SLUG') || 'motrix-next-extension';
   const authHeader = createAmoJwt({ apiKey, apiSecret });
-  const versions = await getFirefoxVersions(slug, authHeader);
+  const versions = await getFirefoxVersions(slug, authHeader, 'all_without_unlisted');
   const decision = decideFirefoxPublishAction(versions, version);
 
   if (decision.action === 'skip') {
@@ -91,36 +83,6 @@ export async function publishFirefoxFromEnv(): Promise<void> {
 function getWorkflowBinary(name: string): string {
   const runtimeDir = optionalEnv('ACTIONS_RUNTIME_DIR') || '.';
   return join(runtimeDir, 'node_modules', '.bin', name);
-}
-
-async function getFirefoxVersions(slug: string, authHeader: string): Promise<unknown[]> {
-  const params = new URLSearchParams({ page_size: '10', filter: 'all_without_unlisted' });
-  const data = await fetchJson(
-    `https://addons.mozilla.org/api/v5/addons/addon/${encodeURIComponent(slug)}/versions/?${params}`,
-    { headers: { Authorization: authHeader } },
-  );
-  return isRecord(data) && Array.isArray(data.results) ? data.results : [];
-}
-
-function createAmoJwt(input: { apiKey: string; apiSecret: string }): string {
-  const now = Math.floor(Date.now() / 1000);
-  const header = { alg: 'HS256', typ: 'JWT' };
-  const payload = {
-    iss: input.apiKey,
-    jti: crypto.randomUUID(),
-    iat: now,
-    exp: now + 60,
-  };
-  const unsigned = `${base64UrlJson(header)}.${base64UrlJson(payload)}`;
-  const signature = crypto
-    .createHmac('sha256', input.apiSecret)
-    .update(unsigned)
-    .digest('base64url');
-  return `JWT ${unsigned}.${signature}`;
-}
-
-function base64UrlJson(value: unknown): string {
-  return Buffer.from(JSON.stringify(value)).toString('base64url');
 }
 
 if (process.argv[1]?.endsWith('/publish-firefox.ts')) {

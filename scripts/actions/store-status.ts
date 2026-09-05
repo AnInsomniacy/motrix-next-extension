@@ -1,4 +1,10 @@
-import crypto from 'node:crypto';
+import {
+  getGoogleAccessToken,
+  readChromeRevision,
+  createAmoJwt,
+  getFirefoxVersions,
+  type ChromeConfig,
+} from './store-api';
 import zlib from 'node:zlib';
 
 import {
@@ -9,7 +15,6 @@ import {
   fetchText,
   isRecord,
   md,
-  numberField,
   optionalEnv,
   requiredEnv,
   stringField,
@@ -42,14 +47,6 @@ type EdgeStoreStatusInput = {
 
 type EdgeStoreStatus = Pick<StoreStatusRow, 'pendingVersion' | 'reviewState' | 'canPublishNow'>;
 
-type ChromeConfig = {
-  clientId: string;
-  clientSecret: string;
-  extensionId: string;
-  publisherId: string;
-  refreshToken: string;
-};
-
 type FirefoxConfig = {
   apiKey: string;
   apiSecret: string;
@@ -67,7 +64,7 @@ type EdgeConfig = {
   productId: string;
 };
 
-export async function runStoreStatusFromEnv(): Promise<void> {
+async function runStoreStatusFromEnv(): Promise<void> {
   const releaseTag = requiredEnv('RELEASE_TAG');
   const releaseVersion = requiredEnv('RELEASE_VERSION');
   const checkedAt = new Date().toISOString();
@@ -107,7 +104,7 @@ export async function runStoreStatusFromEnv(): Promise<void> {
   console.log(report);
 }
 
-export function renderStoreStatusReport(input: StoreStatusReportInput): string {
+function renderStoreStatusReport(input: StoreStatusReportInput): string {
   const decision = buildDecision(input.releaseVersion, input.stores);
   const lines = [
     '## Store Release Status',
@@ -205,10 +202,10 @@ async function checkChrome(chrome: ChromeConfig): Promise<StoreStatusRow> {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  const published = getChromeRevision(
+  const published = readChromeRevision(
     isRecord(status) ? status.publishedItemRevisionStatus : undefined,
   );
-  const submitted = getChromeRevision(
+  const submitted = readChromeRevision(
     isRecord(status) ? status.submittedItemRevisionStatus : undefined,
   );
   const liveVersion = published.version || publicVersion || 'Unavailable';
@@ -239,38 +236,6 @@ async function checkChrome(chrome: ChromeConfig): Promise<StoreStatusRow> {
         : isRecord(status) && status.warned === true
           ? 'Item has a policy warning.'
           : 'Chrome API status fetched.',
-  };
-}
-
-async function getGoogleAccessToken(chrome: ChromeConfig): Promise<string> {
-  const body = new URLSearchParams({
-    client_id: chrome.clientId,
-    client_secret: chrome.clientSecret,
-    refresh_token: chrome.refreshToken,
-    grant_type: 'refresh_token',
-  });
-  const data = await fetchJson('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
-  });
-  const token = stringField(data, 'access_token');
-  if (!token) throw new Error('Chrome OAuth token response did not include access_token');
-  return token;
-}
-
-function getChromeRevision(revision: unknown): { state: string; version: string } {
-  const channels =
-    isRecord(revision) && Array.isArray(revision.distributionChannels)
-      ? revision.distributionChannels
-      : [];
-  const channel =
-    channels.find((candidate) => numberField(candidate, 'deployPercentage') === 100) ||
-    channels.find((candidate) => isRecord(candidate)) ||
-    {};
-  return {
-    state: stringField(revision, 'state'),
-    version: stringField(channel, 'crxVersion'),
   };
 }
 
@@ -329,39 +294,6 @@ async function checkFirefox(firefox: FirefoxConfig): Promise<StoreStatusRow> {
       ? 'AMO developer version list fetched.'
       : 'Public version was checked. Review status requires AMO API credentials.',
   };
-}
-
-async function getFirefoxVersions(
-  slug: string,
-  authHeader: string,
-  filter = '',
-): Promise<unknown[]> {
-  const params = new URLSearchParams({ page_size: '10' });
-  if (filter) params.set('filter', filter);
-  const data = await fetchJson(
-    `https://addons.mozilla.org/api/v5/addons/addon/${encodeURIComponent(slug)}/versions/?${params}`,
-    {
-      headers: authHeader ? { Authorization: authHeader } : {},
-    },
-  );
-  return isRecord(data) && Array.isArray(data.results) ? data.results : [];
-}
-
-function createAmoJwt(firefox: FirefoxConfig): string {
-  const now = Math.floor(Date.now() / 1000);
-  const header = { alg: 'HS256', typ: 'JWT' };
-  const payload = {
-    iss: firefox.apiKey,
-    jti: crypto.randomUUID(),
-    iat: now,
-    exp: now + 60,
-  };
-  const unsigned = `${base64UrlJson(header)}.${base64UrlJson(payload)}`;
-  const signature = crypto
-    .createHmac('sha256', firefox.apiSecret)
-    .update(unsigned)
-    .digest('base64url');
-  return `JWT ${unsigned}.${signature}`;
 }
 
 function firefoxStatus(version: unknown): string {
@@ -557,10 +489,9 @@ function readManifestFromCrx(buffer: Buffer): unknown {
 }
 
 function getZipOffset(buffer: Buffer): number {
-  if (buffer.subarray(0, 4).toString('ascii') !== 'Cr24') return 0;
+  if (buffer.subarray(0, 4).toString('ascii') !== 'Cr24') throw new Error('Invalid CRX header');
   const version = buffer.readUInt32LE(4);
   if (version === 3) return 12 + buffer.readUInt32LE(8);
-  if (version === 2) return 16 + buffer.readUInt32LE(8) + buffer.readUInt32LE(12);
   throw new Error(`Unsupported CRX version: ${version}`);
 }
 
@@ -569,10 +500,6 @@ function findEocd(buffer: Buffer): number {
     if (buffer.readUInt32LE(index) === 0x06054b50) return index;
   }
   throw new Error('ZIP end of central directory not found');
-}
-
-function base64UrlJson(value: unknown): string {
-  return Buffer.from(JSON.stringify(value)).toString('base64url');
 }
 
 function storeNames(stores: StoreStatusRow[]): string {

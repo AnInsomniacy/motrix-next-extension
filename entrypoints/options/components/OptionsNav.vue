@@ -1,11 +1,5 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Left-rail navigation for the Options page.
- *
- * Renders a vertical list of section buttons with icons. The active
- * section is highlighted with the M3 primary-container tonal fill,
- * matching the desktop PreferenceSubnav.vue visual language.
- */
+/** Left-rail navigation for the Options page. */
 import { NIcon } from 'naive-ui';
 import {
   LinkOutline,

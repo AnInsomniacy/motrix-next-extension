@@ -15,28 +15,6 @@
     "message": "已斷線",
     "description": "Connection status badge when API is unreachable"
   },
-  "popup_speed_download": {
-    "message": "↓ $speed$",
-    "description": "Download speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_speed_upload": {
-    "message": "↑ $speed$",
-    "description": "Upload speed indicator",
-    "placeholders": {
-      "speed": {
-        "content": "$1"
-      }
-    }
-  },
-  "popup_no_active_tasks": {
-    "message": "沒有進行中的下載",
-    "description": "Message when there are no active download tasks"
-  },
   "popup_action_pause_all": {
     "message": "全部暫停",
     "description": "Button to pause all active downloads"
@@ -61,10 +39,6 @@
     "message": "無法連線至 Motrix Next",
     "description": "Error message when API is unreachable"
   },
-  "options_title": {
-    "message": "Motrix Next Extension · 設定",
-    "description": "Options page title"
-  },
   "options_section_connection": {
     "message": "連線",
     "description": "Settings section for API connection"
@@ -80,10 +54,6 @@
   "options_enabled_label": {
     "message": "啟用下載攔截",
     "description": "Toggle label for enabling/disabling download interception"
-  },
-  "options_notify_label": {
-    "message": "通知",
-    "description": "Toggle label for enabling notifications"
   },
   "options_section_rules": {
     "message": "規則",
@@ -116,19 +86,6 @@
   "context_menu_download": {
     "message": "使用 Motrix Next 下載",
     "description": "Context menu item for downloading a link with Motrix Next"
-  },
-  "popup_title": {
-    "message": "Motrix Next",
-    "description": "Popup header title"
-  },
-  "popup_speed_active_count": {
-    "message": "$count$ 個進行中",
-    "description": "Number of active downloads in speed bar",
-    "placeholders": {
-      "count": {
-        "content": "$1"
-      }
-    }
   },
   "options_header_title": {
     "message": "Motrix Next",
@@ -190,14 +147,6 @@
   "options_save_error": {
     "message": "儲存設定失敗",
     "description": "Toast when saving settings fails"
-  },
-  "options_unsaved_title": {
-    "message": "未儲存的變更",
-    "description": "Dialog title when leaving with unsaved changes"
-  },
-  "options_unsaved_message": {
-    "message": "您有未儲存的變更。離開前要儲存嗎？",
-    "description": "Dialog body when leaving with unsaved changes"
   },
   "options_changes_indicator": {
     "message": "未儲存的變更",
@@ -262,10 +211,6 @@
   "options_rule_use_global": {
     "message": "使用全域設定",
     "description": "Site rule action: follow the global setting"
-  },
-  "task_name_unknown": {
-    "message": "未知",
-    "description": "Fallback name when a task filename cannot be resolved"
   },
   "popup_error_auth": {
     "message": "API 密鑰不匹配",
@@ -486,10 +431,6 @@
   "options_file_extension_action_skip": {
     "message": "使用瀏覽器",
     "description": "Option label for leaving a matched extension in the browser."
-  },
-  "options_factory_reset_title": {
-    "message": "重設",
-    "description": "Factory reset section title."
   },
   "options_factory_reset_button": {
     "message": "恢復預設設定",

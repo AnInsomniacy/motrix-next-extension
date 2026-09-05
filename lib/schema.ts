@@ -37,7 +37,7 @@ function filteredArray<S extends z.ZodType>(schema: S) {
 
 // ─── Connection ─────────────────────────────────────────
 
-export const ConnectionConfigSchema = lenient(
+const ConnectionConfigSchema = lenient(
   z.object({
     port: z.number().int().min(1024).max(65535).catch(29110),
     secret: z.string().catch(''),
@@ -50,7 +50,7 @@ export type ConnectionConfig = z.output<typeof ConnectionConfigSchema>;
 
 const interceptOrSkip = z.enum(['intercept', 'skip']);
 
-export const DownloadSettingsSchema = lenient(
+const DownloadSettingsSchema = lenient(
   z.object({
     enabled: z.boolean().catch(true),
     hideDownloadBar: z.boolean().catch(false),
@@ -105,7 +105,7 @@ export type InterceptionScope = DownloadSettings['interceptionScope'];
 
 // ─── Site Rules ─────────────────────────────────────────
 
-export const SiteRuleSchema = z.object({
+const SiteRuleSchema = z.object({
   id: z.string(),
   pattern: z.string(),
   action: z.enum(['always-intercept', 'always-skip', 'use-global']),
@@ -113,11 +113,11 @@ export const SiteRuleSchema = z.object({
 
 export type SiteRule = z.output<typeof SiteRuleSchema>;
 
-export const SiteRulesSchema = filteredArray(SiteRuleSchema);
+const SiteRulesSchema = filteredArray(SiteRuleSchema);
 
 // ─── UI Preferences ─────────────────────────────────────
 
-export const UiPrefsSchema = lenient(
+const UiPrefsSchema = lenient(
   z.object({
     theme: z.enum(['system', 'light', 'dark']).catch('system'),
     colorScheme: z.string().catch('amber'),
@@ -133,7 +133,7 @@ export type ThemePreference = UiPrefs['theme'];
 export const DIAGNOSTIC_EVENT_LIMIT_MIN = 10;
 export const DIAGNOSTIC_EVENT_LIMIT_MAX = 500;
 
-export const DiagnosticSettingsSchema = lenient(
+const DiagnosticSettingsSchema = lenient(
   z.object({
     maxEvents: z
       .number()
@@ -151,7 +151,7 @@ export const DIAGNOSTIC_CONTEXT_KEY_MAX_LENGTH = 64;
 export const DIAGNOSTIC_CONTEXT_VALUE_MAX_LENGTH = 512;
 export const DIAGNOSTIC_CONTEXT_MAX_FIELDS = 12;
 
-export const DiagnosticCodeSchema = z.enum([
+const DiagnosticCodeSchema = z.enum([
   'api_auth_failed',
   'api_unreachable',
   'download_delegated',
@@ -186,7 +186,7 @@ const DiagnosticContextValueSchema = z.union([
   z.boolean(),
 ]);
 
-export const DiagnosticEventSchema = z.strictObject({
+const DiagnosticEventSchema = z.strictObject({
   id: z.string().min(1).max(96),
   ts: z.number().finite().nonnegative(),
   level: z.enum(['info', 'warn', 'error']),
@@ -201,11 +201,11 @@ export const DiagnosticEventSchema = z.strictObject({
 export type DiagnosticEvent = z.output<typeof DiagnosticEventSchema>;
 export type DiagnosticLevel = DiagnosticEvent['level'];
 
-export const DiagnosticEventsSchema = filteredArray(DiagnosticEventSchema);
+const DiagnosticEventsSchema = filteredArray(DiagnosticEventSchema);
 
 // ─── Composite Snapshot ─────────────────────────────────
 
-export const StorageSnapshotSchema = lenient(
+const StorageSnapshotSchema = lenient(
   z.object({
     connection: ConnectionConfigSchema,
     settings: DownloadSettingsSchema,
@@ -216,6 +216,18 @@ export const StorageSnapshotSchema = lenient(
 );
 
 export type StorageSnapshot = z.output<typeof StorageSnapshotSchema>;
+
+export const SETTINGS_BACKUP_KIND = 'motrix-next-extension-settings';
+
+export const SettingsBackupSchema = z.strictObject({
+  kind: z.literal(SETTINGS_BACKUP_KIND),
+  schemaVersion: z.literal(3),
+  extensionVersion: z.string().min(1),
+  exportedAt: z.iso.datetime(),
+  settings: StorageSnapshotSchema.unwrap().extend({
+    connection: ConnectionConfigSchema.unwrap().extend({ secret: z.string() }),
+  }),
+});
 
 // ─── Defaults (derived, never hand-written) ─────────────
 

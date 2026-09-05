@@ -1,17 +1,5 @@
 <script lang="ts" setup>
-/**
- * @fileoverview Popup header component.
- *
- * Layout: [NEXT badge] [connection chip] ... [status label + NSwitch] [gear]
- *
- * The NSwitch toggles download interception on/off. A reactive label next
- * to it shows "Intercepting" or "Paused" so the user always knows the
- * current state at a glance.
- *
- * The toggle writes to chrome.storage.local immediately (via parent), and
- * the background service worker reacts via its onChanged listener — no
- * message passing needed.
- */
+/** Popup header component. */
 import { NIcon, NSwitch } from 'naive-ui';
 import { SettingsOutline } from '@vicons/ionicons5';
 import type { ConnectionStatus } from '@/lib/api';

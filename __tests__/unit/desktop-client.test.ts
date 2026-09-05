@@ -102,7 +102,7 @@ describe('DesktopApiClient', () => {
     }
   });
 
-  it('classifies authentication and network failures', async () => {
+  it('classifies transport failures and preserves parsed HTTP error details', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
       new Response('Unauthorized', { status: 401 }),
     );
@@ -110,6 +110,13 @@ describe('DesktopApiClient', () => {
 
     vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new TypeError('fetch failed'));
     await expect(client.ping()).rejects.toBeInstanceOf(ApiUnreachableError);
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response('Download rejected', { status: 409 }),
+    );
+    await expect(client.addDownload({ url: 'https://example.com/file.zip' })).rejects.toThrow(
+      'HTTP 409 — Download rejected',
+    );
   });
 
   it('uses short readiness timeouts and longer work-request timeouts', async () => {

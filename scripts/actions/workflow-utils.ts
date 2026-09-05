@@ -2,7 +2,7 @@ import { appendFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 
-export type JsonRecord = Record<string, unknown>;
+type JsonRecord = Record<string, unknown>;
 
 export function requiredEnv(name: string): string {
   const value = process.env[name];
@@ -35,14 +35,9 @@ export function runText(command: string, args: string[]): string {
   return execFileSync(command, args, { encoding: 'utf8' }).trim();
 }
 
-export function runCommand(
-  command: string,
-  args: string[],
-  options: { env?: NodeJS.ProcessEnv } = {},
-): { exitCode: number; output: string } {
+export function runCommand(command: string, args: string[]): { exitCode: number; output: string } {
   const result = spawnSync(command, args, {
     encoding: 'utf8',
-    env: options.env ? { ...process.env, ...options.env } : process.env,
     shell: false,
   });
   return {
@@ -52,15 +47,14 @@ export function runCommand(
 }
 
 export function findZipByNamePart(namePart: string): string {
-  const files = walk('.output').filter((file) => file.endsWith('.zip') && file.includes(namePart));
-  if (files.length !== 1) {
+  const files = readdirSync('.output').filter(
+    (file) => file.endsWith('.zip') && file.includes(namePart),
+  );
+  const [file] = files;
+  if (!file || files.length !== 1) {
     throw new Error(`Expected one .output zip matching ${namePart}, found ${files.length}`);
   }
-  const [file] = files;
-  if (!file) {
-    throw new Error(`No .output zip matching ${namePart}`);
-  }
-  return file;
+  return join('.output', file);
 }
 
 export function isRecord(value: unknown): value is JsonRecord {
@@ -107,11 +101,4 @@ export function escapeCode(value: string): string {
   return String(value || '-')
     .replaceAll('`', '\\`')
     .replaceAll('\n', ' ');
-}
-
-function walk(dir: string): string[] {
-  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(dir, entry.name);
-    return entry.isDirectory() ? walk(path) : [path];
-  });
 }

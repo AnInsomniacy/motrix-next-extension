@@ -307,9 +307,7 @@ function stageFactoryReset(): void {
 
 async function importSettingsBackup(file: globalThis.File): Promise<void> {
   try {
-    const snapshot = parseSettingsBackup(await file.text(), {
-      currentSecret: draft.value.connection.secret,
-    });
+    const snapshot = parseSettingsBackup(await file.text());
     stageSnapshot(snapshot, 'backup-import');
     toast.info(i18n('options_settings_backup_imported', 'Settings imported. Review and save.'));
   } catch {
@@ -382,7 +380,7 @@ async function testConnection(): Promise<void> {
 
   connectionStatus.value = result.status;
   connectionVersion.value = result.version;
-  connectionError.value = result.error ?? null;
+  connectionError.value = result.status === 'disconnected' ? result.error : null;
   testingConnection.value = false;
 }
 
