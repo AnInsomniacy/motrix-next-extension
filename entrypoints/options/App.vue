@@ -349,7 +349,11 @@ async function exportDiagnosticReport(): Promise<void> {
     downloadJson(`motrix-next-diagnostic-${Date.now()}.json`, {
       formatVersion: 1,
       exportedAt: new Date().toISOString(),
-      extension: { version: extensionVersion, manifestVersion: 3 },
+      extension: {
+        id: browser.runtime.id,
+        version: extensionVersion,
+        manifestVersion: browser.runtime.getManifest().manifest_version,
+      },
       browser: { userAgent: navigator.userAgent, language: navigator.language },
       permissions,
       config: { connection: { port: connection.port }, settings, siteRules, uiPrefs, diagnostics },

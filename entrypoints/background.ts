@@ -486,9 +486,13 @@ export default defineBackground(() => {
       return { ok: true };
     } catch (error) {
       const code = error instanceof DesktopActivationError ? error.code : 'unknown';
+      const cause = error instanceof DesktopActivationError ? error.cause : undefined;
+      const nativeError =
+        cause instanceof Error ? cause.message : typeof cause === 'string' ? cause : '';
       logError('desktop_activation_failed', 'Motrix Next could not be activated', {
         source: 'popup',
         reason: code,
+        ...(nativeError ? { nativeError } : {}),
       });
       return { ok: false, error: code };
     }
@@ -521,12 +525,15 @@ export default defineBackground(() => {
           : authFailure
             ? 'api_auth_failed'
             : 'unknown';
+      const cause = error instanceof DesktopActivationError ? error.cause : undefined;
+      const nativeError =
+        cause instanceof Error ? cause.message : typeof cause === 'string' ? cause : '';
       logError(
         authFailure ? 'api_auth_failed' : 'desktop_activation_failed',
         authFailure
           ? 'Motrix Next rejected the API credentials'
           : 'Motrix Next could not be started',
-        { source: 'popup', reason: code },
+        { source: 'popup', reason: code, ...(nativeError ? { nativeError } : {}) },
       );
       return { ok: false, error: code };
     }
