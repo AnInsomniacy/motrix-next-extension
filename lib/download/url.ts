@@ -98,7 +98,7 @@ export function extractFilenameFromUrl(url: string): string | null {
   }
 }
 
-function extractFilenameFromContentDisposition(header: string): string | null {
+export function extractFilenameFromContentDisposition(header: string): string | null {
   return parseContentDispositionHeader(header)?.filename ?? null;
 }
 

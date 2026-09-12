@@ -43,6 +43,7 @@ pnpm compile         # TypeScript strict mode (vue-tsc --noEmit)
 pnpm test            # Vitest unit and integration tests
 pnpm lint            # ESLint (0 errors, 0 warnings)
 pnpm lint:i18n       # i18n key consistency across locales
+pnpm media:contract:check # Generated desktop media contract
 pnpm build           # Chromium production build
 pnpm build:firefox   # Firefox production build
 pnpm zip             # Chromium store package
@@ -58,6 +59,10 @@ pnpm zip:firefox     # Firefox store package
 - Keep service files focused — one responsibility per module.
 
 ## 🧪 Testing
+
+For media discovery and the synthetic desktop interface, see [Media](MEDIA.md) and
+[Desktop media API](MEDIA_API.md). Run `pnpm dev:media-fixture` for local manual checks.
+New media code, UI copy, and integration documentation are maintained in English.
 
 - Keep tests focused on download ownership, recovery, data boundaries, and confirmed regressions.
 - Tests live in `__tests__/unit/` and `__tests__/integration/`.

@@ -16,6 +16,18 @@ import ky, {
 import { z } from 'zod';
 import type { ConnectionConfig } from './schema';
 import type { RequestHeader } from './download/request-context';
+import {
+  MEDIA_API_PATH,
+  MediaCapabilitiesSchema,
+  MediaProbeRequestSchema,
+  MediaProbeSchema,
+  MediaSubmitRequestSchema,
+  MediaSubmitResponseSchema,
+  MediaCancelResponseSchema,
+  MediaErrorResponseSchema,
+  type MediaProbeRequest,
+  type MediaSubmitRequest,
+} from './media/contracts';
 
 z.config({ jitless: true });
 
@@ -59,6 +71,13 @@ export class ApiTimeoutError extends ApiError {
   constructor(timeoutMs: number) {
     super(`API call timed out after ${timeoutMs}ms`);
     this.name = 'ApiTimeoutError';
+  }
+}
+
+export class MediaApiError extends ApiError {
+  constructor(public readonly code: string) {
+    super('Media request failed');
+    this.name = 'MediaApiError';
   }
 }
 
@@ -119,8 +138,10 @@ export class DesktopApiClient {
   private createHttpClient(): KyInstance {
     return ky.create({
       prefix: `http://127.0.0.1:${this.config.port}`,
+      credentials: 'omit',
+      cache: 'no-store',
       timeout: API_REQUEST_TIMEOUT_MS,
-      retry: { limit: API_MAX_RETRIES, methods: ['get', 'post'] },
+      retry: { limit: API_MAX_RETRIES, methods: ['get'] },
     });
   }
 
@@ -139,6 +160,20 @@ export class DesktopApiClient {
       const payload = await this.http(path, options).json<unknown>();
       return schema.parse(payload);
     } catch (error) {
+      if (path.startsWith(MEDIA_API_PATH)) {
+        if (error instanceof z.ZodError) throw new MediaApiError('invalid_response');
+        if (error instanceof HTTPError && error.response.status !== 401) {
+          const parsed = MediaErrorResponseSchema.safeParse(error.data);
+          const code = parsed.success
+            ? parsed.data.error
+            : [404, 405].includes(error.response.status)
+              ? 'integration_unavailable'
+              : error.response.status === 410
+                ? 'expired'
+                : 'desktop_error';
+          throw new MediaApiError(code);
+        }
+      }
       throw normalizeApiError(
         error,
         label,
@@ -172,6 +207,61 @@ export class DesktopApiClient {
       AddDownloadResponseSchema,
       { method: 'POST', headers: this.authHeaders(), json: request },
       'Add download',
+    );
+  }
+
+  async mediaCapabilities() {
+    return this.request(
+      `${MEDIA_API_PATH}/capabilities`,
+      MediaCapabilitiesSchema,
+      { headers: this.authHeaders(), retry: 0 },
+      'Media capabilities',
+    );
+  }
+
+  async createMediaProbe(request: MediaProbeRequest) {
+    return this.request(
+      `${MEDIA_API_PATH}/probes`,
+      MediaProbeSchema,
+      {
+        method: 'POST',
+        headers: this.authHeaders(),
+        json: MediaProbeRequestSchema.parse(request),
+        retry: 0,
+      },
+      'Probe media',
+    );
+  }
+
+  async getMediaProbe(id: string) {
+    return this.request(
+      `${MEDIA_API_PATH}/probes/${encodeURIComponent(id)}`,
+      MediaProbeSchema,
+      { headers: this.authHeaders(), retry: 0 },
+      'Read media probe',
+    );
+  }
+
+  async submitMediaProbe(id: string, request: MediaSubmitRequest) {
+    return this.request(
+      `${MEDIA_API_PATH}/probes/${encodeURIComponent(id)}/submit`,
+      MediaSubmitResponseSchema,
+      {
+        method: 'POST',
+        headers: this.authHeaders(),
+        json: MediaSubmitRequestSchema.parse(request),
+        retry: 0,
+      },
+      'Submit media',
+    );
+  }
+
+  async cancelMediaProbe(id: string) {
+    return this.request(
+      `${MEDIA_API_PATH}/probes/${encodeURIComponent(id)}/cancel`,
+      MediaCancelResponseSchema,
+      { method: 'POST', headers: this.authHeaders(), json: {}, retry: 0 },
+      'Cancel media probe',
     );
   }
 

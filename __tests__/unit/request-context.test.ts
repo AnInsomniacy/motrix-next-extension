@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   RequestHeaderContextStore,
-  buildRequestHeaderExtraInfoSpec,
   captureRequestHeaderContext,
 } from '@/lib/download/request-context';
 
@@ -83,8 +82,19 @@ describe('request header context', () => {
     });
   });
 
-  it('requests extra header access only on Chromium', () => {
-    expect(buildRequestHeaderExtraInfoSpec('chromium')).toEqual(['requestHeaders', 'extraHeaders']);
-    expect(buildRequestHeaderExtraInfoSpec('firefox')).toEqual(['requestHeaders']);
+  it('refuses to guess credentials when two tabs request the same URL', () => {
+    const store = new RequestHeaderContextStore(() => 1000);
+    for (const tabId of [1, 2]) {
+      const context = captureRequestHeaderContext({
+        url: 'https://example.com/video.mp4',
+        tabId,
+        now: 1000,
+        requestHeaders: [{ name: 'Cookie', value: `session=${tabId}` }],
+      });
+      if (context) store.remember(context);
+    }
+    expect(store.peek({ url: 'https://example.com/video.mp4' }).reason).toBe('ambiguous');
+    store.clear(1);
+    expect(store.match({ url: 'https://example.com/video.mp4' }).context?.cookie).toBe('session=2');
   });
 });

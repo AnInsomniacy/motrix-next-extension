@@ -35,6 +35,11 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: pnpm lint:i18n
 
+    - name: Media contract schemas
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: pnpm media:contract:check
+
     - name: Format check
       shell: bash
       working-directory: ${{ inputs.working-directory }}

@@ -4,12 +4,11 @@ import { startChromiumTakeover } from '@/lib/download/chromium-takeover';
 import { DuplicateDownloadGuard } from '@/lib/download/duplicate-guard';
 import {
   RequestHeaderContextStore,
-  buildRequestHeaderExtraInfoSpec,
-  captureRequestHeaderContext,
   type RequestHeaderMatchResult,
 } from '@/lib/download/request-context';
 import { parseFirefoxDownloadResponse } from '@/lib/download/firefox-response';
 import { ApiAuthError, DesktopApiClient } from '@/lib/api';
+import { startMediaBackground } from '@/lib/media/background';
 import {
   DesktopActivationError,
   activateDesktop,
@@ -24,7 +23,6 @@ import {
   hasCookieForwardingAccess,
   hasDownloadUiAccess,
   isExternalProtocol,
-  webRequest,
   type ExternalProtocol,
 } from '@/lib/browser';
 import { loadDiagnosticEvents, loadSnapshot, saveDiagnosticEvents } from '@/lib/storage';
@@ -62,7 +60,8 @@ export default defineBackground(() => {
   });
   const requestHeaderContexts = new RequestHeaderContextStore();
   const duplicateDownloadGuard = new DuplicateDownloadGuard();
-  const desktopClient = new DesktopApiClient(parseConnectionConfig(null));
+  let connectionConfig = parseConnectionConfig(null);
+  const desktopClient = new DesktopApiClient(connectionConfig);
   const activateDesktopAndWait = createDesktopActivationCoordinator();
 
   // ─── Logging ──────────────────────────────────────────
@@ -97,7 +96,8 @@ export default defineBackground(() => {
         settings = data.settings;
         diagnosticLog.setMaxEvents(data.diagnostics.maxEvents);
         siteRules = data.siteRules;
-        desktopClient.updateConfig(data.connection);
+        connectionConfig = data.connection;
+        desktopClient.updateConfig(connectionConfig);
         bgI18n.setLocale(effectiveLocale(data.uiPrefs.locale));
       } catch (e) {
         logError('config_load_failed', 'Configuration could not be loaded; defaults are active', {
@@ -209,60 +209,6 @@ export default defineBackground(() => {
     return consume ? requestHeaderContexts.match(item) : requestHeaderContexts.peek(item);
   }
 
-  /** Capture outgoing request headers for later forwarding to the desktop app. */
-  function registerRequestHeaderContextListener(): void {
-    const listener = webRequest?.onBeforeSendHeaders;
-    const browserName = import.meta.env.FIREFOX ? 'firefox' : 'chromium';
-    if (!listener) {
-      logWarn('request_headers_failed', 'Request header listener is unavailable', {
-        browser: browserName,
-        reason: 'missing-webRequest-listener',
-      });
-      return;
-    }
-
-    const capture = (details: {
-      url: string;
-      requestHeaders?: { name?: string; value?: string }[];
-    }) => {
-      if (!settings.forwardRequestHeaders) return;
-      const context = captureRequestHeaderContext(details);
-      if (context) requestHeaderContexts.remember(context);
-    };
-
-    // Chromium needs 'extraHeaders' for Cookie visibility; some builds
-    // reject it, so retry once with the degraded spec.
-    const fullSpec = buildRequestHeaderExtraInfoSpec(browserName);
-    for (const extraInfoSpec of [fullSpec, ['requestHeaders']]) {
-      try {
-        listener.addListener(capture, { urls: ALL_HTTP_URLS }, extraInfoSpec);
-        const degraded = extraInfoSpec !== fullSpec;
-        if (degraded) {
-          logWarn('request_headers_degraded', 'Request header listener has limited access', {
-            browser: browserName,
-            extraHeaders: false,
-          });
-        }
-        return;
-      } catch (e) {
-        if (extraInfoSpec === fullSpec && !fullSpec.includes('extraHeaders')) {
-          // Degraded spec would be identical — report and stop.
-          logWarn('request_headers_failed', 'Request header listener could not be registered', {
-            browser: browserName,
-            error: errorMessage(e),
-          });
-          return;
-        }
-        if (extraInfoSpec !== fullSpec) {
-          logWarn('request_headers_failed', 'Request header listener could not be registered', {
-            browser: browserName,
-            error: errorMessage(e),
-          });
-        }
-      }
-    }
-  }
-
   async function handleFirefoxResponseTakeover(candidate: DownloadCandidate): Promise<void> {
     await ensureConfigLoaded();
     const match = matchRequestHeaders(candidate, true);
@@ -279,8 +225,8 @@ export default defineBackground(() => {
   function registerFirefoxResponseInterception(): void {
     if (!import.meta.env.FIREFOX) return;
     try {
-      webRequest?.onHeadersReceived?.addListener(
-        (details): void | { cancel: true } => {
+      browser.webRequest.onHeadersReceived.addListener(
+        (details) => {
           const parsed = parseFirefoxDownloadResponse(details);
           if (!parsed) return;
           if (configLoaded && !orchestrator.shouldClaimFirefoxResponse(parsed)) return;
@@ -304,8 +250,23 @@ export default defineBackground(() => {
     }
   }
 
-  registerRequestHeaderContextListener();
   registerFirefoxResponseInterception();
+  startMediaBackground({
+    client: desktopClient,
+    ensureConfig: ensureConfigLoaded,
+    settings: () => settings,
+    siteRules: () => siteRules,
+    connection: () => connectionConfig,
+    requestHeaders: requestHeaderContexts,
+    onError: () =>
+      logWarn('media_discovery_failed', 'Media discovery could not update its session'),
+    activate: () =>
+      activateDesktopAndWait({
+        activate: activateDesktopApp,
+        checkReady: () => desktopClient.isReady(),
+        maxWaitMs: settings.desktopUnavailable.startupTimeoutSeconds * 1000,
+      }),
+  });
 
   // ─── Download Interception ────────────────────────────
 
@@ -589,7 +550,8 @@ export default defineBackground(() => {
     if (area !== 'local') return;
 
     if (changes.connection?.newValue) {
-      desktopClient.updateConfig(parseConnectionConfig(changes.connection.newValue));
+      connectionConfig = parseConnectionConfig(changes.connection.newValue);
+      desktopClient.updateConfig(connectionConfig);
     }
     if (changes.settings?.newValue) {
       settings = parseDownloadSettings(changes.settings.newValue);

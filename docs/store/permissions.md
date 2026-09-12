@@ -6,6 +6,26 @@ Text to enter in the Chrome Web Store Developer Dashboard when prompted to justi
 
 ## Required Permissions
 
+### `webNavigation`
+
+Used to associate discovered media with its actual tab, frame, and document; remove
+stale sources after navigation; and retain correct provenance across same-document
+history changes. No browsing history is exported or sent to a remote service.
+
+### `alarms`
+
+Runs bounded media session cleanup after extension worker suspension. It expires
+inactive local media metadata and request context. It does not schedule downloads.
+
+### Media discovery and session storage
+
+The Media tab observes response MIME types, media URLs and public media elements.
+`storage.session` holds a bounded catalogue and operation receipts until expiry or
+browser restart. Cookie/header controls apply to captured context; only user-selected
+media inspection sends that context to the local desktop. Source credentials are not
+exposed to content scripts or included in settings backups. Native Messaging remains
+activation-only. See [Media](../MEDIA.md) for scope and retention.
+
 ### `downloads`
 
 ```
