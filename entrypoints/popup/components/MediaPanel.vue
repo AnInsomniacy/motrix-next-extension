@@ -191,6 +191,7 @@ onUnmounted(() => {
             v-if="selected"
             :key="selected.id"
             :item="selected"
+            :frame="frame"
             :busy="busy"
             @back="showSources"
             @inspect="command({ type: 'MEDIA_PROBE', tabId, candidateId: selected.id })"
@@ -264,7 +265,7 @@ onUnmounted(() => {
             </p>
             <NButton
               size="small"
-              quaternary
+              :quaternary="frame"
               :disabled="busy || !state?.host"
               @click="command({ type: 'MEDIA_SITE', tabId, excluded: !state?.excluded })"
               >{{

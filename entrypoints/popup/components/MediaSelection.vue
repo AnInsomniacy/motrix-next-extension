@@ -22,7 +22,7 @@ import {
 import { useI18n } from '@/shared/i18n/engine';
 const { t: i18n, effectiveLocale } = useI18n();
 
-const props = defineProps<{ item: MediaItem; busy: boolean }>();
+const props = defineProps<{ item: MediaItem; busy: boolean; frame?: boolean }>();
 const emit = defineEmits<{
   inspect: [];
   refresh: [];
@@ -114,7 +114,9 @@ function submit() {
 
 <template>
   <section class="media-selection" :aria-label="i18n('media_options')" :aria-busy="busy">
-    <NButton size="small" quaternary @click="emit('back')">{{ i18n('media_back') }}</NButton>
+    <NButton size="small" :quaternary="frame" @click="emit('back')">{{
+      i18n('media_back')
+    }}</NButton>
     <h3 id="media-options-heading" tabindex="-1">
       {{ item.filename || item.title || i18n('media_source') }}
     </h3>
