@@ -9,12 +9,35 @@ patch Fetch/XHR, read response bodies, parse playlists, decrypt samples, or mux 
 
 1. Open a web page and play its media. The action badge counts network/downloadable
    candidates. The popup's **Media** tab also works while the desktop is disconnected.
-2. Select a source and choose **Inspect formats**. The desktop probes it without
+2. Use the **Download · Motrix Next** button next to a playing or hovered player,
+   or open the popup. Selecting a supported source starts format inspection. The desktop probes it without
    downloading payload segments. This requires the [media API](MEDIA_API.md).
 3. Select native video/audio/subtitle tracks and an output format. Live sources can
    have a recording duration limit. Confirm once in the extension; the desktop must
    not open a second selection dialog for this submission.
-4. A confirmed desktop GID produces **Sent to Motrix Next**. Playback continues.
+4. A confirmed desktop GID produces **Download created in Motrix Next**. Playback continues.
+
+The floating button uses WXT's isolated Shadow Root UI. Its panel loads on demand
+in a WXT extension iframe and shares the popup's source and selection components.
+The iframe's native parent frame determines its source scope; supplied tab IDs are
+ignored. Source credentials remain in the background. Closing the panel does not
+cancel an inspection or download. Escape closes the panel and restores button focus.
+
+The control follows the active or hovered media element using native resize,
+intersection, scroll and fullscreen events. Close hides it for that playback source;
+site exclusion hides it across the site. Fullscreen player containers are supported;
+native fullscreen on the video element itself cannot host this control. Exit that
+fullscreen mode to use the button. Browser Picture-in-Picture is outside the page.
+
+Direct element URLs are matched exactly. For MSE/blob players or ambiguous sources,
+the panel explicitly lists candidates from the same frame without claiming a match.
+**Locate player** scrolls to a unique, connected URL match. It refuses stale or
+ambiguous matches; it does not infer identity from a shared page title or hostname.
+
+All media UI copy uses the existing 27-locale registry, including errors and accessible
+labels. Numbers, durations and track languages use native Intl formatting. Popup tabs
+use Naive UI's directional animation and retain their state; hidden media tabs stop
+polling. Detail transitions use Vue and CSS, respecting reduced-motion preferences.
 
 Discovery has its own switch, independent of ordinary download interception. Disable
 it globally or for the current page's host. Excluded hosts can be removed in settings.
@@ -86,6 +109,17 @@ in the protocol. Forwarding/connection changes invalidate pending local operatio
   An unavailable media API leaves discovery functional and explains the missing integration.
 
 ## Validation
+
+Manual checks in the unpacked extension:
+
+- Play media, hover a second player, scroll, close the control, and change its source.
+- Use **Locate player** on a direct source; ambiguous sources must report uncertainty.
+- Open the floating panel in a cross-origin iframe; it must show only that frame's sources.
+- Switch Media/Downloads repeatedly; selection and scroll state must survive without a loading flash.
+- Switch languages, including Chinese and RTL languages; inspect empty lists, errors and track labels.
+- Try player-container fullscreen, native video fullscreen, SPA navigation and site exclusion.
+
+Automated tests use happy-dom and fakeBrowser only; actual browser UI remains a manual check.
 
 Run `pnpm compile`, `pnpm test`, `pnpm lint`, `pnpm lint:i18n`,
 `pnpm format:check`, `pnpm media:contract:check`, `pnpm build`, and

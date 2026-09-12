@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "تأكيد المسح",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "الوسائط",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "التنزيلات",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "اكتشاف وسائط الصفحة",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "فحص الصفحة",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "مسح المصادر",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "تصفية المصادر",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "مصادر الوسائط",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "المصدر",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "تفعيل في هذا الموقع",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "تعطيل في هذا الموقع",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "فحص الصيغ",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "خيارات الوسائط",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "العودة إلى المصادر",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "جودة الفيديو",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "الصوت",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "الترجمة",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "صيغة الإخراج",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "الملف الأصلي",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "حد التسجيل (ثوانٍ)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "تسجيل مباشر",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "تنزيل",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "بدء التسجيل",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "إلغاء",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "إعادة المحاولة",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "إغلاق",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "تحديد موقع المشغّل",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "بلا فيديو",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "بلا صوت",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "بلا ترجمة",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "مواقع الوسائط المستثناة",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "تم العثور على المشغّل؛ بانتظار مصدر الوسائط.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "لم يتم العثور على مصادر وسائط.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "اكتشاف الوسائط متوقف مؤقتًا.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "اكتشاف الوسائط معطّل في هذا الموقع.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "لا يمكن ربط المصادر بمشغّل واحد بدقة. تحقق قبل التنزيل.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "جارٍ فحص الوسائط…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "تم إنشاء التنزيل في Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "تم إلغاء الفحص.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "فشلت العملية. أعد المحاولة للتحقق من الحالة.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "هذه الوسائط أو طريقة الطلب غير مدعومة.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "اختر مجموعة مدعومة من المسارات والصيغة والمدة.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "لا يدعم Motrix Next واجهة الوسائط بعد.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "انتهت صلاحية المصدر أو الفحص. شغّل الوسائط وافحص مجددًا.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "تحقق من تسجيل الدخول وتمرير الطلبات أو مفتاح API للتطبيق.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "شغّل Motrix Next وتحقق من إعدادات الاتصال.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "الحجم غير معروف",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "المدة غير معروفة",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "يتضمن صوتًا",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "الصفر يعني التسجيل حتى إيقافه في Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "افحص أولًا ثم أكد التنزيل.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "افتح صفحة ويب لاكتشاف الوسائط.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "شغّل فيديو أو صوتًا لاكتشاف مصادره تلقائيًا.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "الصيغ جاهزة",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "جارٍ تأكيد التنزيل…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "جارٍ إلغاء الفحص…",
+    "description": "Media discovery: cancelling"
   }
 }

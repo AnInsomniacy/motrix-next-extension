@@ -23,9 +23,17 @@ import {
   type MediaObservation,
 } from './detection';
 import { captureMediaContext } from './request-context';
-import { MediaCommandSchema, MediaObservationsSchema, type MediaList } from './messages';
+import {
+  MediaCommandSchema,
+  MediaFrameCommandSchema,
+  MediaObservationsSchema,
+  type MediaList,
+} from './messages';
 import { createMediaWorkflow, mediaErrorCode } from './workflow';
 import type { MediaRequestContext } from './contracts';
+import { loadUiPrefs } from '../storage';
+import { I18nEngine } from '@/shared/i18n/engine';
+import { resolveLocaleId } from '@/shared/i18n/dictionaries';
 
 const HTTP_URLS = ['http://*/*', 'https://*/*'];
 const CLEANUP_ALARM = 'media-cleanup';
@@ -399,6 +407,24 @@ export function startMediaBackground(options: {
   }
 
   browser.runtime.onMessage.addListener((raw: unknown, sender: Browser.runtime.MessageSender) => {
+    if (
+      raw &&
+      typeof raw === 'object' &&
+      'type' in raw &&
+      raw.type === 'MEDIA_OVERLAY_LABELS' &&
+      sender.id === browser.runtime.id
+    ) {
+      return loadUiPrefs().then((prefs) => {
+        const locale =
+          prefs.locale === 'auto' ? resolveLocaleId(browser.i18n.getUILanguage()) : prefs.locale;
+        const i18n = new I18nEngine(locale);
+        return {
+          download: i18n.t('media_download'),
+          close: i18n.t('media_close'),
+          options: i18n.t('media_options'),
+        };
+      });
+    }
     const observations = MediaObservationsSchema.safeParse(raw);
     if (observations.success) {
       if (
@@ -425,15 +451,71 @@ export function startMediaBackground(options: {
         .then(() => ({ ok: true }))
         .catch(() => ({ ok: false }));
     }
-    const command = MediaCommandSchema.safeParse(raw);
+    const scoped = MediaFrameCommandSchema.safeParse(raw);
+    const command = MediaCommandSchema.safeParse(scoped.success ? scoped.data.command : raw);
     if (!command.success) return;
-    // Page scripts may report hints but cannot start downloads, inspect credentials, or change settings.
-    if (sender.id !== browser.runtime.id || !sender.url?.startsWith(browser.runtime.getURL('')))
-      return;
+    if (sender.id !== browser.runtime.id) return;
+    if (scoped.success) {
+      if (sender.tab?.id === undefined || sender.frameId === undefined) return;
+      if (['MEDIA_ENABLE', 'MEDIA_CLEAR'].includes(command.data.type)) return;
+      command.data.tabId = sender.tab.id;
+    } else if (!sender.url?.startsWith(browser.runtime.getURL(''))) return;
     return (async () => {
       await options.ensureConfig();
       const message = command.data;
+      let sourceFrameId = sender.frameId;
+      if (scoped.success) {
+        if (sourceFrameId === undefined) throw new MediaApiError('source_expired');
+        const isPanel = sender.url?.split('?')[0] === browser.runtime.getURL('/media.html');
+        if (isPanel) {
+          const panel = await browser.webNavigation.getFrame({
+            tabId: message.tabId,
+            frameId: sourceFrameId,
+          });
+          if (!panel || panel.parentFrameId < 0) throw new MediaApiError('source_expired');
+          sourceFrameId = panel.parentFrameId;
+        }
+        const current = await frameContext(
+          message.tabId,
+          sourceFrameId,
+          isPanel ? undefined : sender.documentId,
+        );
+        if (!current || (!isPanel && current.frame.url !== sender.url))
+          throw new MediaApiError('source_expired');
+        if (!allowed(current.tab.url ?? '', current.frame.url))
+          return { ok: true, data: { ...(await list(message.tabId)), enabled: false, items: [] } };
+        if ('candidateId' in message && message.candidateId) {
+          const valid = await catalog.run((state) =>
+            state.candidates.some(
+              (item) =>
+                item.id === message.candidateId &&
+                item.tabId === message.tabId &&
+                item.frameId === sourceFrameId &&
+                item.documentId === (current.frame.documentId ?? '') &&
+                item.frameUrl === current.frame.url,
+            ),
+          );
+          if (!valid) throw new MediaApiError('source_expired');
+        }
+      }
       switch (message.type) {
+        case 'MEDIA_LOCATE': {
+          const item = await catalog.run((state) =>
+            state.candidates.find(
+              (candidate) =>
+                candidate.id === message.candidateId && candidate.tabId === message.tabId,
+            ),
+          );
+          if (!item || !(await validateCandidate(item))) throw new MediaApiError('source_expired');
+          const found: unknown = await browser.tabs.sendMessage(
+            message.tabId,
+            { type: 'MEDIA_LOCATE_PLAYER', url: item.url },
+            { frameId: item.frameId },
+          );
+          if (found !== true) throw new MediaApiError('player_not_found');
+          await browser.tabs.update(message.tabId, { active: true });
+          break;
+        }
         case 'MEDIA_ENABLE':
           await updateSettings({
             mediaDiscovery: { ...options.settings().mediaDiscovery, enabled: message.enabled },
@@ -485,7 +567,9 @@ export function startMediaBackground(options: {
           await workflow.cancel(message.tabId, message.candidateId);
           break;
       }
-      return { ok: true, data: await list(message.tabId) };
+      const data = await list(message.tabId);
+      if (scoped.success) data.items = data.items.filter((item) => item.frameId === sourceFrameId);
+      return { ok: true, data };
     })().catch((error: unknown) => ({ ok: false, error: mediaErrorCode(error) }));
   });
 

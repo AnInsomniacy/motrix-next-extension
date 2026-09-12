@@ -191,6 +191,30 @@ body {
 
 /* Shared Vue transitions. */
 
+.media-forward-enter-active,
+.media-forward-leave-active,
+.media-back-enter-active,
+.media-back-leave-active {
+  transition:
+    transform 200ms cubic-bezier(0.2, 0, 0, 1),
+    opacity 200ms ease;
+}
+.media-forward-leave-active,
+.media-back-leave-active {
+  position: absolute;
+  inset: 0;
+}
+.media-forward-enter-from,
+.media-back-leave-to {
+  transform: translateX(32px);
+  opacity: 0;
+}
+.media-forward-leave-to,
+.media-back-enter-from {
+  transform: translateX(-32px);
+  opacity: 0;
+}
+
 /* ── fade: shared-axis scale transition ──────────────────────────── */
 .fade-enter-active {
   transition:

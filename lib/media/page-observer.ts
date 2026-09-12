@@ -2,10 +2,14 @@ import { detectMedia } from './detection';
 import type { MediaObservations } from './messages';
 
 /** Observe public DOM and resource timing only. Player functions and response bodies are untouched. */
-export function observePageMedia(send: (message: MediaObservations) => Promise<unknown>) {
+export function observePageMedia(
+  send: (message: MediaObservations) => Promise<unknown>,
+  onPlayer?: (player: HTMLMediaElement) => void,
+) {
   type Observation = MediaObservations['observations'][number];
   const seen = new Set<string>();
   const roots = new Set<Document | ShadowRoot>();
+  const players = new Set<HTMLMediaElement>();
   const scanRoots = new Set<Document | ShadowRoot | Element>();
   const pending: Observation[] = [];
   let stopped = false;
@@ -36,6 +40,9 @@ export function observePageMedia(send: (message: MediaObservations) => Promise<u
 
   function inspect(element: Element) {
     if (element instanceof HTMLMediaElement) {
+      for (const player of players) if (!player.isConnected) players.delete(player);
+      if (players.size < 128) players.add(element);
+      if (!element.paused && element.readyState > 0) onPlayer?.(element);
       const elementType = element instanceof HTMLVideoElement ? 'video' : 'audio';
       for (const url of new Set([element.currentSrc, element.src].filter(Boolean)))
         publish({ url, elementType, evidence: 'element' });
@@ -66,7 +73,7 @@ export function observePageMedia(send: (message: MediaObservations) => Promise<u
         observer.disconnect();
         for (const root of detached) {
           roots.delete(root);
-          for (const event of ['loadedmetadata', 'loadstart', 'play'])
+          for (const event of ['loadedmetadata', 'loadstart', 'play', 'pointerover', 'focusin'])
             root.removeEventListener(event, mediaEvent, true);
         }
         for (const root of roots)
@@ -89,12 +96,13 @@ export function observePageMedia(send: (message: MediaObservations) => Promise<u
       attributes: true,
       attributeFilter: ['src', 'type'],
     });
-    for (const event of ['loadedmetadata', 'loadstart', 'play'])
+    for (const event of ['loadedmetadata', 'loadstart', 'play', 'pointerover', 'focusin'])
       root.addEventListener(event, mediaEvent, true);
   }
 
   function mediaEvent(event: Event) {
     if (event.target instanceof Element) inspect(event.target);
+    if (event.target instanceof HTMLMediaElement) onPlayer?.(event.target);
   }
 
   function scan(root: Document | ShadowRoot | Element) {
@@ -145,12 +153,34 @@ export function observePageMedia(send: (message: MediaObservations) => Promise<u
     clearTimeout(timer);
     clearTimeout(scanTimer);
     for (const root of roots)
-      for (const event of ['loadedmetadata', 'loadstart', 'play'])
+      for (const event of ['loadedmetadata', 'loadstart', 'play', 'pointerover', 'focusin'])
         root.removeEventListener(event, mediaEvent, true);
     roots.clear();
     scanRoots.clear();
     pending.length = 0;
+    players.clear();
     seen.clear();
   }
-  return { stop, rescan };
+  function locate(url: string): boolean {
+    const matching = [...players].filter(
+      (player) =>
+        player.isConnected &&
+        [
+          player.currentSrc,
+          player.src,
+          ...[...player.querySelectorAll('source')].map((source) => source.src),
+        ].includes(url),
+    );
+    if (matching.length !== 1) return false;
+    const player = matching[0]!;
+    player.scrollIntoView({
+      block: 'center',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    });
+    onPlayer?.(player);
+    return true;
+  }
+  return { stop, rescan, locate };
 }

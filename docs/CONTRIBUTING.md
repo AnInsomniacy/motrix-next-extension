@@ -18,15 +18,13 @@ Before you start contributing, make sure you understand [GitHub flow](https://gu
 git clone https://github.com/AnInsomniacy/motrix-next-extension.git
 cd motrix-next-extension
 pnpm install
-pnpm dev    # Build the development extension with hot reload
+pnpm dev    # Launch Chrome with the development extension and hot reload
 ```
 
-Open `chrome://extensions` in a regular Chrome profile and load
-`.output/chrome-mv3-dev` as an unpacked extension. WXT does not launch an
-isolated browser because Native Messaging registrations follow the browser data
-root on macOS and Linux.
+WXT automatically launches Chrome with an isolated development profile and loads
+the extension. Run `pnpm dev:firefox` to develop in Firefox instead.
 
-Load the unpacked extension:
+To manually test a production build, run `pnpm build`, then:
 
 1. Navigate to `chrome://extensions`
 2. Enable **Developer mode**
@@ -62,7 +60,7 @@ pnpm zip:firefox     # Firefox store package
 
 For media discovery and the synthetic desktop interface, see [Media](MEDIA.md) and
 [Desktop media API](MEDIA_API.md). Run `pnpm dev:media-fixture` for local manual checks.
-New media code, UI copy, and integration documentation are maintained in English.
+Code and integration documentation are maintained in English. All user-facing copy must be translated in every supported locale.
 
 - Keep tests focused on download ownership, recovery, data boundaries, and confirmed regressions.
 - Tests live in `__tests__/unit/` and `__tests__/integration/`.

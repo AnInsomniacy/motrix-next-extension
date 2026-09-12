@@ -199,7 +199,7 @@ onUnmounted(() => {
     :date-locale="naiveDateLocale"
     inline-theme-disabled
   >
-    <div class="popup-root">
+    <div class="popup-root" :dir="['ar', 'fa'].includes(effectiveLocale) ? 'rtl' : 'ltr'">
       <div v-if="phase === 'initializing'" class="popup-skeleton" aria-busy="true">
         <div class="popup-skeleton__header">
           <NSkeleton width="64px" height="24px" />
@@ -231,9 +231,11 @@ onUnmounted(() => {
           @toggle-enabled="toggleEnabled"
         />
 
-        <NTabs v-model:value="view" type="line" :tabs-padding="16" size="small">
-          <NTabPane name="media" tab="Media"><MediaPanel /></NTabPane>
-          <NTabPane name="downloads" tab="Downloads">
+        <NTabs v-model:value="view" type="line" animated :tabs-padding="16" size="small">
+          <NTabPane name="media" :tab="i18n('media_tab')" display-directive="show:lazy"
+            ><MediaPanel :active="view === 'media'"
+          /></NTabPane>
+          <NTabPane name="downloads" :tab="i18n('media_downloads')" display-directive="show:lazy">
             <div class="popup-viewport">
               <Transition name="phase-switch" mode="out-in">
                 <section

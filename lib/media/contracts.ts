@@ -146,29 +146,28 @@ export function selectionError(
   presentation: { kind: MediaSourceKind; live: boolean; tracks: MediaTrack[]; formats: string[] },
   selection: MediaSelection,
 ): string | null {
-  if (!presentation.formats.includes(selection.format)) return 'Choose an available output format.';
-  if (!presentation.live && selection.recordTimeSeconds !== 0)
-    return 'Duration limits apply to live recordings only.';
+  if (!presentation.formats.includes(selection.format)) return 'invalid_format';
+  if (!presentation.live && selection.recordTimeSeconds !== 0) return 'invalid_duration';
   if (presentation.kind === 'file') {
     return selection.format !== 'original' ||
       selection.videoId ||
       selection.audioId ||
       selection.subtitleId
-      ? 'Direct files must keep their original format.'
+      ? 'invalid_file_selection'
       : null;
   }
-  if (selection.format === 'original') return 'Choose a media container.';
+  if (selection.format === 'original') return 'container_required';
   const video = presentation.tracks.find((track) => track.id === selection.videoId);
   const audio = presentation.tracks.find((track) => track.id === selection.audioId);
   const subtitle = presentation.tracks.find((track) => track.id === selection.subtitleId);
   if (selection.videoId && (!video || !['video', 'muxed'].includes(video.type)))
-    return 'Choose an available video track.';
+    return 'invalid_video';
   if (selection.audioId && (!audio || !['audio', 'muxed'].includes(audio.type)))
-    return 'Choose an available audio track.';
+    return 'invalid_audio';
   if (selection.subtitleId && (!subtitle || subtitle.type !== 'subtitle'))
-    return 'Choose an available subtitle track.';
+    return 'invalid_subtitle';
   if (video && audio && (video.type === 'muxed' || audio.type === 'muxed') && video.id !== audio.id)
-    return 'Choose audio from the selected multiplexed source or omit it.';
-  if (!video && !audio) return 'Select at least one video or audio track.';
+    return 'invalid_muxed_selection';
+  if (!video && !audio) return 'track_required';
   return null;
 }

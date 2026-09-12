@@ -39,6 +39,7 @@ export function buildExtensionManifest(browser: string, mode: string) {
     optional_permissions: optionalPermissions,
     host_permissions: [...LOOPBACK_HOST_PERMISSIONS, ...BROAD_DOWNLOAD_ORIGINS],
     optional_host_permissions: [],
+    web_accessible_resources: [{ resources: ['media.html'], matches: [...BROAD_DOWNLOAD_ORIGINS] }],
     ...(browser === 'firefox'
       ? {
           browser_specific_settings: {

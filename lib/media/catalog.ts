@@ -80,15 +80,6 @@ export function createMediaCatalog() {
   async function observe(candidate: MediaCandidate): Promise<void> {
     await run((state) => {
       const key = mediaIdentity(candidate);
-      if (candidate.kind === 'embedded') {
-        state.candidates = state.candidates.filter(
-          (item) =>
-            item.kind !== 'embedded' ||
-            item.tabId !== candidate.tabId ||
-            item.frameId !== candidate.frameId ||
-            item.url === candidate.url,
-        );
-      }
       const existing = state.candidates.find((item) => mediaIdentity(item) === key);
       if (!existing) state.candidates.push(candidate);
       else {

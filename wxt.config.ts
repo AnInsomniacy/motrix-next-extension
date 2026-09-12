@@ -15,11 +15,6 @@ export default defineConfig({
   zip: {
     artifactTemplate: '{{name}}-{{version}}-{{browser}}-mv3.zip',
   },
-  webExt: {
-    // Native Messaging registrations are scoped to the regular browser data
-    // root on macOS and Linux. Load the dev build into a normal browser profile.
-    disabled: true,
-  },
   manifest: ({ browser, mode }) => buildExtensionManifest(browser, mode),
   vite: () => ({
     build: {

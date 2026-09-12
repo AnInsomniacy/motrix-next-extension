@@ -103,6 +103,60 @@ afterEach(() => {
 });
 
 describe('browser discovery integration', () => {
+  it("binds floating UI to its native parent frame and rejects another frame's candidate", async () => {
+    response(resource('https://cdn.example.com/main.m3u8'));
+    await vi.waitFor(async () => expect((await snapshot()).candidates).toHaveLength(1));
+    const candidate = (await snapshot()).candidates[0]!;
+    const tab = await browser.tabs.get(tabId);
+    const normalFrame = await browser.webNavigation.getFrame({ tabId, frameId: 0 });
+    vi.spyOn(browser.webNavigation, 'getFrame').mockImplementation(async ({ frameId }) => {
+      if (!normalFrame) return null;
+      return { ...normalFrame, parentFrameId: frameId === 10 ? 2 : -1 };
+    });
+    const sender = {
+      id: browser.runtime.id,
+      url: browser.runtime.getURL('/media.html'),
+      tab,
+      frameId: 10,
+    };
+    const listed: unknown[] = await fakeBrowser.runtime.onMessage.trigger(
+      { type: 'MEDIA_FRAME', command: { type: 'MEDIA_LIST', tabId: 99999 } },
+      sender,
+    );
+    const view = z
+      .object({ ok: z.literal(true), data: MediaListSchema })
+      .parse(listed.find((value) => value !== undefined));
+    expect(view.data.items).toEqual([]);
+    const rejected: unknown[] = await fakeBrowser.runtime.onMessage.trigger(
+      {
+        type: 'MEDIA_FRAME',
+        command: { type: 'MEDIA_PROBE', tabId: 99999, candidateId: candidate.id },
+      },
+      sender,
+    );
+    expect(rejected).toContainEqual({ ok: false, error: 'source_expired' });
+    expect((await snapshot()).operations).toEqual([]);
+  });
+  it("returns only sources from the content sender's native frame", async () => {
+    response(resource('https://cdn.example.com/main.m3u8'));
+    await vi.waitFor(async () => expect((await snapshot()).candidates).toHaveLength(1));
+    const results: unknown[] = await fakeBrowser.runtime.onMessage.trigger(
+      { type: 'MEDIA_FRAME', command: { type: 'MEDIA_LIST', tabId: 99999 } },
+      {
+        id: browser.runtime.id,
+        url: frameUrl,
+        documentId,
+        tab: await browser.tabs.get(tabId),
+        frameId: 0,
+      },
+    );
+    const view = z
+      .object({ ok: z.literal(true), data: MediaListSchema })
+      .parse(results.find((value) => value !== undefined));
+    expect(view.data.items).toHaveLength(1);
+    expect(view.data.items[0]?.tabId).toBe(tabId);
+    expect(JSON.stringify(view)).not.toContain('headers');
+  });
   it('rejects a pre-navigation response even when a browser provides no document ID', async () => {
     const stale = resource('https://cdn.example.com/stale.m3u8', { documentId: undefined });
     request({ ...stale, requestHeaders: [{ name: 'Cookie', value: 'previous-session' }] });

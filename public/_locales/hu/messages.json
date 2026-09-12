@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Törlés megerősítése",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Média",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Letöltések",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Oldal médiájának felismerése",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Oldal vizsgálata",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Források törlése",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Források szűrése",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Médiaforrások",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Forrás",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Engedélyezés ezen a webhelyen",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Letiltás ezen a webhelyen",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Formátumok vizsgálata",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Médiabeállítások",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Vissza a forrásokhoz",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Videóminőség",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Hang",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Feliratok",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Kimeneti formátum",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Eredeti fájl",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Felvételi korlát (másodperc)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Élő felvétel",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Letöltés",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Felvétel indítása",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Mégse",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Újra",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Bezárás",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Lejátszó megkeresése",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Nincs videó",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Nincs hang",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Nincs felirat",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Kizárt médiawebhelyek",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Lejátszó található; várakozás a médiaforrásra.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "Nem található médiaforrás.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "A médiafelismerés szünetel.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "A médiafelismerés ezen a webhelyen le van tiltva.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "A források nem rendelhetők egyetlen lejátszóhoz. Letöltés előtt ellenőrizze.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Média vizsgálata…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "A letöltés létrejött a Motrix Nextben.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "A vizsgálat megszakítva.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "A művelet sikertelen. Próbálja újra az állapot ellenőrzéséhez.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Ez a média vagy kérési mód nem támogatott.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Válasszon támogatott sáv-, formátum- és időtartam-kombinációt.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "A Motrix Next még nem támogatja a médiafelületet.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "A forrás vagy vizsgálat lejárt. Játssza le, majd vizsgálja meg újra.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Ellenőrizze a bejelentkezést, a kéréstovábbítást vagy az alkalmazás API-kulcsát.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Indítsa el a Motrix Nextet és ellenőrizze a kapcsolatot.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Ismeretlen méret",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Ismeretlen időtartam",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Hangot tartalmaz",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Nulla esetén a felvétel a Motrix Nextben történő leállításig tart.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Előbb vizsgálja meg, majd erősítse meg a letöltést.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Nyisson meg egy weboldalt a médiafelismeréshez.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Játsszon le videót vagy hangot a források automatikus felismeréséhez.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "A formátumok készen állnak",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Letöltés megerősítése…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Vizsgálat megszakítása…",
+    "description": "Media discovery: cancelling"
   }
 }

@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Confirm Clear",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Media",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Downloads",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Discover page media",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Scan page",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Clear sources",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Filter sources",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Media sources",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Source",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Enable on this site",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Disable on this site",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Inspect formats",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Media options",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Back to sources",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Video quality",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Audio",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Subtitles",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Output format",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Original file",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Recording limit (seconds)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Live recording",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Download",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Start recording",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Cancel",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Retry",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Close",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Locate player",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "No video",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "No audio",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "No subtitles",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Excluded media sites",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Player found; waiting for a media source.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "No media sources found.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "Media discovery is paused.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "Media discovery is disabled on this site.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "These sources cannot be matched to one player. Check the source before downloading.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Inspecting media…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Download created in Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Inspection cancelled.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "Operation failed. Retry to check its status.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "This media or request method is not supported.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Choose a supported combination of tracks, format and duration.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next does not support the media interface yet.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "The source or inspection expired. Play the media and inspect again.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Check source login and request forwarding, or the desktop API secret.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Start Motrix Next and check connection settings.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Size unknown",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Duration unknown",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Includes audio",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Zero records until you stop recording in Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Inspect first, then confirm the download.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Open a web page to discover media.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Play a video or audio to discover its sources automatically.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Formats ready",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Confirming download…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Cancelling inspection…",
+    "description": "Media discovery: cancelling"
   }
 }

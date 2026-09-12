@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Потвърдете",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Медия",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Изтегляния",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Откриване на медия в страницата",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Сканиране на страницата",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Изчистване на източниците",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Филтриране на източници",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Медийни източници",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Източник",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Включване за този сайт",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Изключване за този сайт",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Проверка на форматите",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Медийни опции",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Назад към източниците",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Качество на видеото",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Аудио",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Субтитри",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Изходен формат",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Оригинален файл",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Лимит на записа (секунди)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Запис на живо",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Изтегляне",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Начало на записа",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Отказ",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Повторен опит",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Затваряне",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Намиране на плейъра",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Без видео",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Без аудио",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Без субтитри",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Изключени медийни сайтове",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Намерен е плейър; изчаква се медиен източник.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "Не са намерени медийни източници.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "Откриването на медия е на пауза.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "Откриването на медия е изключено за този сайт.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "Източниците не могат да се свържат с един плейър. Проверете преди изтегляне.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Проверка на медията…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Изтеглянето е създадено в Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Проверката е отменена.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "Операцията е неуспешна. Опитайте пак, за да проверите състоянието.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Медията или методът на заявката не се поддържа.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Изберете поддържана комбинация от писти, формат и продължителност.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next още не поддържа медийния интерфейс.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "Източникът или проверката е изтекъл. Пуснете медията и проверете пак.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Проверете входа, препращането на заявки или API ключа на приложението.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Стартирайте Motrix Next и проверете връзката.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Неизвестен размер",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Неизвестна продължителност",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Включва аудио",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Нула записва до спиране в Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Първо проверете, после потвърдете изтеглянето.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Отворете уеб страница, за да откриете медия.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Пуснете видео или аудио за автоматично откриване на източници.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Форматите са готови",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Потвърждаване на изтеглянето…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Отмяна на проверката…",
+    "description": "Media discovery: cancelling"
   }
 }

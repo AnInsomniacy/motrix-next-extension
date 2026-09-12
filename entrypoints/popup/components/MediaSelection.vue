@@ -1,9 +1,26 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { NAlert, NButton, NForm, NFormItem, NInputNumber, NSelect, NSpace, NSpin } from 'naive-ui';
+import {
+  NAlert,
+  NEmpty,
+  NButton,
+  NForm,
+  NFormItem,
+  NInputNumber,
+  NSelect,
+  NSpace,
+  NSpin,
+} from 'naive-ui';
 import type { MediaItem } from '@/lib/media/messages';
 import { selectionError, type MediaSelection } from '@/lib/media/contracts';
-import { mediaFailureMessage, mediaTrackLabel, mediaSize } from '@/lib/media/presentation';
+import {
+  mediaFailureKey,
+  mediaTrackLabel,
+  mediaSize,
+  mediaDuration,
+} from '@/lib/media/presentation';
+import { useI18n } from '@/shared/i18n/engine';
+const { t: i18n, effectiveLocale } = useI18n();
 
 const props = defineProps<{ item: MediaItem; busy: boolean }>();
 const emit = defineEmits<{
@@ -33,7 +50,10 @@ const videoOptions = computed(
   () =>
     presentation.value?.tracks
       .filter((track) => ['video', 'muxed'].includes(track.type))
-      .map((track) => ({ label: mediaTrackLabel(track), value: track.id })) ?? [],
+      .map((track) => ({
+        label: mediaTrackLabel(track, effectiveLocale.value, i18n('media_includes_audio')),
+        value: track.id,
+      })) ?? [],
 );
 const audioOptions = computed(
   () =>
@@ -43,18 +63,24 @@ const audioOptions = computed(
         if (video?.type === 'muxed') return track.id === video.id;
         return track.type === 'audio' || (!video && track.type === 'muxed');
       })
-      .map((track) => ({ label: mediaTrackLabel(track), value: track.id })) ?? [],
+      .map((track) => ({
+        label: mediaTrackLabel(track, effectiveLocale.value, i18n('media_includes_audio')),
+        value: track.id,
+      })) ?? [],
 );
 const subtitleOptions = computed(
   () =>
     presentation.value?.tracks
       .filter((track) => track.type === 'subtitle')
-      .map((track) => ({ label: mediaTrackLabel(track), value: track.id })) ?? [],
+      .map((track) => ({
+        label: mediaTrackLabel(track, effectiveLocale.value, i18n('media_includes_audio')),
+        value: track.id,
+      })) ?? [],
 );
 const formatOptions = computed(
   () =>
     presentation.value?.formats.map((value) => ({
-      label: value === 'original' ? 'Original file' : value.toUpperCase(),
+      label: value === 'original' ? i18n('media_original') : value.toUpperCase(),
       value,
     })) ?? [],
 );
@@ -87,41 +113,37 @@ function submit() {
 </script>
 
 <template>
-  <section class="media-selection" aria-label="Media options" :aria-busy="busy">
-    <NButton size="small" quaternary @click="emit('back')">Back to sources</NButton>
+  <section class="media-selection" :aria-label="i18n('media_options')" :aria-busy="busy">
+    <NButton size="small" quaternary @click="emit('back')">{{ i18n('media_back') }}</NButton>
     <h3 id="media-options-heading" tabindex="-1">
-      {{ item.filename || item.title || 'Media source' }}
+      {{ item.filename || item.title || i18n('media_source') }}
     </h3>
     <p class="media-meta">
-      {{ item.kind === 'embedded' ? 'In-page playback' : item.kind.toUpperCase() }} ·
-      {{ mediaSize(item.size) }}
+      {{ item.kind === 'embedded' ? i18n('media_waiting') : item.kind.toUpperCase() }} ·
+      {{ mediaSize(item.size, effectiveLocale, i18n('media_size_unknown')) }}
     </p>
     <NAlert v-if="unsupported" type="info" :show-icon="false">
-      {{
-        item.kind === 'embedded'
-          ? 'This is an in-page playback reference. Play the video to discover its original network source.'
-          : 'This source requires a request method the media interface does not support.'
-      }}
+      {{ item.kind === 'embedded' ? i18n('media_waiting') : i18n('media_unsupported') }}
     </NAlert>
     <NAlert v-if="operation?.error" type="error" :show-icon="false" role="alert">{{
-      mediaFailureMessage(operation.error)
+      i18n(mediaFailureKey(operation.error))
     }}</NAlert>
     <div v-if="pending" class="media-progress" role="status" aria-live="polite">
       <NSpin v-if="!operation?.error" size="small" />
       <span>{{
         operation?.state === 'submitting'
-          ? 'Confirming the download…'
+          ? i18n('media_confirming')
           : operation?.state === 'cancelling'
-            ? 'Cancelling inspection…'
-            : 'Inspecting available formats…'
+            ? i18n('media_cancelling')
+            : i18n('media_loading')
       }}</span>
     </div>
     <NAlert v-if="operation?.state === 'submitted'" type="success" :show-icon="false" role="status">
-      Download created in Motrix Next.
+      {{ i18n('media_submitted') }}
     </NAlert>
-    <NAlert v-if="operation?.state === 'cancelled'" type="info" :show-icon="false"
-      >Inspection cancelled.</NAlert
-    >
+    <NAlert v-if="operation?.state === 'cancelled'" type="info" :show-icon="false">{{
+      i18n('media_cancelled')
+    }}</NAlert>
 
     <NForm
       v-if="presentation && form && operation?.state === 'ready'"
@@ -132,81 +154,93 @@ function submit() {
       <p class="media-meta">
         {{
           presentation.live
-            ? 'Live recording'
+            ? i18n('media_live')
             : presentation.durationMs === null
-              ? 'Duration unknown'
-              : `${Math.round(presentation.durationMs / 1000)} seconds`
+              ? i18n('media_duration_unknown')
+              : mediaDuration(presentation.durationMs, effectiveLocale)
         }}
       </p>
       <template v-if="presentation.kind !== 'file'">
-        <NFormItem label="Video quality">
+        <NFormItem :label="i18n('media_video')">
           <NSelect
             v-model:value="form.videoId"
             :options="videoOptions"
             clearable
-            placeholder="No video"
-            :aria-label="'Video quality'"
-          />
+            :placeholder="i18n('media_no_video')"
+            :aria-label="i18n('media_video')"
+            ><template #empty><NEmpty :description="i18n('media_none')" /></template
+          ></NSelect>
         </NFormItem>
-        <NFormItem label="Audio">
+        <NFormItem :label="i18n('media_audio')">
           <NSelect
             v-model:value="form.audioId"
             :options="audioOptions"
             :disabled="busy"
             clearable
-            placeholder="No audio"
-            aria-label="Audio track"
-          />
+            :placeholder="i18n('media_no_audio')"
+            :aria-label="i18n('media_audio')"
+            ><template #empty><NEmpty :description="i18n('media_none')" /></template
+          ></NSelect>
         </NFormItem>
-        <NFormItem label="Subtitles">
+        <NFormItem :label="i18n('media_subtitles')">
           <NSelect
             v-model:value="form.subtitleId"
             :options="subtitleOptions"
             clearable
-            placeholder="No subtitles"
-            aria-label="Subtitle track"
-          />
+            :placeholder="i18n('media_no_subtitles')"
+            :aria-label="i18n('media_subtitles')"
+            ><template #empty><NEmpty :description="i18n('media_none')" /></template
+          ></NSelect>
         </NFormItem>
       </template>
-      <NFormItem label="Output format">
-        <NSelect v-model:value="form.format" :options="formatOptions" aria-label="Output format" />
+      <NFormItem :label="i18n('media_format')">
+        <NSelect
+          v-model:value="form.format"
+          :options="formatOptions"
+          :aria-label="i18n('media_format')"
+          ><template #empty><NEmpty :description="i18n('media_none')" /></template
+        ></NSelect>
       </NFormItem>
-      <NFormItem v-if="presentation.live" label="Recording limit (seconds)">
+      <NFormItem v-if="presentation.live" :label="i18n('media_record_limit')">
         <NInputNumber
           :value="form.recordTimeSeconds"
           :min="0"
           :max="31536000"
           :precision="0"
-          aria-label="Recording limit in seconds"
+          :aria-label="i18n('media_record_limit')"
           @update:value="form.recordTimeSeconds = $event ?? 0"
         />
       </NFormItem>
       <p v-if="presentation.live" class="media-meta">
-        Zero records until you finish the recording in Motrix Next.
+        {{ i18n('media_record_hint') }}
       </p>
-      <NAlert v-if="invalid" type="warning" :show-icon="false" role="alert">{{ invalid }}</NAlert>
+      <NAlert v-if="invalid" type="warning" :show-icon="false" role="alert">{{
+        i18n('media_invalid')
+      }}</NAlert>
       <NSpace justify="end">
-        <NButton :disabled="busy" @click="emit('cancel')">Cancel</NButton>
+        <NButton :disabled="busy" @click="emit('cancel')">{{ i18n('media_cancel') }}</NButton>
         <NButton
           attr-type="submit"
           type="primary"
           :disabled="busy || Boolean(invalid)"
           :loading="busy"
-          >{{ presentation.live ? 'Start recording' : 'Download' }}</NButton
+          >{{ presentation.live ? i18n('media_record') : i18n('media_download') }}</NButton
         >
       </NSpace>
     </NForm>
     <NSpace v-else-if="!unsupported && operation?.state !== 'submitted'" justify="end">
-      <NButton v-if="pending" :disabled="busy" @click="emit('cancel')">Cancel</NButton>
-      <NButton v-if="pending && operation?.error" :loading="busy" @click="emit('refresh')"
-        >Retry</NButton
-      >
-      <NButton v-if="canInspect" type="primary" :loading="busy" @click="emit('inspect')"
-        >Inspect formats</NButton
-      >
+      <NButton v-if="pending" :disabled="busy" @click="emit('cancel')">{{
+        i18n('media_cancel')
+      }}</NButton>
+      <NButton v-if="pending && operation?.error" :loading="busy" @click="emit('refresh')">{{
+        i18n('media_retry')
+      }}</NButton>
+      <NButton v-if="canInspect" type="primary" :loading="busy" @click="emit('inspect')">{{
+        i18n('media_inspect')
+      }}</NButton>
     </NSpace>
     <p v-if="canInspect && !unsupported" class="media-meta">
-      Motrix Next inspects the source. Nothing downloads until you confirm.
+      {{ i18n('media_inspect_hint') }}
     </p>
   </section>
 </template>

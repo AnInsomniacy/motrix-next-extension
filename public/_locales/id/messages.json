@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Konfirmasi hapus",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Media",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Unduhan",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Temukan media halaman",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Pindai halaman",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Hapus sumber",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Filter sumber",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Sumber media",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Sumber",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Aktifkan di situs ini",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Nonaktifkan di situs ini",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Periksa format",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Opsi media",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Kembali ke sumber",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Kualitas video",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Audio",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Subtitel",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Format keluaran",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Berkas asli",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Batas rekaman (detik)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Rekaman langsung",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Unduh",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Mulai merekam",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Batal",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Coba lagi",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Tutup",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Temukan pemutar",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Tanpa video",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Tanpa audio",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Tanpa subtitel",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Situs media yang dikecualikan",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Pemutar ditemukan; menunggu sumber media.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "Sumber media tidak ditemukan.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "Penemuan media dijeda.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "Penemuan media dinonaktifkan di situs ini.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "Sumber tidak dapat dipasangkan dengan satu pemutar. Periksa sebelum mengunduh.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Memeriksa media…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Unduhan dibuat di Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Pemeriksaan dibatalkan.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "Operasi gagal. Coba lagi untuk memeriksa status.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Media atau metode permintaan ini tidak didukung.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Pilih kombinasi trek, format, dan durasi yang didukung.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next belum mendukung antarmuka media.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "Sumber atau pemeriksaan kedaluwarsa. Putar dan periksa lagi.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Periksa login, penerusan permintaan, atau kunci API desktop.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Jalankan Motrix Next dan periksa koneksi.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Ukuran tidak diketahui",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Durasi tidak diketahui",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Termasuk audio",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Nol merekam hingga dihentikan di Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Periksa dahulu, lalu konfirmasi unduhan.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Buka halaman web untuk menemukan media.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Putar video atau audio untuk menemukan sumber secara otomatis.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Format siap",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Mengonfirmasi unduhan…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Membatalkan pemeriksaan…",
+    "description": "Media discovery: cancelling"
   }
 }

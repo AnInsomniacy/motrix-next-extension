@@ -12,6 +12,11 @@ Used to associate discovered media with its actual tab, frame, and document; rem
 stale sources after navigation; and retain correct provenance across same-document
 history changes. No browsing history is exported or sent to a remote service.
 
+The floating media interface is an extension iframe (`media.html`, exposed as a
+web-accessible resource). Its native parent-frame identity scopes media commands;
+the content script cannot select another tab or frame by supplying an ID. The panel
+receives sanitized source metadata and shares the popup's download confirmation UI.
+
 ### `alarms`
 
 Runs bounded media session cleanup after extension worker suspension. It expires

@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Επιβεβαίωση εκκαθάρισης",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Πολυμέσα",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Λήψεις",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Εντοπισμός πολυμέσων σελίδας",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Σάρωση σελίδας",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Εκκαθάριση πηγών",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Φιλτράρισμα πηγών",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Πηγές πολυμέσων",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Πηγή",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Ενεργοποίηση σε αυτόν τον ιστότοπο",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Απενεργοποίηση σε αυτόν τον ιστότοπο",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Έλεγχος μορφών",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Επιλογές πολυμέσων",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Επιστροφή στις πηγές",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Ποιότητα βίντεο",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Ήχος",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Υπότιτλοι",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Μορφή εξόδου",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Αρχικό αρχείο",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Όριο εγγραφής (δευτερόλεπτα)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Ζωντανή εγγραφή",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Λήψη",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Έναρξη εγγραφής",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Ακύρωση",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Δοκιμή ξανά",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Κλείσιμο",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Εντοπισμός προγράμματος αναπαραγωγής",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Χωρίς βίντεο",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Χωρίς ήχο",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Χωρίς υπότιτλους",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Εξαιρούμενοι ιστότοποι πολυμέσων",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Βρέθηκε πρόγραμμα αναπαραγωγής· αναμονή πηγής πολυμέσων.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "Δεν βρέθηκαν πηγές πολυμέσων.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "Ο εντοπισμός πολυμέσων έχει παύσει.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "Ο εντοπισμός πολυμέσων είναι ανενεργός εδώ.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "Οι πηγές δεν αντιστοιχούν με βεβαιότητα σε ένα πρόγραμμα αναπαραγωγής. Ελέγξτε πριν τη λήψη.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Έλεγχος πολυμέσων…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Η λήψη δημιουργήθηκε στο Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Ο έλεγχος ακυρώθηκε.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "Η ενέργεια απέτυχε. Δοκιμάστε ξανά για έλεγχο κατάστασης.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Τα πολυμέσα ή η μέθοδος αιτήματος δεν υποστηρίζονται.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Επιλέξτε υποστηριζόμενο συνδυασμό κομματιών, μορφής και διάρκειας.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Το Motrix Next δεν υποστηρίζει ακόμη τη διεπαφή πολυμέσων.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "Η πηγή ή ο έλεγχος έληξε. Κάντε αναπαραγωγή και ελέγξτε ξανά.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Ελέγξτε σύνδεση στον ιστότοπο, προώθηση αιτημάτων ή κλειδί API.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Ξεκινήστε το Motrix Next και ελέγξτε τη σύνδεση.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Άγνωστο μέγεθος",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Άγνωστη διάρκεια",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Περιλαμβάνει ήχο",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Το μηδέν καταγράφει μέχρι να σταματήσετε στο Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Ελέγξτε πρώτα και επιβεβαιώστε μετά τη λήψη.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Ανοίξτε μια ιστοσελίδα για εντοπισμό πολυμέσων.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Αναπαραγάγετε βίντεο ή ήχο για αυτόματο εντοπισμό πηγών.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Οι μορφές είναι έτοιμες",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Επιβεβαίωση λήψης…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Ακύρωση ελέγχου…",
+    "description": "Media discovery: cancelling"
   }
 }

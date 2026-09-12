@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "消去を確認",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "メディア",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "ダウンロード",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "ページのメディアを検出",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "ページをスキャン",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "ソースを消去",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "ソースを絞り込み",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "メディアソース",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "ソース",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "このサイトで有効にする",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "このサイトで無効にする",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "形式を調べる",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "メディア設定",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "ソース一覧に戻る",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "動画の画質",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "音声",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "字幕",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "出力形式",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "元のファイル",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "録画上限（秒）",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "ライブ録画",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "ダウンロード",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "録画を開始",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "キャンセル",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "再試行",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "閉じる",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "プレーヤーを表示",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "動画なし",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "音声なし",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "字幕なし",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "除外されたメディアサイト",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "プレーヤーを検出しました。メディアソースを待っています。",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "メディアソースが見つかりません。",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "メディア検出は一時停止中です。",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "このサイトではメディア検出が無効です。",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "ソースを特定のプレーヤーに対応付けられません。ダウンロード前に確認してください。",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "メディアを調査中…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Motrix Next にダウンロードを作成しました。",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "調査をキャンセルしました。",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "操作に失敗しました。再試行して状態を確認してください。",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "このメディアまたはリクエスト方式は未対応です。",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "対応するトラック、形式、時間の組み合わせを選んでください。",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next はまだメディアインターフェースに対応していません。",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "ソースまたは調査の期限が切れました。再生して再調査してください。",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "ログイン状態、リクエスト転送、デスクトップ API シークレットを確認してください。",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Motrix Next を起動し、接続設定を確認してください。",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "サイズ不明",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "長さ不明",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "音声を含む",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "ゼロの場合、Motrix Next で停止するまで録画します。",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "形式を調べてからダウンロードを確定します。",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "ウェブページを開いてメディアを検出してください。",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "動画や音声を再生するとソースを自動検出します。",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "形式の準備完了",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "ダウンロードを確認中…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "調査をキャンセル中…",
+    "description": "Media discovery: cancelling"
   }
 }

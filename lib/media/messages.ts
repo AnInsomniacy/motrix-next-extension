@@ -14,6 +14,7 @@ export const MediaCommandSchema = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('MEDIA_PROBE'), ...candidate }),
   z.strictObject({ type: z.literal('MEDIA_POLL'), ...candidate }),
   z.strictObject({ type: z.literal('MEDIA_CANCEL'), ...candidate }),
+  z.strictObject({ type: z.literal('MEDIA_LOCATE'), ...candidate }),
   z.strictObject({
     type: z.literal('MEDIA_SUBMIT'),
     ...candidate,
@@ -33,6 +34,12 @@ export const MediaObservationsSchema = z.strictObject({
       }),
     )
     .max(32),
+});
+
+// Content-script UI has frame-scoped access only. Native sender identity wins.
+export const MediaFrameCommandSchema = z.strictObject({
+  type: z.literal('MEDIA_FRAME'),
+  command: MediaCommandSchema,
 });
 
 export const MediaOperationViewSchema = MediaOperationSchema.omit({
@@ -55,8 +62,10 @@ export type MediaItem = MediaList['items'][number];
 export type MediaCommand = z.infer<typeof MediaCommandSchema>;
 export type MediaObservations = z.infer<typeof MediaObservationsSchema>;
 
-export async function sendMediaCommand(command: MediaCommand): Promise<MediaList> {
-  const response: unknown = await browser.runtime.sendMessage(command);
+export async function sendMediaCommand(command: MediaCommand, frame = false): Promise<MediaList> {
+  const response: unknown = await browser.runtime.sendMessage(
+    frame ? { type: 'MEDIA_FRAME', command } : command,
+  );
   const result = z
     .discriminatedUnion('ok', [
       z.strictObject({ ok: z.literal(true), data: MediaListSchema }),

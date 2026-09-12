@@ -50,20 +50,19 @@ const unavailableActionOptions = computed(() => [
 <template>
   <div class="settings-section">
     <section class="settings-group">
-      <NFormItem class="settings-row" :show-feedback="false" label="Discover Page Media">
+      <NFormItem class="settings-row" :show-feedback="false" :label="i18n('media_discover')">
         <NSwitch
           :value="mediaDiscovery.enabled"
           @update:value="emit('update:mediaDiscovery', { enabled: $event })"
         />
       </NFormItem>
       <p class="settings-hint">
-        Find media sources without interrupting playback. Select formats from the extension's Media
-        tab.
+        {{ i18n('media_hint') }}
       </p>
       <NSpace
         v-if="mediaDiscovery.excludedHosts.length"
         class="settings-subpanel"
-        aria-label="Excluded media sites"
+        :aria-label="i18n('media_excluded_sites')"
       >
         <NTag
           v-for="host in mediaDiscovery.excludedHosts"

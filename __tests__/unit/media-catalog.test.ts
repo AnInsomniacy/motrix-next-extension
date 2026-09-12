@@ -16,6 +16,19 @@ beforeEach(() => {
 });
 
 describe('media session ownership', () => {
+  it('keeps distinct blob hints for multiple players in the same frame', async () => {
+    const catalog = createMediaCatalog();
+    await catalog.observe(
+      mediaCandidate({ kind: 'embedded', url: 'blob:https://example.com/one' }),
+    );
+    await catalog.observe(
+      mediaCandidate({ kind: 'embedded', url: 'blob:https://example.com/two' }),
+    );
+    expect(await catalog.run((state) => state.candidates.map((item) => item.url).sort())).toEqual([
+      'blob:https://example.com/one',
+      'blob:https://example.com/two',
+    ]);
+  });
   it('merges duplicate hints without losing captured credentials or stable identity', async () => {
     const catalog = createMediaCatalog();
     const first = mediaCandidate({
