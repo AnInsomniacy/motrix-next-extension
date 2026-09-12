@@ -9,6 +9,7 @@ import {
 import { parseFirefoxDownloadResponse } from '@/lib/download/firefox-response';
 import { ApiAuthError, DesktopApiClient } from '@/lib/api';
 import { startMediaBackground } from '@/lib/media/background';
+import { fileRequestContext } from '@/lib/media/request-context';
 import {
   DesktopActivationError,
   activateDesktop,
@@ -258,6 +259,14 @@ export default defineBackground(() => {
     siteRules: () => siteRules,
     connection: () => connectionConfig,
     requestHeaders: requestHeaderContexts,
+    sendFile: async (candidate) => {
+      const context = fileRequestContext(candidate, settings);
+      await orchestrator.sendUrl(candidate.url, context.referer ?? '', {
+        source: 'media',
+        headerContext: context,
+        filename: candidate.filename,
+      });
+    },
     onError: () =>
       logWarn('media_discovery_failed', 'Media discovery could not update its session'),
     activate: () =>

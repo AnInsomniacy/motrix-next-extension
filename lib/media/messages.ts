@@ -12,6 +12,7 @@ export const MediaCommandSchema = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('MEDIA_ENABLE'), tabId, enabled: z.boolean() }),
   z.strictObject({ type: z.literal('MEDIA_SITE'), tabId, excluded: z.boolean() }),
   z.strictObject({ type: z.literal('MEDIA_PROBE'), ...candidate }),
+  z.strictObject({ type: z.literal('MEDIA_DOWNLOAD_FILE'), ...candidate }),
   z.strictObject({ type: z.literal('MEDIA_POLL'), ...candidate }),
   z.strictObject({ type: z.literal('MEDIA_CANCEL'), ...candidate }),
   z.strictObject({ type: z.literal('MEDIA_LOCATE'), ...candidate }),

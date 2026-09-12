@@ -1,6 +1,4 @@
-import { browser } from 'wxt/browser';
-import type { DownloadSettings, MediaCandidate } from '../schema';
-import type { MediaRequestContext } from './contracts';
+import type { DownloadSettings, MediaCandidate, MediaCapturedContext } from '../schema';
 
 const TRANSPORT_HEADERS = new Set([
   'host',
@@ -20,8 +18,9 @@ export function captureMediaContext(
   url: string,
   raw: { name?: string; value?: string }[],
   settings: Pick<DownloadSettings, 'forwardCookies' | 'forwardRequestHeaders'>,
-): MediaRequestContext {
+): MediaCapturedContext {
   const headers = new Headers();
+  const encoder = new TextEncoder();
   let bytes = 0;
   for (const header of raw) {
     const name = header.name?.toLowerCase().trim();
@@ -45,13 +44,14 @@ export function captureMediaContext(
       headers.has(name)
     )
       continue;
-    if (bytes + name.length + value.length > 16_384 || [...headers].length >= 32) break;
+    const length = encoder.encode(name + value).byteLength;
+    if (bytes + length > 16_384 || [...headers].length >= 32) break;
     try {
       headers.set(name, value);
     } catch {
       continue;
     }
-    bytes += name.length + value.length;
+    bytes += length;
   }
   return {
     url,
@@ -60,40 +60,32 @@ export function captureMediaContext(
   };
 }
 
-/** Resolve cookies in the source tab's store and partition, never the popup's cookie context. */
-export async function submissionContext(
+/** Replay observed headers from the source frame; do not synthesize another cookie context. */
+export function submissionContext(
   candidate: MediaCandidate,
   settings: DownloadSettings,
-): Promise<MediaRequestContext> {
-  const captured = captureMediaContext(candidate.url, candidate.context?.headers ?? [], settings);
-  if (settings.forwardCookies && !captured.headers.some((header) => header.name === 'cookie')) {
-    const stores = await browser.cookies.getAllCookieStores();
-    const store = stores.find((item) => item.tabIds.includes(candidate.tabId));
-    if (!store) return captured;
-    // Firefox exposes its container's cookie store directly. Chromium also needs CHIPS partition identity.
-    const partition = import.meta.env.FIREFOX
-      ? undefined
-      : (
-          await browser.cookies.getPartitionKey({
-            tabId: candidate.tabId,
-            frameId: candidate.frameId,
-          })
-        ).partitionKey;
-    const [ordinary, partitioned] = await Promise.all([
-      browser.cookies.getAll({ url: candidate.url, storeId: store.id }),
-      partition
-        ? browser.cookies.getAll({ url: candidate.url, storeId: store.id, partitionKey: partition })
-        : Promise.resolve([]),
-    ]);
-    const cookies = [...ordinary, ...partitioned].sort((a, b) => b.path.length - a.path.length);
-    if (cookies.length) {
-      const value = cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ');
-      return captureMediaContext(
-        candidate.url,
-        [...captured.headers, { name: 'cookie', value }],
-        settings,
-      );
-    }
-  }
-  return captured;
+): MediaCapturedContext {
+  return {
+    ...captureMediaContext(candidate.url, candidate.context?.headers ?? [], settings),
+    capturedAt: candidate.context?.capturedAt ?? Date.now(),
+  };
+}
+
+/** Ordinary files keep the existing download pipeline and its own API contract. */
+export function fileRequestContext(candidate: MediaCandidate, settings: DownloadSettings) {
+  const context = submissionContext(candidate, settings);
+  const value = (name: string) => context.headers.find((header) => header.name === name)?.value;
+  return {
+    url: candidate.url,
+    tabId: candidate.tabId,
+    frameId: candidate.frameId,
+    documentId: candidate.documentId,
+    createdAt: context.capturedAt,
+    cookie: value('cookie'),
+    referer: value('referer'),
+    userAgent: value('user-agent'),
+    requestHeaders: context.headers.filter(
+      (header) => !['cookie', 'referer', 'user-agent'].includes(header.name),
+    ),
+  };
 }

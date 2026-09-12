@@ -145,7 +145,7 @@ export function mediaOrigin(value: string): string {
 export function isMediaFragment(url: string, mime = ''): boolean {
   try {
     return (
-      /\.(ts|m4s|m4f|cmfv|cmfa|aac)$/i.test(new URL(url).pathname) ||
+      /\.(ts|m4s|m4f|cmfv|cmfa|aac|key)$/i.test(new URL(url).pathname) ||
       ['video/mp2t', 'video/iso.segment', 'audio/iso.segment'].includes(
         mime.split(';')[0]?.trim().toLowerCase() ?? '',
       )

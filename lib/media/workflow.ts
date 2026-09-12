@@ -34,6 +34,7 @@ export function createMediaWorkflow(options: {
   connectionKey: () => Promise<string>;
   activate: () => Promise<boolean>;
   validateCandidate: (candidate: MediaCandidate) => Promise<boolean>;
+  sendFile: (candidate: MediaCandidate) => Promise<void>;
 }) {
   const { catalog, client } = options;
   const locks = new Map<string, Promise<unknown>>();
@@ -105,12 +106,10 @@ export function createMediaWorkflow(options: {
     )
       throw new MediaApiError('invalid_response');
     if (
-      probe.state === 'ready' &&
-      operation.request.source.kind !== 'file' &&
-      probe.presentation.kind === 'file'
+      ['submitted', 'submitting'].includes(probe.state) &&
+      'submissionId' in probe &&
+      probe.submissionId !== operation.submissionId
     )
-      throw new MediaApiError('unsupported_source');
-    if (probe.state === 'submitted' && probe.submissionId !== operation.submissionId)
       throw new MediaApiError('conflict');
     operation.probe = probe;
     operation.error = undefined;
@@ -169,7 +168,7 @@ export function createMediaWorkflow(options: {
   function probe(tabId: number, candidateId: string) {
     return exclusive(candidateId, async () => {
       const { candidate, operation: previous } = await load(tabId, candidateId);
-      if (candidate.kind === 'embedded' || candidate.method !== 'GET')
+      if (!['hls', 'dash'].includes(candidate.kind) || candidate.method !== 'GET')
         throw new MediaApiError('unsupported_source');
       if (previous && !['failed', 'cancelled'].includes(previous.state)) return;
       const active = await catalog.run(
@@ -182,7 +181,7 @@ export function createMediaWorkflow(options: {
       );
       if (active >= 8) throw new MediaApiError('inspection_limit');
       await capabilities(candidate.kind);
-      const context = await submissionContext(candidate, options.getSettings());
+      const context = submissionContext(candidate, options.getSettings());
       const related = await catalog.run((state) =>
         state.contexts
           .filter(
@@ -214,12 +213,13 @@ export function createMediaWorkflow(options: {
             mime: candidate.mime,
             requestContexts: [context, ...related]
               .filter((item) => item.headers.length)
-              .map(({ url, capturedAt, headers }) => ({ url, capturedAt, headers })),
+              .map(({ url, headers }) => ({ url, headers })),
           }),
         },
       };
       await save(operation);
       try {
+        await checkConnection(operation);
         accept(operation, await client.createMediaProbe(operation.request));
         await save(operation);
       } catch (error) {
@@ -248,7 +248,7 @@ export function createMediaWorkflow(options: {
           operation.state = 'submitting';
         }
         await save(operation);
-        if (operation.state === 'submitting' && operation.selection && operation.submissionId)
+        if (pending && result.state === 'ready' && operation.selection && operation.submissionId)
           await submitOperation(operation);
       } catch (error) {
         await fail(operation, error);
@@ -257,6 +257,7 @@ export function createMediaWorkflow(options: {
   }
 
   async function submitOperation(operation: MediaOperation) {
+    await checkConnection(operation);
     if (!operation.selection || !operation.submissionId)
       throw new MediaApiError('invalid_response');
     const result = await client.submitMediaProbe(operation.request.id, {
@@ -292,6 +293,7 @@ export function createMediaWorkflow(options: {
   }
 
   async function cancelOperation(operation: MediaOperation) {
+    await checkConnection(operation, true);
     const result = await client.cancelMediaProbe(operation.request.id);
     if (result.id !== operation.request.id) throw new MediaApiError('invalid_response');
     if (result.state === 'submitted' && result.submissionId !== operation.submissionId)
@@ -307,7 +309,7 @@ export function createMediaWorkflow(options: {
       const { operation } = await load(tabId, candidateId);
       if (!operation || ['submitted', 'cancelled'].includes(operation.state)) return;
       try {
-        await checkConnection(operation);
+        await checkConnection(operation, true);
         operation.state = 'cancelling';
         await save(operation);
         await cancelOperation(operation);
@@ -316,5 +318,18 @@ export function createMediaWorkflow(options: {
       }
     });
   }
-  return { probe, poll, submit, cancel };
+  function downloadFile(tabId: number, candidateId: string) {
+    return exclusive(candidateId, async () => {
+      const { candidate } = await load(tabId, candidateId);
+      if (candidate.kind !== 'file' || candidate.method !== 'GET')
+        throw new MediaApiError('unsupported_source');
+      if (candidate.sentToDesktop) return;
+      await options.sendFile(candidate);
+      await catalog.run((state) => {
+        const current = state.candidates.find((item) => item.id === candidateId);
+        if (current) current.sentToDesktop = true;
+      }, true);
+    });
+  }
+  return { probe, poll, submit, cancel, downloadFile };
 }

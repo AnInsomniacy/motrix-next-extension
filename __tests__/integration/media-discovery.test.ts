@@ -92,6 +92,7 @@ beforeEach(async () => {
     siteRules: () => [],
     connection: () => ({ port: 29110, secret: '' }),
     activate: async () => false,
+    sendFile: async () => undefined,
     requestHeaders: new RequestHeaderContextStore(),
   });
   // Flush startup cleanup before feeding native event fixtures.

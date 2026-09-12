@@ -25,6 +25,19 @@ let disposed = false;
 let polling = false;
 let revision = 0;
 const selected = computed(() => state.value?.items.find((item) => item.id === selectedId.value));
+const needsPolling = computed(() => {
+  const operation = selected.value?.operation;
+  return (
+    props.active !== false &&
+    Boolean(
+      operation &&
+      ['probing', 'submitting', 'cancelling'].includes(operation.state) &&
+      !['connection_changed', 'privacy_changed', 'api_auth_failed', 'conflict'].includes(
+        operation.error ?? '',
+      ),
+    )
+  );
+});
 const visibleItems = computed(() => {
   const items = state.value?.items ?? [];
   const exact =
@@ -55,7 +68,7 @@ async function selectSource(id: string) {
   const item = selected.value;
   if (
     item &&
-    item.kind !== 'embedded' &&
+    ['hls', 'dash'].includes(item.kind) &&
     item.method === 'GET' &&
     !item.operation &&
     tabId.value !== null
@@ -92,18 +105,14 @@ async function refresh(): Promise<boolean> {
   const current = revision;
   polling = true;
   try {
-    const operation = selected.value?.operation;
-    const active =
-      operation &&
-      !operation.error &&
-      ['probing', 'submitting', 'cancelling'].includes(operation.state);
+    const active = needsPolling.value;
     const data = await send(
       active
         ? { type: 'MEDIA_POLL', tabId: tabId.value, candidateId: selectedId.value }
         : { type: 'MEDIA_LIST', tabId: tabId.value },
     );
     if (!disposed && current === revision) state.value = data;
-    return true;
+    return !active || !selected.value?.operation?.error;
   } catch (cause) {
     if (!disposed && current === revision)
       error.value = mediaFailureKey(cause instanceof Error ? cause.message : 'operation_failed');
@@ -115,13 +124,10 @@ async function refresh(): Promise<boolean> {
 }
 
 const poller = usePolling({ fn: refresh, baseIntervalMs: 1500, maxIntervalMs: 10_000 });
-watch(
-  () => props.active,
-  (active) => {
-    if (active === false) poller.stop();
-    else if (tabId.value !== null && !disposed) poller.start();
-  },
-);
+watch(needsPolling, (pending) => {
+  if (pending && tabId.value !== null && !disposed) poller.start();
+  else poller.stop();
+});
 const changes: Parameters<typeof browser.storage.onChanged.addListener>[0] = (change, area) => {
   if (area === 'session' && change[MEDIA_SESSION_KEY]) void refresh();
 };
@@ -142,7 +148,6 @@ onMounted(async () => {
             ['probing', 'ready', 'submitting', 'cancelling'].includes(item.operation.state),
         )?.id ?? '';
       browser.storage.onChanged.addListener(changes);
-      if (props.active !== false) poller.start();
     }
   } finally {
     loading.value = false;
@@ -194,6 +199,9 @@ onUnmounted(() => {
             :frame="frame"
             :busy="busy"
             @back="showSources"
+            @download-file="
+              command({ type: 'MEDIA_DOWNLOAD_FILE', tabId, candidateId: selected.id })
+            "
             @inspect="command({ type: 'MEDIA_PROBE', tabId, candidateId: selected.id })"
             @refresh="command({ type: 'MEDIA_POLL', tabId, candidateId: selected.id })"
             @cancel="command({ type: 'MEDIA_CANCEL', tabId, candidateId: selected.id })"

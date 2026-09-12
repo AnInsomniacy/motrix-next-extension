@@ -3,8 +3,8 @@ import { z } from 'zod';
 
 export const MEDIA_API_PATH = 'media/v1';
 export const MEDIA_PROTOCOL_VERSION = 1;
-export const MediaSourceKindSchema = z.enum(['file', 'hls', 'dash']);
-export const MediaFormatSchema = z.enum(['original', 'mp4', 'mkv']);
+export const MediaSourceKindSchema = z.enum(['hls', 'dash']);
+export const MediaFormatSchema = z.enum(['mp4', 'mkv']);
 export const MediaHttpUrlSchema = z
   .string()
   .max(16_384)
@@ -33,7 +33,6 @@ export const MediaFailureCodeSchema = z.enum([
 
 export const MediaRequestContextSchema = z.strictObject({
   url: MediaHttpUrlSchema,
-  capturedAt: integer,
   headers: z
     .array(z.strictObject({ name: z.string().min(1).max(128), value: z.string().max(8192) }))
     .max(32),
@@ -90,7 +89,8 @@ export const MediaPresentationSchema = z
 
 export const MediaCapabilitiesSchema = z.strictObject({
   protocolVersion: z.literal(MEDIA_PROTOCOL_VERSION),
-  sourceKinds: z.array(MediaSourceKindSchema).min(1).max(3),
+  sourceKinds: z.array(MediaSourceKindSchema).min(1).max(2),
+  requestContexts: z.literal(true),
 });
 export const MediaProbeRequestSchema = z.strictObject({ id: z.uuid(), source: MediaSourceSchema });
 const probeBase = { id: z.uuid(), expiresAt: integer };
@@ -103,6 +103,7 @@ export const MediaProbeSchema = z.discriminatedUnion('state', [
   }),
   z.strictObject({ ...probeBase, state: z.literal('failed'), error: MediaFailureCodeSchema }),
   z.strictObject({ ...probeBase, state: z.literal('cancelled') }),
+  z.strictObject({ ...probeBase, state: z.literal('submitting'), submissionId: z.uuid() }),
   z.strictObject({
     ...probeBase,
     state: z.literal('submitted'),
@@ -148,15 +149,6 @@ export function selectionError(
 ): string | null {
   if (!presentation.formats.includes(selection.format)) return 'invalid_format';
   if (!presentation.live && selection.recordTimeSeconds !== 0) return 'invalid_duration';
-  if (presentation.kind === 'file') {
-    return selection.format !== 'original' ||
-      selection.videoId ||
-      selection.audioId ||
-      selection.subtitleId
-      ? 'invalid_file_selection'
-      : null;
-  }
-  if (selection.format === 'original') return 'container_required';
   const video = presentation.tracks.find((track) => track.id === selection.videoId);
   const audio = presentation.tracks.find((track) => track.id === selection.audioId);
   const subtitle = presentation.tracks.find((track) => track.id === selection.subtitleId);

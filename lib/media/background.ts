@@ -3,25 +3,16 @@ import type { DesktopApiClient } from '../api';
 import { MediaApiError } from '../api';
 import { updateSettings } from '../storage';
 import {
-  MEDIA_RETENTION_MS,
   type ConnectionConfig,
   type DownloadSettings,
   type MediaCandidate,
   type SiteRule,
 } from '../schema';
-import {
-  captureRequestHeaderContext,
-  type RequestHeaderContextStore,
-} from '../download/request-context';
+import { type RequestHeaderContextStore } from '../download/request-context';
 import { matchSiteRule } from '../site-rules';
 import { createMediaCatalog } from './catalog';
-import {
-  detectMedia,
-  hostname,
-  isMediaFragment,
-  mediaOrigin,
-  type MediaObservation,
-} from './detection';
+import { hostname } from './detection';
+import { frameContext, startMediaDiscovery } from './discovery';
 import { captureMediaContext } from './request-context';
 import {
   MediaCommandSchema,
@@ -30,14 +21,11 @@ import {
   type MediaList,
 } from './messages';
 import { createMediaWorkflow, mediaErrorCode } from './workflow';
-import type { MediaRequestContext } from './contracts';
 import { loadUiPrefs } from '../storage';
 import { I18nEngine } from '@/shared/i18n/engine';
 import { resolveLocaleId } from '@/shared/i18n/dictionaries';
 
-const HTTP_URLS = ['http://*/*', 'https://*/*'];
 const CLEANUP_ALARM = 'media-cleanup';
-const REQUEST_TTL_MS = 2 * 60_000;
 
 export function startMediaBackground(options: {
   client: DesktopApiClient;
@@ -46,24 +34,15 @@ export function startMediaBackground(options: {
   siteRules: () => SiteRule[];
   connection: () => ConnectionConfig;
   activate: () => Promise<boolean>;
+  sendFile: (candidate: MediaCandidate) => Promise<void>;
   requestHeaders: RequestHeaderContextStore;
   onError?: () => void;
 }) {
   const catalog = createMediaCatalog();
-  const pending = new Map<string, { context: MediaRequestContext; generation: string }>();
-  const generations = new Map<string, number>();
-  let configured = false;
   const report = () => options.onError?.();
   const safely = (work: Promise<unknown>) => {
     void work.catch(report);
   };
-  safely(
-    options.ensureConfig().then(() => {
-      configured = true;
-    }),
-  );
-  const generation = (tabId: number, frameId: number) =>
-    `${generations.get(`${tabId}:0`) ?? 0}:${generations.get(`${tabId}:${frameId}`) ?? 0}`;
 
   function allowed(pageUrl: string, url: string): boolean {
     const settings = options.settings();
@@ -74,282 +53,15 @@ export function startMediaBackground(options: {
     );
   }
 
-  async function frameContext(tabId: number, frameId: number, documentId?: string) {
-    if (tabId < 0 || frameId < 0) return null;
-    const [tab, frame] = await Promise.all([
-      browser.tabs.get(tabId),
-      browser.webNavigation.getFrame({ tabId, frameId }),
-    ]);
-    if (!tab.url || !/^https?:/.test(tab.url) || !frame || frame.errorOccurred) return null;
-    if (documentId && frame.documentId && documentId !== frame.documentId) return null;
-    return { tab, frame };
-  }
-
-  async function validateCandidate(candidate: MediaCandidate): Promise<boolean> {
-    await options.ensureConfig();
-    if (!allowed(candidate.pageUrl, candidate.url)) return false;
-    try {
-      const current = await frameContext(candidate.tabId, candidate.frameId, candidate.documentId);
-      return Boolean(
-        current &&
-        current.frame.url === candidate.frameUrl &&
-        current.tab.url === candidate.pageUrl &&
-        candidate.lastSeen >= Date.now() - MEDIA_RETENTION_MS,
-      );
-    } catch {
-      return false;
-    }
-  }
-
-  async function updateBadge(tabId: number) {
-    const count = await catalog.run(
-      (state) =>
-        state.candidates.filter((item) => item.tabId === tabId && item.kind !== 'embedded').length,
-    );
-    await browser.action.setBadgeText({ tabId, text: count ? String(count) : '' });
-    await browser.action.setBadgeBackgroundColor({ tabId, color: '#7c5800' });
-  }
-
-  async function observe(
-    input: MediaObservation,
-    tabId: number,
-    frameId: number,
-    documentId?: string,
-    title = '',
-    context?: MediaRequestContext,
-    documentUrl?: string,
-  ) {
-    const detected = detectMedia(input);
-    const fragment =
-      input.evidence === 'network' &&
-      input.method === 'GET' &&
-      [200, 206, 304].includes(input.status ?? 0) &&
-      isMediaFragment(input.url, input.mime);
-    if (!detected && !fragment) return;
-    await options.ensureConfig();
-    const current = await frameContext(tabId, frameId, documentId).catch(() => null);
-    if (!current || !allowed(current.tab.url ?? '', input.url)) return;
-    if (documentUrl && current.frame.url !== documentUrl) return;
-    const now = Date.now();
-    const cleanContext = context
-      ? {
-          ...captureMediaContext(input.url, context.headers, options.settings()),
-          capturedAt: context.capturedAt,
-        }
-      : undefined;
-    if (cleanContext?.headers.length) {
-      await catalog.run((state) => {
-        const previous = state.contexts.find(
-          (item) =>
-            item.tabId === tabId &&
-            item.frameId === frameId &&
-            item.documentId === (current.frame.documentId ?? '') &&
-            mediaOrigin(item.url) === mediaOrigin(input.url),
-        );
-        // Avoid one storage transaction per fragment when credentials are unchanged.
-        if (
-          previous &&
-          now - previous.capturedAt < 15_000 &&
-          JSON.stringify(previous.headers) === JSON.stringify(cleanContext.headers)
-        )
-          return;
-        state.contexts = state.contexts.filter((item) => item !== previous);
-        state.contexts.push({
-          ...cleanContext,
-          tabId,
-          frameId,
-          documentId: current.frame.documentId ?? '',
-          frameUrl: current.frame.url,
-          pageUrl: current.tab.url ?? '',
-        });
-      }, true);
-    }
-    if (!detected) return;
-    await catalog.observe({
-      ...detected,
-      id: crypto.randomUUID(),
-      tabId,
-      frameId,
-      documentId: current.frame.documentId ?? '',
-      frameUrl: current.frame.url,
-      pageUrl: current.tab.url ?? '',
-      title: (title || current.tab.title || detected.filename).slice(0, 512),
-      firstSeen: now,
-      lastSeen: now,
-      context: cleanContext,
+  const { observe, validateCandidate, synchronizeTab, updateBadge, clearRequests } =
+    startMediaDiscovery({
+      catalog,
+      ensureConfig: options.ensureConfig,
+      settings: options.settings,
+      requestHeaders: options.requestHeaders,
+      allowed,
+      report,
     });
-    await updateBadge(tabId);
-  }
-
-  browser.webRequest.onSendHeaders.addListener(
-    (details) => {
-      if (!configured) return;
-      // Capture synchronously so a fast response cannot overtake its request context.
-      const now = Date.now();
-      for (const [id, entry] of pending)
-        if (entry.context.capturedAt < now - REQUEST_TTL_MS) pending.delete(id);
-      if (pending.size >= 512) {
-        const oldest = pending.keys().next().value;
-        if (oldest) pending.delete(oldest);
-      }
-      const settings = options.settings();
-      if (settings.forwardRequestHeaders) {
-        const legacy = captureRequestHeaderContext(details);
-        if (legacy) options.requestHeaders.remember(legacy);
-      }
-      if (details.tabId < 0 || !settings.mediaDiscovery.enabled) return;
-      pending.set(details.requestId, {
-        context: captureMediaContext(details.url, details.requestHeaders ?? [], settings),
-        generation: generation(details.tabId, details.frameId),
-      });
-    },
-    { urls: HTTP_URLS },
-    import.meta.env.FIREFOX ? ['requestHeaders'] : ['requestHeaders', 'extraHeaders'],
-  );
-
-  browser.webRequest.onResponseStarted.addListener(
-    (details) => {
-      const captured = pending.get(details.requestId);
-      const context = captured?.context;
-      pending.delete(details.requestId);
-      if (
-        !details.documentId &&
-        captured &&
-        captured.generation !== generation(details.tabId, details.frameId)
-      )
-        return;
-      const documentUrl =
-        'documentUrl' in details && typeof details.documentUrl === 'string'
-          ? details.documentUrl
-          : undefined;
-      const header = (name: string) =>
-        details.responseHeaders?.find((item) => item.name.toLowerCase() === name)?.value;
-      safely(
-        observe(
-          {
-            url: details.url,
-            method: details.method,
-            status: details.statusCode,
-            evidence: 'network',
-            mime: header('content-type'),
-            disposition: header('content-disposition'),
-            length: header('content-length'),
-            contentRange: header('content-range'),
-          },
-          details.tabId,
-          details.frameId,
-          details.documentId,
-          '',
-          context?.url === details.url ? context : undefined,
-          documentUrl,
-        ),
-      );
-    },
-    { urls: HTTP_URLS },
-    ['responseHeaders'],
-  );
-  browser.webRequest.onErrorOccurred.addListener(
-    (details) => {
-      pending.delete(details.requestId);
-    },
-    { urls: HTTP_URLS },
-  );
-  browser.webRequest.onCompleted.addListener(
-    (details) => {
-      pending.delete(details.requestId);
-    },
-    { urls: HTTP_URLS },
-  );
-
-  async function synchronizeTab(tabId: number) {
-    const [tab, frames] = await Promise.all([
-      browser.tabs.get(tabId),
-      browser.webNavigation.getAllFrames({ tabId }),
-    ]);
-    await catalog.run((state) => {
-      state.candidates = state.candidates.filter((item) => {
-        if (item.tabId !== tabId) return true;
-        const frame = frames?.find((value) => value.frameId === item.frameId);
-        return (
-          frame &&
-          !frame.errorOccurred &&
-          frame.url === item.frameUrl &&
-          (!frame.documentId || frame.documentId === item.documentId) &&
-          tab.url === item.pageUrl &&
-          allowed(item.pageUrl, item.url)
-        );
-      });
-      state.contexts = state.contexts.filter(
-        (item) =>
-          item.tabId !== tabId ||
-          Boolean(
-            frames?.some(
-              (frame) =>
-                frame.frameId === item.frameId &&
-                frame.url === item.frameUrl &&
-                (!frame.documentId || frame.documentId === item.documentId),
-            ) &&
-            tab.url === item.pageUrl &&
-            allowed(item.pageUrl, item.url),
-          ),
-      );
-    }, true);
-    await updateBadge(tabId);
-  }
-
-  browser.webNavigation.onCommitted.addListener((details) => {
-    const key = `${details.tabId}:${details.frameId}`;
-    const next = (generations.get(key) ?? 0) + 1;
-    if (details.frameId === 0)
-      for (const entry of generations.keys())
-        if (entry.startsWith(`${details.tabId}:`)) generations.delete(entry);
-    generations.set(key, next);
-    options.requestHeaders.clear(details.tabId);
-    safely(
-      catalog
-        .run((state) => {
-          state.candidates = state.candidates.filter(
-            (item) =>
-              item.tabId !== details.tabId ||
-              (details.frameId !== 0 && item.frameId !== details.frameId) ||
-              Boolean(details.documentId && item.documentId === details.documentId),
-          );
-          state.contexts = state.contexts.filter(
-            (item) =>
-              item.tabId !== details.tabId ||
-              (details.frameId !== 0 && item.frameId !== details.frameId) ||
-              Boolean(details.documentId && item.documentId === details.documentId),
-          );
-        }, true)
-        .then(() => updateBadge(details.tabId)),
-    );
-  });
-  const sameDocumentNavigation = (details: { tabId: number; frameId: number; url: string }) => {
-    // A same-document route change keeps playing media but refreshes its page provenance.
-    safely(
-      catalog.run((state) => {
-        for (const item of [...state.candidates, ...state.contexts])
-          if (item.tabId === details.tabId) {
-            if (details.frameId === 0) item.pageUrl = details.url;
-            if (item.frameId === details.frameId) item.frameUrl = details.url;
-          }
-      }, true),
-    );
-    safely(browser.tabs.sendMessage(details.tabId, { type: 'MEDIA_RESCAN' }));
-  };
-  browser.webNavigation.onHistoryStateUpdated.addListener(sameDocumentNavigation);
-  browser.webNavigation.onReferenceFragmentUpdated.addListener(sameDocumentNavigation);
-  browser.tabs.onRemoved.addListener((tabId) => {
-    options.requestHeaders.clear(tabId);
-    for (const entry of generations.keys())
-      if (entry.startsWith(`${tabId}:`)) generations.delete(entry);
-    safely(catalog.remove(tabId));
-  });
-  browser.tabs.onReplaced.addListener((added, removed) => {
-    safely(
-      catalog.remove(removed).then(() => browser.tabs.sendMessage(added, { type: 'MEDIA_RESCAN' })),
-    );
-  });
 
   async function connectionKey() {
     const connection = options.connection();
@@ -374,6 +86,7 @@ export function startMediaBackground(options: {
     client: options.client,
     getSettings: options.settings,
     activate: options.activate,
+    sendFile: options.sendFile,
     validateCandidate,
     connectionKey,
   });
@@ -537,23 +250,12 @@ export function startMediaBackground(options: {
         case 'MEDIA_RESCAN':
           await browser.tabs.sendMessage(message.tabId, { type: 'MEDIA_RESCAN' });
           break;
-        case 'MEDIA_CLEAR': {
-          const ids = await catalog.run((state) =>
-            state.operations
-              .filter(
-                (item) =>
-                  state.candidates.some(
-                    (candidate) =>
-                      candidate.id === item.candidateId && candidate.tabId === message.tabId,
-                  ) &&
-                  (!message.candidateId || item.candidateId === message.candidateId),
-              )
-              .map((item) => item.candidateId),
-          );
-          for (const id of ids) await workflow.cancel(message.tabId, id);
+        case 'MEDIA_CLEAR':
           await catalog.remove(message.tabId, message.candidateId);
           break;
-        }
+        case 'MEDIA_DOWNLOAD_FILE':
+          await workflow.downloadFile(message.tabId, message.candidateId);
+          break;
         case 'MEDIA_PROBE':
           await workflow.probe(message.tabId, message.candidateId);
           break;
@@ -621,7 +323,7 @@ export function startMediaBackground(options: {
 
   browser.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && (changes.settings || changes.siteRules || changes.connection)) {
-      pending.clear();
+      clearRequests();
       options.requestHeaders.clear();
       safely(cleanup());
     }

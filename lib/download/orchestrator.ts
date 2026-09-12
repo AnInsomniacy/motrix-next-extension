@@ -106,10 +106,13 @@ type DownloadSource =
   | 'firefox-download'
   | 'firefox-response'
   | 'context-menu'
-  | 'external-protocol';
+  | 'external-protocol'
+  | 'media';
 
 interface SendUrlOptions {
-  source: Extract<DownloadSource, 'context-menu' | 'external-protocol'>;
+  source: Extract<DownloadSource, 'context-menu' | 'external-protocol' | 'media'>;
+  headerContext?: RequestHeaderContext;
+  filename?: string;
   allowActivation?: boolean;
 }
 
@@ -338,7 +341,7 @@ export class DownloadOrchestrator {
     tabUrl: string,
     options: SendUrlOptions,
   ): Promise<'routed-to-desktop' | 'duplicate-blocked'> {
-    const extracted = extractFilenameFromUrl(url) ?? '';
+    const extracted = options.filename || extractFilenameFromUrl(url) || '';
     const filenameHint = extracted
       ? resolveFilenameHint(url, { filename: extracted, source: 'url' })
       : undefined;
@@ -361,7 +364,11 @@ export class DownloadOrchestrator {
       {
         url,
         referer: tabUrl,
-        cookie: await this.resolveCookieHeader(url),
+        cookie:
+          options.source === 'media'
+            ? { value: options.headerContext?.cookie ?? '', source: 'request' }
+            : await this.resolveCookieHeader(url, options.headerContext),
+        headerContext: options.headerContext,
         filenameHint,
         filenameSource: 'url',
         source: options.source,

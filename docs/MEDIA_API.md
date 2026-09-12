@@ -1,9 +1,8 @@
 # Desktop media API v1
 
-This is the extension-side integration contract for Motrix Next. The desktop and
-engine repositories are not changed by this implementation. Discovery runs locally;
-format inspection and downloading become available when the desktop implements this
-contract using its native media engine.
+The extension and desktop communicate through this versioned HTTP contract.
+Each repository owns its implementation and checks. Neither implementation imports
+the other's source, schemas at runtime, or test fixtures.
 
 Canonical validators: [`lib/media/contracts.ts`](../lib/media/contracts.ts).
 Generated structural JSON Schemas: [`media-api.schema.json`](media-api.schema.json).
@@ -36,10 +35,11 @@ version or expose an unrestricted engine RPC proxy to the extension.
 ## Capabilities
 
 ```json
-{ "protocolVersion": 1, "sourceKinds": ["file", "hls", "dash"] }
+{ "protocolVersion": 1, "sourceKinds": ["hls", "dash"], "requestContexts": true }
 ```
 
-Advertise actual running-engine capabilities. The existing ordinary `/ping` and
+Advertise actual running-engine capabilities. `requestContexts: true` requires
+exact-origin custom-header forwarding for every native HTTP hop. The existing ordinary `/ping` and
 `/stat` endpoints remain responsible for app connectivity and global statistics.
 
 ## Probe request
@@ -57,7 +57,6 @@ Advertise actual running-engine capabilities. The existing ordinary `/ping` and
     "requestContexts": [
       {
         "url": "https://cdn.example.com/master.m3u8?signature=opaque",
-        "capturedAt": 1789200000000,
         "headers": [{ "name": "referer", "value": "https://example.com/watch" }]
       }
     ]
@@ -67,12 +66,13 @@ Advertise actual running-engine capabilities. The existing ordinary `/ping` and
 
 - `id` is generated and persisted by the extension before sending. Identical ID/body
   replays return the same operation. A different body for the same ID returns 409.
-- `kind` is a discovery hint. Explicit HLS/DASH hints must not silently become raw
-  manifest downloads. A direct-file candidate may be recognized as HLS/DASH by the probe.
+- `kind` is an HLS/DASH discovery hint. It must not silently become a raw manifest
+  download. Ordinary files use the existing `/add` endpoint outside this protocol.
 - Preserve signed URL bytes. Do not sort, decode/re-encode, or strip query parameters.
 - `pageUrl`, `title`, and `filename` are untrusted metadata. The desktop validates the
   source scheme, derives a safe output filename and applies its configured destination.
   `filename` is a hint, not a filesystem path or final output extension.
+- Capture timestamps belong to the browser catalogue, not the transport contract.
 - `requestContexts` contains at most eight independently observed media origins from
   the source document. Each header set is scoped to the exact origin of its own `url`,
   including scheme and effective port. Never flatten these sets into global headers.
@@ -158,9 +158,12 @@ Subtitle-only output and arbitrary multi-audio output are not part of this contr
 
 `defaults` must reference available tracks and a supported format. `formats` contains
 only actual output-container choices; final codec/container validation remains native.
-For direct files use empty `tracks`, `formats: ["original"]`, and null selectors.
 Finite sources have a zero recording limit; live sources use seconds, with zero meaning
 record until explicitly finished in the desktop. There is no implicit transcoding.
+
+While native confirmation is pending, GET returns `state: "submitting"` with
+`submissionId`. This is an unresolved submission, not a fresh probe. The client
+keeps its original selection and operation IDs until a receipt or terminal error.
 
 Other probe states:
 
@@ -240,10 +243,9 @@ Use 401 for invalid Extension API authentication, 409 for conflicting mutations,
 failure is not an Extension API 401. Do not return secret URLs, headers, tokens, raw
 engine logs, or unbounded exception strings in errors.
 
-## Local development
+## Verification
 
-`pnpm dev:media-fixture` starts a loopback-only, synthetic implementation and discovery
-page on port 3001 with secret `media-fixture`. It accepts only its own fixture URLs.
-It exercises inspect/select/submit/replay/cancel without changing a desktop repository
-or downloading media. Its in-memory receipts deliberately do not provide production
-durability; the lifecycle requirements above still apply to the real desktop adapter.
+`pnpm compile`, lint, formatting, schema export checks and production builds run
+within this repository. Local module tests use browser and HTTP fixtures only.
+There is no simulated desktop application or cross-repository E2E runner.
+The maintainer validates the real extension, desktop and engine together manually.

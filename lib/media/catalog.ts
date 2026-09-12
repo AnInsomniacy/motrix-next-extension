@@ -13,6 +13,7 @@ import { mediaIdentity } from './detection';
 /** One writer owns the session catalogue. A worker restart restores its committed snapshot. */
 export function createMediaCatalog() {
   let session: MediaSession | undefined;
+  let committed = '';
   let queue: Promise<unknown> = Promise.resolve();
 
   function run<T>(action: (state: MediaSession) => T | Promise<T>, write = false): Promise<T> {
@@ -21,15 +22,19 @@ export function createMediaCatalog() {
         const saved = await browser.storage.session.get(MEDIA_SESSION_KEY);
         const parsed = MediaSessionSchema.safeParse(saved[MEDIA_SESSION_KEY]);
         session = parsed.success ? parsed.data : { candidates: [], operations: [], contexts: [] };
+        committed = JSON.stringify(session);
       }
+      if (!write) return structuredClone(await action(session));
       // Mutate a copy: failed persistence must not become visible as committed state.
       const next = structuredClone(session);
       const result = await action(next);
       if (write) {
         prune(next);
         const validated = MediaSessionSchema.parse(next);
-        if (JSON.stringify(validated) !== JSON.stringify(session)) {
+        const encoded = JSON.stringify(validated);
+        if (encoded !== committed) {
           await browser.storage.session.set({ [MEDIA_SESSION_KEY]: validated });
+          committed = encoded;
         }
         session = validated;
       }
@@ -41,9 +46,21 @@ export function createMediaCatalog() {
 
   function prune(state: MediaSession) {
     const cutoff = Date.now() - MEDIA_RETENTION_MS;
+    const activeIds = new Set(
+      state.operations
+        .filter(
+          (operation) =>
+            ['probing', 'ready', 'submitting', 'cancelling'].includes(operation.state) &&
+            operation.createdAt >= cutoff,
+        )
+        .map((operation) => operation.candidateId),
+    );
     state.candidates = state.candidates
-      .filter((item) => item.lastSeen >= cutoff)
-      .sort((a, b) => b.lastSeen - a.lastSeen)
+      .filter((item) => item.lastSeen >= cutoff || activeIds.has(item.id))
+      .sort(
+        (a, b) =>
+          Number(activeIds.has(b.id)) - Number(activeIds.has(a.id)) || b.lastSeen - a.lastSeen,
+      )
       .slice(0, MEDIA_MAX_CANDIDATES);
     const counts = new Map<number, number>();
     state.candidates = state.candidates.filter((item) => {

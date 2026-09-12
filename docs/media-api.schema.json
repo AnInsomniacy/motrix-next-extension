@@ -9,12 +9,13 @@
         "protocolVersion": { "type": "number", "const": 1 },
         "sourceKinds": {
           "minItems": 1,
-          "maxItems": 3,
+          "maxItems": 2,
           "type": "array",
-          "items": { "type": "string", "enum": ["file", "hls", "dash"] }
-        }
+          "items": { "type": "string", "enum": ["hls", "dash"] }
+        },
+        "requestContexts": { "type": "boolean", "const": true }
       },
-      "required": ["protocolVersion", "sourceKinds"],
+      "required": ["protocolVersion", "sourceKinds", "requestContexts"],
       "additionalProperties": false
     },
     "probeRequest": {
@@ -30,7 +31,7 @@
           "type": "object",
           "properties": {
             "url": { "type": "string", "maxLength": 16384 },
-            "kind": { "type": "string", "enum": ["file", "hls", "dash"] },
+            "kind": { "type": "string", "enum": ["hls", "dash"] },
             "pageUrl": { "type": "string", "maxLength": 16384 },
             "title": { "type": "string", "maxLength": 512 },
             "filename": { "type": "string", "maxLength": 255 },
@@ -42,7 +43,6 @@
                 "type": "object",
                 "properties": {
                   "url": { "type": "string", "maxLength": 16384 },
-                  "capturedAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
                   "headers": {
                     "maxItems": 32,
                     "type": "array",
@@ -57,7 +57,7 @@
                     }
                   }
                 },
-                "required": ["url", "capturedAt", "headers"],
+                "required": ["url", "headers"],
                 "additionalProperties": false
               }
             }
@@ -99,7 +99,7 @@
             "presentation": {
               "type": "object",
               "properties": {
-                "kind": { "type": "string", "enum": ["file", "hls", "dash"] },
+                "kind": { "type": "string", "enum": ["hls", "dash"] },
                 "title": { "type": "string", "maxLength": 512 },
                 "live": { "type": "boolean" },
                 "durationMs": {
@@ -146,7 +146,7 @@
                   "minItems": 1,
                   "maxItems": 3,
                   "type": "array",
-                  "items": { "type": "string", "enum": ["original", "mp4", "mkv"] }
+                  "items": { "type": "string", "enum": ["mp4", "mkv"] }
                 },
                 "defaults": {
                   "type": "object",
@@ -169,7 +169,7 @@
                         { "type": "null" }
                       ]
                     },
-                    "format": { "type": "string", "enum": ["original", "mp4", "mkv"] },
+                    "format": { "type": "string", "enum": ["mp4", "mkv"] },
                     "recordTimeSeconds": { "type": "integer", "minimum": 0, "maximum": 31536000 }
                   },
                   "required": ["videoId", "audioId", "subtitleId", "format", "recordTimeSeconds"],
@@ -243,6 +243,25 @@
               "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             },
             "expiresAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "state": { "type": "string", "const": "submitting" },
+            "submissionId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "required": ["id", "expiresAt", "state", "submissionId"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "expiresAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
             "state": { "type": "string", "const": "submitted" },
             "submissionId": {
               "type": "string",
@@ -277,7 +296,7 @@
             "subtitleId": {
               "anyOf": [{ "type": "string", "minLength": 1, "maxLength": 128 }, { "type": "null" }]
             },
-            "format": { "type": "string", "enum": ["original", "mp4", "mkv"] },
+            "format": { "type": "string", "enum": ["mp4", "mkv"] },
             "recordTimeSeconds": { "type": "integer", "minimum": 0, "maximum": 31536000 }
           },
           "required": ["videoId", "audioId", "subtitleId", "format", "recordTimeSeconds"],

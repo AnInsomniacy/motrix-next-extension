@@ -277,6 +277,10 @@ export const MEDIA_SESSION_KEY = 'mediaSession';
 export const MEDIA_MAX_CANDIDATES = 128;
 export const MEDIA_MAX_PER_TAB = 40;
 export const MEDIA_RETENTION_MS = 30 * 60_000;
+export const MediaCapturedContextSchema = MediaRequestContextSchema.extend({
+  capturedAt: z.number().int().nonnegative(),
+});
+export type MediaCapturedContext = z.infer<typeof MediaCapturedContextSchema>;
 export const MediaCandidateSchema = z.strictObject({
   id: z.uuid(),
   tabId: z.number().int().nonnegative(),
@@ -294,7 +298,8 @@ export const MediaCandidateSchema = z.strictObject({
   evidence: z.enum(['network', 'element', 'resource']),
   firstSeen: z.number().nonnegative(),
   lastSeen: z.number().nonnegative(),
-  context: MediaRequestContextSchema.optional(),
+  context: MediaCapturedContextSchema.optional(),
+  sentToDesktop: z.boolean().optional(),
 });
 export const MediaOperationSchema = z.strictObject({
   candidateId: z.uuid(),
@@ -316,7 +321,7 @@ export const MediaOperationSchema = z.strictObject({
   gid: z.string().max(128).optional(),
   error: z.string().max(64).optional(),
 });
-export const MediaScopedContextSchema = MediaRequestContextSchema.extend({
+export const MediaScopedContextSchema = MediaCapturedContextSchema.extend({
   tabId: z.number().int().nonnegative(),
   frameId: z.number().int().nonnegative(),
   documentId: z.string().max(512),

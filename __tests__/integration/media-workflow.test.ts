@@ -20,7 +20,8 @@ async function fixture() {
   const settings = parseDownloadSettings({ forwardCookies: false });
   vi.spyOn(client, 'mediaCapabilities').mockResolvedValue({
     protocolVersion: 1,
-    sourceKinds: ['hls', 'dash', 'file'],
+    sourceKinds: ['hls', 'dash'],
+    requestContexts: true,
   });
   const create = vi.spyOn(client, 'createMediaProbe').mockImplementation(async (request) => ({
     id: request.id,
@@ -47,6 +48,7 @@ async function fixture() {
     getSettings: () => settings,
     connectionKey: async () => key,
     activate: vi.fn().mockResolvedValue(true),
+    sendFile: vi.fn().mockResolvedValue(undefined),
     validateCandidate: vi.fn().mockResolvedValue(true),
   };
   const workflow = createMediaWorkflow({ ...args, catalog });

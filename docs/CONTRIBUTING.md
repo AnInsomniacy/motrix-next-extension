@@ -59,7 +59,8 @@ pnpm zip:firefox     # Firefox store package
 ## 🧪 Testing
 
 For media discovery and the synthetic desktop interface, see [Media](MEDIA.md) and
-[Desktop media API](MEDIA_API.md). Run `pnpm dev:media-fixture` for local manual checks.
+[Desktop media API](MEDIA_API.md). Run static checks within this repository;
+real browser/desktop acceptance is a separate manual maintainer check.
 Code and integration documentation are maintained in English. All user-facing copy must be translated in every supported locale.
 
 - Keep tests focused on download ownership, recovery, data boundaries, and confirmed regressions.

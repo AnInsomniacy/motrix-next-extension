@@ -25,6 +25,7 @@ const { t: i18n, effectiveLocale } = useI18n();
 const props = defineProps<{ item: MediaItem; busy: boolean; frame?: boolean }>();
 const emit = defineEmits<{
   inspect: [];
+  downloadFile: [];
   refresh: [];
   cancel: [];
   submit: [selection: MediaSelection];
@@ -80,7 +81,7 @@ const subtitleOptions = computed(
 const formatOptions = computed(
   () =>
     presentation.value?.formats.map((value) => ({
-      label: value === 'original' ? i18n('media_original') : value.toUpperCase(),
+      label: value.toUpperCase(),
       value,
     })) ?? [],
 );
@@ -104,7 +105,9 @@ const pending = computed(
   () => operation.value && ['probing', 'submitting', 'cancelling'].includes(operation.value.state),
 );
 const canInspect = computed(
-  () => !operation.value || ['failed', 'cancelled'].includes(operation.value.state),
+  () =>
+    ['hls', 'dash'].includes(props.item.kind) &&
+    (!operation.value || ['failed', 'cancelled'].includes(operation.value.state)),
 );
 const unsupported = computed(() => props.item.kind === 'embedded' || props.item.method !== 'GET');
 function submit() {
@@ -140,7 +143,12 @@ function submit() {
             : i18n('media_loading')
       }}</span>
     </div>
-    <NAlert v-if="operation?.state === 'submitted'" type="success" :show-icon="false" role="status">
+    <NAlert
+      v-if="operation?.state === 'submitted' || item.sentToDesktop"
+      type="success"
+      :show-icon="false"
+      role="status"
+    >
       {{ i18n('media_submitted') }}
     </NAlert>
     <NAlert v-if="operation?.state === 'cancelled'" type="info" :show-icon="false">{{
@@ -162,39 +170,37 @@ function submit() {
               : mediaDuration(presentation.durationMs, effectiveLocale)
         }}
       </p>
-      <template v-if="presentation.kind !== 'file'">
-        <NFormItem :label="i18n('media_video')">
-          <NSelect
-            v-model:value="form.videoId"
-            :options="videoOptions"
-            clearable
-            :placeholder="i18n('media_no_video')"
-            :aria-label="i18n('media_video')"
-            ><template #empty><NEmpty :description="i18n('media_none')" /></template
-          ></NSelect>
-        </NFormItem>
-        <NFormItem :label="i18n('media_audio')">
-          <NSelect
-            v-model:value="form.audioId"
-            :options="audioOptions"
-            :disabled="busy"
-            clearable
-            :placeholder="i18n('media_no_audio')"
-            :aria-label="i18n('media_audio')"
-            ><template #empty><NEmpty :description="i18n('media_none')" /></template
-          ></NSelect>
-        </NFormItem>
-        <NFormItem :label="i18n('media_subtitles')">
-          <NSelect
-            v-model:value="form.subtitleId"
-            :options="subtitleOptions"
-            clearable
-            :placeholder="i18n('media_no_subtitles')"
-            :aria-label="i18n('media_subtitles')"
-            ><template #empty><NEmpty :description="i18n('media_none')" /></template
-          ></NSelect>
-        </NFormItem>
-      </template>
+      <NFormItem :label="i18n('media_video')">
+        <NSelect
+          v-model:value="form.videoId"
+          :options="videoOptions"
+          clearable
+          :placeholder="i18n('media_no_video')"
+          :aria-label="i18n('media_video')"
+          ><template #empty><NEmpty :description="i18n('media_none')" /></template
+        ></NSelect>
+      </NFormItem>
+      <NFormItem :label="i18n('media_audio')">
+        <NSelect
+          v-model:value="form.audioId"
+          :options="audioOptions"
+          :disabled="busy"
+          clearable
+          :placeholder="i18n('media_no_audio')"
+          :aria-label="i18n('media_audio')"
+          ><template #empty><NEmpty :description="i18n('media_none')" /></template
+        ></NSelect>
+      </NFormItem>
+      <NFormItem :label="i18n('media_subtitles')">
+        <NSelect
+          v-model:value="form.subtitleId"
+          :options="subtitleOptions"
+          clearable
+          :placeholder="i18n('media_no_subtitles')"
+          :aria-label="i18n('media_subtitles')"
+          ><template #empty><NEmpty :description="i18n('media_none')" /></template
+        ></NSelect>
+      </NFormItem>
       <NFormItem :label="i18n('media_format')">
         <NSelect
           v-model:value="form.format"
@@ -230,7 +236,17 @@ function submit() {
         >
       </NSpace>
     </NForm>
-    <NSpace v-else-if="!unsupported && operation?.state !== 'submitted'" justify="end">
+    <NButton
+      v-else-if="item.kind === 'file' && !item.sentToDesktop && !unsupported"
+      type="primary"
+      :loading="busy"
+      @click="emit('downloadFile')"
+      >{{ i18n('media_download') }} · {{ i18n('media_original') }}</NButton
+    >
+    <NSpace
+      v-else-if="item.kind !== 'file' && !unsupported && operation?.state !== 'submitted'"
+      justify="end"
+    >
       <NButton v-if="pending" :disabled="busy" @click="emit('cancel')">{{
         i18n('media_cancel')
       }}</NButton>

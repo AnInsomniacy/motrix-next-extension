@@ -11,7 +11,6 @@ beforeEach(() => {
 });
 afterEach(() => {
   vi.restoreAllMocks();
-  Reflect.deleteProperty(browser.cookies, 'getPartitionKey');
 });
 
 describe('media HTTP boundary', () => {
@@ -40,7 +39,6 @@ describe('media HTTP boundary', () => {
         requestContexts: [
           {
             url: 'https://example.com/master.m3u8',
-            capturedAt: Date.now(),
             headers: [{ name: 'authorization', value: 'Bearer source-secret' }],
           },
         ],
@@ -86,47 +84,5 @@ describe('source cookie context', () => {
     const context = await submissionContext(candidate, parseDownloadSettings(null));
     expect(context.headers).toContainEqual({ name: 'cookie', value: 'captured=source-tab' });
     expect(getStores).not.toHaveBeenCalled();
-  });
-  it('uses the source tab store and both ordinary and partitioned cookies for a fallback', async () => {
-    vi.spyOn(browser.cookies, 'getAllCookieStores').mockImplementation(async () => [
-      { id: 'other', tabIds: [99] },
-      { id: 'source', tabIds: [1] },
-    ]);
-    const partition = { topLevelSite: 'https://example.com' };
-    // fakeBrowser predates the native Chromium CHIPS helper.
-    Object.defineProperty(browser.cookies, 'getPartitionKey', {
-      configurable: true,
-      value: vi.fn(async () => ({ partitionKey: partition })),
-    });
-    const get = vi.spyOn(browser.cookies, 'getAll').mockImplementation(async (details) => [
-      {
-        name: details.partitionKey ? 'partitioned' : 'ordinary',
-        value: 'source-value',
-        domain: 'cdn.example.com',
-        path: '/',
-        hostOnly: true,
-        httpOnly: true,
-        secure: true,
-        session: true,
-        sameSite: 'lax',
-        storeId: 'source',
-        ...(details.partitionKey ? { partitionKey: partition } : {}),
-      },
-    ]);
-    const candidate = mediaCandidate();
-    const context = await submissionContext(candidate, parseDownloadSettings(null));
-    expect(
-      get.mock.calls.every(
-        ([details]) => details.storeId === 'source' && details.url === candidate.url,
-      ),
-    ).toBe(true);
-    expect(
-      get.mock.calls.some(
-        ([details]) => details.partitionKey?.topLevelSite === partition.topLevelSite,
-      ),
-    ).toBe(true);
-    const cookie = context.headers.find((header) => header.name === 'cookie')?.value;
-    expect(cookie).toContain('ordinary=source-value');
-    expect(cookie).toContain('partitioned=source-value');
   });
 });
