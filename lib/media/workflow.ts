@@ -34,7 +34,7 @@ export function createMediaWorkflow(options: {
   connectionKey: () => Promise<string>;
   activate: () => Promise<boolean>;
   validateCandidate: (candidate: MediaCandidate) => Promise<boolean>;
-  sendFile: (candidate: MediaCandidate) => Promise<void>;
+  sendFile: (candidate: MediaCandidate) => Promise<boolean>;
 }) {
   const { catalog, client } = options;
   const locks = new Map<string, Promise<unknown>>();
@@ -324,7 +324,7 @@ export function createMediaWorkflow(options: {
       if (candidate.kind !== 'file' || candidate.method !== 'GET')
         throw new MediaApiError('unsupported_source');
       if (candidate.sentToDesktop) return;
-      await options.sendFile(candidate);
+      if (!(await options.sendFile(candidate))) return;
       await catalog.run((state) => {
         const current = state.candidates.find((item) => item.id === candidateId);
         if (current) current.sentToDesktop = true;

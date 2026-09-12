@@ -15,7 +15,12 @@ import ky, {
 } from 'ky';
 import { z } from 'zod';
 import type { ConnectionConfig } from './schema';
-import type { RequestHeader } from './download/request-context';
+import {
+  AddDownloadResponseSchema,
+  type AddDownloadRequest,
+  type AddDownloadResponse,
+} from './download/contracts';
+import { rememberDownload, forgetDownload, pendingDownloads } from './download/pending';
 import {
   MEDIA_API_PATH,
   MediaCapabilitiesSchema,
@@ -74,6 +79,13 @@ export class ApiTimeoutError extends ApiError {
   }
 }
 
+export class ApiDeliveryUncertainError extends ApiError {
+  constructor(cause: unknown) {
+    super('The desktop may have accepted this download; its receipt is pending', cause);
+    this.name = 'ApiDeliveryUncertainError';
+  }
+}
+
 export class MediaApiError extends ApiError {
   constructor(public readonly code: string) {
     super('Media request failed');
@@ -97,26 +109,9 @@ const StatResponseSchema = z.object({
 
 const ActionResponseSchema = z.object({ status: z.string(), error: z.string().optional() });
 
-const AddDownloadResponseSchema = z.object({
-  action: z.string(),
-  gid: z.string().optional(),
-  message: z.string().optional(),
-});
-
 export type PingResponse = z.output<typeof PingResponseSchema>;
 export type StatResponse = z.output<typeof StatResponseSchema>;
 type ActionResponse = z.output<typeof ActionResponseSchema>;
-type AddDownloadResponse = z.output<typeof AddDownloadResponseSchema>;
-
-interface AddDownloadRequest {
-  url: string;
-  finalUrl?: string;
-  referer?: string;
-  cookie?: string;
-  filename?: string;
-  userAgent?: string;
-  requestHeaders?: RequestHeader[];
-}
 
 // ─── Client ─────────────────────────────────────────────
 
@@ -202,12 +197,37 @@ export class DesktopApiClient {
   }
 
   async addDownload(request: AddDownloadRequest): Promise<AddDownloadResponse> {
-    return this.request(
-      'add',
-      AddDownloadResponseSchema,
-      { method: 'POST', headers: this.authHeaders(), json: request },
-      'Add download',
+    await this.request(
+      'downloads/capabilities',
+      z.object({ protocolVersion: z.literal(2), filenameHints: z.literal(true) }),
+      { method: 'GET', headers: this.authHeaders(), retry: 0 },
+      'Check download support',
     );
+    await rememberDownload(request, this.config);
+    try {
+      const response = await this.request(
+        'add',
+        AddDownloadResponseSchema,
+        { method: 'POST', headers: this.authHeaders(), json: request, retry: 0 },
+        'Add download',
+      );
+      if (response.id !== request.id || (response.action === 'submitted' && !response.gid))
+        throw new Error('Download receipt does not match its request');
+      await forgetDownload(request.id);
+      return response;
+    } catch (error) {
+      if (error instanceof ApiAuthError) {
+        await forgetDownload(request.id);
+        throw error;
+      }
+      throw new ApiDeliveryUncertainError(error);
+    }
+  }
+
+  async reconcileDownloads(): Promise<number> {
+    const pending = await pendingDownloads(this.config);
+    const results = await Promise.allSettled(pending.map((request) => this.addDownload(request)));
+    return results.filter((result) => result.status === 'rejected').length;
   }
 
   async mediaCapabilities() {

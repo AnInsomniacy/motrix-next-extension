@@ -48,7 +48,7 @@ async function fixture() {
     getSettings: () => settings,
     connectionKey: async () => key,
     activate: vi.fn().mockResolvedValue(true),
-    sendFile: vi.fn().mockResolvedValue(undefined),
+    sendFile: vi.fn().mockResolvedValue(true),
     validateCandidate: vi.fn().mockResolvedValue(true),
   };
   const workflow = createMediaWorkflow({ ...args, catalog });

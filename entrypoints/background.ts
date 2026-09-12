@@ -261,11 +261,12 @@ export default defineBackground(() => {
     requestHeaders: requestHeaderContexts,
     sendFile: async (candidate) => {
       const context = fileRequestContext(candidate, settings);
-      await orchestrator.sendUrl(candidate.url, context.referer ?? '', {
+      const result = await orchestrator.sendUrl(candidate.url, context.referer ?? '', {
         source: 'media',
         headerContext: context,
         filename: candidate.filename,
       });
+      return result === 'routed-to-desktop';
     },
     onError: () =>
       logWarn('media_discovery_failed', 'Media discovery could not update its session'),
@@ -613,8 +614,19 @@ export default defineBackground(() => {
 
   void ensureConfigLoaded().then(async () => {
     await diagnosticLog.initialize();
-    // Register the context menu after the locale is loaded (i18n timing).
+    // Register browser actions before waiting for desktop receipt recovery.
     registerContextMenu();
     applyDownloadBarPreferenceSafely();
+    try {
+      const pending = await desktopClient.reconcileDownloads();
+      if (pending)
+        logWarn('download_delivery_failed', 'Download receipts are still pending', {
+          count: pending,
+        });
+    } catch (error) {
+      logError('download_delivery_failed', 'Download receipt recovery failed', {
+        error: errorMessage(error),
+      });
+    }
   });
 });

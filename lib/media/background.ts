@@ -34,7 +34,7 @@ export function startMediaBackground(options: {
   siteRules: () => SiteRule[];
   connection: () => ConnectionConfig;
   activate: () => Promise<boolean>;
-  sendFile: (candidate: MediaCandidate) => Promise<void>;
+  sendFile: (candidate: MediaCandidate) => Promise<boolean>;
   requestHeaders: RequestHeaderContextStore;
   onError?: () => void;
 }) {

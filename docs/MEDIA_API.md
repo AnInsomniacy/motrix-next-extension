@@ -1,10 +1,10 @@
 # Desktop media API v1
 
-The extension and desktop communicate through this versioned HTTP contract.
+The desktop provides this versioned HTTP contract; the extension consumes it.
 Each repository owns its implementation and checks. Neither implementation imports
 the other's source, schemas at runtime, or test fixtures.
 
-Canonical validators: [`lib/media/contracts.ts`](../lib/media/contracts.ts).
+Consumer validators: [`lib/media/contracts.ts`](../lib/media/contracts.ts).
 Generated structural JSON Schemas: [`media-api.schema.json`](media-api.schema.json).
 Run `pnpm media:contract` after a contract change and `pnpm media:contract:check`
 to verify the generated bundle. Semantic constraints below supplement JSON Schema.
@@ -67,10 +67,11 @@ exact-origin custom-header forwarding for every native HTTP hop. The existing or
 - `id` is generated and persisted by the extension before sending. Identical ID/body
   replays return the same operation. A different body for the same ID returns 409.
 - `kind` is an HLS/DASH discovery hint. It must not silently become a raw manifest
-  download. Ordinary files use the existing `/add` endpoint outside this protocol.
+  download. Ordinary files use protocol 2 at `/add`, described in [DOWNLOADS.md](DOWNLOADS.md).
 - Preserve signed URL bytes. Do not sort, decode/re-encode, or strip query parameters.
 - `pageUrl`, `title`, and `filename` are untrusted metadata. The desktop validates the
-  source scheme, derives a safe output filename and applies its configured destination.
+  source scheme and applies its configured destination. The engine resolves the
+  safe output name and selected container extension.
   `filename` is a hint, not a filesystem path or final output extension.
 - Capture timestamps belong to the browser catalogue, not the transport contract.
 - `requestContexts` contains at most eight independently observed media origins from
