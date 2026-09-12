@@ -23,7 +23,8 @@ pnpm dev    # Launch Chrome with the development extension and hot reload
 
 WXT automatically launches Chrome with a persistent, isolated development profile
 in `.wxt/chrome-data` and loads the extension. Saved API connection and appearance
-settings survive browser and dev-server restarts. This directory is Git-ignored;
+settings survive browser and dev-server restarts. Chrome creates the directory
+through its native `--user-data-dir` argument on first launch. This directory is Git-ignored;
 deleting it resets the development browser's data. Existing temporary profiles are
 not migrated, so configure the connection once after switching to this setup.
 See [WXT browser persistence](https://wxt.dev/guide/essentials/config/browser-startup#persist-data).

@@ -9,9 +9,8 @@ import { localesPlugin } from './shared/i18n/locales-plugin';
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
   webExt: {
-    // Reuse an isolated development profile so extension settings survive restarts.
-    chromiumProfile: resolve('.wxt/chrome-data'),
-    keepProfileChanges: true,
+    // Let Chrome create and reuse its data directory; the launcher logs stay temporary.
+    chromiumArgs: [`--user-data-dir=${resolve('.wxt/chrome-data')}`],
   },
   dev: {
     // Native extension CSP and injected Vite URLs must share one origin.
