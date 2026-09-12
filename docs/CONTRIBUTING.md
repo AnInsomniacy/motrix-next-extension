@@ -21,8 +21,14 @@ pnpm install
 pnpm dev    # Launch Chrome with the development extension and hot reload
 ```
 
-WXT automatically launches Chrome with an isolated development profile and loads
-the extension. Run `pnpm dev:firefox` to develop in Firefox instead.
+WXT automatically launches Chrome with a persistent, isolated development profile
+in `.wxt/chrome-data` and loads the extension. Saved API connection and appearance
+settings survive browser and dev-server restarts. This directory is Git-ignored;
+deleting it resets the development browser's data. Existing temporary profiles are
+not migrated, so configure the connection once after switching to this setup.
+See [WXT browser persistence](https://wxt.dev/guide/essentials/config/browser-startup#persist-data).
+Run `pnpm dev:firefox` to develop in Firefox instead; the persistent Chromium profile
+does not apply to Firefox.
 
 To manually test a production build, run `pnpm build`, then:
 
@@ -58,7 +64,7 @@ pnpm zip:firefox     # Firefox store package
 
 ## 🧪 Testing
 
-For media discovery and the synthetic desktop interface, see [Media](MEDIA.md) and
+For media discovery and the desktop interface, see [Media](MEDIA.md) and
 [Desktop media API](MEDIA_API.md). Run static checks within this repository;
 real browser/desktop acceptance is a separate manual maintainer check.
 Code and integration documentation are maintained in English. All user-facing copy must be translated in every supported locale.

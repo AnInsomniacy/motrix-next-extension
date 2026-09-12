@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { defineConfig } from 'wxt';
 import Components from 'unplugin-vue-components/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
@@ -7,6 +8,11 @@ import { localesPlugin } from './shared/i18n/locales-plugin';
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
+  webExt: {
+    // Reuse an isolated development profile so extension settings survive restarts.
+    chromiumProfile: resolve('.wxt/chrome-data'),
+    keepProfileChanges: true,
+  },
   dev: {
     // Native extension CSP and injected Vite URLs must share one origin.
     // Fail on duplicate dev servers instead of emitting an unloadable build.
