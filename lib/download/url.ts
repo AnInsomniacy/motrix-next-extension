@@ -55,6 +55,26 @@ export function decodeMimeEncodedWords(value: string): string {
 }
 
 /**
+ * Firefox exposes legacy header bytes as a JavaScript string. Some servers,
+ * notably Google Drive, put UTF-8 bytes directly in quoted `filename=`.
+ * Decode only byte-preserving values and keep invalid sequences unchanged.
+ */
+function decodeLegacyUtf8Filename(value: string): string {
+  const codeUnits = Array.from(value, (char) => char.charCodeAt(0));
+  if (codeUnits.some((codeUnit) => codeUnit > 0xff)) return value;
+
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(new Uint8Array(codeUnits));
+  } catch {
+    return value;
+  }
+}
+
+function hasExtendedFilenameParameter(header: string): boolean {
+  return /(?:^|;)\s*filename\*\s*=/i.test(header);
+}
+
+/**
  * Extract a filename from a URL.
  *
  * Priority:
@@ -116,9 +136,16 @@ export function parseContentDispositionHeader(header: string): ParsedContentDisp
   try {
     const { type, parameters } = contentDisposition.parse(header);
     const filename = parameters.filename;
+    const decodedFilename = filename ? decodeMimeEncodedWords(filename) : undefined;
     return {
       type: type.toLowerCase(),
-      ...(filename ? { filename: decodeMimeEncodedWords(filename) } : {}),
+      ...(decodedFilename
+        ? {
+            filename: hasExtendedFilenameParameter(header)
+              ? decodedFilename
+              : decodeLegacyUtf8Filename(decodedFilename),
+          }
+        : {}),
     };
   } catch {
     return null;

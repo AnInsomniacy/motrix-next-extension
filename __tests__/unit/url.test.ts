@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { extractFilenameFromUrl } from '@/lib/download/url';
+import { extractFilenameFromUrl, parseContentDispositionHeader } from '@/lib/download/url';
 
 function dispositionUrl(value: string, key = 'response-content-disposition'): string {
   return `https://cdn.example.com/hash?${key}=${encodeURIComponent(value)}`;
@@ -60,5 +60,32 @@ describe('extractFilenameFromUrl', () => {
         'https://cdn.example.com/good.zip?response-content-disposition=garbage',
       ),
     ).toBe('good.zip');
+  });
+});
+
+describe('parseContentDispositionHeader', () => {
+  it('decodes valid UTF-8 bytes in a legacy quoted filename', () => {
+    const header = 'attachment; filename="IMG_3701.MOV ã\u0081®ã\u0082³ã\u0083\u0094ã\u0083¼"';
+
+    expect(parseContentDispositionHeader(header)?.filename).toBe('IMG_3701.MOV のコピー');
+  });
+
+  it('preserves normal ASCII legacy filenames', () => {
+    expect(parseContentDispositionHeader('attachment; filename="video.mp4"')?.filename).toBe(
+      'video.mp4',
+    );
+  });
+
+  it('preserves invalid UTF-8 legacy bytes unchanged', () => {
+    expect(parseContentDispositionHeader('attachment; filename="caf\u00e9.mp4"')?.filename).toBe(
+      'café.mp4',
+    );
+  });
+
+  it('keeps filename* precedence over legacy filename=', () => {
+    const header =
+      'attachment; filename="fallback ã\u0081®.txt"; filename*=UTF-8\'\'%E3%81%AE%E3%82%B3%E3%83%94%E3%83%BC.txt';
+
+    expect(parseContentDispositionHeader(header)?.filename).toBe('のコピー.txt');
   });
 });
