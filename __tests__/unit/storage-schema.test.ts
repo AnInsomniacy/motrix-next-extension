@@ -70,7 +70,7 @@ describe('persisted schema repair', () => {
     expect(parseUiPrefs(null)).toEqual(DEFAULT_UI_PREFS);
     expect(parseUiPrefs({ theme: 'dark', colorScheme: 1, locale: 'zh_CN' })).toEqual({
       theme: 'dark',
-      colorScheme: 'amber',
+      colorScheme: 'electric',
       locale: 'zh_CN',
     });
   });

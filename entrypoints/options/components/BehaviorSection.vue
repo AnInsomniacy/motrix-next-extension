@@ -37,7 +37,7 @@ const { t: i18n } = useI18n();
 
 const unavailableActionOptions = computed(() => [
   {
-    label: i18n('options_desktop_unavailable_launch', 'Launch Motrix Next'),
+    label: i18n('options_desktop_unavailable_launch', 'Launch Rayburst'),
     value: 'launch',
   },
   {
@@ -177,7 +177,7 @@ const unavailableActionOptions = computed(() => [
       <NFormItem
         class="settings-row"
         :show-feedback="false"
-        :label="i18n('options_desktop_unavailable_label', 'When Motrix Next Is Unavailable')"
+        :label="i18n('options_desktop_unavailable_label', 'When Rayburst Is Unavailable')"
       >
         <NSelect
           :value="desktopUnavailable.action"

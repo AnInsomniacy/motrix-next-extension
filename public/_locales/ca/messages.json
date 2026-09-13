@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Motrix Next Extension",
+    "message": "Rayburst Connect",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "Envieu les descàrregues del navegador a Motrix Next — un gestor de descàrregues modern impulsat per aria2",
+    "message": "Troba la font i passa el relleu sense entrebancs.",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Iniciar Motrix Next",
+    "message": "Iniciar Rayburst",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Obrir Motrix Next",
+    "message": "Obrir Rayburst",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "No es pot connectar amb Motrix Next",
+    "message": "No es pot connectar amb Rayburst",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "Descarregar amb Motrix Next",
-    "description": "Context menu item for downloading a link with Motrix Next"
+    "message": "Descarregar amb Rayburst",
+    "description": "Context menu item for downloading a link with Rayburst"
   },
   "options_header_title": {
-    "message": "Motrix Next",
+    "message": "Rayburst Connect",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "Configuració de l'extensió",
-    "description": "Options page header subtitle"
+    "message": "Troba la font i passa el relleu sense entrebancs.",
+    "description": "Rayburst Connect slogan"
   },
   "options_testing_connection": {
     "message": "Provant...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Connectat · Motrix Next",
+    "message": "Connectat · Rayburst",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Motrix Next Extension v$version$",
+    "message": "Rayburst Connect v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,10 +155,6 @@
   "options_color_scheme": {
     "message": "Esquema de colors",
     "description": "Label for the color scheme picker"
-  },
-  "options_color_scheme_amber": {
-    "message": "Or ambre",
-    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "Blau espacial",
@@ -217,7 +213,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
+    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -235,7 +231,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Motrix Next is running. API port: $1",
+    "message": "Make sure Rayburst is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -257,11 +253,11 @@
     "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "Quan Motrix Next no estigui disponible",
+    "message": "Quan Rayburst no estigui disponible",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "Inicia Motrix Next",
+    "message": "Inicia Rayburst",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -309,7 +305,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Motrix Next",
+    "message": "Cannot connect to Rayburst",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -337,7 +333,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "Concedeix permisos de galetes i llocs per reenviar galetes a Motrix Next.",
+    "message": "Concedeix permisos de galetes i llocs per reenviar galetes a Rayburst.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -369,8 +365,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "Transfereix a Motrix Next",
-    "description": "Option label for routing unknown-size downloads to Motrix Next."
+    "message": "Transfereix a Rayburst",
+    "description": "Option label for routing unknown-size downloads to Rayburst."
   },
   "options_min_size_unknown_skip": {
     "message": "Transfereix al navegador",
@@ -425,8 +421,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "Envia a Motrix Next",
-    "description": "Option label for routing a matched extension to Motrix Next."
+    "message": "Envia a Rayburst",
+    "description": "Option label for routing a matched extension to Rayburst."
   },
   "options_file_extension_action_skip": {
     "message": "Usa el navegador",
@@ -509,7 +505,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "S’està iniciant Motrix Next",
+    "message": "S’està iniciant Rayburst",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -517,11 +513,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "No s’ha pogut iniciar Motrix Next",
+    "message": "No s’ha pogut iniciar Rayburst",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "Comproveu que Motrix Next estigui instal·lat i que la configuració de l’API sigui correcta.",
+    "message": "Comproveu que Rayburst estigui instal·lat i que la configuració de l’API sigui correcta.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -735,7 +731,7 @@
     "description": "Media discovery: loading"
   },
   "media_submitted": {
-    "message": "Baixada creada a Motrix Next.",
+    "message": "Baixada creada a Rayburst.",
     "description": "Media discovery: submitted"
   },
   "media_cancelled": {
@@ -755,7 +751,7 @@
     "description": "Media discovery: invalid"
   },
   "media_unavailable": {
-    "message": "Motrix Next encara no admet la interfície multimèdia.",
+    "message": "Rayburst encara no admet la interfície multimèdia.",
     "description": "Media discovery: unavailable"
   },
   "media_expired": {
@@ -767,7 +763,7 @@
     "description": "Media discovery: auth"
   },
   "media_connection": {
-    "message": "Inicieu Motrix Next i comproveu la connexió.",
+    "message": "Inicieu Rayburst i comproveu la connexió.",
     "description": "Media discovery: connection"
   },
   "media_size_unknown": {
@@ -783,7 +779,7 @@
     "description": "Media discovery: includes audio"
   },
   "media_record_hint": {
-    "message": "Zero grava fins que atureu la gravació a Motrix Next.",
+    "message": "Zero grava fins que atureu la gravació a Rayburst.",
     "description": "Media discovery: record hint"
   },
   "media_inspect_hint": {
@@ -809,5 +805,9 @@
   "media_cancelling": {
     "message": "S’està cancel·lant la inspecció…",
     "description": "Media discovery: cancelling"
+  },
+  "options_color_scheme_electric": {
+    "message": "Violeta elèctric",
+    "description": "Electric Purple color scheme"
   }
 }

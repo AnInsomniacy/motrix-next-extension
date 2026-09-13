@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Motrix Next Extension",
+    "message": "Rayburst Connect",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "Böngésző letöltések küldése a Motrix Next-nek — modern, aria2 alapú letöltéskezelő",
+    "message": "Találd meg a forrást, add át zökkenőmentesen.",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Motrix Next indítása",
+    "message": "Rayburst indítása",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Motrix Next megnyitása",
+    "message": "Rayburst megnyitása",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "Nem lehet csatlakozni a Motrix Next-hez",
+    "message": "Nem lehet csatlakozni a Rayburst-hez",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "Letöltés Motrix Next-tel",
-    "description": "Context menu item for downloading a link with Motrix Next"
+    "message": "Letöltés Rayburst-tel",
+    "description": "Context menu item for downloading a link with Rayburst"
   },
   "options_header_title": {
-    "message": "Motrix Next",
+    "message": "Rayburst Connect",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "Bővítmény beállítások",
-    "description": "Options page header subtitle"
+    "message": "Találd meg a forrást, add át zökkenőmentesen.",
+    "description": "Rayburst Connect slogan"
   },
   "options_testing_connection": {
     "message": "Tesztelés...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Csatlakozva · Motrix Next",
+    "message": "Csatlakozva · Rayburst",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Motrix Next Extension v$version$",
+    "message": "Rayburst Connect v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,10 +155,6 @@
   "options_color_scheme": {
     "message": "Színséma",
     "description": "Label for the color scheme picker"
-  },
-  "options_color_scheme_amber": {
-    "message": "Borostyán arany",
-    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "Űrkék",
@@ -217,7 +213,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
+    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -235,7 +231,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Motrix Next is running. API port: $1",
+    "message": "Make sure Rayburst is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -257,11 +253,11 @@
     "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "Ha a Motrix Next nem érhető el",
+    "message": "Ha a Rayburst nem érhető el",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "Motrix Next indítása",
+    "message": "Rayburst indítása",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -309,7 +305,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Motrix Next",
+    "message": "Cannot connect to Rayburst",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -337,7 +333,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "Add meg a cookie- és webhelyengedélyeket a cookie-k Motrix Next felé továbbításához.",
+    "message": "Add meg a cookie- és webhelyengedélyeket a cookie-k Rayburst felé továbbításához.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -369,8 +365,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "Átadás a Motrix Nextnek",
-    "description": "Option label for routing unknown-size downloads to Motrix Next."
+    "message": "Átadás a Rayburstnek",
+    "description": "Option label for routing unknown-size downloads to Rayburst."
   },
   "options_min_size_unknown_skip": {
     "message": "Átadás a böngészőnek",
@@ -425,8 +421,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "Küldés a Motrix Nextnek",
-    "description": "Option label for routing a matched extension to Motrix Next."
+    "message": "Küldés a Rayburstnek",
+    "description": "Option label for routing a matched extension to Rayburst."
   },
   "options_file_extension_action_skip": {
     "message": "Böngésző használata",
@@ -509,7 +505,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "A Motrix Next indítása",
+    "message": "A Rayburst indítása",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -517,11 +513,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "A Motrix Next nem indítható el",
+    "message": "A Rayburst nem indítható el",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "Ellenőrizze, hogy a Motrix Next telepítve van, és az API-beállításai helyesek.",
+    "message": "Ellenőrizze, hogy a Rayburst telepítve van, és az API-beállításai helyesek.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -735,7 +731,7 @@
     "description": "Media discovery: loading"
   },
   "media_submitted": {
-    "message": "A letöltés létrejött a Motrix Nextben.",
+    "message": "A letöltés létrejött a Rayburstben.",
     "description": "Media discovery: submitted"
   },
   "media_cancelled": {
@@ -755,7 +751,7 @@
     "description": "Media discovery: invalid"
   },
   "media_unavailable": {
-    "message": "A Motrix Next még nem támogatja a médiafelületet.",
+    "message": "A Rayburst még nem támogatja a médiafelületet.",
     "description": "Media discovery: unavailable"
   },
   "media_expired": {
@@ -767,7 +763,7 @@
     "description": "Media discovery: auth"
   },
   "media_connection": {
-    "message": "Indítsa el a Motrix Nextet és ellenőrizze a kapcsolatot.",
+    "message": "Indítsa el a Rayburstet és ellenőrizze a kapcsolatot.",
     "description": "Media discovery: connection"
   },
   "media_size_unknown": {
@@ -783,7 +779,7 @@
     "description": "Media discovery: includes audio"
   },
   "media_record_hint": {
-    "message": "Nulla esetén a felvétel a Motrix Nextben történő leállításig tart.",
+    "message": "Nulla esetén a felvétel a Rayburstben történő leállításig tart.",
     "description": "Media discovery: record hint"
   },
   "media_inspect_hint": {
@@ -809,5 +805,9 @@
   "media_cancelling": {
     "message": "Vizsgálat megszakítása…",
     "description": "Media discovery: cancelling"
+  },
+  "options_color_scheme_electric": {
+    "message": "Elektromos lila",
+    "description": "Electric Purple color scheme"
   }
 }

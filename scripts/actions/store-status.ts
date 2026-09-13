@@ -82,7 +82,7 @@ async function runStoreStatusFromEnv(): Promise<void> {
       checkFirefox({
         apiKey: optionalEnv('FIREFOX_API_KEY'),
         apiSecret: optionalEnv('FIREFOX_API_SECRET'),
-        slug: optionalEnv('FIREFOX_ADDON_SLUG') || 'motrix-next-extension',
+        slug: optionalEnv('FIREFOX_ADDON_SLUG'),
       }),
     ),
     withStoreError('Edge Add-ons', () =>

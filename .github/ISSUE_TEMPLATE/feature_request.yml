@@ -1,5 +1,5 @@
 name: ✨ Feature Request
-description: Suggest an idea for Motrix Next Extension
+description: Suggest an idea for Rayburst Connect
 title: '[feat]: '
 labels: ['enhancement']
 body:
@@ -9,7 +9,7 @@ body:
         Thanks for suggesting an improvement!
         Please check [existing issues](https://github.com/AnInsomniacy/motrix-next-extension/issues) before submitting.
 
-        > **Note:** If your feature request is about the Motrix Next **desktop app** (not the browser extension), please submit it at [AnInsomniacy/motrix-next](https://github.com/AnInsomniacy/motrix-next/issues) instead.
+        > **Note:** If your feature request is about the Rayburst **desktop app** (not the browser extension), please submit it at [Rayburst](https://github.com/AnInsomniacy/motrix-next/issues) instead.
 
   - type: textarea
     id: problem

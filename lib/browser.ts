@@ -30,7 +30,7 @@ export const requestDownloadUiAccess = (): Promise<boolean> =>
 
 // ─── Context Menu ───────────────────────────────────────
 
-export const CONTEXT_MENU_ID = 'download-with-motrix-next';
+export const CONTEXT_MENU_ID = 'download-with-rayburst';
 export const CONTEXT_MENU_CONTEXTS = ['link', 'image', 'audio', 'video'] as const;
 
 /**
@@ -46,7 +46,12 @@ export function extractContextMenuUrl(info: { linkUrl?: string; srcUrl?: string 
 export function buildDuplicateDownloadNotification(title: string, message: string) {
   return {
     id: `duplicate-download-${Date.now()}`,
-    options: { type: 'basic', title, message, iconUrl: 'icon/128.png' } as const,
+    options: {
+      type: 'basic',
+      title,
+      message,
+      iconUrl: browser.runtime.getURL('/icons/128.png'),
+    } as const,
   };
 }
 

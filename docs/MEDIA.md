@@ -9,14 +9,14 @@ patch Fetch/XHR, read response bodies, parse playlists, decrypt samples, or mux 
 
 1. Open a web page and play its media. The action badge counts network/downloadable
    candidates. The popup's **Media** tab also works while the desktop is disconnected.
-2. Use the **Download · Motrix Next** button next to a playing or hovered player,
+2. Use the **Download · Rayburst** button next to a playing or hovered player,
    or open the popup. Selecting an HLS/DASH source starts desktop inspection without
    downloading payload segments. This requires the [media API](MEDIA_API.md).
    Ordinary files use the existing download API without media inspection.
 3. Select native video/audio/subtitle tracks and an output format. Live sources can
    have a recording duration limit. Confirm once in the extension; the desktop must
    not open a second selection dialog for this submission.
-4. A confirmed desktop GID produces **Download created in Motrix Next**. Playback continues.
+4. A confirmed desktop GID produces **Download created in Rayburst**. Playback continues.
 
 The floating button uses WXT's isolated Shadow Root UI. Its panel loads on demand
 in a WXT extension iframe and shares the popup's source and selection components.

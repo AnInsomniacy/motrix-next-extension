@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Motrix Next Extension",
+    "message": "Rayburst Connect",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "Tarayıcı indirmelerini Motrix Next'e gönderin — aria2 tabanlı modern bir indirme yöneticisi",
+    "message": "Kaynağı bul, sorunsuzca aktar.",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Motrix Next'i başlat",
+    "message": "Rayburst'i başlat",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Motrix Next'i aç",
+    "message": "Rayburst'i aç",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "Motrix Next'e bağlanılamıyor",
+    "message": "Rayburst'e bağlanılamıyor",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "Motrix Next ile indir",
-    "description": "Context menu item for downloading a link with Motrix Next"
+    "message": "Rayburst ile indir",
+    "description": "Context menu item for downloading a link with Rayburst"
   },
   "options_header_title": {
-    "message": "Motrix Next",
+    "message": "Rayburst Connect",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "Uzantı ayarları",
-    "description": "Options page header subtitle"
+    "message": "Kaynağı bul, sorunsuzca aktar.",
+    "description": "Rayburst Connect slogan"
   },
   "options_testing_connection": {
     "message": "Test ediliyor...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Bağlandı · Motrix Next",
+    "message": "Bağlandı · Rayburst",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Motrix Next Extension v$version$",
+    "message": "Rayburst Connect v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,10 +155,6 @@
   "options_color_scheme": {
     "message": "Renk şeması",
     "description": "Label for the color scheme picker"
-  },
-  "options_color_scheme_amber": {
-    "message": "Amber altın",
-    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "Uzay mavisi",
@@ -217,7 +213,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
+    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -235,7 +231,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Motrix Next is running. API port: $1",
+    "message": "Make sure Rayburst is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -257,11 +253,11 @@
     "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "Motrix Next kullanılamadığında",
+    "message": "Rayburst kullanılamadığında",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "Motrix Next'i Başlat",
+    "message": "Rayburst'i Başlat",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -309,7 +305,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Motrix Next",
+    "message": "Cannot connect to Rayburst",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -337,7 +333,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "Çerezleri Motrix Next’e iletmek için çerez ve site izinleri verin.",
+    "message": "Çerezleri Rayburst’e iletmek için çerez ve site izinleri verin.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -369,8 +365,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "Motrix Next’e aktar",
-    "description": "Option label for routing unknown-size downloads to Motrix Next."
+    "message": "Rayburst’e aktar",
+    "description": "Option label for routing unknown-size downloads to Rayburst."
   },
   "options_min_size_unknown_skip": {
     "message": "Tarayıcıya aktar",
@@ -425,8 +421,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "Motrix Next’e gönder",
-    "description": "Option label for routing a matched extension to Motrix Next."
+    "message": "Rayburst’e gönder",
+    "description": "Option label for routing a matched extension to Rayburst."
   },
   "options_file_extension_action_skip": {
     "message": "Tarayıcıyı kullan",
@@ -509,7 +505,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "Motrix Next başlatılıyor",
+    "message": "Rayburst başlatılıyor",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -517,11 +513,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "Motrix Next başlatılamadı",
+    "message": "Rayburst başlatılamadı",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "Motrix Next’in yüklü ve API ayarlarının doğru olduğunu kontrol edin.",
+    "message": "Rayburst’in yüklü ve API ayarlarının doğru olduğunu kontrol edin.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -735,7 +731,7 @@
     "description": "Media discovery: loading"
   },
   "media_submitted": {
-    "message": "Motrix Next içinde indirme oluşturuldu.",
+    "message": "Rayburst içinde indirme oluşturuldu.",
     "description": "Media discovery: submitted"
   },
   "media_cancelled": {
@@ -755,7 +751,7 @@
     "description": "Media discovery: invalid"
   },
   "media_unavailable": {
-    "message": "Motrix Next henüz medya arayüzünü desteklemiyor.",
+    "message": "Rayburst henüz medya arayüzünü desteklemiyor.",
     "description": "Media discovery: unavailable"
   },
   "media_expired": {
@@ -767,7 +763,7 @@
     "description": "Media discovery: auth"
   },
   "media_connection": {
-    "message": "Motrix Next uygulamasını başlatıp bağlantıyı kontrol edin.",
+    "message": "Rayburst uygulamasını başlatıp bağlantıyı kontrol edin.",
     "description": "Media discovery: connection"
   },
   "media_size_unknown": {
@@ -783,7 +779,7 @@
     "description": "Media discovery: includes audio"
   },
   "media_record_hint": {
-    "message": "Sıfır, Motrix Next içinde durdurana kadar kaydeder.",
+    "message": "Sıfır, Rayburst içinde durdurana kadar kaydeder.",
     "description": "Media discovery: record hint"
   },
   "media_inspect_hint": {
@@ -809,5 +805,9 @@
   "media_cancelling": {
     "message": "İnceleme iptal ediliyor…",
     "description": "Media discovery: cancelling"
+  },
+  "options_color_scheme_electric": {
+    "message": "Elektrik moru",
+    "description": "Electric Purple color scheme"
   }
 }

@@ -1,5 +1,5 @@
 /**
- * HTTP client for the Motrix Next desktop app's embedded REST API
+ * HTTP client for the Rayburst desktop app's embedded REST API
  * (Axum server at `127.0.0.1:{port}`), plus the extension's single error
  * taxonomy and the two-step connection check.
  *
@@ -60,7 +60,7 @@ class ApiError extends Error {
 
 export class ApiUnreachableError extends ApiError {
   constructor(cause?: unknown) {
-    super('Cannot connect to Motrix Next API', cause);
+    super('Cannot connect to Rayburst API', cause);
     this.name = 'ApiUnreachableError';
   }
 }

@@ -62,7 +62,7 @@ import AppearanceSection from './components/AppearanceSection.vue';
 import MaintenanceSection from './components/MaintenanceSection.vue';
 import SettingsActionBar from './components/SettingsActionBar.vue';
 import LanguageSection from './components/LanguageSection.vue';
-import NextLogo from '@/shared/components/NextLogo.vue';
+import BrandLogo from '@/shared/components/BrandLogo.vue';
 
 // ─── Theme + i18n ───────────────────────────────────────
 
@@ -253,7 +253,7 @@ async function handleForwardCookiesChange(value: boolean): Promise<void> {
   toast.warning(
     i18n(
       'options_permission_cookies_denied',
-      'Grant cookie and site permissions to forward cookies to Motrix Next.',
+      'Grant cookie and site permissions to forward cookies to Rayburst.',
     ),
   );
 }
@@ -332,7 +332,7 @@ function exportSettingsBackup(): void {
       extensionVersion,
     });
     const date = new Date().toISOString().slice(0, 10);
-    downloadJson(`motrix-next-extension-settings-backup-${date}.json`, backup);
+    downloadJson(`rayburst-connect-settings-backup-${date}.json`, backup);
     toast.success(i18n('options_settings_backup_exported', 'Backup exported'));
   } catch {
     toast.error(i18n('options_settings_backup_export_error', 'Failed to export backup'));
@@ -346,7 +346,7 @@ async function exportDiagnosticReport(): Promise<void> {
       getDiagnosticEvents(),
       browser.permissions.getAll(),
     ]);
-    downloadJson(`motrix-next-diagnostic-${Date.now()}.json`, {
+    downloadJson(`rayburst-diagnostic-${Date.now()}.json`, {
       formatVersion: 1,
       exportedAt: new Date().toISOString(),
       extension: {
@@ -507,14 +507,14 @@ onUnmounted(() => {
       <header class="options-header">
         <div class="options-header__brand">
           <div class="options-header__icon">
-            <NextLogo />
+            <BrandLogo />
           </div>
           <div>
             <h1 class="options-header__title">
-              {{ i18n('options_header_title', 'Motrix Next') }}
+              {{ i18n('options_header_title', 'Rayburst Connect') }}
             </h1>
             <p class="options-header__subtitle">
-              {{ i18n('options_header_subtitle', 'Extension Settings') }}
+              {{ i18n('options_header_subtitle', 'Spot the source, hand it off seamlessly.') }}
             </p>
           </div>
         </div>
@@ -666,13 +666,7 @@ onUnmounted(() => {
 
       <!-- ── Footer ──────────────────────────────────────────── -->
       <footer class="options-footer">
-        {{
-          i18nSub(
-            'options_footer',
-            [extensionVersion],
-            `Motrix Next Extension v${extensionVersion}`,
-          )
-        }}
+        {{ i18nSub('options_footer', [extensionVersion], `Rayburst Connect v${extensionVersion}`) }}
       </footer>
     </div>
   </NConfigProvider>

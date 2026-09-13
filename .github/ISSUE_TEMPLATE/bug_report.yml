@@ -1,5 +1,5 @@
 name: 🐛 Bug Report
-description: Report a bug in Motrix Next Extension
+description: Report a bug in Rayburst Connect
 title: '[BUG]: '
 labels: ['bug']
 body:
@@ -9,7 +9,7 @@ body:
         Thanks for taking the time to report this issue!
         Please check [existing issues](https://github.com/AnInsomniacy/motrix-next-extension/issues) before creating a new one.
 
-        > **Note:** If your issue is about the Motrix Next **desktop app** (not the browser extension), please report it at [AnInsomniacy/motrix-next](https://github.com/AnInsomniacy/motrix-next/issues) instead.
+        > **Note:** If your issue is about the Rayburst **desktop app** (not the browser extension), please report it at [Rayburst](https://github.com/AnInsomniacy/motrix-next/issues) instead.
 
   - type: textarea
     id: description
@@ -57,9 +57,9 @@ body:
       required: true
 
   - type: input
-    id: motrix-version
+    id: rayburst-version
     attributes:
-      label: Motrix Next Desktop Version
+      label: Rayburst Desktop Version
       description: 'The version shown in About panel of the desktop app (e.g. 3.6.0). Leave empty if not installed.'
       placeholder: '3.6.0'
 
@@ -90,7 +90,7 @@ body:
       label: Diagnostic Logs
       description: |
         Open the extension **Settings → Diagnostics** tab, then click **Export Report** and attach or paste the content here.
-        For background errors, check `chrome://extensions` (Chromium) or `about:debugging#/runtime/this-firefox` (Firefox) → Motrix Next Extension → **Inspect** → Console tab.
+        For background errors, check `chrome://extensions` (Chromium) or `about:debugging#/runtime/this-firefox` (Firefox) → Rayburst Connect → **Inspect** → Console tab.
       render: text
     validations:
       required: true

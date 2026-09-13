@@ -1,6 +1,6 @@
 {
-  "name": "motrix-next-extension",
-  "description": "Motrix Next Browser Extension — Send downloads to Motrix Next",
+  "name": "rayburst-connect",
+  "description": "Rayburst Connect — Spot the source, hand it off seamlessly.",
   "private": true,
   "version": "1.3.7",
   "type": "module",
@@ -27,7 +27,8 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:i18n": "tsx scripts/lint-i18n.ts",
-    "postinstall": "wxt prepare"
+    "postinstall": "wxt prepare",
+    "brand:assets": "node scripts/generate-brand-assets.mjs"
   },
   "dependencies": {
     "@material/material-color-utilities": "^0.4.0",
@@ -46,11 +47,13 @@
     "@types/content-disposition": "^0.5.9",
     "@types/picomatch": "^4.0.3",
     "@vitest/coverage-v8": "4.1.2",
+    "@wxt-dev/auto-icons": "^1.1.2",
     "@wxt-dev/module-vue": "^1.0.3",
     "eslint": "^10.1.0",
     "eslint-plugin-vue": "^10.8.0",
     "happy-dom": "^20.8.9",
     "prettier": "^3.8.1",
+    "sharp": "^0.35.4",
     "tsx": "^4.22.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.58.0",

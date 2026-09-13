@@ -2,6 +2,7 @@ import { createIframeUi, createShadowRootUi } from '#imports';
 import type { ContentScriptContext } from 'wxt/utils/content-script-context';
 import { browser } from 'wxt/browser';
 import { sendMediaCommand } from './messages';
+import logo from '@/assets/rayburst-connect.svg?raw';
 
 /** One movable, frame-local entry point. The full UI runs in an extension iframe. */
 export async function createPlayerOverlay(
@@ -17,16 +18,24 @@ export async function createPlayerOverlay(
   let scheduled = 0;
   let revision = 0;
   const button = document.createElement('button');
+  const label = document.createElement('span');
+  const mark = new DOMParser().parseFromString(logo, 'image/svg+xml').documentElement;
+  mark.setAttribute('width', '18');
+  mark.setAttribute('height', '18');
+  mark.setAttribute('aria-hidden', 'true');
+  mark.querySelector('title')?.remove();
+  button.append(document.importNode(mark, true), label);
   const close = document.createElement('button');
   close.textContent = '×';
   const ui = await createShadowRootUi(ctx, {
-    name: 'motrix-media-control',
+    name: 'rayburst-media-control',
     mode: 'closed',
     position: 'inline',
     isolateEvents: ['click', 'keydown', 'keyup', 'pointerdown'],
     css: `:host{position:fixed!important;z-index:2147483647!important;display:block!important}
       div{display:flex;gap:4px;font:13px system-ui}
-      button{color-scheme:light dark;font:inherit;cursor:pointer;max-width:calc(100vw - 52px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid GrayText;border-radius:7px;padding:7px 10px;background:Canvas;color:CanvasText;transition:background .16s ease,transform .16s ease}
+      button{display:inline-flex;align-items:center;gap:6px;color-scheme:light dark;font:inherit;cursor:pointer;max-width:calc(100vw - 52px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid GrayText;border-radius:7px;padding:7px 10px;background:Canvas;color:CanvasText;transition:background .16s ease,transform .16s ease}
+      svg{flex-shrink:0}span{overflow:hidden;text-overflow:ellipsis}
       button:hover{background:ButtonFace}button:active{transform:translateY(1px)}button:focus-visible{outline:2px solid Highlight;outline-offset:2px}
       @media(prefers-reduced-motion:reduce){button{transition:none}}`,
     onMount(container) {
@@ -36,7 +45,7 @@ export async function createPlayerOverlay(
     },
   });
   function localize() {
-    button.textContent = `${translate('media_download')} · Motrix Next`;
+    label.textContent = `${translate('media_download')} · Rayburst`;
     button.setAttribute('aria-expanded', String(Boolean(panel)));
     close.setAttribute('aria-label', translate('media_close'));
     if (panel) panel.iframe.title = translate('media_options');
@@ -131,7 +140,7 @@ export async function createPlayerOverlay(
         wrapper.style.cssText =
           'position:fixed;z-index:2147483646;width:min(420px,100vw);height:min(480px,calc(100vh - 48px));';
         iframe.style.cssText =
-          'display:block;width:100%;height:100%;border:1px solid #b8c9cb;border-radius:12px;background:white;box-shadow:0 6px 24px #0003;color-scheme:normal;';
+          'display:block;width:100%;height:100%;border:0;border-radius:12px;background:transparent;box-shadow:0 6px 24px #0003;color-scheme:normal;';
       },
     });
     panel.mount();
@@ -155,7 +164,7 @@ export async function createPlayerOverlay(
     if (
       panel &&
       event.source === panel.iframe.contentWindow &&
-      event.data === 'MOTRIX_MEDIA_CLOSE'
+      event.data === 'RAYBURST_MEDIA_CLOSE'
     ) {
       closePanel();
       button.focus();

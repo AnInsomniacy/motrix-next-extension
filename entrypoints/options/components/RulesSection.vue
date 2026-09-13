@@ -33,7 +33,7 @@ const { t: i18n } = useI18n();
 
 const unknownSizeOptions = computed(() => [
   {
-    label: i18n('options_min_size_unknown_intercept', 'Send to Motrix Next'),
+    label: i18n('options_min_size_unknown_intercept', 'Send to Rayburst'),
     value: 'intercept',
   },
   {
@@ -44,7 +44,7 @@ const unknownSizeOptions = computed(() => [
 
 const extensionActionOptions = computed(() => [
   {
-    label: i18n('options_file_extension_action_intercept', 'Send to Motrix Next'),
+    label: i18n('options_file_extension_action_intercept', 'Send to Rayburst'),
     value: 'intercept',
   },
   {

@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Motrix Next Extension",
+    "message": "Rayburst Connect",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "브라우저 다운로드를 Motrix Next로 전송 — aria2 기반 최신 다운로드 관리자",
+    "message": "원본을 찾아 매끄럽게 전달하세요.",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Motrix Next 실행",
+    "message": "Rayburst 실행",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Motrix Next 열기",
+    "message": "Rayburst 열기",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "Motrix Next에 연결할 수 없습니다",
+    "message": "Rayburst에 연결할 수 없습니다",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "Motrix Next로 다운로드",
-    "description": "Context menu item for downloading a link with Motrix Next"
+    "message": "Rayburst로 다운로드",
+    "description": "Context menu item for downloading a link with Rayburst"
   },
   "options_header_title": {
-    "message": "Motrix Next",
+    "message": "Rayburst Connect",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "확장 프로그램 설정",
-    "description": "Options page header subtitle"
+    "message": "원본을 찾아 매끄럽게 전달하세요.",
+    "description": "Rayburst Connect slogan"
   },
   "options_testing_connection": {
     "message": "테스트 중...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "연결됨 · Motrix Next",
+    "message": "연결됨 · Rayburst",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Motrix Next Extension v$version$",
+    "message": "Rayburst Connect v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,10 +155,6 @@
   "options_color_scheme": {
     "message": "색상 구성",
     "description": "Label for the color scheme picker"
-  },
-  "options_color_scheme_amber": {
-    "message": "앰버 골드",
-    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "스페이스 블루",
@@ -217,7 +213,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "설정의 API 비밀키가 Motrix Next 구성과 일치하는지 확인하세요.",
+    "message": "설정의 API 비밀키가 Rayburst 구성과 일치하는지 확인하세요.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -235,7 +231,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Motrix Next가 실행 중인지 확인하세요. API 포트: $1",
+    "message": "Rayburst가 실행 중인지 확인하세요. API 포트: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -257,11 +253,11 @@
     "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "Motrix Next를 사용할 수 없을 때",
+    "message": "Rayburst를 사용할 수 없을 때",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "Motrix Next 실행",
+    "message": "Rayburst 실행",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -309,7 +305,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Motrix Next에 연결할 수 없습니다",
+    "message": "Rayburst에 연결할 수 없습니다",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -337,7 +333,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "쿠키를 Motrix Next로 전달하려면 쿠키 및 사이트 권한을 허용하세요.",
+    "message": "쿠키를 Rayburst로 전달하려면 쿠키 및 사이트 권한을 허용하세요.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -369,8 +365,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "Motrix Next로 넘기기",
-    "description": "Option label for routing unknown-size downloads to Motrix Next."
+    "message": "Rayburst로 넘기기",
+    "description": "Option label for routing unknown-size downloads to Rayburst."
   },
   "options_min_size_unknown_skip": {
     "message": "브라우저로 넘기기",
@@ -425,8 +421,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "Motrix Next로 보내기",
-    "description": "Option label for routing a matched extension to Motrix Next."
+    "message": "Rayburst로 보내기",
+    "description": "Option label for routing a matched extension to Rayburst."
   },
   "options_file_extension_action_skip": {
     "message": "브라우저 사용",
@@ -509,7 +505,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "Motrix Next 시작 중",
+    "message": "Rayburst 시작 중",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -517,11 +513,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "Motrix Next를 시작할 수 없음",
+    "message": "Rayburst를 시작할 수 없음",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "Motrix Next가 설치되어 있고 API 설정이 올바른지 확인하세요.",
+    "message": "Rayburst가 설치되어 있고 API 설정이 올바른지 확인하세요.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -735,7 +731,7 @@
     "description": "Media discovery: loading"
   },
   "media_submitted": {
-    "message": "Motrix Next에 다운로드를 생성했습니다.",
+    "message": "Rayburst에 다운로드를 생성했습니다.",
     "description": "Media discovery: submitted"
   },
   "media_cancelled": {
@@ -755,7 +751,7 @@
     "description": "Media discovery: invalid"
   },
   "media_unavailable": {
-    "message": "Motrix Next가 아직 미디어 인터페이스를 지원하지 않습니다.",
+    "message": "Rayburst가 아직 미디어 인터페이스를 지원하지 않습니다.",
     "description": "Media discovery: unavailable"
   },
   "media_expired": {
@@ -767,7 +763,7 @@
     "description": "Media discovery: auth"
   },
   "media_connection": {
-    "message": "Motrix Next를 시작하고 연결 설정을 확인하세요.",
+    "message": "Rayburst를 시작하고 연결 설정을 확인하세요.",
     "description": "Media discovery: connection"
   },
   "media_size_unknown": {
@@ -783,7 +779,7 @@
     "description": "Media discovery: includes audio"
   },
   "media_record_hint": {
-    "message": "0이면 Motrix Next에서 중지할 때까지 녹화합니다.",
+    "message": "0이면 Rayburst에서 중지할 때까지 녹화합니다.",
     "description": "Media discovery: record hint"
   },
   "media_inspect_hint": {
@@ -809,5 +805,9 @@
   "media_cancelling": {
     "message": "확인 취소 중…",
     "description": "Media discovery: cancelling"
+  },
+  "options_color_scheme_electric": {
+    "message": "일렉트릭 퍼플",
+    "description": "Electric Purple color scheme"
   }
 }

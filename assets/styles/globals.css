@@ -1,40 +1,4 @@
 :root {
-  /* ── M3 Primary (Amber Gold · seed #E0A422 · desktop-aligned) ────── */
-  --color-primary: #7c5800;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #ffdea3;
-  --color-on-primary-container: #271900;
-  --color-brand: #e0a422;
-
-  /* ── M3 Surface Tonal System (6 layers) ─────────────────────────── */
-  --color-surface: #fefbf6;
-  --color-surface-dim: #dfdbd4;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f9f5ee;
-  --color-surface-container: #f3efe8;
-  --color-surface-container-high: #ede9e2;
-  --color-surface-container-highest: #e7e3dd;
-
-  /* ── M3 On-Surface / Text ──────────────────────────────────────── */
-  --color-on-surface: #1d1b16;
-  --color-on-surface-variant: #4d4639;
-
-  /* ── M3 Outline / Borders ──────────────────────────────────────── */
-  --color-outline: #7f7667;
-  --color-outline-variant: #d1c7b7;
-
-  /* ── M3 Semantic ───────────────────────────────────────────────── */
-  --color-error: #ba1a1a;
-  --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-warning: #7c5800;
-  --color-success: #386a20;
-  --color-on-success: #ffffff;
-
-  /* ── M3 Inverse (toasts / snackbars) ───────────────────────────── */
-  --color-inverse-surface: #32302b;
-  --color-on-inverse-surface: #ebe4db;
-
   /* ── Typography ────────────────────────────────────────────────── */
   --font-sans:
     'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
@@ -54,6 +18,49 @@
   --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
 }
 
+:root {
+  /* Generated from the default Material theme. */
+  --color-primary: #7739cd;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #ecdcff;
+  --color-on-primary-container: #280056;
+  --color-surface: #fffbff;
+  --color-on-surface: #1d1b1e;
+  --color-on-surface-variant: #4a454e;
+  --color-outline: #7b757f;
+  --color-outline-variant: #cbc4cf;
+  --color-error: #bb0947;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffd9dd;
+  --color-tertiary: #7f525b;
+  --color-on-tertiary: #ffffff;
+  --color-inverse-surface: #322f33;
+  --color-on-inverse-surface: #f5eff4;
+  --color-surface-dim: #d5d0d5;
+  --color-surface-container-lowest: #fef8fc;
+  --color-surface-container-low: #f2ecf1;
+  --color-surface-container: #e9e4e8;
+  --color-surface-container-high: #e1dbe0;
+  --color-surface-container-highest: #d8d3d7;
+  --color-brand: #7739cd;
+  --color-info: #375ba9;
+  --color-on-info: #ffffff;
+  --color-info-container: #d9e2ff;
+  --color-on-info-container: #001946;
+  --color-success: #0a6d36;
+  --color-on-success: #ffffff;
+  --color-success-container: #9ef6b0;
+  --color-on-success-container: #00210b;
+  --color-warning: #885200;
+  --color-on-warning: #ffffff;
+  --color-warning-container: #ffddbb;
+  --color-on-warning-container: #2b1700;
+  --color-on-error-container: #400012;
+  --color-primary-light-5: #d6baff;
+  --color-primary-light-9: #f8edff;
+  --color-scrollbar-thumb: rgba(29, 27, 30, 0.3);
+}
+
 /* Shared motion curves. */
 :root {
   --m3-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
@@ -61,37 +68,51 @@
   --m3-ease-emphasized-accel: cubic-bezier(0.3, 0, 0.8, 0.15);
 }
 
-/* ── Dark Mode (values from desktop Motrix Next .dark block) ─────── */
+/* ── Dark Mode (values from desktop Rayburst .dark block) ─────── */
 html.dark {
-  --color-primary: #f0bf48;
-  --color-on-primary: #412d00;
-  --color-primary-container: #5e4200;
-  --color-on-primary-container: #ffdea3;
+  /* Generated from the default Material theme. */
+  --color-primary: #d6baff;
+  --color-on-primary: #430089;
+  --color-primary-container: #5e16b4;
+  --color-on-primary-container: #ecdcff;
+  --color-surface: #1d1b1e;
+  --color-on-surface: #e7e1e6;
+  --color-on-surface-variant: #cbc4cf;
+  --color-outline: #958e99;
+  --color-outline-variant: #4a454e;
+  --color-error: #ffb2bc;
+  --color-on-error: #670023;
+  --color-error-container: #910034;
+  --color-tertiary: #f1b7c3;
+  --color-on-tertiary: #4b252e;
+  --color-inverse-surface: #e7e1e6;
+  --color-on-inverse-surface: #322f33;
+  --color-surface-dim: #141316;
+  --color-surface-container-lowest: #0f0e11;
+  --color-surface-container-low: #1d1b1e;
+  --color-surface-container: #211f22;
+  --color-surface-container-high: #2b292d;
+  --color-surface-container-highest: #363438;
+  --color-brand: #d6baff;
+  --color-info: #b1c5ff;
+  --color-on-info: #002c70;
+  --color-info-container: #1a4390;
+  --color-on-info-container: #d9e2ff;
+  --color-success: #82d996;
+  --color-on-success: #003918;
+  --color-success-container: #005226;
+  --color-on-success-container: #9ef6b0;
+  --color-warning: #ffb869;
+  --color-on-warning: #482900;
+  --color-warning-container: #673d00;
+  --color-on-warning-container: #ffddbb;
+  --color-on-error-container: #ffd9dd;
+  --color-primary-light-5: #5e16b4;
+  --color-primary-light-9: #280056;
+  --color-scrollbar-thumb: rgba(231, 225, 230, 0.22);
+}
 
-  --color-surface: #141210;
-  --color-surface-dim: #141210;
-  --color-surface-container-lowest: #0e0d0b;
-  --color-surface-container-low: #1c1a17;
-  --color-surface-container: #201e1b;
-  --color-surface-container-high: #2b2926;
-  --color-surface-container-highest: #363331;
-
-  --color-on-surface: #e8e2d9;
-  --color-on-surface-variant: #d0c8b9;
-
-  --color-outline: #998f80;
-  --color-outline-variant: #4d4639;
-
-  --color-error: #ffb4ab;
-  --color-on-error: #690005;
-  --color-error-container: #93000a;
-  --color-success: #8edb6a;
-  --color-on-success: #0a3900;
-  --color-warning: #f0bf48;
-
-  --color-inverse-surface: #e8e2d9;
-  --color-on-inverse-surface: #32302b;
-
+html.dark {
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
   --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.25);
 }

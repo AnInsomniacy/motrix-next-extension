@@ -8,7 +8,7 @@
  *   responses before its native download starts.
  *
  * Explicit flow (context menu, protocol links):
- *   submit over HTTP → activate Motrix Next → retry over HTTP.
+ *   submit over HTTP → activate Rayburst → retry over HTTP.
  */
 import type { DownloadSettings, SiteRule } from '@/lib/schema';
 import type { DiagnosticInput } from '@/lib/diagnostics';
@@ -227,7 +227,7 @@ export class DownloadOrchestrator {
    * Route a Firefox response that the blocking listener already cancelled.
    * Any failed desktop handoff recreates one Firefox-owned download.
    *
-   * @returns true when the response remains owned by Motrix Next.
+   * @returns true when the response remains owned by Rayburst.
    */
   async handleFirefoxResponseTakeover(item: DownloadCandidate): Promise<boolean> {
     const filterResult = this.evaluateCandidate(item);
@@ -308,8 +308,8 @@ export class DownloadOrchestrator {
       this.log(
         delivery.reason === 'api-auth-failed' ? 'api_auth_failed' : 'download_delivery_failed',
         delivery.reason === 'api-auth-failed'
-          ? 'Motrix Next rejected the API credentials'
-          : 'Download could not be delivered to Motrix Next',
+          ? 'Rayburst rejected the API credentials'
+          : 'Download could not be delivered to Rayburst',
         {
           url,
           source: options.source,
@@ -439,7 +439,7 @@ export class DownloadOrchestrator {
   }
 
   /**
-   * Try the HTTP API, then activate Motrix Next and retry over HTTP.
+   * Try the HTTP API, then activate Rayburst and retry over HTTP.
    */
   private async sendToDesktop(job: DownloadJob, options: SendOptions): Promise<DeliveryResult> {
     try {
@@ -510,7 +510,7 @@ export class DownloadOrchestrator {
         : {}),
     });
 
-    this.log('download_delegated', 'Download sent to Motrix Next', {
+    this.log('download_delegated', 'Download sent to Rayburst', {
       url: job.url,
       source: job.source,
       filenameSource: job.filenameSource,

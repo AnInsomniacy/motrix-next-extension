@@ -1,9 +1,9 @@
-/** Native Messaging activation and readiness coordination for Motrix Next. */
+/** Native Messaging activation and readiness coordination for Rayburst. */
 import { z } from 'zod';
 
 z.config({ jitless: true });
 
-export const MOTRIX_NEXT_NATIVE_HOST = 'com.motrix.next.browser';
+export const RAYBURST_NATIVE_HOST = 'dev.aninsomniacy.rayburst.browser';
 
 const NativeHostErrorCodeSchema = z.enum([
   'untrusted_caller',
@@ -40,16 +40,16 @@ export class DesktopActivationError extends Error {
     public readonly code: NativeHostErrorCode | 'host_unavailable' | 'invalid_response',
     public readonly cause?: unknown,
   ) {
-    super(`Motrix Next activation failed: ${code}`);
+    super(`Rayburst activation failed: ${code}`);
     this.name = 'DesktopActivationError';
   }
 }
 
-/** Activate Motrix Next through its allowlisted one-shot native host. */
+/** Activate Rayburst through its allowlisted one-shot native host. */
 export async function activateDesktop(sendNativeMessage: NativeMessageSender): Promise<void> {
   let rawResponse: unknown;
   try {
-    rawResponse = await sendNativeMessage(MOTRIX_NEXT_NATIVE_HOST, { action: 'activate' });
+    rawResponse = await sendNativeMessage(RAYBURST_NATIVE_HOST, { action: 'activate' });
   } catch (error) {
     throw new DesktopActivationError('host_unavailable', error);
   }

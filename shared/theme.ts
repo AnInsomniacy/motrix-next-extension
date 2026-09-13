@@ -6,38 +6,24 @@
  *   - pre-mount bootstrap (no first-frame flash)
  *   - `useAppTheme()` — the single Vue composable both UIs consume
  *
- * The static Amber Gold values in globals.css act as fallback for the brief
+ * The static Electric Purple values in globals.css act as fallback for the brief
  * window before the bootstrap runs.
  */
 import { computed, onScopeDispose, ref, watchEffect } from 'vue';
-import { argbFromHex, hexFromArgb, themeFromSourceColor } from '@material/material-color-utilities';
+import {
+  argbFromHex,
+  hexFromArgb,
+  themeFromSourceColor,
+  CorePalette,
+  type Theme,
+} from '@material/material-color-utilities';
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui';
 import { parseUiPrefs, type ThemePreference, type UiPrefs } from '@/lib/schema';
 
 // ─── Color Schemes ──────────────────────────────────────
 
-interface ColorSchemeDefinition {
-  /** Unique identifier stored in config (kebab-case). */
-  id: string;
-  /** i18n key for the scheme name. */
-  labelKey: string;
-  /** Seed hex fed to MCU `themeFromSourceColor`. */
-  seed: string;
-}
-
-/** 10 curated preset schemes, identical to the desktop app. */
-export const COLOR_SCHEMES: ColorSchemeDefinition[] = [
-  { id: 'amber', labelKey: 'options_color_scheme_amber', seed: '#E0A422' },
-  { id: 'space', labelKey: 'options_color_scheme_space', seed: '#4A6CF7' },
-  { id: 'mint', labelKey: 'options_color_scheme_mint', seed: '#10B981' },
-  { id: 'rose', labelKey: 'options_color_scheme_rose', seed: '#F43F5E' },
-  { id: 'aurora', labelKey: 'options_color_scheme_aurora', seed: '#8B5CF6' },
-  { id: 'coral', labelKey: 'options_color_scheme_coral', seed: '#F97316' },
-  { id: 'glacier', labelKey: 'options_color_scheme_glacier', seed: '#06B6D4' },
-  { id: 'evergreen', labelKey: 'options_color_scheme_evergreen', seed: '#15803D' },
-  { id: 'graphite', labelKey: 'options_color_scheme_graphite', seed: '#6B7280' },
-  { id: 'sakura', labelKey: 'options_color_scheme_sakura', seed: '#EC4899' },
-];
+import { COLOR_SCHEMES, type ColorSchemeDefinition } from './color-schemes';
+export { COLOR_SCHEMES } from './color-schemes';
 
 function resolveScheme(id: string | undefined): ColorSchemeDefinition {
   return COLOR_SCHEMES.find((s) => s.id === id) ?? COLOR_SCHEMES[0]!;
@@ -48,6 +34,31 @@ function resolveThemeClass(preference: ThemePreference, systemIsDark: boolean): 
   if (preference === 'dark') return 'dark';
   if (preference === 'light') return 'light';
   return systemIsDark ? 'dark' : 'light';
+}
+
+const SEMANTIC_COLORS = [
+  { name: 'info', value: argbFromHex('#0061A4'), blend: true },
+  { name: 'success', value: argbFromHex('#386A20'), blend: true },
+  { name: 'warning', value: argbFromHex('#7C5800'), blend: true },
+  { name: 'error', value: argbFromHex('#BA1A1A'), blend: true },
+];
+
+function createMaterialTheme(seed: string): Theme {
+  return themeFromSourceColor(
+    argbFromHex(seed),
+    SEMANTIC_COLORS.map((color) => ({ ...color })),
+  );
+}
+
+function semanticRole(theme: Theme, name: string, dark: boolean) {
+  const group = theme.customColors.find((color) => color.color.name === name);
+  if (!group) throw new Error(`Missing semantic color: ${name}`);
+  const palette = CorePalette.of(group.value).a1;
+  return {
+    ...(dark ? group.dark : group.light),
+    hover: palette.tone(dark ? 70 : 50),
+    pressed: palette.tone(dark ? 90 : 30),
+  };
 }
 
 // ─── M3 Palette → CSS Variables ─────────────────────────
@@ -96,8 +107,8 @@ interface ThemeVarsInput {
 }
 
 /** Generate every themed CSS custom property for a seed + mode. */
-function createThemeVars({ seedHex, isDark }: ThemeVarsInput): Record<string, string> {
-  const m3Theme = themeFromSourceColor(argbFromHex(seedHex));
+export function createThemeVars({ seedHex, isDark }: ThemeVarsInput): Record<string, string> {
+  const m3Theme = createMaterialTheme(seedHex);
   const scheme = isDark ? m3Theme.schemes.dark : m3Theme.schemes.light;
   const json = scheme.toJSON() as Record<string, number>;
   const vars: Record<string, string> = {};
@@ -114,9 +125,13 @@ function createThemeVars({ seedHex, isDark }: ThemeVarsInput): Record<string, st
 
   const primary = hexFromArgb(scheme.primary);
   vars['--color-brand'] = primary;
-  vars['--color-warning'] = primary;
-  vars['--color-success'] = isDark ? '#8edb6a' : '#386a20';
-  vars['--color-on-success'] = isDark ? '#0a3900' : '#ffffff';
+  for (const { name } of SEMANTIC_COLORS) {
+    const role = semanticRole(m3Theme, name, isDark);
+    vars[`--color-${name}`] = hexFromArgb(role.color);
+    vars[`--color-on-${name}`] = hexFromArgb(role.onColor);
+    vars[`--color-${name}-container`] = hexFromArgb(role.colorContainer);
+    vars[`--color-on-${name}-container`] = hexFromArgb(role.onColorContainer);
+  }
 
   const palette = m3Theme.palettes.primary;
   vars['--color-primary-light-5'] = hexFromArgb(palette.tone(isDark ? 30 : 80));
@@ -149,7 +164,7 @@ let bootstrappedPrefs: UiPrefs | undefined;
 
 /**
  * Apply the persisted theme before Vue mounts so the first rendered frame
- * doesn't flash the static amber fallback.
+ * doesn't flash the static default palette.
  */
 export async function bootstrapStoredTheme(storage: {
   getItem: (key: 'local:uiPrefs') => Promise<unknown>;
@@ -168,7 +183,7 @@ const FONT_FAMILY =
   '"Helvetica Neue", Helvetica, Arial, sans-serif';
 
 function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverrides {
-  const m3Theme = themeFromSourceColor(argbFromHex(seedHex));
+  const m3Theme = createMaterialTheme(seedHex);
   const scheme = isDark ? m3Theme.schemes.dark : m3Theme.schemes.light;
   const neutral = m3Theme.palettes.neutral;
   const tones = SURFACE_TONES[isDark ? 'dark' : 'light'];
@@ -182,11 +197,19 @@ function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverr
   const outlineFull = hexFromArgb(scheme.outline);
 
   const primaryPalette = m3Theme.palettes.primary;
-  const tertiaryPalette = m3Theme.palettes.tertiary;
   const primaryHover = hexFromArgb(primaryPalette.tone(isDark ? 70 : 50));
   const primaryPressed = hexFromArgb(primaryPalette.tone(isDark ? 90 : 30));
-  const tertiaryHover = hexFromArgb(tertiaryPalette.tone(isDark ? 70 : 50));
-  const tertiaryPressed = hexFromArgb(tertiaryPalette.tone(isDark ? 90 : 30));
+  const semanticOverrides = Object.fromEntries(
+    SEMANTIC_COLORS.flatMap(({ name }) => {
+      const role = semanticRole(m3Theme, name, isDark);
+      return [
+        [`${name}Color`, hexFromArgb(role.color)],
+        [`${name}ColorHover`, hexFromArgb(role.hover)],
+        [`${name}ColorPressed`, hexFromArgb(role.pressed)],
+        [`${name}ColorSuppl`, hexFromArgb(role.color)],
+      ];
+    }),
+  );
 
   return {
     common: {
@@ -194,10 +217,7 @@ function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverr
       primaryColorHover: primaryHover,
       primaryColorPressed: primaryPressed,
       primaryColorSuppl: primary,
-      warningColor: hexFromArgb(scheme.tertiary),
-      warningColorHover: tertiaryHover,
-      warningColorPressed: tertiaryPressed,
-      warningColorSuppl: hexFromArgb(scheme.tertiary),
+      ...semanticOverrides,
       bodyColor: 'transparent',
       cardColor: surface('--color-surface-container'),
       modalColor: surface('--color-surface-container-high'),

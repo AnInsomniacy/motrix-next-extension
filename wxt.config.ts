@@ -2,12 +2,17 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'wxt';
 import Components from 'unplugin-vue-components/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
-import { buildExtensionManifest } from './shared/manifest';
+import { buildExtensionManifest, EXTENSION_ICON_SIZES } from './shared/manifest';
 import { localesPlugin } from './shared/i18n/locales-plugin';
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
-  modules: ['@wxt-dev/module-vue'],
+  modules: ['@wxt-dev/module-vue', '@wxt-dev/auto-icons'],
+  autoIcons: {
+    baseIconPath: 'assets/rayburst-connect.svg',
+    developmentIndicator: false,
+    sizes: EXTENSION_ICON_SIZES,
+  },
   webExt: {
     // Let Chrome create and reuse its data directory; the launcher logs stay temporary.
     chromiumArgs: [`--user-data-dir=${resolve('.wxt/chrome-data')}`],
@@ -20,7 +25,7 @@ export default defineConfig({
   zip: {
     artifactTemplate: '{{name}}-{{version}}-{{browser}}-mv3.zip',
   },
-  manifest: ({ browser, mode }) => buildExtensionManifest(browser, mode),
+  manifest: ({ browser }) => buildExtensionManifest(browser),
   vite: () => ({
     build: {
       // WXT builds the service worker as an IIFE, so manual code-splitting is

@@ -56,7 +56,7 @@ export default defineBackground(() => {
     save: saveDiagnosticEvents,
     maxEvents: DEFAULT_DIAGNOSTIC_SETTINGS.maxEvents,
     onPersistError: (error) => {
-      console.warn('[MotrixNext] Diagnostic persistence failed:', error);
+      console.warn('[Rayburst] Diagnostic persistence failed:', error);
     },
   });
   const requestHeaderContexts = new RequestHeaderContextStore();
@@ -368,7 +368,7 @@ export default defineBackground(() => {
   // ─── Context Menu ─────────────────────────────────────
 
   function contextMenuTitle(): string {
-    return bgI18n.t('context_menu_download', 'Download with Motrix Next');
+    return bgI18n.t('context_menu_download', 'Download with Rayburst');
   }
 
   function registerContextMenu(): void {
@@ -460,7 +460,7 @@ export default defineBackground(() => {
       const cause = error instanceof DesktopActivationError ? error.cause : undefined;
       const nativeError =
         cause instanceof Error ? cause.message : typeof cause === 'string' ? cause : '';
-      logError('desktop_activation_failed', 'Motrix Next could not be activated', {
+      logError('desktop_activation_failed', 'Rayburst could not be activated', {
         source: 'popup',
         reason: code,
         ...(nativeError ? { nativeError } : {}),
@@ -483,7 +483,7 @@ export default defineBackground(() => {
       });
       if (ready) return { ok: true };
 
-      logError('desktop_activation_failed', 'Motrix Next did not become ready', {
+      logError('desktop_activation_failed', 'Rayburst did not become ready', {
         source: 'popup',
         reason: 'readiness-timeout',
       });
@@ -501,9 +501,7 @@ export default defineBackground(() => {
         cause instanceof Error ? cause.message : typeof cause === 'string' ? cause : '';
       logError(
         authFailure ? 'api_auth_failed' : 'desktop_activation_failed',
-        authFailure
-          ? 'Motrix Next rejected the API credentials'
-          : 'Motrix Next could not be started',
+        authFailure ? 'Rayburst rejected the API credentials' : 'Rayburst could not be started',
         { source: 'popup', reason: code, ...(nativeError ? { nativeError } : {}) },
       );
       return { ok: false, error: code };
@@ -523,8 +521,8 @@ export default defineBackground(() => {
       logError(
         authFailure ? 'api_auth_failed' : 'api_unreachable',
         authFailure
-          ? 'Motrix Next rejected the API credentials'
-          : 'Motrix Next could not complete the requested action',
+          ? 'Rayburst rejected the API credentials'
+          : 'Rayburst could not complete the requested action',
         { source: 'popup', action, error: errorMessage(error) },
       );
       return { ok: false, error: errorMessage(error) };
