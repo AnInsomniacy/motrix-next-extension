@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/media/rayburst-connect-banner.png" alt="Rayburst Connect — Spot the source, hand it off seamlessly" width="640" />
+  <img src="docs/media/rayburst-connect-banner.png" alt="Rayburst Connect — Spot the source, hand it off seamlessly" width="600" />
   <br><br>
 
 [![Release](https://img.shields.io/github/v/release/AnInsomniacy/motrix-next-extension?label=release&color=7B3ED1)](https://github.com/AnInsomniacy/motrix-next-extension/releases)
