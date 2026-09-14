@@ -59,8 +59,8 @@ performs real integration acceptance with separately built applications.
 Work on the current branch. No subagents or orchestration without explicit user
 authorization. The parent directory is not a repository.
 
-WXT starts Chrome with its native --user-data-dir argument pointing to
-.wxt/chrome-data. Preserve that directory so development settings survive.
+WXT reuses `.wxt/chrome-data` through `chromiumProfile` and
+`keepProfileChanges: true`. Preserve that directory so development settings survive.
 The Chromium public key and browser installation IDs remain stable in development
 and production builds.
 

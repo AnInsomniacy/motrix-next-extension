@@ -125,7 +125,7 @@ watch(
             /></NIcon>
             <span
               >{{ feedback.message
-              }}<bdi v-if="feedback.version"> {{ feedback.version }}</bdi></span
+              }}<bdi v-if="feedback.version">{{ `\u00a0v${feedback.version}` }}</bdi></span
             >
           </span>
         </Transition>

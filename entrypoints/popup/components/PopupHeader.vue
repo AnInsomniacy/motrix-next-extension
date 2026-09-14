@@ -17,7 +17,7 @@ const { t } = useI18n();
     <span
       class="connection"
       :class="{ connected: status === 'connected' }"
-      :title="version ? `Rayburst ${version}` : undefined"
+      :title="version ? `Rayburst v${version}` : undefined"
       role="status"
     >
       <span class="status-dot" />

@@ -344,6 +344,8 @@ onUnmounted(() => {
 .connection-copy {
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 12px;
   min-height: 108px;
   padding-block: 12px;

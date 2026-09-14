@@ -1,9 +1,12 @@
+import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { defineConfig } from 'wxt';
 import Components from 'unplugin-vue-components/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
 import { buildExtensionManifest, EXTENSION_ICON_SIZES } from './shared/manifest';
 import { localesPlugin } from './shared/i18n/locales-plugin';
+
+const chromiumProfile = resolve('.wxt/chrome-data');
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -14,8 +17,15 @@ export default defineConfig({
     sizes: EXTENSION_ICON_SIZES,
   },
   webExt: {
-    // Let Chrome create and reuse its data directory; the launcher logs stay temporary.
-    chromiumArgs: [`--user-data-dir=${resolve('.wxt/chrome-data')}`],
+    // Reuse the development profile through the runner instead of competing CLI flags.
+    chromiumProfile,
+    keepProfileChanges: true,
+  },
+  hooks: {
+    'server:created': async () => {
+      // chrome-launcher opens its log files before creating the browser profile.
+      await mkdir(chromiumProfile, { recursive: true });
+    },
   },
   dev: {
     // Native extension CSP and injected Vite URLs must share one origin.

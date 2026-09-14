@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "接管下载",
+    "message": "接管",
     "description": "启用/禁用下载拦截的开关"
   },
   "options_section_rules": {
