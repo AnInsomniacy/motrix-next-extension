@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Увімкнути перехоплення завантажень",
+    "message": "Перехоплювати завантаження",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "Мова",
-    "description": "Settings section for interface language"
+    "message": "Мова / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "Автоматична",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Слідувати за мовою браузера",
-    "description": "Description for auto language option"
+    "message": "Автоматично / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Якщо Rayburst недоступний",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Завершені",
+    "message": "Зупинені",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "Перехоплення увімкнено",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "На паузі",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Натисніть ще раз, щоб скинути",
+    "message": "Відновити типові налаштування?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Підтвердити очищення",
+    "message": "Видалити всі записи журналу?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "Завантаження",
+    "message": "Огляд",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "Виявляти медіа на сторінці",
+    "message": "Шукати медіа",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "Очистити джерела",
+    "message": "Очистити список",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "Назад до джерел",
+    "message": "Список медіа",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "Вихідний формат",
+    "message": "Формат",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "Повторити",
+    "message": "Перевірити стан",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "Джерело або перевірка застаріли. Відтворіть медіа й перевірте знову.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "Перевірте вхід на сайт, пересилання запитів або ключ API застосунку.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Запустіть Rayburst і перевірте з’єднання.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "Електричний фіолетовий",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "Підключення"
+  },
+  "popup_upload": {
+    "message": "Віддача"
+  },
+  "popup_action_failed": {
+    "message": "Не вдалося виконати дію."
+  },
+  "options_about": {
+    "message": "Про розширення"
+  },
+  "options_api_secret_hint": {
+    "message": "Дивіться в Rayburst: Налаштування → З’єднання."
+  },
+  "options_backup_secret_hint": {
+    "message": "Резервні копії налаштувань містять ваш ключ API."
+  },
+  "options_remove_rule": {
+    "message": "Видалити правило"
+  },
+  "options_site_pattern": {
+    "message": "Шаблон сайту"
+  },
+  "options_rule_action": {
+    "message": "Дія"
+  },
+  "media_source_auth": {
+    "message": "Увійдіть на сайт-джерело та спробуйте ще раз."
+  },
+  "media_protected": {
+    "message": "Цей матеріал захищено, його неможливо завантажити."
+  },
+  "popup_download": {
+    "message": "Завантажити"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "Тема"
+  },
+  "options_section_general": {
+    "message": "Загальні"
+  },
+  "options_custom_color": {
+    "message": "Власний колір"
+  },
+  "options_color_scheme_custom": {
+    "message": "Власна"
+  },
+  "control_confirm": {
+    "message": "Підтвердити"
+  },
+  "control_cancel": {
+    "message": "Скасувати"
+  },
+  "control_undo": {
+    "message": "Скасувати дію"
+  },
+  "control_redo": {
+    "message": "Повторити"
+  },
+  "control_clear": {
+    "message": "Очистити"
+  },
+  "control_add": {
+    "message": "Додати"
+  },
+  "control_empty": {
+    "message": "Немає результатів"
+  },
+  "control_select": {
+    "message": "Виберіть"
+  },
+  "control_input": {
+    "message": "Введіть значення"
   }
 }

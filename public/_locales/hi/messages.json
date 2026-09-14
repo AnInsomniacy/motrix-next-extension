@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "डाउनलोड इंटरसेप्शन सक्षम करें",
+    "message": "डाउनलोड अपने हाथ में लें",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "भाषा",
-    "description": "Settings section for interface language"
+    "message": "भाषा / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "स्वचालित",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "ब्राउज़र भाषा का अनुसरण करें",
-    "description": "Description for auto language option"
+    "message": "स्वचालित / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Rayburst उपलब्ध न होने पर",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "पूर्ण",
+    "message": "रुके हुए",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "इंटरसेप्ट चालू",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "रुका हुआ",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -337,7 +329,7 @@
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
-    "message": "सामान्य डाउनलोड (HTTP / HTTPS / FTP / Torrent)",
+    "message": "ब्राउज़र डाउनलोड",
     "description": "Label for the browser download interception scope toggle."
   },
   "options_scope_magnet_label": {
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "रीसेट करने के लिए फिर क्लिक करें",
+    "message": "डिफ़ॉल्ट सेटिंग बहाल करें?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "साफ़ करने की पुष्टि",
+    "message": "लॉग की सभी प्रविष्टियाँ साफ़ करें?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "डाउनलोड",
+    "message": "अवलोकन",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "पेज मीडिया खोजें",
+    "message": "मीडिया खोजें",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "स्रोत साफ़ करें",
+    "message": "सूची साफ़ करें",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "स्रोतों पर वापस जाएँ",
+    "message": "मीडिया सूची",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "आउटपुट फ़ॉर्मैट",
+    "message": "फ़ॉर्मैट",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "फिर प्रयास करें",
+    "message": "स्थिति जाँचें",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "स्रोत या जाँच की अवधि समाप्त हुई। मीडिया चलाकर फिर जाँचें।",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "लॉगिन, अनुरोध अग्रेषण या डेस्कटॉप API कुंजी जाँचें।",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Rayburst शुरू करें और कनेक्शन सेटिंग जाँचें।",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "इलेक्ट्रिक पर्पल",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "कनेक्ट हो रहा है"
+  },
+  "popup_upload": {
+    "message": "अपलोड"
+  },
+  "popup_action_failed": {
+    "message": "यह कार्रवाई पूरी नहीं हो सकी।"
+  },
+  "options_about": {
+    "message": "परिचय"
+  },
+  "options_api_secret_hint": {
+    "message": "यह Rayburst में सेटिंग → कनेक्शन में मिलेगा।"
+  },
+  "options_backup_secret_hint": {
+    "message": "सेटिंग बैकअप में आपकी API कुंजी शामिल होती है।"
+  },
+  "options_remove_rule": {
+    "message": "नियम हटाएँ"
+  },
+  "options_site_pattern": {
+    "message": "वेबसाइट पैटर्न"
+  },
+  "options_rule_action": {
+    "message": "कार्रवाई"
+  },
+  "media_source_auth": {
+    "message": "स्रोत वेबसाइट पर साइन इन करके फिर कोशिश करें।"
+  },
+  "media_protected": {
+    "message": "यह मीडिया सुरक्षित है और डाउनलोड नहीं किया जा सकता।"
+  },
+  "popup_download": {
+    "message": "डाउनलोड करें"
+  },
+  "media_api_auth": {
+    "message": "API secret मेल नहीं खाता जांचें कि Settings में API secret आपके Rayburst कॉन्फ़िगरेशन से मेल खाता है।"
+  },
+  "options_theme_label": {
+    "message": "थीम"
+  },
+  "options_section_general": {
+    "message": "सामान्य"
+  },
+  "options_custom_color": {
+    "message": "कस्टम रंग"
+  },
+  "options_color_scheme_custom": {
+    "message": "कस्टम"
+  },
+  "control_confirm": {
+    "message": "पुष्टि करें"
+  },
+  "control_cancel": {
+    "message": "रद्द करें"
+  },
+  "control_undo": {
+    "message": "पूर्ववत करें"
+  },
+  "control_redo": {
+    "message": "फिर से करें"
+  },
+  "control_clear": {
+    "message": "साफ़ करें"
+  },
+  "control_add": {
+    "message": "जोड़ें"
+  },
+  "control_empty": {
+    "message": "कोई परिणाम नहीं"
+  },
+  "control_select": {
+    "message": "चुनें"
+  },
+  "control_input": {
+    "message": "मान दर्ज करें"
   }
 }

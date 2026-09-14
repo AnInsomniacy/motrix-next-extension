@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Activează interceptarea descărcărilor",
+    "message": "Preia descărcările",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "Limbă",
-    "description": "Settings section for interface language"
+    "message": "Limbă / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "Automat",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Urmărește limba browserului",
-    "description": "Description for auto language option"
+    "message": "Automat / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Când Rayburst nu este disponibil",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Finalizate",
+    "message": "Oprite",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "Interceptare activă",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "În pauză",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Apasă din nou pentru resetare",
+    "message": "Restabilești setările implicite?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Confirmă ștergerea",
+    "message": "Ștergi toate intrările din jurnal?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "Descărcări",
+    "message": "Prezentare generală",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "Detectează media din pagină",
+    "message": "Detectează conținut",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "Șterge sursele",
+    "message": "Golește lista",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "Înapoi la surse",
+    "message": "Lista de conținut",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "Format de ieșire",
+    "message": "Format",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "Reîncearcă",
+    "message": "Verifică starea",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "Sursa sau verificarea a expirat. Redați și verificați din nou.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "Verificați autentificarea, redirecționarea cererilor sau cheia API a aplicației.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Porniți Rayburst și verificați conexiunea.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "Violet electric",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "Se conectează"
+  },
+  "popup_upload": {
+    "message": "Încărcare"
+  },
+  "popup_action_failed": {
+    "message": "Acțiunea nu a putut fi finalizată."
+  },
+  "options_about": {
+    "message": "Despre"
+  },
+  "options_api_secret_hint": {
+    "message": "Se găsește în Rayburst: Setări → Conexiuni."
+  },
+  "options_backup_secret_hint": {
+    "message": "Copiile setărilor includ cheia API."
+  },
+  "options_remove_rule": {
+    "message": "Elimină regula"
+  },
+  "options_site_pattern": {
+    "message": "Tipar de site"
+  },
+  "options_rule_action": {
+    "message": "Acțiune"
+  },
+  "media_source_auth": {
+    "message": "Autentifică-te pe site-ul sursă și încearcă din nou."
+  },
+  "media_protected": {
+    "message": "Acest conținut este protejat și nu poate fi descărcat."
+  },
+  "popup_download": {
+    "message": "Descarcă"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "Temă"
+  },
+  "options_section_general": {
+    "message": "General"
+  },
+  "options_custom_color": {
+    "message": "Culoare personalizată"
+  },
+  "options_color_scheme_custom": {
+    "message": "Personalizat"
+  },
+  "control_confirm": {
+    "message": "Confirmă"
+  },
+  "control_cancel": {
+    "message": "Anulează"
+  },
+  "control_undo": {
+    "message": "Anulează modificarea"
+  },
+  "control_redo": {
+    "message": "Refă"
+  },
+  "control_clear": {
+    "message": "Șterge"
+  },
+  "control_add": {
+    "message": "Adaugă"
+  },
+  "control_empty": {
+    "message": "Niciun rezultat"
+  },
+  "control_select": {
+    "message": "Selectează"
+  },
+  "control_input": {
+    "message": "Introdu o valoare"
   }
 }

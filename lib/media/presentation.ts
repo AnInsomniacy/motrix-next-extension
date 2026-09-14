@@ -1,14 +1,14 @@
 import type { MediaTrack } from './contracts';
 const failures: Record<string, string> = {
   integration_unavailable: 'unavailable',
-  api_auth_failed: 'auth',
-  authentication_required: 'auth',
+  api_auth_failed: 'api_auth',
+  authentication_required: 'source_auth',
   unreachable: 'connection',
   source_expired: 'expired',
   expired: 'expired',
   not_found: 'expired',
   player_not_found: 'ambiguous',
-  protected_media: 'unsupported',
+  protected_media: 'protected',
   unsupported_source: 'unsupported',
   unsupported_selection: 'invalid',
 };

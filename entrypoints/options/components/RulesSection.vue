@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 /** Download rule settings section. */
 import { computed } from 'vue';
-import { NDynamicTags, NFormItem, NInputNumber, NSelect, NSwitch } from 'naive-ui';
-import CollapsePanel from '@/shared/components/CollapsePanel.vue';
+import SettingsRow from './SettingsRow.vue';
+import { NDynamicTags, NInputNumber, NSelect, NSwitch, NCollapseTransition } from 'naive-ui';
 import type {
   DuplicateDownloadGuardSettings,
   FileExtensionRuleAction,
@@ -19,13 +19,13 @@ defineProps<{
   minimumFileSize: MinimumFileSizeSettings;
   fileExtensionRule: FileExtensionRuleSettings;
   siteRules: SiteRule[];
+  addRule: (rule: Omit<SiteRule, 'id'>) => Promise<boolean>;
 }>();
 
 const emit = defineEmits<{
   'update:duplicateGuard': [value: Partial<DuplicateDownloadGuardSettings>];
   'update:minimumFileSize': [value: Partial<MinimumFileSizeSettings>];
   'update:fileExtensionRule': [value: Partial<FileExtensionRuleSettings>];
-  addSiteRule: [rule: Omit<SiteRule, 'id'>];
   removeSiteRule: [id: string];
 }>();
 
@@ -58,66 +58,59 @@ const extensionActionOptions = computed(() => [
   <div class="settings-section">
     <section class="settings-group">
       <div class="rule-block">
-        <NFormItem
-          class="settings-row"
-          :show-feedback="false"
+        <SettingsRow
+          compact
           :label="i18n('options_duplicate_guard_label', 'Duplicate Download Guard')"
         >
           <NSwitch
+            :aria-label="i18n('options_duplicate_guard_label', 'Duplicate Download Guard')"
             :value="duplicateGuard.enabled"
             @update:value="emit('update:duplicateGuard', { enabled: $event })"
           />
-        </NFormItem>
+        </SettingsRow>
 
-        <CollapsePanel :open="duplicateGuard.enabled">
-          <div class="settings-subpanel">
-            <NFormItem
-              class="settings-row settings-row--nested"
-              :show-feedback="false"
-              :label="i18n('options_duplicate_guard_window_label', 'Guard Window')"
-            >
+        <NCollapseTransition :show="duplicateGuard.enabled"
+          ><div class="settings-subpanel" :inert="!duplicateGuard.enabled">
+            <SettingsRow :label="i18n('options_duplicate_guard_window_label', 'Guard Window')">
               <NInputNumber
+                :aria-label="i18n('options_duplicate_guard_window_label', 'Guard Window')"
                 :value="duplicateGuard.windowSeconds"
                 :min="1"
                 :max="300"
                 :step="1"
-                style="width: 132px"
+                class="setting-number"
                 @update:value="
                   (v: number | null) => emit('update:duplicateGuard', { windowSeconds: v ?? 10 })
                 "
               >
                 <template #suffix>{{ i18n('options_seconds_suffix', 's') }}</template>
               </NInputNumber>
-            </NFormItem>
+            </SettingsRow>
           </div>
-        </CollapsePanel>
+        </NCollapseTransition>
       </div>
 
       <div class="rule-block">
-        <NFormItem
-          class="settings-row"
-          :show-feedback="false"
+        <SettingsRow
+          compact
           :label="i18n('options_file_extension_rule_label', 'File Extension Rule')"
         >
           <NSwitch
+            :aria-label="i18n('options_file_extension_rule_label', 'File Extension Rule')"
             :value="fileExtensionRule.enabled"
             @update:value="emit('update:fileExtensionRule', { enabled: $event })"
           />
-        </NFormItem>
+        </SettingsRow>
 
-        <CollapsePanel :open="fileExtensionRule.enabled">
-          <div class="settings-subpanel">
-            <NFormItem
-              class="settings-row settings-row--nested"
-              :show-feedback="false"
-              :label="i18n('options_file_extension_list_label', 'Extensions')"
-            >
+        <NCollapseTransition :show="fileExtensionRule.enabled"
+          ><div class="settings-subpanel" :inert="!fileExtensionRule.enabled">
+            <SettingsRow :label="i18n('options_file_extension_list_label', 'Extensions')">
               <NDynamicTags
                 :value="fileExtensionRule.extensions"
                 :input-props="{
                   placeholder: i18n('options_file_extension_list_placeholder', 'Add extension'),
                 }"
-                style="max-width: 420px"
+                class="setting-tags"
                 @update:value="
                   (value: string[]) =>
                     emit('update:fileExtensionRule', {
@@ -125,110 +118,97 @@ const extensionActionOptions = computed(() => [
                     })
                 "
               />
-            </NFormItem>
+            </SettingsRow>
 
-            <NFormItem
-              class="settings-row settings-row--nested"
-              :show-feedback="false"
+            <SettingsRow
               :label="i18n('options_file_extension_listed_action_label', 'Listed extensions')"
             >
               <NSelect
+                :aria-label="
+                  i18n('options_file_extension_listed_action_label', 'Listed extensions')
+                "
                 :value="fileExtensionRule.listedAction"
                 :options="extensionActionOptions"
-                style="width: 210px"
+                class="setting-control"
                 @update:value="
                   (value: FileExtensionRuleAction) =>
                     emit('update:fileExtensionRule', { listedAction: value })
                 "
               />
-            </NFormItem>
+            </SettingsRow>
 
-            <NFormItem
-              class="settings-row settings-row--nested"
-              :show-feedback="false"
+            <SettingsRow
               :label="i18n('options_file_extension_unknown_action_label', 'Unknown extension')"
             >
               <NSelect
+                :aria-label="
+                  i18n('options_file_extension_unknown_action_label', 'Unknown extension')
+                "
                 :value="fileExtensionRule.unknownAction"
                 :options="extensionActionOptions"
-                style="width: 210px"
+                class="setting-control"
                 @update:value="
                   (value: FileExtensionRuleAction) =>
                     emit('update:fileExtensionRule', { unknownAction: value })
                 "
               />
-            </NFormItem>
+            </SettingsRow>
           </div>
-        </CollapsePanel>
+        </NCollapseTransition>
       </div>
 
       <div class="rule-block">
-        <NFormItem
-          class="settings-row"
-          :show-feedback="false"
-          :label="i18n('options_min_size_label', 'Small File Filter')"
-        >
+        <SettingsRow compact :label="i18n('options_min_size_label', 'Small File Filter')">
           <NSwitch
+            :aria-label="i18n('options_min_size_label', 'Small File Filter')"
             :value="minimumFileSize.enabled"
             @update:value="emit('update:minimumFileSize', { enabled: $event })"
           />
-        </NFormItem>
+        </SettingsRow>
 
-        <CollapsePanel :open="minimumFileSize.enabled">
-          <div class="settings-subpanel">
-            <NFormItem
-              class="settings-row settings-row--nested"
-              :show-feedback="false"
-              :label="i18n('options_min_size_value_label', 'File smaller than')"
-            >
+        <NCollapseTransition :show="minimumFileSize.enabled"
+          ><div class="settings-subpanel" :inert="!minimumFileSize.enabled">
+            <SettingsRow :label="i18n('options_min_size_value_label', 'File smaller than')">
               <NInputNumber
+                :aria-label="i18n('options_min_size_value_label', 'File smaller than')"
                 :value="minimumFileSize.sizeMb"
                 :min="0"
                 :step="1"
-                style="width: 132px"
+                class="setting-number"
                 @update:value="
                   (v: number | null) => emit('update:minimumFileSize', { sizeMb: v ?? 0 })
                 "
               >
                 <template #suffix>MB</template>
               </NInputNumber>
-            </NFormItem>
+            </SettingsRow>
 
-            <NFormItem
-              class="settings-row settings-row--nested"
-              :show-feedback="false"
-              :label="i18n('options_min_size_unknown_label', 'When size is unknown')"
-            >
+            <SettingsRow :label="i18n('options_min_size_unknown_label', 'When size is unknown')">
               <NSelect
+                :aria-label="i18n('options_min_size_unknown_label', 'When size is unknown')"
                 :value="minimumFileSize.unknownSizeAction"
                 :options="unknownSizeOptions"
-                style="width: 210px"
+                class="setting-control"
                 @update:value="
                   (value: 'intercept' | 'skip') =>
                     emit('update:minimumFileSize', { unknownSizeAction: value })
                 "
               />
-            </NFormItem>
+            </SettingsRow>
           </div>
-        </CollapsePanel>
+        </NCollapseTransition>
       </div>
     </section>
 
     <section class="settings-group">
-      <h3 class="settings-group-title">
+      <h2 class="settings-group-title">
         {{ i18n('options_site_rules_label', 'Site Rules') }}
-      </h3>
+      </h2>
       <SiteRulesSection
         :rules="siteRules"
-        @add="emit('addSiteRule', $event)"
+        :add-rule="addRule"
         @remove="emit('removeSiteRule', $event)"
       />
     </section>
   </div>
 </template>
-
-<style scoped>
-.rule-block + .rule-block {
-  margin-top: 12px;
-}
-</style>

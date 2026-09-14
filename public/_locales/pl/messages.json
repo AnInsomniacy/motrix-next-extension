@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Włącz przechwytywanie pobierań",
+    "message": "Przechwytuj pobieranie",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "Język",
-    "description": "Settings section for interface language"
+    "message": "Język / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "Automatyczny",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Podążaj za językiem przeglądarki",
-    "description": "Description for auto language option"
+    "message": "Automatycznie / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Gdy Rayburst jest niedostępny",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Ukończone",
+    "message": "Zatrzymane",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "Przechwytywanie aktywne",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "Wstrzymane",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -337,7 +329,7 @@
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
-    "message": "Pobrania przeglądarki",
+    "message": "Pobieranie w przeglądarce",
     "description": "Label for the browser download interception scope toggle."
   },
   "options_scope_magnet_label": {
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Kliknij ponownie, aby zresetować",
+    "message": "Przywrócić ustawienia domyślne?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Potwierdź wyczyszczenie",
+    "message": "Usunąć wszystkie wpisy dziennika?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "Pobieranie",
+    "message": "Przegląd",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "Wykrywaj multimedia na stronie",
+    "message": "Wykrywaj multimedia",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "Wyczyść źródła",
+    "message": "Wyczyść listę",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "Powrót do źródeł",
+    "message": "Lista multimediów",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "Format wyjściowy",
+    "message": "Format",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "Ponów",
+    "message": "Sprawdź stan",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "Źródło lub sprawdzanie wygasło. Odtwórz multimedia i sprawdź ponownie.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "Sprawdź logowanie, przekazywanie żądań lub klucz API aplikacji.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Uruchom Rayburst i sprawdź połączenie.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "Elektryczny fiolet",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "Łączenie"
+  },
+  "popup_upload": {
+    "message": "Wysyłanie"
+  },
+  "popup_action_failed": {
+    "message": "Nie udało się ukończyć tej operacji."
+  },
+  "options_about": {
+    "message": "O rozszerzeniu"
+  },
+  "options_api_secret_hint": {
+    "message": "Znajdziesz to w Rayburst: Ustawienia → Połączenia."
+  },
+  "options_backup_secret_hint": {
+    "message": "Kopie ustawień zawierają Twój klucz API."
+  },
+  "options_remove_rule": {
+    "message": "Usuń regułę"
+  },
+  "options_site_pattern": {
+    "message": "Wzorzec witryny"
+  },
+  "options_rule_action": {
+    "message": "Działanie"
+  },
+  "media_source_auth": {
+    "message": "Zaloguj się w witrynie źródłowej i spróbuj ponownie."
+  },
+  "media_protected": {
+    "message": "Ten materiał jest chroniony i nie można go pobrać."
+  },
+  "popup_download": {
+    "message": "Pobierz"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "Motyw"
+  },
+  "options_section_general": {
+    "message": "Ogólne"
+  },
+  "options_custom_color": {
+    "message": "Kolor niestandardowy"
+  },
+  "options_color_scheme_custom": {
+    "message": "Niestandardowy"
+  },
+  "control_confirm": {
+    "message": "Potwierdź"
+  },
+  "control_cancel": {
+    "message": "Anuluj"
+  },
+  "control_undo": {
+    "message": "Cofnij"
+  },
+  "control_redo": {
+    "message": "Ponów"
+  },
+  "control_clear": {
+    "message": "Wyczyść"
+  },
+  "control_add": {
+    "message": "Dodaj"
+  },
+  "control_empty": {
+    "message": "Brak wyników"
+  },
+  "control_select": {
+    "message": "Wybierz"
+  },
+  "control_input": {
+    "message": "Wpisz wartość"
   }
 }

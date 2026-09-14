@@ -46,6 +46,7 @@
     "@eslint/js": "^10.0.1",
     "@types/content-disposition": "^0.5.9",
     "@types/picomatch": "^4.0.3",
+    "@vitejs/plugin-vue": "6.0.5",
     "@vitest/coverage-v8": "4.1.2",
     "@wxt-dev/auto-icons": "^1.1.2",
     "@wxt-dev/module-vue": "^1.0.3",

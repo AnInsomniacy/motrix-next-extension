@@ -1,187 +1,81 @@
-<script lang="ts" setup>
-/** Global stat dashboard for the popup. */
-import { computed } from 'vue';
+<script setup lang="ts">
 import { NIcon } from 'naive-ui';
-import {
-  ArrowDownOutline,
-  ArrowUpOutline,
-  FlashOutline,
-  TimeOutline,
-  CheckmarkDoneOutline,
-} from '@vicons/ionicons5';
+import { ArrowDownOutline, ArrowUpOutline } from '@vicons/ionicons5';
 import type { StatResponse } from '@/lib/api';
-
+import { mediaSize } from '@/lib/media/presentation';
 import { useI18n } from '@/shared/i18n/engine';
-
-const { t: i18n } = useI18n();
-
-const props = defineProps<{
-  stat: StatResponse;
-  disabled: boolean;
-}>();
-
-/* ── Speed Formatting ───────────────────────────────────────────── */
-
-function formatSpeed(bytesPerSec: string): string {
-  const n = parseInt(bytesPerSec, 10);
-  if (isNaN(n) || n === 0) return '0 B/s';
-  if (n < 1024) return `${n} B/s`;
-  if (n < 1048576) return `${(n / 1024).toFixed(1)} KB/s`;
-  if (n < 1073741824) return `${(n / 1048576).toFixed(1)} MB/s`;
-  return `${(n / 1073741824).toFixed(2)} GB/s`;
-}
-
-/* ── Derived State ──────────────────────────────────────────────── */
-
-const numActive = computed(() => parseInt(props.stat.numActive, 10) || 0);
-const numWaiting = computed(() => parseInt(props.stat.numWaiting, 10) || 0);
-const numStopped = computed(() => parseInt(props.stat.numStopped, 10) || 0);
-const isIdle = computed(() => numActive.value === 0);
+defineProps<{ stat: StatResponse }>();
+const { t, effectiveLocale } = useI18n();
+const number = (value: string) =>
+  new Intl.NumberFormat(effectiveLocale.value.replace('_', '-')).format(Number(value) || 0);
+const speed = (value: string) =>
+  `${mediaSize(Number(value), effectiveLocale.value.replace('_', '-'), '—')}/s`;
 </script>
-
 <template>
   <div class="stat-dash">
-    <!-- ── Speed Row (side-by-side) ───────────────────────── -->
-    <div :class="['stat-dash__speed', { 'stat-dash__speed--idle': isIdle }]">
-      <div class="stat-dash__speed-col stat-dash__speed-col--dl">
-        <NIcon :size="16" class="stat-dash__speed-icon">
-          <ArrowDownOutline />
-        </NIcon>
-        <span class="stat-dash__speed-value">{{ formatSpeed(stat.downloadSpeed) }}</span>
-      </div>
-      <div class="stat-dash__speed-divider" />
-      <div class="stat-dash__speed-col stat-dash__speed-col--ul">
-        <NIcon :size="13" class="stat-dash__speed-icon">
-          <ArrowUpOutline />
-        </NIcon>
-        <span class="stat-dash__speed-value">{{ formatSpeed(stat.uploadSpeed) }}</span>
-      </div>
+    <div class="speed-row">
+      <NIcon :size="16"><ArrowDownOutline /></NIcon>
+      <bdi>{{ speed(stat.downloadSpeed) }}</bdi>
+      <span>{{ t('popup_download') }}</span>
     </div>
-
-    <!-- ── Task Counts ─────────────────────────────────────── -->
-    <div :class="['stat-dash__counts', { 'stat-dash__counts--disabled': props.disabled }]">
-      <div class="stat-dash__count stat-dash__count--active">
-        <NIcon :size="13"><FlashOutline /></NIcon>
-        <span class="stat-dash__count-label">{{ i18n('popup_stat_active', 'Active') }}</span>
-        <span class="stat-dash__count-value">{{ numActive }}</span>
-      </div>
-      <div class="stat-dash__count stat-dash__count--waiting">
-        <NIcon :size="13"><TimeOutline /></NIcon>
-        <span class="stat-dash__count-label">{{ i18n('popup_stat_waiting', 'Waiting') }}</span>
-        <span class="stat-dash__count-value">{{ numWaiting }}</span>
-      </div>
-      <div class="stat-dash__count stat-dash__count--stopped">
-        <NIcon :size="13"><CheckmarkDoneOutline /></NIcon>
-        <span class="stat-dash__count-label">{{ i18n('popup_stat_stopped', 'Done') }}</span>
-        <span class="stat-dash__count-value">{{ numStopped }}</span>
-      </div>
+    <div class="speed-row">
+      <NIcon :size="16"><ArrowUpOutline /></NIcon>
+      <bdi>{{ speed(stat.uploadSpeed) }}</bdi>
+      <span>{{ t('popup_upload') }}</span>
+    </div>
+    <div class="counts">
+      <span
+        >{{ t('popup_stat_active') }} <bdi>{{ number(stat.numActive) }}</bdi></span
+      >
+      <span
+        >{{ t('popup_stat_waiting') }} <bdi>{{ number(stat.numWaiting) }}</bdi></span
+      >
+      <span
+        >{{ t('popup_stat_stopped') }} <bdi>{{ number(stat.numStopped) }}</bdi></span
+      >
     </div>
   </div>
 </template>
-
 <style scoped>
 .stat-dash {
-  padding: 0 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 24px;
+  padding-block-start: 12px;
 }
-
-/* ── Speed Row ────────────────────────────────────────────────── */
-
-.stat-dash__speed {
-  display: flex;
+.speed-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding: 18px 0 14px;
-  transition: opacity 0.4s cubic-bezier(0.2, 0, 0, 1);
+  gap: 0 8px;
 }
-
-.stat-dash__speed--idle {
-  opacity: 0.4;
-}
-
-.stat-dash__speed-col {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-  justify-content: center;
-  font-variant-numeric: tabular-nums;
-}
-
-.stat-dash__speed-col--dl {
+.speed-row .n-icon {
   color: var(--color-primary);
 }
-
-.stat-dash__speed-col--dl .stat-dash__speed-value {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.speed-row bdi {
+  font-size: 18px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
-
-.stat-dash__speed-col--ul {
+.speed-row > span {
+  grid-column: 2;
+  font-size: 12px;
   color: var(--color-on-surface-variant);
 }
-
-.stat-dash__speed-col--ul .stat-dash__speed-value {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.stat-dash__speed-icon {
-  flex-shrink: 0;
-}
-
-.stat-dash__speed-divider {
-  width: 1px;
-  height: 24px;
-  background: var(--color-outline-variant);
-  flex-shrink: 0;
-}
-
-/* ── Task Counts ──────────────────────────────────────────────── */
-
-.stat-dash__counts {
+.counts {
+  grid-column: 1 / -1;
   display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 10px 0;
-  border-top: 1px solid var(--color-outline-variant);
-}
-
-.stat-dash__count {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-block-start: 14px;
+  padding-block: 10px 4px;
+  border-block-start: 1px solid var(--color-outline-variant);
   font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+.counts bdi {
+  margin-inline-start: 4px;
   font-variant-numeric: tabular-nums;
-}
-
-.stat-dash__count--active {
-  color: var(--color-primary);
-}
-
-.stat-dash__count--waiting {
-  color: var(--color-warning);
-}
-
-.stat-dash__count--stopped {
-  color: var(--color-success);
-}
-
-.stat-dash__count-label {
-  font-weight: 500;
-}
-
-.stat-dash__count-value {
-  font-weight: 700;
-  font-size: 14px;
-  min-width: 16px;
-  text-align: center;
-}
-
-.stat-dash__counts--disabled {
-  opacity: 0.35;
-  pointer-events: none;
-  transition: opacity 0.4s cubic-bezier(0.2, 0, 0, 1);
 }
 </style>

@@ -71,6 +71,7 @@ describe('persisted schema repair', () => {
     expect(parseUiPrefs({ theme: 'dark', colorScheme: 1, locale: 'zh_CN' })).toEqual({
       theme: 'dark',
       colorScheme: 'electric',
+      customColorScheme: '#737373',
       locale: 'zh_CN',
     });
   });

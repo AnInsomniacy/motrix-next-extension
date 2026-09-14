@@ -8,6 +8,8 @@ describe('settings backup', () => {
   snapshot.settings.fileExtensionRule.extensions = ['jpg', 'tar.gz'];
   snapshot.siteRules = [{ id: 'r1', pattern: '*.example.com', action: 'always-skip' }];
   snapshot.uiPrefs.locale = 'zh_CN';
+  snapshot.uiPrefs.colorScheme = 'custom';
+  snapshot.uiPrefs.customColorScheme = '#D75A35';
   snapshot.diagnostics.maxEvents = 250;
 
   it('round-trips current settings, including the secret, without diagnostic events', () => {

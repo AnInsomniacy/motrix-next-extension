@@ -31,7 +31,7 @@ function formatContextValue(value: string | number | boolean): string {
     <template #trigger>
       <NButton
         circle
-        size="tiny"
+        size="small"
         text
         :aria-label="i18n('options_diagnostics_view_details', 'View event details')"
       >
@@ -62,7 +62,7 @@ function formatContextValue(value: string | number | boolean): string {
 
       <section v-if="contextEntries.length" class="diagnostic-details-section">
         <h4>{{ i18n('options_diagnostics_details_context', 'Context') }}</h4>
-        <NDescriptions bordered :column="1" label-placement="left" size="small">
+        <NDescriptions :column="1" label-placement="left" size="small">
           <NDescriptionsItem v-for="[key, value] in contextEntries" :key="key" :label="key">
             <code>{{ formatContextValue(value) }}</code>
           </NDescriptionsItem>
@@ -92,7 +92,7 @@ function formatContextValue(value: string | number | boolean): string {
   overflow-wrap: anywhere;
   color: var(--color-on-surface);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .diagnostic-details-section {

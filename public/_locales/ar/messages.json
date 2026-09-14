@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "تفعيل اعتراض التنزيل",
+    "message": "اعتراض التنزيلات",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "اللغة",
-    "description": "Settings section for interface language"
+    "message": "اللغة / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "تلقائي",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "اتباع لغة المتصفح",
-    "description": "Description for auto language option"
+    "message": "تلقائي / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "عند عدم توفر Rayburst",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "مكتمل",
+    "message": "متوقفة",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "جارٍ الاعتراض",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "متوقف مؤقتاً",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "انقر مرة أخرى لإعادة الضبط",
+    "message": "استعادة الإعدادات الافتراضية؟",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "تأكيد المسح",
+    "message": "مسح جميع إدخالات السجل؟",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "التنزيلات",
+    "message": "نظرة عامة",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "اكتشاف وسائط الصفحة",
+    "message": "اكتشاف الوسائط",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "مسح المصادر",
+    "message": "مسح القائمة",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "العودة إلى المصادر",
+    "message": "قائمة الوسائط",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "صيغة الإخراج",
+    "message": "التنسيق",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "إعادة المحاولة",
+    "message": "التحقق من الحالة",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "انتهت صلاحية المصدر أو الفحص. شغّل الوسائط وافحص مجددًا.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "تحقق من تسجيل الدخول وتمرير الطلبات أو مفتاح API للتطبيق.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "شغّل Rayburst وتحقق من إعدادات الاتصال.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "بنفسجي كهربائي",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "جارٍ الاتصال"
+  },
+  "popup_upload": {
+    "message": "الرفع"
+  },
+  "popup_action_failed": {
+    "message": "تعذّر إكمال هذا الإجراء."
+  },
+  "options_about": {
+    "message": "حول"
+  },
+  "options_api_secret_hint": {
+    "message": "ستجده في Rayburst: الإعدادات ← الاتصالات."
+  },
+  "options_backup_secret_hint": {
+    "message": "تتضمن نسخ الإعدادات الاحتياطية مفتاح API الخاص بك."
+  },
+  "options_remove_rule": {
+    "message": "إزالة القاعدة"
+  },
+  "options_site_pattern": {
+    "message": "نمط الموقع"
+  },
+  "options_rule_action": {
+    "message": "الإجراء"
+  },
+  "media_source_auth": {
+    "message": "سجّل الدخول إلى الموقع المصدر وحاول مجددًا."
+  },
+  "media_protected": {
+    "message": "هذه الوسائط محمية ولا يمكن تنزيلها."
+  },
+  "popup_download": {
+    "message": "تنزيل"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "المظهر"
+  },
+  "options_section_general": {
+    "message": "عام"
+  },
+  "options_custom_color": {
+    "message": "لون مخصص"
+  },
+  "options_color_scheme_custom": {
+    "message": "لون مخصص"
+  },
+  "control_confirm": {
+    "message": "تأكيد"
+  },
+  "control_cancel": {
+    "message": "إلغاء"
+  },
+  "control_undo": {
+    "message": "تراجع"
+  },
+  "control_redo": {
+    "message": "إعادة"
+  },
+  "control_clear": {
+    "message": "مسح"
+  },
+  "control_add": {
+    "message": "إضافة"
+  },
+  "control_empty": {
+    "message": "لا توجد نتائج"
+  },
+  "control_select": {
+    "message": "اختر"
+  },
+  "control_input": {
+    "message": "أدخل قيمة"
   }
 }

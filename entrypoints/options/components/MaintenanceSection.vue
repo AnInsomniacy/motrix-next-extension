@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { computed, h, onUnmounted, ref, watch } from 'vue';
+import { computed, h, ref, watch } from 'vue';
 import {
   NButton,
   NButtonGroup,
+  NPopconfirm,
   NDataTable,
   NEmpty,
   NFormItem,
@@ -27,7 +28,6 @@ import {
   type DiagnosticLevel,
 } from '@/lib/schema';
 import { useI18n } from '@/shared/i18n/engine';
-import ClearDiagnosticsButtonLabel from './ClearDiagnosticsButtonLabel.vue';
 import DiagnosticDetailsPopover from './DiagnosticDetailsPopover.vue';
 
 const props = defineProps<{
@@ -46,16 +46,9 @@ const emit = defineEmits<{
 
 const { effectiveLocale, t: i18n, tSub: i18nSub } = useI18n();
 const fileInput = ref<globalThis.HTMLInputElement | null>(null);
-const confirmingReset = ref(false);
-const confirmingClearDiagnostics = ref(false);
-const clearConfirmationSeconds = ref(0);
 const levelFilter = ref<'all' | DiagnosticLevel>('all');
 const codeFilter = ref<string | null>(null);
 const diagnosticPage = ref(1);
-let resetConfirmTimer: ReturnType<typeof setTimeout> | null = null;
-let clearConfirmationTimer: ReturnType<typeof setInterval> | null = null;
-
-const CLEAR_CONFIRMATION_SECONDS = 4;
 const DIAGNOSTIC_PAGE_SIZE = 10;
 const DIAGNOSTIC_ROW_HEIGHT = 38;
 const DIAGNOSTIC_BODY_HEIGHT = DIAGNOSTIC_PAGE_SIZE * DIAGNOSTIC_ROW_HEIGHT;
@@ -186,22 +179,6 @@ watch(
   },
 );
 
-function clearResetConfirmTimer(): void {
-  if (resetConfirmTimer) {
-    clearTimeout(resetConfirmTimer);
-    resetConfirmTimer = null;
-  }
-}
-
-function cancelClearDiagnosticsConfirmation(): void {
-  if (clearConfirmationTimer) {
-    clearInterval(clearConfirmationTimer);
-    clearConfirmationTimer = null;
-  }
-  confirmingClearDiagnostics.value = false;
-  clearConfirmationSeconds.value = 0;
-}
-
 function chooseBackupFile(): void {
   fileInput.value?.click();
 }
@@ -211,36 +188,6 @@ function handleFileChange(event: globalThis.Event): void {
   const file = input.files?.[0];
   input.value = '';
   if (file) emit('importSettings', file);
-}
-
-function handleResetClick(): void {
-  if (confirmingReset.value) {
-    clearResetConfirmTimer();
-    confirmingReset.value = false;
-    emit('resetSettings');
-    return;
-  }
-
-  confirmingReset.value = true;
-  resetConfirmTimer = setTimeout(() => {
-    confirmingReset.value = false;
-    resetConfirmTimer = null;
-  }, 4000);
-}
-
-function handleClearDiagnosticsClick(): void {
-  if (confirmingClearDiagnostics.value) {
-    cancelClearDiagnosticsConfirmation();
-    emit('clearDiagnostics');
-    return;
-  }
-
-  confirmingClearDiagnostics.value = true;
-  clearConfirmationSeconds.value = CLEAR_CONFIRMATION_SECONDS;
-  clearConfirmationTimer = setInterval(() => {
-    clearConfirmationSeconds.value -= 1;
-    if (clearConfirmationSeconds.value <= 0) cancelClearDiagnosticsConfirmation();
-  }, 1000);
 }
 
 function handleMaxDiagnosticEvents(value: number | null): void {
@@ -264,19 +211,14 @@ function formatTime(ts: number): string {
 function formatDateTime(ts: number): string {
   return diagnosticDateTimeFormatter.value.format(new Date(ts));
 }
-
-onUnmounted(() => {
-  clearResetConfirmTimer();
-  cancelClearDiagnosticsConfirmation();
-});
 </script>
 
 <template>
   <div class="settings-section">
     <section class="settings-group">
-      <h3 class="settings-group-title">
+      <h2 class="settings-group-title">
         {{ i18n('options_settings_backup_title', 'Settings Backup') }}
-      </h3>
+      </h2>
 
       <div class="maintenance-actions">
         <NButton size="small" @click="emit('exportSettings')">
@@ -291,23 +233,23 @@ onUnmounted(() => {
           </template>
           {{ i18n('options_settings_backup_import', 'Import Settings') }}
         </NButton>
-        <NButton
-          class="maintenance-reset-button"
-          size="small"
-          :type="confirmingReset ? 'error' : 'default'"
-          @click="handleResetClick"
+        <NPopconfirm
+          :positive-text="i18n('options_factory_reset_button')"
+          :negative-text="i18n('media_cancel')"
+          @positive-click="emit('resetSettings')"
         >
-          <template #icon>
-            <NIcon :size="14"><RefreshOutline /></NIcon>
-          </template>
-          {{
-            confirmingReset
-              ? i18n('options_factory_reset_confirm', 'Click Again to Reset')
-              : i18n('options_factory_reset_button', 'Reset Settings')
-          }}
-        </NButton>
+          <template #trigger
+            ><NButton size="small"
+              ><template #icon
+                ><NIcon :size="14"><RefreshOutline /></NIcon></template
+              >{{ i18n('options_factory_reset_button') }}</NButton
+            ></template
+          >
+          {{ i18n('options_factory_reset_confirm') }}
+        </NPopconfirm>
       </div>
 
+      <p class="hint">{{ i18n('options_backup_secret_hint') }}</p>
       <input
         ref="fileInput"
         class="maintenance-file-input"
@@ -318,9 +260,9 @@ onUnmounted(() => {
     </section>
 
     <section class="settings-group">
-      <h3 class="settings-group-title">
+      <h2 class="settings-group-title">
         {{ i18n('options_section_diagnostics', 'Diagnostics') }}
-      </h3>
+      </h2>
 
       <NFormItem
         class="diagnostics-retention-setting"
@@ -329,6 +271,7 @@ onUnmounted(() => {
         :show-feedback="false"
       >
         <NInputNumber
+          :aria-label="i18n('options_diagnostics_log_entry_limit')"
           :max="DIAGNOSTIC_EVENT_LIMIT_MAX"
           :min="DIAGNOSTIC_EVENT_LIMIT_MIN"
           :precision="0"
@@ -362,6 +305,7 @@ onUnmounted(() => {
         <NSelect
           v-model:value="codeFilter"
           class="diagnostics-code-filter"
+          :aria-label="i18n('options_diagnostics_filter_code')"
           size="small"
           clearable
           filterable
@@ -376,18 +320,20 @@ onUnmounted(() => {
             </template>
             {{ i18n('options_diagnostics_export', 'Export Report') }}
           </NButton>
-          <NButton ghost size="small" type="error" @click="handleClearDiagnosticsClick">
-            <template #icon>
-              <NIcon :size="14"><TrashOutline /></NIcon>
-            </template>
-            <ClearDiagnosticsButtonLabel
-              :clear-label="i18n('options_diagnostics_clear', 'Clear Log')"
-              :confirm-label="i18n('options_diagnostics_clear_confirm', 'Confirm Clear')"
-              :confirming="confirmingClearDiagnostics"
-              :seconds="clearConfirmationSeconds"
-              :seconds-suffix="i18n('options_seconds_suffix', 's')"
-            />
-          </NButton>
+          <NPopconfirm
+            :positive-text="i18n('options_diagnostics_clear')"
+            :negative-text="i18n('media_cancel')"
+            @positive-click="emit('clearDiagnostics')"
+          >
+            <template #trigger
+              ><NButton size="small" :disabled="!events.length"
+                ><template #icon
+                  ><NIcon :size="14"><TrashOutline /></NIcon></template
+                >{{ i18n('options_diagnostics_clear') }}</NButton
+              ></template
+            >
+            {{ i18n('options_diagnostics_clear_confirm') }}
+          </NPopconfirm>
         </div>
       </div>
 
@@ -396,10 +342,11 @@ onUnmounted(() => {
         :columns="diagnosticColumns"
         :data="filteredEvents"
         :max-height="DIAGNOSTIC_BODY_HEIGHT"
-        :min-height="DIAGNOSTIC_BODY_HEIGHT"
+        :scroll-x="708"
         :pagination="diagnosticPagination"
         :row-key="(event: DiagnosticEvent) => event.id"
-        :single-line="false"
+        :bordered="false"
+        :single-line="true"
         size="small"
         table-layout="fixed"
         @update:page="diagnosticPage = $event"
@@ -426,10 +373,6 @@ onUnmounted(() => {
   display: none;
 }
 
-.maintenance-reset-button {
-  flex-shrink: 0;
-}
-
 .diagnostics-retention-setting {
   max-width: 300px;
   margin-bottom: 12px;
@@ -452,16 +395,12 @@ onUnmounted(() => {
 }
 
 .diagnostics-actions {
-  margin-left: auto;
-}
-
-.diagnostics-table {
-  font-family: var(--font-mono);
+  margin-inline-start: auto;
 }
 
 .diagnostics-table :deep(.n-data-table-th),
 .diagnostics-table :deep(.n-data-table-td) {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .diagnostics-table :deep(.n-data-table-td) {
@@ -471,7 +410,8 @@ onUnmounted(() => {
 }
 
 .diagnostics-table :deep(.diagnostic-code) {
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-weight: 400;
 }
 
 .diagnostics-table :deep(.n-data-table__pagination .n-pagination) {
@@ -479,13 +419,13 @@ onUnmounted(() => {
 }
 
 .diagnostics-table :deep(.n-pagination-prefix) {
-  margin-right: auto;
+  margin-inline-end: auto;
 }
 
 @media (max-width: 700px) {
   .diagnostics-actions {
     width: 100%;
-    margin-left: 0;
+    margin-inline-start: 0;
   }
 }
 </style>

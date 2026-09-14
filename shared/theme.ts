@@ -2,9 +2,9 @@
  * The extension's entire theme system in one module:
  *
  *   - preset color schemes (MCU seeds, aligned with the desktop app)
- *   - M3 palette generation → CSS custom properties
+ *   - brand accents and neutral surfaces → CSS custom properties
  *   - pre-mount bootstrap (no first-frame flash)
- *   - `useAppTheme()` — the single Vue composable both UIs consume
+ *   - `useAppTheme()` — the single Vue composable all UI roots consume
  *
  * The static Electric Purple values in globals.css act as fallback for the brief
  * window before the bootstrap runs.
@@ -15,6 +15,8 @@ import {
   hexFromArgb,
   themeFromSourceColor,
   CorePalette,
+  Scheme,
+  TonalPalette,
   type Theme,
 } from '@material/material-color-utilities';
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui';
@@ -22,12 +24,12 @@ import { parseUiPrefs, type ThemePreference, type UiPrefs } from '@/lib/schema';
 
 // ─── Color Schemes ──────────────────────────────────────
 
-import { COLOR_SCHEMES, type ColorSchemeDefinition } from './color-schemes';
+import {
+  CUSTOM_COLOR_SCHEME_ID,
+  resolveColorScheme,
+  type ColorSchemeDefinition,
+} from './color-schemes';
 export { COLOR_SCHEMES } from './color-schemes';
-
-function resolveScheme(id: string | undefined): ColorSchemeDefinition {
-  return COLOR_SCHEMES.find((s) => s.id === id) ?? COLOR_SCHEMES[0]!;
-}
 
 /** Resolve a theme preference to the effective light/dark class. */
 function resolveThemeClass(preference: ThemePreference, systemIsDark: boolean): 'light' | 'dark' {
@@ -43,11 +45,41 @@ const SEMANTIC_COLORS = [
   { name: 'error', value: argbFromHex('#BA1A1A'), blend: true },
 ];
 
-function createMaterialTheme(seed: string): Theme {
-  return themeFromSourceColor(
-    argbFromHex(seed),
+/** Rayburst's low-saturation policy keeps custom greys neutral. MCU owns palette generation. */
+function usesContentPalette(scheme: ColorSchemeDefinition): boolean {
+  if (scheme.variant === 'content') return true;
+  if (scheme.id !== CUSTOM_COLOR_SCHEME_ID) return false;
+  const channels = [1, 3, 5].map(
+    (start) => parseInt(scheme.seed.slice(start, start + 2), 16) / 255,
+  );
+  const high = Math.max(...channels);
+  const low = Math.min(...channels);
+  const delta = high - low;
+  if (!delta) return true;
+  const saturation = delta / (high + low > 1 ? 2 - high - low : high + low);
+  return saturation <= 0.12;
+}
+
+function createMaterialTheme(scheme: ColorSchemeDefinition): Theme {
+  const source = argbFromHex(scheme.seed);
+  const theme = themeFromSourceColor(
+    source,
     SEMANTIC_COLORS.map((color) => ({ ...color })),
   );
+  if (!usesContentPalette(scheme)) return theme;
+  const palette = CorePalette.contentOf(source);
+  return {
+    ...theme,
+    schemes: { light: Scheme.lightContent(source), dark: Scheme.darkContent(source) },
+    palettes: {
+      primary: palette.a1,
+      secondary: palette.a2,
+      tertiary: palette.a3,
+      neutral: palette.n1,
+      neutralVariant: palette.n2,
+      error: palette.error,
+    },
+  };
 }
 
 function semanticRole(theme: Theme, name: string, dark: boolean) {
@@ -84,12 +116,12 @@ const MCU_TO_CSS: Record<string, string> = {
 
 const SURFACE_TONES = {
   light: {
-    '--color-surface-dim': 84,
-    '--color-surface-container-lowest': 98,
-    '--color-surface-container-low': 94,
-    '--color-surface-container': 91,
-    '--color-surface-container-high': 88,
-    '--color-surface-container-highest': 85,
+    '--color-surface-dim': 94,
+    '--color-surface-container-lowest': 100,
+    '--color-surface-container-low': 97,
+    '--color-surface-container': 100,
+    '--color-surface-container-high': 98,
+    '--color-surface-container-highest': 94,
   },
   dark: {
     '--color-surface-dim': 6,
@@ -102,13 +134,16 @@ const SURFACE_TONES = {
 } as const;
 
 interface ThemeVarsInput {
-  readonly seedHex: string;
+  readonly scheme: ColorSchemeDefinition;
   readonly isDark: boolean;
 }
 
 /** Generate every themed CSS custom property for a seed + mode. */
-export function createThemeVars({ seedHex, isDark }: ThemeVarsInput): Record<string, string> {
-  const m3Theme = createMaterialTheme(seedHex);
+export function createThemeVars({
+  scheme: definition,
+  isDark,
+}: ThemeVarsInput): Record<string, string> {
+  const m3Theme = createMaterialTheme(definition);
   const scheme = isDark ? m3Theme.schemes.dark : m3Theme.schemes.light;
   const json = scheme.toJSON() as Record<string, number>;
   const vars: Record<string, string> = {};
@@ -118,11 +153,20 @@ export function createThemeVars({ seedHex, isDark }: ThemeVarsInput): Record<str
     if (argb !== undefined) vars[cssVar] = hexFromArgb(argb);
   }
 
-  const neutral = m3Theme.palettes.neutral;
+  const neutral = TonalPalette.fromHueAndChroma(0, 0);
   for (const [cssVar, tone] of Object.entries(SURFACE_TONES[isDark ? 'dark' : 'light'])) {
     vars[cssVar] = hexFromArgb(neutral.tone(tone));
   }
 
+  vars['--color-surface'] = hexFromArgb(neutral.tone(isDark ? 10 : 100));
+  vars['--color-on-surface'] = hexFromArgb(neutral.tone(isDark ? 92 : 12));
+  vars['--color-on-surface-variant'] = hexFromArgb(neutral.tone(isDark ? 72 : 43));
+  vars['--color-outline'] = hexFromArgb(neutral.tone(isDark ? 42 : 72));
+  vars['--color-outline-variant'] = hexFromArgb(neutral.tone(isDark ? 24 : 92));
+  vars['--color-hover'] = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.035)';
+  const brand = scheme.primary;
+  vars['--color-selected'] =
+    `rgba(${(brand >> 16) & 255}, ${(brand >> 8) & 255}, ${brand & 255}, ${isDark ? 0.13 : 0.07})`;
   const primary = hexFromArgb(scheme.primary);
   vars['--color-brand'] = primary;
   for (const { name } of SEMANTIC_COLORS) {
@@ -148,9 +192,10 @@ export function createThemeVars({ seedHex, isDark }: ThemeVarsInput): Record<str
 /** Apply the theme to the document: class on <html> + CSS variables. */
 function applyThemeToDocument(prefs: UiPrefs, systemIsDark: boolean): void {
   const themeClass = resolveThemeClass(prefs.theme, systemIsDark);
-  document.documentElement.className = themeClass;
+  document.documentElement.classList.toggle('dark', themeClass === 'dark');
+  document.documentElement.style.colorScheme = themeClass;
   const vars = createThemeVars({
-    seedHex: resolveScheme(prefs.colorScheme).seed,
+    scheme: resolveColorScheme(prefs.colorScheme, prefs.customColorScheme),
     isDark: themeClass === 'dark',
   });
   for (const [key, value] of Object.entries(vars)) {
@@ -178,23 +223,29 @@ export async function bootstrapStoredTheme(storage: {
 // ─── Naive UI Overrides ─────────────────────────────────
 
 const FONT_FAMILY =
-  '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, ' +
+  'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", ' +
   '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ' +
   '"Helvetica Neue", Helvetica, Arial, sans-serif';
 
-function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverrides {
-  const m3Theme = createMaterialTheme(seedHex);
+export function buildThemeOverrides(
+  definition: ColorSchemeDefinition,
+  isDark: boolean,
+): GlobalThemeOverrides {
+  const m3Theme = createMaterialTheme(definition);
   const scheme = isDark ? m3Theme.schemes.dark : m3Theme.schemes.light;
-  const neutral = m3Theme.palettes.neutral;
+  const neutral = TonalPalette.fromHueAndChroma(0, 0);
   const tones = SURFACE_TONES[isDark ? 'dark' : 'light'];
   const surface = (key: keyof typeof tones) => hexFromArgb(neutral.tone(tones[key]));
 
   const primary = hexFromArgb(scheme.primary);
   const onPrimary = hexFromArgb(scheme.onPrimary);
-  const onSurface = hexFromArgb(scheme.onSurface);
-  const onSurfaceVariant = hexFromArgb(scheme.onSurfaceVariant);
-  const outline = hexFromArgb(scheme.outlineVariant);
-  const outlineFull = hexFromArgb(scheme.outline);
+  const onSurface = hexFromArgb(neutral.tone(isDark ? 92 : 12));
+  const onSurfaceVariant = hexFromArgb(neutral.tone(isDark ? 72 : 43));
+  const outline = hexFromArgb(neutral.tone(isDark ? 42 : 72));
+  const outlineFull = hexFromArgb(neutral.tone(isDark ? 62 : 52));
+  const divider = hexFromArgb(neutral.tone(isDark ? 24 : 92));
+  const background = hexFromArgb(neutral.tone(isDark ? 10 : 100));
+  const raised = hexFromArgb(neutral.tone(isDark ? 17 : 100));
 
   const primaryPalette = m3Theme.palettes.primary;
   const primaryHover = hexFromArgb(primaryPalette.tone(isDark ? 70 : 50));
@@ -218,24 +269,39 @@ function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverr
       primaryColorPressed: primaryPressed,
       primaryColorSuppl: primary,
       ...semanticOverrides,
-      bodyColor: 'transparent',
-      cardColor: surface('--color-surface-container'),
-      modalColor: surface('--color-surface-container-high'),
-      popoverColor: surface('--color-surface-container-high'),
+      bodyColor: background,
+      textColorBase: onSurface,
+      textColor1: onSurface,
+      textColor2: onSurface,
+      textColor3: onSurfaceVariant,
+      placeholderColor: onSurfaceVariant,
+      inputColor: background,
+      tableColor: background,
+      actionColor: surface('--color-surface-container-low'),
+      fontSize: '14px',
+      fontSizeSmall: '13px',
+      fontSizeMedium: '14px',
+      fontWeightStrong: '500',
+      heightTiny: '28px',
+      heightSmall: '32px',
+      heightMedium: '36px',
+      cardColor: background,
+      modalColor: raised,
+      popoverColor: raised,
       borderColor: outline,
-      dividerColor: outline,
+      dividerColor: divider,
       borderRadius: '6px',
       fontFamily: FONT_FAMILY,
     },
-    Divider: { color: outline },
+    Divider: { color: divider },
     Button: {
       border: `1px solid ${outline}`,
       borderHover: `1px solid ${outlineFull}`,
       borderFocus: `1px solid ${outlineFull}`,
     },
     Input: {
-      color: surface('--color-surface-container'),
-      colorFocus: surface('--color-surface-container'),
+      color: background,
+      colorFocus: background,
       textColor: onSurface,
       placeholderColor: onSurfaceVariant,
       border: `1px solid ${outline}`,
@@ -245,8 +311,8 @@ function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverr
     InputNumber: {
       peers: {
         Input: {
-          color: surface('--color-surface-container'),
-          colorFocus: surface('--color-surface-container'),
+          color: background,
+          colorFocus: background,
           textColor: onSurface,
           border: `1px solid ${outline}`,
           borderHover: `1px solid ${outlineFull}`,
@@ -282,6 +348,7 @@ function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverr
     Select: {
       peers: {
         InternalSelection: {
+          color: background,
           border: `1px solid ${outline}`,
           borderHover: `1px solid ${outlineFull}`,
           borderFocus: `1px solid ${primary}`,
@@ -289,7 +356,13 @@ function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverr
         },
       },
     },
-    Form: { labelTextColor: onSurfaceVariant },
+    Form: { labelTextColor: onSurface, labelFontWeight: '400' },
+    Tabs: { tabFontSizeSmall: '13px', tabFontWeightActive: '500', panePaddingSmall: '12px 0 0' },
+    DataTable: {
+      tdColor: background,
+      thColor: surface('--color-surface-container-low'),
+      borderColor: divider,
+    },
   };
 }
 
@@ -301,39 +374,26 @@ function buildThemeOverrides(seedHex: string, isDark: boolean): GlobalThemeOverr
  * sync, and produces Naive UI provider props.
  */
 export function useAppTheme() {
-  const bootstrapped = bootstrappedPrefs;
-  const mode = ref<ThemePreference>(bootstrapped?.theme ?? 'system');
-  const colorSchemeId = ref(bootstrapped?.colorScheme ?? COLOR_SCHEMES[0]!.id);
-
+  const prefs = ref(parseUiPrefs(bootstrappedPrefs));
   const mql = window.matchMedia('(prefers-color-scheme: dark)');
   const systemDark = ref(mql.matches);
-  const onMediaChange = (e: MediaQueryListEvent) => {
-    systemDark.value = e.matches;
+  const onMediaChange = (event: MediaQueryListEvent) => {
+    systemDark.value = event.matches;
   };
   mql.addEventListener('change', onMediaChange);
   onScopeDispose(() => mql.removeEventListener('change', onMediaChange));
 
-  const isDark = computed(() => resolveThemeClass(mode.value, systemDark.value) === 'dark');
-  const seedHex = computed(() => resolveScheme(colorSchemeId.value).seed);
-
-  watchEffect(() => {
-    applyThemeToDocument(
-      { theme: mode.value, colorScheme: colorSchemeId.value, locale: 'auto' },
-      systemDark.value,
-    );
-  });
-
-  const naiveTheme = computed(() => (isDark.value ? darkTheme : null));
-  const themeOverrides = computed(() => buildThemeOverrides(seedHex.value, isDark.value));
+  const isDark = computed(() => resolveThemeClass(prefs.value.theme, systemDark.value) === 'dark');
+  const scheme = computed(() =>
+    resolveColorScheme(prefs.value.colorScheme, prefs.value.customColorScheme),
+  );
+  watchEffect(() => applyThemeToDocument(prefs.value, systemDark.value));
 
   return {
-    naiveTheme,
-    themeOverrides,
-    setMode: (value: ThemePreference) => {
-      mode.value = value;
-    },
-    setColorScheme: (id: string) => {
-      colorSchemeId.value = id;
+    naiveTheme: computed(() => (isDark.value ? darkTheme : null)),
+    themeOverrides: computed(() => buildThemeOverrides(scheme.value, isDark.value)),
+    configure: (value: UiPrefs) => {
+      prefs.value = value;
     },
   };
 }

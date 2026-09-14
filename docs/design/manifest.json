@@ -1,0 +1,90 @@
+{
+  "scope": "extension-static-design-handoff",
+  "created": "2026-09-14",
+  "generator": "built-in ImageGen",
+  "acceptedDirection": [
+    "screens/01-popup-overview.png",
+    "screens/02-media-sources.png",
+    "screens/03-connection-settings.png"
+  ],
+  "newGenerationCount": 4,
+  "screens": [
+    {
+      "id": "01-popup-overview",
+      "title": "Popup overview",
+      "status": "accepted-direction",
+      "description": "Connected overview, interception, transfer totals and desktop actions.",
+      "file": "screens/01-popup-overview.png",
+      "width": 1510,
+      "height": 1042,
+      "sha256": "2ae9f843d0e4cceb012a4c2b17b584ebc22b2481d82de3cbe8d12544a073f13a",
+      "bytes": 886327
+    },
+    {
+      "id": "02-media-sources",
+      "title": "Media sources",
+      "status": "accepted-direction",
+      "description": "A lightweight source list with discovery, location and site controls.",
+      "file": "screens/02-media-sources.png",
+      "width": 1355,
+      "height": 1161,
+      "sha256": "97e6d156311f11ce6b052992f3a9d03e7a9376f7fb6729d6d4d543f61812f9f0",
+      "bytes": 1006127
+    },
+    {
+      "id": "03-connection-settings",
+      "title": "Connection settings",
+      "status": "accepted-direction",
+      "description": "The settings shell, connection fields, test feedback and save footer.",
+      "file": "screens/03-connection-settings.png",
+      "width": 1593,
+      "height": 987,
+      "sha256": "a29985efa957f1b730e43e94f0654689528b4e2c4b67f2aaa6f9580fade2eac1",
+      "bytes": 782052
+    },
+    {
+      "id": "04-popup-states",
+      "title": "Popup states",
+      "status": "proposed-extension",
+      "description": "Interception off, disconnected, authentication failure and empty discovery.",
+      "file": "screens/04-popup-states.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "dd822f04cd7a15bdc56c6f22105b23537a21c590cebcb1320f0a6641b5ef0d79",
+      "bytes": 1174857
+    },
+    {
+      "id": "05-media-flow",
+      "title": "Media selection and handoff",
+      "status": "proposed-extension",
+      "description": "Video, live recording, receipt reconciliation, creation feedback and player entry.",
+      "file": "screens/05-media-flow.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "fed2ac91bdfffd17be9bae1dc171e03a1eec02f3e9bd8e6ce63deb4c4c600f20",
+      "bytes": 1183110
+    },
+    {
+      "id": "06-settings-details",
+      "title": "Download, rules and maintenance",
+      "status": "proposed-extension",
+      "description": "Related settings crops. Use the written corrections for invented controls.",
+      "file": "screens/06-settings-details.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "e9134b1bf612e364834126106526d271b18f8c34d5f3ac581763c016996456ac",
+      "bytes": 1296945
+    },
+    {
+      "id": "07-components-adaptation",
+      "title": "Components and adaptation",
+      "status": "proposed-extension",
+      "description": "Control states, appearance, language, narrow layouts, RTL, dark surfaces and motion intent.",
+      "file": "screens/07-components-adaptation.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "493a07ab671fba5a92d5c6f9ce75e4038eb24330344421a2e9885594d65ad606",
+      "bytes": 1480534
+    }
+  ]
+}

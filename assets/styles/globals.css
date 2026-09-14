@@ -1,412 +1,303 @@
+/* Vueuc calculates physical offsets from the top-left, including in RTL documents. */
+.v-binder-follower-content {
+  top: 0;
+  left: 0;
+}
+
+/* First-paint defaults; persisted tokens are applied before Vue mounts. */
 :root {
-  /* ── Typography ────────────────────────────────────────────────── */
   --font-sans:
-    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
-    'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --font-mono:
-    'JetBrains Mono', 'SF Mono', 'Cascadia Code', Menlo, Monaco, 'Courier New', monospace;
-
-  /* ── Border Radius ─────────────────────────────────────────────── */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-full: 9999px;
-
-  /* ── Shadows ───────────────────────────────────────────────────── */
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
-}
-
-:root {
-  /* Generated from the default Material theme. */
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei UI', 'PingFang SC',
+    Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
   --color-primary: #7739cd;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #ecdcff;
-  --color-on-primary-container: #280056;
-  --color-surface: #fffbff;
-  --color-on-surface: #1d1b1e;
-  --color-on-surface-variant: #4a454e;
-  --color-outline: #7b757f;
-  --color-outline-variant: #cbc4cf;
-  --color-error: #bb0947;
-  --color-on-error: #ffffff;
-  --color-error-container: #ffd9dd;
-  --color-tertiary: #7f525b;
-  --color-on-tertiary: #ffffff;
-  --color-inverse-surface: #322f33;
-  --color-on-inverse-surface: #f5eff4;
-  --color-surface-dim: #d5d0d5;
-  --color-surface-container-lowest: #fef8fc;
-  --color-surface-container-low: #f2ecf1;
-  --color-surface-container: #e9e4e8;
-  --color-surface-container-high: #e1dbe0;
-  --color-surface-container-highest: #d8d3d7;
-  --color-brand: #7739cd;
-  --color-info: #375ba9;
-  --color-on-info: #ffffff;
-  --color-info-container: #d9e2ff;
-  --color-on-info-container: #001946;
+  --color-on-primary: #fff;
+  --color-surface: #fff;
+  --color-on-surface: #202020;
+  --color-on-surface-variant: #666;
+  --color-outline: #b0b0b0;
+  --color-outline-variant: #e8e8e8;
+  --color-surface-container-low: #f6f6f6;
+  --color-surface-container: #fff;
+  --color-surface-container-high: #fafafa;
+  --color-hover: rgba(0, 0, 0, 0.035);
+  --color-selected: rgba(119, 57, 205, 0.07);
   --color-success: #0a6d36;
-  --color-on-success: #ffffff;
-  --color-success-container: #9ef6b0;
-  --color-on-success-container: #00210b;
+  --color-error: #bb0947;
   --color-warning: #885200;
-  --color-on-warning: #ffffff;
-  --color-warning-container: #ffddbb;
-  --color-on-warning-container: #2b1700;
-  --color-on-error-container: #400012;
-  --color-primary-light-5: #d6baff;
-  --color-primary-light-9: #f8edff;
-  --color-scrollbar-thumb: rgba(29, 27, 30, 0.3);
+  --color-scrollbar-thumb: #b8b8b8;
 }
-
-/* Shared motion curves. */
-:root {
-  --m3-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
-  --m3-ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
-  --m3-ease-emphasized-accel: cubic-bezier(0.3, 0, 0.8, 0.15);
-}
-
-/* ── Dark Mode (values from desktop Rayburst .dark block) ─────── */
 html.dark {
-  /* Generated from the default Material theme. */
+  color-scheme: dark;
   --color-primary: #d6baff;
   --color-on-primary: #430089;
-  --color-primary-container: #5e16b4;
-  --color-on-primary-container: #ecdcff;
-  --color-surface: #1d1b1e;
-  --color-on-surface: #e7e1e6;
-  --color-on-surface-variant: #cbc4cf;
-  --color-outline: #958e99;
-  --color-outline-variant: #4a454e;
-  --color-error: #ffb2bc;
-  --color-on-error: #670023;
-  --color-error-container: #910034;
-  --color-tertiary: #f1b7c3;
-  --color-on-tertiary: #4b252e;
-  --color-inverse-surface: #e7e1e6;
-  --color-on-inverse-surface: #322f33;
-  --color-surface-dim: #141316;
-  --color-surface-container-lowest: #0f0e11;
-  --color-surface-container-low: #1d1b1e;
-  --color-surface-container: #211f22;
-  --color-surface-container-high: #2b292d;
-  --color-surface-container-highest: #363438;
-  --color-brand: #d6baff;
-  --color-info: #b1c5ff;
-  --color-on-info: #002c70;
-  --color-info-container: #1a4390;
-  --color-on-info-container: #d9e2ff;
+  --color-surface: #1b1b1b;
+  --color-on-surface: #e8e8e8;
+  --color-on-surface-variant: #b0b0b0;
+  --color-outline: #666;
+  --color-outline-variant: #393939;
+  --color-surface-container-low: #1b1b1b;
+  --color-surface-container: #202020;
+  --color-surface-container-high: #2a2a2a;
+  --color-hover: rgba(255, 255, 255, 0.05);
+  --color-selected: rgba(214, 186, 255, 0.13);
   --color-success: #82d996;
-  --color-on-success: #003918;
-  --color-success-container: #005226;
-  --color-on-success-container: #9ef6b0;
+  --color-error: #ffb2bc;
   --color-warning: #ffb869;
-  --color-on-warning: #482900;
-  --color-warning-container: #673d00;
-  --color-on-warning-container: #ffddbb;
-  --color-on-error-container: #ffd9dd;
-  --color-primary-light-5: #5e16b4;
-  --color-primary-light-9: #280056;
-  --color-scrollbar-thumb: rgba(231, 225, 230, 0.22);
+  --color-scrollbar-thumb: #555;
 }
-
-html.dark {
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.25);
-}
-
-/* ── Global Reset ────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
-
+body,
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+}
 body {
-  font-family: var(--font-sans);
+  font: 14px/1.5 var(--font-sans);
   color: var(--color-on-surface);
   background: var(--color-surface);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
-
-/* ── Card Component ──────────────────────────────────────────────── */
-.card {
-  background: var(--color-surface-container);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--radius-xl);
-  padding: 1.25rem;
-  box-shadow: var(--shadow-card);
+button,
+input,
+textarea {
+  font: inherit;
 }
-
-/* ── Section Header ──────────────────────────────────────────────── */
-.section-title {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+button {
+  color: inherit;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+a {
+  color: var(--color-primary);
+}
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 32px;
+  block-size: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
   color: var(--color-on-surface-variant);
-  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition:
+    color 120ms,
+    background-color 120ms;
 }
-
-/* ── Settings Groups ─────────────────────────────────────────────── */
+.icon-button:hover {
+  color: var(--color-on-surface);
+  background: var(--color-hover);
+}
+.icon-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.section-title {
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 500;
+  margin-block-end: 24px;
+}
 .settings-section {
   display: flex;
   flex-direction: column;
+  gap: 24px;
 }
-
 .settings-group {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
-
-.settings-group + .settings-group {
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid var(--color-outline-variant);
-}
-
 .settings-group-title {
-  margin: 0 0 16px;
-  color: var(--color-on-surface);
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.35;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 4px;
 }
-
+/* Let NFormItem own its grid areas through label-placement="left". */
 .settings-row.n-form-item {
-  display: flex;
   align-items: center;
-  gap: 16px;
+  column-gap: 24px;
+  min-height: 44px;
+  padding-block: 4px;
 }
-
+.settings-row.settings-row--compact {
+  min-height: 32px;
+}
 .settings-row .n-form-item-label {
-  flex: 1;
   min-width: 0;
+  max-inline-size: min(280px, 40cqi);
+  padding: 0;
+  text-align: start;
 }
-
 .settings-row .n-form-item-blank {
+  min-width: 0;
   justify-content: flex-end;
 }
-
-.settings-section > .settings-row + .settings-row,
-.settings-group > .settings-row + .settings-row {
-  margin-top: 12px;
-}
-
 .settings-subpanel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 8px 0 0 18px;
+  gap: 4px;
+  padding: 0;
+  margin-inline-start: 16px;
+  border-inline-start: 1px solid var(--color-outline-variant);
+  padding-inline-start: 16px;
 }
-
-.settings-row--nested.n-form-item {
-  margin-bottom: 0;
+.settings-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  min-height: 32px;
 }
-
-/* Shared Vue transitions. */
-
-.media-forward-enter-active,
-.media-forward-leave-active,
-.media-back-enter-active,
-.media-back-leave-active {
-  transition:
-    transform 200ms cubic-bezier(0.2, 0, 0, 1),
-    opacity 200ms ease;
+.settings-group-header .settings-group-title {
+  margin: 0;
 }
-.media-forward-leave-active,
-.media-back-leave-active {
+.setting-label,
+.setting-hint {
+  display: block;
+}
+.setting-hint {
+  margin-block-start: 3px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.setting-control {
+  width: 228px;
+  max-width: 100%;
+}
+.setting-secret {
+  width: 320px;
+  max-width: 100%;
+}
+.setting-number {
+  width: 132px;
+  max-width: 100%;
+}
+.setting-port {
+  width: 120px;
+  max-width: 100%;
+}
+.setting-color {
+  width: 228px;
+  max-width: 100%;
+}
+.setting-tags {
+  max-width: 100%;
+}
+.settings-row .n-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+}
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.form-stack .n-form-item-label {
+  padding-block-end: 6px;
+}
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.hint {
+  color: var(--color-on-surface-variant);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+.feedback--error {
+  color: var(--color-error);
+}
+.feedback--success {
+  color: var(--color-success);
+}
+.content-stage {
+  position: relative;
+  min-width: 0;
+}
+.content-enter-active,
+.content-leave-active {
+  transition: opacity 180ms ease;
+}
+.content-leave-active {
   position: absolute;
   inset: 0;
+  pointer-events: none;
 }
-.media-forward-enter-from,
-.media-back-leave-to {
-  transform: translateX(32px);
+.content-enter-from,
+.content-leave-to {
   opacity: 0;
 }
-.media-forward-leave-to,
-.media-back-enter-from {
-  transform: translateX(-32px);
-  opacity: 0;
-}
-
-/* ── fade: shared-axis scale transition ──────────────────────────── */
-.fade-enter-active {
+.list-move,
+.list-enter-active,
+.list-leave-active {
   transition:
-    opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
-    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+    opacity 180ms ease,
+    transform 180ms ease;
 }
-
-.fade-leave-active {
-  transition:
-    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
-    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
-}
-
-.fade-enter-from,
-.fade-leave-to {
+.list-enter-from,
+.list-leave-to {
   opacity: 0;
-  transform: scale(0.98);
 }
-
-/* ── section: options section switch (fade + shared-axis slide) ──── */
-/* Direction follows nav order: moving to a lower tab enters from below,
- * moving to a higher tab enters from above. App.vue picks the transition
- * name via `section-down` / `section-up`. */
-.section-down-enter-active,
-.section-up-enter-active {
-  transition:
-    opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
-    transform 0.2s cubic-bezier(0.05, 0.7, 0.1, 1);
-}
-
-.section-down-leave-active,
-.section-up-leave-active {
-  transition:
-    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
-    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
-}
-
-/* Forward (down the nav): new content rises from below, old exits upward. */
-.section-down-enter-from {
-  opacity: 0;
-  transform: translateY(6px);
-}
-
-.section-down-leave-to {
-  opacity: 0;
-  transform: translateY(-4px);
-}
-
-/* Reverse (up the nav): new content drops from above, old exits downward. */
-.section-up-enter-from {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-
-.section-up-leave-to {
-  opacity: 0;
-  transform: translateY(4px);
-}
-
-/* ── text-swap: vertical roll for in-button text changes ─────────── */
-/* Old text rolls up + fades out, new text enters from below + fades in.
- * No scale — avoids parent (button) size jitter.
- * Fast durations (120ms/150ms) for snappy button feel.
- *
- * text-swap-reverse: opposite direction for bidirectional state toggles.
- * Use `:name="forward ? 'text-swap' : 'text-swap-reverse'"` in Vue. */
-.text-swap-enter-active,
-.text-swap-reverse-enter-active {
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
-}
-
-.text-swap-leave-active,
-.text-swap-reverse-leave-active {
-  transition:
-    opacity 0.12s ease,
-    transform 0.12s ease;
-}
-
-/* Forward: leave ↑, enter from ↓ */
-.text-swap-enter-from {
-  opacity: 0;
-  transform: translateY(6px);
-}
-
-.text-swap-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-
-/* Reverse: leave ↓, enter from ↑ */
-.text-swap-reverse-enter-from {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-
-.text-swap-reverse-leave-to {
-  opacity: 0;
-  transform: translateY(6px);
-}
-
-/* ── phase-switch: vertical content swap for state transitions ───── */
-.phase-switch-enter-active {
-  transition:
-    opacity 0.25s cubic-bezier(0.2, 0, 0, 1),
-    transform 0.25s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.phase-switch-leave-active {
-  transition:
-    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
-    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
-}
-
-.phase-switch-enter-from {
-  opacity: 0;
-  transform: translateY(8px);
-}
-
-.phase-switch-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-
-/* Site-rule list transitions. Leaving rows exit normal layout. */
-
-.list-item-enter-active {
-  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.list-item-leave-active {
-  transition: all 0.2s cubic-bezier(0.3, 0, 0.8, 0.15);
+.list-leave-active {
   position: absolute;
-  width: 100%;
+  inset-inline: 0;
+  pointer-events: none;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar-thumb) transparent;
 }
 
-.list-item-enter-from {
-  opacity: 0;
-  transform: translateY(24px) scale(0.97);
+@container (max-width: 520px) {
+  .settings-row.n-form-item:has(
+      .n-select,
+      .n-dynamic-tags,
+      .n-radio-group,
+      .setting-secret,
+      .n-color-picker
+    ) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .settings-row:has(.n-select, .n-dynamic-tags, .n-radio-group, .setting-secret, .n-color-picker)
+    .n-form-item-label {
+    max-inline-size: none;
+    min-height: 0;
+  }
+  .settings-row:has(.n-select, .n-dynamic-tags, .n-radio-group, .setting-secret, .n-color-picker)
+    .n-form-item-blank {
+    justify-content: flex-start;
+  }
+  .setting-secret {
+    width: 100%;
+  }
 }
-
-.list-item-leave-to {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.97);
-}
-
-.list-item-move {
-  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
-}
-
-/* ── Scrollbar (M3-aware, desktop-aligned) ───────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  border-radius: 8px;
-  background-color: color-mix(in srgb, var(--color-on-surface) 25%, transparent);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: color-mix(in srgb, var(--color-on-surface) 40%, transparent);
-}
-
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-/* ── Reduced Motion ──────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -414,5 +305,6 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

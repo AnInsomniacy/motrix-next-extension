@@ -1,0 +1,66 @@
+{
+  "status": "implemented-reference-values",
+  "unit": "CSS px",
+  "brand": {
+    "seed": "#7B3ED1",
+    "paletteOwner": "Material Color Utilities",
+    "logo": "assets/rayburst-connect.svg",
+    "customColor": "Opaque HEX; MCU content palettes for low-saturation seeds"
+  },
+  "spacing": [4, 6, 8, 12, 16, 20, 24, 32],
+  "popup": {
+    "width": 420,
+    "overviewHeightRange": [280, 310],
+    "mediaPreferredMaximumHeight": 560,
+    "inset": 16,
+    "headerHeightRange": [44, 48]
+  },
+  "settings": {
+    "contentInset": 40,
+    "formWidthRange": [520, 704],
+    "sidebarWidth": 180
+  },
+  "type": {
+    "body": {
+      "size": 14,
+      "lineHeight": 20,
+      "weight": 400
+    },
+    "metadata": {
+      "size": 12,
+      "lineHeight": 18,
+      "weight": 400
+    },
+    "wordmark": {
+      "size": 14,
+      "lineHeight": 20,
+      "weight": 500
+    },
+    "settingsTitle": {
+      "size": 20,
+      "lineHeight": 28,
+      "weight": 500
+    }
+  },
+  "controls": {
+    "popupHeight": 32,
+    "settingsHeightRange": [32, 36],
+    "iconSizeRange": [14, 16],
+    "minimumHitTarget": 32,
+    "radius": 6,
+    "menuRadius": 8,
+    "labelGapRange": [6, 8],
+    "fieldGroupGapRange": [20, 24]
+  },
+  "motion": {
+    "hover": 120,
+    "text": 140,
+    "content": 180,
+    "collapse": 200,
+    "listExit": 140,
+    "easing": "cubic-bezier(0.2, 0, 0, 1)",
+    "reducedMotion": "No displacement; cleanup must not wait for timers.",
+    "outerPopup": "browser-owned"
+  },
+  "tokenLayers": ["primitive", "semantic", "component"]
+}

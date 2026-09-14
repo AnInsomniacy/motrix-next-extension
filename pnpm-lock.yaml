@@ -47,6 +47,9 @@ importers:
       '@types/picomatch':
         specifier: ^4.0.3
         version: 4.0.3
+      '@vitejs/plugin-vue':
+        specifier: 6.0.5
+        version: 6.0.5(vite@8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(@types/node@25.5.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.22.4))(vue@3.5.31(typescript@5.9.3))
       '@vitest/coverage-v8':
         specifier: 4.1.2
         version: 4.1.2(vitest@4.1.2(@types/node@25.5.0)(happy-dom@20.8.9)(vite@8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.11.3)(@types/node@25.5.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.22.4)))

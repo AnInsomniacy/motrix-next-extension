@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "เปิดใช้งานการดักจับดาวน์โหลด",
+    "message": "รับช่วงการดาวน์โหลด",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "ภาษา",
-    "description": "Settings section for interface language"
+    "message": "ภาษา / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "อัตโนมัติ",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "ตามภาษาของเบราว์เซอร์",
-    "description": "Description for auto language option"
+    "message": "อัตโนมัติ / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "เมื่อ Rayburst ไม่พร้อมใช้งาน",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "เสร็จสิ้น",
+    "message": "หยุดแล้ว",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "กำลังดักจับ",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "หยุดชั่วคราว",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "คลิกอีกครั้งเพื่อรีเซ็ต",
+    "message": "คืนค่าการตั้งค่าเริ่มต้นหรือไม่",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "ยืนยันการล้าง",
+    "message": "ล้างรายการบันทึกทั้งหมดหรือไม่",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "การดาวน์โหลด",
+    "message": "ภาพรวม",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "ค้นหาสื่อในหน้าเว็บ",
+    "message": "ค้นหาสื่อ",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "ล้างแหล่งที่มา",
+    "message": "ล้างรายการ",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "กลับไปยังแหล่งที่มา",
+    "message": "รายการสื่อ",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "รูปแบบผลลัพธ์",
+    "message": "รูปแบบ",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "ลองอีกครั้ง",
+    "message": "ตรวจสอบสถานะ",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "แหล่งสื่อหรือการตรวจสอบหมดอายุ โปรดเล่นและตรวจสอบอีกครั้ง",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "ตรวจสอบการเข้าสู่ระบบ การส่งต่อคำขอ หรือคีย์ API ของแอป",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "เปิด Rayburst และตรวจสอบการเชื่อมต่อ",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "ม่วงประกายไฟ",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "กำลังเชื่อมต่อ"
+  },
+  "popup_upload": {
+    "message": "อัปโหลด"
+  },
+  "popup_action_failed": {
+    "message": "ไม่สามารถดำเนินการนี้ให้เสร็จสิ้นได้"
+  },
+  "options_about": {
+    "message": "เกี่ยวกับ"
+  },
+  "options_api_secret_hint": {
+    "message": "ดูได้ใน Rayburst: การตั้งค่า → การเชื่อมต่อ"
+  },
+  "options_backup_secret_hint": {
+    "message": "ข้อมูลสำรองการตั้งค่ามีคีย์ API ของคุณรวมอยู่ด้วย"
+  },
+  "options_remove_rule": {
+    "message": "ลบกฎ"
+  },
+  "options_site_pattern": {
+    "message": "รูปแบบเว็บไซต์"
+  },
+  "options_rule_action": {
+    "message": "การทำงาน"
+  },
+  "media_source_auth": {
+    "message": "ลงชื่อเข้าใช้เว็บไซต์ต้นทางแล้วลองอีกครั้ง"
+  },
+  "media_protected": {
+    "message": "สื่อนี้ได้รับการป้องกันและไม่สามารถดาวน์โหลดได้"
+  },
+  "popup_download": {
+    "message": "ดาวน์โหลด"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "ธีม"
+  },
+  "options_section_general": {
+    "message": "ทั่วไป"
+  },
+  "options_custom_color": {
+    "message": "สีที่กำหนดเอง"
+  },
+  "options_color_scheme_custom": {
+    "message": "กำหนดเอง"
+  },
+  "control_confirm": {
+    "message": "ยืนยัน"
+  },
+  "control_cancel": {
+    "message": "ยกเลิก"
+  },
+  "control_undo": {
+    "message": "เลิกทำ"
+  },
+  "control_redo": {
+    "message": "ทำซ้ำ"
+  },
+  "control_clear": {
+    "message": "ล้าง"
+  },
+  "control_add": {
+    "message": "เพิ่ม"
+  },
+  "control_empty": {
+    "message": "ไม่พบผลลัพธ์"
+  },
+  "control_select": {
+    "message": "เลือก"
+  },
+  "control_input": {
+    "message": "ป้อนค่า"
   }
 }

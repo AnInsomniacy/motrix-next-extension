@@ -1,4 +1,8 @@
-import { COLOR_SCHEMES } from '@/shared/color-schemes';
+import {
+  COLOR_SCHEMES,
+  CUSTOM_COLOR_SCHEME_ID,
+  normalizeCustomColorScheme,
+} from '@/shared/color-schemes';
 /**
  * Single source of truth for every persisted data structure.
  *
@@ -133,7 +137,10 @@ const SiteRulesSchema = filteredArray(SiteRuleSchema);
 const UiPrefsSchema = lenient(
   z.object({
     theme: z.enum(['system', 'light', 'dark']).catch('system'),
-    colorScheme: z.enum(COLOR_SCHEMES.map(({ id }) => id)).catch(COLOR_SCHEMES[0]!.id),
+    colorScheme: z
+      .enum([...COLOR_SCHEMES.map(({ id }) => id), CUSTOM_COLOR_SCHEME_ID])
+      .catch(COLOR_SCHEMES[0]!.id),
+    customColorScheme: z.unknown().transform(normalizeCustomColorScheme),
     locale: z.string().catch('auto'),
   }),
 );

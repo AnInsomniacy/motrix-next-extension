@@ -34,9 +34,9 @@ export async function createPlayerOverlay(
     isolateEvents: ['click', 'keydown', 'keyup', 'pointerdown'],
     css: `:host{position:fixed!important;z-index:2147483647!important;display:block!important}
       div{display:flex;gap:4px;font:13px system-ui}
-      button{display:inline-flex;align-items:center;gap:6px;color-scheme:light dark;font:inherit;cursor:pointer;max-width:calc(100vw - 52px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid GrayText;border-radius:7px;padding:7px 10px;background:Canvas;color:CanvasText;transition:background .16s ease,transform .16s ease}
+      button{display:inline-flex;align-items:center;gap:6px;color-scheme:light dark;font:inherit;cursor:pointer;max-width:calc(100vw - 52px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid GrayText;border-radius:7px;padding:7px 10px;background:Canvas;color:CanvasText;transition:background-color .12s ease}
       svg{flex-shrink:0}span{overflow:hidden;text-overflow:ellipsis}
-      button:hover{background:ButtonFace}button:active{transform:translateY(1px)}button:focus-visible{outline:2px solid Highlight;outline-offset:2px}
+      button:hover{background:ButtonFace}button:focus-visible{outline:2px solid Highlight;outline-offset:2px}
       @media(prefers-reduced-motion:reduce){button{transition:none}}`,
     onMount(container) {
       const bar = document.createElement('div');
@@ -140,7 +140,7 @@ export async function createPlayerOverlay(
         wrapper.style.cssText =
           'position:fixed;z-index:2147483646;width:min(420px,100vw);height:min(480px,calc(100vh - 48px));';
         iframe.style.cssText =
-          'display:block;width:100%;height:100%;border:0;border-radius:12px;background:transparent;box-shadow:0 6px 24px #0003;color-scheme:normal;';
+          'display:block;width:100%;height:100%;border:0;border-radius:8px;background:Canvas;box-shadow:0 4px 18px #0002;color-scheme:light dark;';
       },
     });
     panel.mount();

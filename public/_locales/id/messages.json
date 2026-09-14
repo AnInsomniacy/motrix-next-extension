@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Aktifkan intersepsi unduhan",
+    "message": "Ambil alih unduhan",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "Bahasa",
-    "description": "Settings section for interface language"
+    "message": "Bahasa / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "Otomatis",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Mengikuti bahasa browser",
-    "description": "Description for auto language option"
+    "message": "Otomatis / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Saat Rayburst tidak tersedia",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Selesai",
+    "message": "Dihentikan",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "Menginterepsi",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "Dijeda",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -337,7 +329,7 @@
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
-    "message": "Unduhan Browser",
+    "message": "Unduhan browser",
     "description": "Label for the browser download interception scope toggle."
   },
   "options_scope_magnet_label": {
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Klik lagi untuk reset",
+    "message": "Pulihkan pengaturan bawaan?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Konfirmasi hapus",
+    "message": "Hapus semua entri log?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "Unduhan",
+    "message": "Ringkasan",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "Temukan media halaman",
+    "message": "Temukan media",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "Hapus sumber",
+    "message": "Kosongkan daftar",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "Kembali ke sumber",
+    "message": "Daftar media",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "Format keluaran",
+    "message": "Format",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "Coba lagi",
+    "message": "Periksa status",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "Sumber atau pemeriksaan kedaluwarsa. Putar dan periksa lagi.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "Periksa login, penerusan permintaan, atau kunci API desktop.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Jalankan Rayburst dan periksa koneksi.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "Ungu elektrik",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "Menghubungkan"
+  },
+  "popup_upload": {
+    "message": "Unggah"
+  },
+  "popup_action_failed": {
+    "message": "Tindakan ini tidak dapat diselesaikan."
+  },
+  "options_about": {
+    "message": "Tentang"
+  },
+  "options_api_secret_hint": {
+    "message": "Temukan di Rayburst: Pengaturan → Koneksi."
+  },
+  "options_backup_secret_hint": {
+    "message": "Cadangan pengaturan menyertakan kunci API Anda."
+  },
+  "options_remove_rule": {
+    "message": "Hapus aturan"
+  },
+  "options_site_pattern": {
+    "message": "Pola situs"
+  },
+  "options_rule_action": {
+    "message": "Tindakan"
+  },
+  "media_source_auth": {
+    "message": "Masuk ke situs sumber dan coba lagi."
+  },
+  "media_protected": {
+    "message": "Media ini dilindungi dan tidak dapat diunduh."
+  },
+  "popup_download": {
+    "message": "Unduh"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "Tema"
+  },
+  "options_section_general": {
+    "message": "Umum"
+  },
+  "options_custom_color": {
+    "message": "Warna Kustom"
+  },
+  "options_color_scheme_custom": {
+    "message": "Kustom"
+  },
+  "control_confirm": {
+    "message": "Konfirmasi"
+  },
+  "control_cancel": {
+    "message": "Batal"
+  },
+  "control_undo": {
+    "message": "Urungkan"
+  },
+  "control_redo": {
+    "message": "Ulangi"
+  },
+  "control_clear": {
+    "message": "Bersihkan"
+  },
+  "control_add": {
+    "message": "Tambah"
+  },
+  "control_empty": {
+    "message": "Tidak ada hasil"
+  },
+  "control_select": {
+    "message": "Pilih"
+  },
+  "control_input": {
+    "message": "Masukkan nilai"
   }
 }

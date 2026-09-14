@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Download-Abfangen aktivieren",
+    "message": "Downloads übernehmen",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "Sprache",
-    "description": "Settings section for interface language"
+    "message": "Sprache / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "Automatisch",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Browsersprache verwenden",
-    "description": "Description for auto language option"
+    "message": "Automatisch / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Wenn Rayburst nicht verfügbar ist",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Fertig",
+    "message": "Gestoppt",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "Abfangen aktiv",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "Pausiert",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Zum Zurücksetzen erneut klicken",
+    "message": "Standardeinstellungen wiederherstellen?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Löschen bestätigen",
+    "message": "Alle Protokolleinträge löschen?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "Downloads",
+    "message": "Übersicht",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "Seitenmedien erkennen",
+    "message": "Medien finden",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "Quellen leeren",
+    "message": "Liste leeren",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "Zurück zu den Quellen",
+    "message": "Medienliste",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "Ausgabeformat",
+    "message": "Format",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "Erneut versuchen",
+    "message": "Status prüfen",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "Quelle oder Prüfung abgelaufen. Medium abspielen und erneut prüfen.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "Anmeldung, Anfrageweiterleitung oder Desktop-API-Schlüssel prüfen.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Rayburst starten und Verbindungseinstellungen prüfen.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "Elektrisches Violett",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "Verbindung wird hergestellt"
+  },
+  "popup_upload": {
+    "message": "Upload"
+  },
+  "popup_action_failed": {
+    "message": "Die Aktion konnte nicht abgeschlossen werden."
+  },
+  "options_about": {
+    "message": "Über"
+  },
+  "options_api_secret_hint": {
+    "message": "Zu finden unter Rayburst: Einstellungen → Verbindungen."
+  },
+  "options_backup_secret_hint": {
+    "message": "Sicherungen enthalten Ihren API-Schlüssel."
+  },
+  "options_remove_rule": {
+    "message": "Regel entfernen"
+  },
+  "options_site_pattern": {
+    "message": "Website-Muster"
+  },
+  "options_rule_action": {
+    "message": "Aktion"
+  },
+  "media_source_auth": {
+    "message": "Melden Sie sich auf der Quellwebsite an und versuchen Sie es erneut."
+  },
+  "media_protected": {
+    "message": "Dieses Medium ist geschützt und kann nicht heruntergeladen werden."
+  },
+  "popup_download": {
+    "message": "Herunterladen"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "Design"
+  },
+  "options_section_general": {
+    "message": "Allgemein"
+  },
+  "options_custom_color": {
+    "message": "Benutzerdefinierte Farbe"
+  },
+  "options_color_scheme_custom": {
+    "message": "Benutzerdefiniert"
+  },
+  "control_confirm": {
+    "message": "Bestätigen"
+  },
+  "control_cancel": {
+    "message": "Abbrechen"
+  },
+  "control_undo": {
+    "message": "Rückgängig"
+  },
+  "control_redo": {
+    "message": "Wiederholen"
+  },
+  "control_clear": {
+    "message": "Leeren"
+  },
+  "control_add": {
+    "message": "Hinzufügen"
+  },
+  "control_empty": {
+    "message": "Keine Ergebnisse"
+  },
+  "control_select": {
+    "message": "Auswählen"
+  },
+  "control_input": {
+    "message": "Wert eingeben"
   }
 }

@@ -29,7 +29,6 @@ describe('I18nEngine', () => {
       '1–10 of 25 · max 100',
     );
     ctx.setLocale('zh_CN');
-    expect(ctx.t('options_diagnostics_clear_confirm')).toBe('确认清除');
     expect(ctx.tSub('options_diagnostics_pagination', ['1–10', '25', '100'])).toBe(
       '1–10 / 25 · 最多 100 条',
     );

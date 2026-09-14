@@ -1,148 +1,119 @@
-<script lang="ts" setup>
-/** Appearance section: theme toggle + color scheme picker. */
-import { NRadioGroup, NRadioButton, NFormItem, NIcon, NTooltip } from 'naive-ui';
-import { SunnyOutline, MoonOutline, DesktopOutline } from '@vicons/ionicons5';
-import { COLOR_SCHEMES } from '@/shared/theme';
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
+import { NRadioGroup, NRadioButton, NColorPicker, NSelect, NButton } from 'naive-ui';
+import {
+  COLOR_SCHEMES,
+  CUSTOM_COLOR_SCHEME_ID,
+  normalizeCustomColorScheme,
+} from '@/shared/color-schemes';
+import { useI18n } from '@/shared/i18n/engine';
+import SettingsRow from './SettingsRow.vue';
 
-defineProps<{
-  theme: string;
-  colorScheme: string;
-}>();
-
+const props = withDefaults(
+  defineProps<{
+    theme: string;
+    colorScheme: string;
+    customColorScheme: string;
+    active?: boolean;
+  }>(),
+  { active: true },
+);
 const emit = defineEmits<{
   'update:theme': [value: string];
   'update:colorScheme': [value: string];
+  'update:customColorScheme': [value: string];
 }>();
-
-import { useI18n } from '@/shared/i18n/engine';
-
-const { t: i18n } = useI18n();
+const { t } = useI18n();
+const modes = ['system', 'light', 'dark'] as const;
+const options = computed(() => [
+  ...COLOR_SCHEMES.map((scheme) => ({ value: scheme.id, label: t(scheme.labelKey) })),
+  { value: CUSTOM_COLOR_SCHEME_ID, label: t('options_color_scheme_custom') },
+]);
+const color = ref(props.customColorScheme);
+const pickerOpen = ref(false);
+watch(
+  () => props.active,
+  (active) => {
+    if (!active) pickerOpen.value = false;
+  },
+);
+watch(pickerOpen, (open) => {
+  // Swatches and the native preview do not emit the library's complete event.
+  if (!open && color.value !== props.customColorScheme) completeColor(color.value);
+});
+watch(
+  () => props.customColorScheme,
+  (value) => {
+    color.value = value;
+  },
+);
+function completeColor(value: string | null) {
+  color.value = normalizeCustomColorScheme(value);
+  emit('update:customColorScheme', color.value);
+}
 </script>
 
 <template>
-  <div class="settings-section">
-    <!-- Theme Mode -->
-    <NFormItem
-      class="settings-row"
-      :show-feedback="false"
-      :label="i18n('options_section_appearance', 'Theme')"
-    >
+  <section class="settings-group" aria-labelledby="appearance-heading">
+    <h2 id="appearance-heading" class="settings-group-title">
+      {{ t('options_section_appearance') }}
+    </h2>
+    <SettingsRow :label="t('options_theme_label')">
       <NRadioGroup
         :value="theme"
-        size="medium"
-        @update:value="(v: string) => emit('update:theme', v)"
+        name="appearance-mode"
+        :aria-label="t('options_theme_label')"
+        @update:value="emit('update:theme', $event)"
       >
-        <NRadioButton value="system">
-          <span class="theme-btn">
-            <NIcon :size="14"><DesktopOutline /></NIcon>
-            {{ i18n('options_theme_system', 'System') }}
-          </span>
-        </NRadioButton>
-        <NRadioButton value="light">
-          <span class="theme-btn">
-            <NIcon :size="14"><SunnyOutline /></NIcon>
-            {{ i18n('options_theme_light', 'Light') }}
-          </span>
-        </NRadioButton>
-        <NRadioButton value="dark">
-          <span class="theme-btn">
-            <NIcon :size="14"><MoonOutline /></NIcon>
-            {{ i18n('options_theme_dark', 'Dark') }}
-          </span>
-        </NRadioButton>
+        <NRadioButton v-for="mode in modes" :key="mode" :value="mode">{{
+          t(`options_theme_${mode}`)
+        }}</NRadioButton>
       </NRadioGroup>
-    </NFormItem>
-
-    <!-- Color Scheme Picker -->
-    <NFormItem
-      class="settings-row"
-      :show-feedback="false"
-      :label="i18n('options_color_scheme', 'Color Scheme')"
-    >
-      <div class="color-scheme-picker">
-        <NTooltip v-for="scheme in COLOR_SCHEMES" :key="scheme.id">
-          <template #trigger>
-            <button
-              class="color-swatch"
-              :class="{ active: colorScheme === scheme.id }"
-              :style="{ '--swatch-color': scheme.seed }"
-              @click="emit('update:colorScheme', scheme.id)"
-            >
-              <svg
-                v-if="colorScheme === scheme.id"
-                class="swatch-check"
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <path
-                  d="M4 8.5L6.5 11L12 5"
-                  stroke="white"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
-          </template>
-          {{ i18n(scheme.labelKey, scheme.id) }}
-        </NTooltip>
-      </div>
-    </NFormItem>
-  </div>
+    </SettingsRow>
+    <SettingsRow :label="t('options_color_scheme')">
+      <NSelect
+        class="setting-control"
+        :value="colorScheme"
+        :options="options"
+        :aria-label="t('options_color_scheme')"
+        @update:value="emit('update:colorScheme', $event)"
+      />
+    </SettingsRow>
+    <SettingsRow :label="t('options_custom_color')">
+      <NColorPicker
+        v-model:value="color"
+        v-model:show="pickerOpen"
+        :modes="['hex']"
+        :show-alpha="false"
+        :show-preview="true"
+        :swatches="COLOR_SCHEMES.map((scheme) => scheme.seed)"
+        @complete="completeColor"
+      >
+        <template #trigger="{ onClick, ref: triggerRef }">
+          <NButton
+            :ref="triggerRef"
+            class="setting-color"
+            :aria-label="t('options_custom_color')"
+            :aria-expanded="pickerOpen"
+            @click="onClick"
+          >
+            <template #icon
+              ><span class="color-sample" :style="{ backgroundColor: color }"
+            /></template>
+            <bdi>{{ color }}</bdi>
+          </NButton>
+        </template>
+      </NColorPicker>
+    </SettingsRow>
+    <slot />
+  </section>
 </template>
 
 <style scoped>
-.theme-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* ── Color Scheme Picker ─────────────────────────────────────────── */
-.color-scheme-picker {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.color-swatch {
-  position: relative;
-  width: 26px;
-  height: 26px;
+.color-sample {
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  border: 2px solid transparent;
-  background: var(--swatch-color);
-  cursor: pointer;
-  transition:
-    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
-    border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
-    box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-  padding: 0;
-}
-
-.color-swatch:hover {
-  transform: scale(1.18);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.color-swatch:active {
-  transform: scale(1.05);
-}
-
-.color-swatch.active {
-  border-color: var(--color-on-surface, #fff);
-  box-shadow:
-    0 0 0 2px var(--swatch-color),
-    0 2px 8px rgba(0, 0, 0, 0.25);
-}
-
-.swatch-check {
-  width: 14px;
-  height: 14px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  border: 1px solid var(--color-outline-variant);
 }
 </style>

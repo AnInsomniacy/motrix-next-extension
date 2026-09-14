@@ -72,8 +72,8 @@ Rayburst on the same computer.
 ## Connect to Rayburst
 
 1. Install and open [Rayburst](https://github.com/AnInsomniacy/motrix-next).
-2. In the desktop app's Advanced Settings, find the **Extension API** port and secret.
-3. Enter the same values in the extension's connection settings. The default port is
+2. In the desktop app's Settings → Connections, find the **Extension API** port and secret.
+3. Enter the same values in the extension's Settings → General → Connection. The default port is
    `29110`. The Extension API secret is separate from the engine RPC secret.
 4. Confirm the popup reports a connection, then download a file or use a right-click
    **Download with Rayburst** action.
@@ -95,7 +95,7 @@ the connection settings and desktop Native Messaging diagnostics.
 | Protocol links        | Handles magnet, ED2K and Thunder links, plus torrent downloads.                                         |
 | Popup dashboard       | Shows connection status, transfer speeds and task counts.                                               |
 | Browser controls      | Configures desktop activation, cookie/header forwarding and the optional Chromium download bar control. |
-| Appearance            | Light, dark and system themes, Electric Purple and additional color presets, and 27 languages.          |
+| Appearance            | Light, dark and system themes, Electric Purple, additional presets, custom HEX colors and 27 languages. |
 | Diagnostics           | Keeps a bounded local event log with filtering and export for troubleshooting.                          |
 
 ## Find and download media

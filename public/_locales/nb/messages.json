@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Aktiver nedlastingsavskjæring",
+    "message": "Overta nedlastinger",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "Språk",
-    "description": "Settings section for interface language"
+    "message": "Språk / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "Automatisk",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Følg nettleserspråket",
-    "description": "Description for auto language option"
+    "message": "Automatisk / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Når Rayburst ikke er tilgjengelig",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Fullført",
+    "message": "Stoppet",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "Avskjæring aktiv",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "Pauset",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Klikk igjen for å tilbakestille",
+    "message": "Gjenopprette standardinnstillinger?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Bekreft tømming",
+    "message": "Slette alle loggoppføringer?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "Nedlastinger",
+    "message": "Oversikt",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "Oppdag medier på siden",
+    "message": "Finn medier",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "Tøm kilder",
+    "message": "Tøm liste",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "Tilbake til kilder",
+    "message": "Medieliste",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "Utdataformat",
+    "message": "Format",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "Prøv igjen",
+    "message": "Sjekk status",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "Kilden eller undersøkelsen er utløpt. Spill av og undersøk igjen.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "Kontroller innlogging, videresending av forespørsler eller API-nøkkelen.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Start Rayburst og kontroller tilkoblingen.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "Elektrisk lilla",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "Kobler til"
+  },
+  "popup_upload": {
+    "message": "Opplasting"
+  },
+  "popup_action_failed": {
+    "message": "Kunne ikke fullføre handlingen."
+  },
+  "options_about": {
+    "message": "Om"
+  },
+  "options_api_secret_hint": {
+    "message": "Finn dette i Rayburst: Innstillinger → Tilkoblinger."
+  },
+  "options_backup_secret_hint": {
+    "message": "Sikkerhetskopier av innstillinger inneholder API-nøkkelen din."
+  },
+  "options_remove_rule": {
+    "message": "Fjern regel"
+  },
+  "options_site_pattern": {
+    "message": "Nettstedsmønster"
+  },
+  "options_rule_action": {
+    "message": "Handling"
+  },
+  "media_source_auth": {
+    "message": "Logg inn på kildenettstedet og prøv igjen."
+  },
+  "media_protected": {
+    "message": "Dette mediet er beskyttet og kan ikke lastes ned."
+  },
+  "popup_download": {
+    "message": "Last ned"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "Tema"
+  },
+  "options_section_general": {
+    "message": "Generelt"
+  },
+  "options_custom_color": {
+    "message": "Egendefinert farge"
+  },
+  "options_color_scheme_custom": {
+    "message": "Egendefinert"
+  },
+  "control_confirm": {
+    "message": "Bekreft"
+  },
+  "control_cancel": {
+    "message": "Avbryt"
+  },
+  "control_undo": {
+    "message": "Angre"
+  },
+  "control_redo": {
+    "message": "Gjør om"
+  },
+  "control_clear": {
+    "message": "Tøm"
+  },
+  "control_add": {
+    "message": "Legg til"
+  },
+  "control_empty": {
+    "message": "Ingen resultater"
+  },
+  "control_select": {
+    "message": "Velg"
+  },
+  "control_input": {
+    "message": "Skriv inn en verdi"
   }
 }

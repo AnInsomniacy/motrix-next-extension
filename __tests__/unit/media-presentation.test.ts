@@ -29,6 +29,12 @@ describe('localized media presentation', () => {
       ),
     ).toContain('日语');
   });
+  it('distinguishes API authentication, source login and media protection', () => {
+    const keys = ['api_auth_failed', 'authentication_required', 'protected_media'].map(
+      mediaFailureKey,
+    );
+    expect(new Set(keys).size).toBe(3);
+  });
   it('translates failure codes in every locale and never presents raw exception text', () => {
     for (const locale of SUPPORTED_LOCALES) {
       const i18n = createI18n(locale.id);
@@ -36,6 +42,8 @@ describe('localized media presentation', () => {
         'unreachable',
         'integration_unavailable',
         'protected_media',
+        'api_auth_failed',
+        'authentication_required',
         'source_expired',
         'player_not_found',
         'Bearer private',

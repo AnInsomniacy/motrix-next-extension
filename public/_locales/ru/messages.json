@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Включить перехват загрузок",
+    "message": "Перехватывать загрузки",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "Язык",
-    "description": "Settings section for interface language"
+    "message": "Язык / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "Автоматический",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Следовать языку браузера",
-    "description": "Description for auto language option"
+    "message": "Автоматически / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Если Rayburst недоступен",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Завершённые",
+    "message": "Остановлены",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "Перехват включён",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "На паузе",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Нажмите еще раз для сброса",
+    "message": "Восстановить настройки по умолчанию?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Подтвердить очистку",
+    "message": "Удалить все записи журнала?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "Загрузки",
+    "message": "Обзор",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "Обнаруживать медиа на странице",
+    "message": "Искать медиа",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "Очистить источники",
+    "message": "Очистить список",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "Назад к источникам",
+    "message": "Список медиа",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "Выходной формат",
+    "message": "Формат",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "Повторить",
+    "message": "Проверить статус",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "Источник или проверка устарели. Запустите воспроизведение и повторите проверку.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "Проверьте вход на сайт, пересылку запросов или ключ API приложения.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Запустите Rayburst и проверьте подключение.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "Электрический фиолетовый",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "Подключение"
+  },
+  "popup_upload": {
+    "message": "Отдача"
+  },
+  "popup_action_failed": {
+    "message": "Не удалось выполнить действие."
+  },
+  "options_about": {
+    "message": "О расширении"
+  },
+  "options_api_secret_hint": {
+    "message": "Смотрите в Rayburst: Настройки → Подключения."
+  },
+  "options_backup_secret_hint": {
+    "message": "Резервные копии настроек содержат ваш ключ API."
+  },
+  "options_remove_rule": {
+    "message": "Удалить правило"
+  },
+  "options_site_pattern": {
+    "message": "Шаблон сайта"
+  },
+  "options_rule_action": {
+    "message": "Действие"
+  },
+  "media_source_auth": {
+    "message": "Войдите на сайт-источник и повторите попытку."
+  },
+  "media_protected": {
+    "message": "Этот материал защищён и недоступен для скачивания."
+  },
+  "popup_download": {
+    "message": "Скачать"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "Тема"
+  },
+  "options_section_general": {
+    "message": "Общие"
+  },
+  "options_custom_color": {
+    "message": "Пользовательский цвет"
+  },
+  "options_color_scheme_custom": {
+    "message": "Пользовательская"
+  },
+  "control_confirm": {
+    "message": "Подтвердить"
+  },
+  "control_cancel": {
+    "message": "Отмена"
+  },
+  "control_undo": {
+    "message": "Отменить"
+  },
+  "control_redo": {
+    "message": "Повторить"
+  },
+  "control_clear": {
+    "message": "Очистить"
+  },
+  "control_add": {
+    "message": "Добавить"
+  },
+  "control_empty": {
+    "message": "Нет результатов"
+  },
+  "control_select": {
+    "message": "Выберите"
+  },
+  "control_input": {
+    "message": "Введите значение"
   }
 }

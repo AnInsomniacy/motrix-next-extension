@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "다운로드 가로채기 활성화",
+    "message": "다운로드 가로채기",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "언어",
-    "description": "Settings section for interface language"
+    "message": "언어 / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "자동",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "브라우저 언어를 따릅니다",
-    "description": "Description for auto language option"
+    "message": "자동 / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Rayburst를 사용할 수 없을 때",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "완료",
+    "message": "중지됨",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "가로채기 중",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "일시정지됨",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API 포트",
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "다시 클릭하여 초기화",
+    "message": "기본 설정으로 복원할까요?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "지우기 확인",
+    "message": "모든 로그를 삭제할까요?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "다운로드",
+    "message": "개요",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "페이지 미디어 감지",
+    "message": "미디어 찾기",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "소스 지우기",
+    "message": "목록 비우기",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "소스 목록으로",
+    "message": "미디어 목록",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "출력 형식",
+    "message": "형식",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "다시 시도",
+    "message": "상태 확인",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "소스 또는 확인 시간이 만료되었습니다. 재생 후 다시 확인하세요.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "로그인, 요청 전달 또는 데스크톱 API 암호를 확인하세요.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Rayburst를 시작하고 연결 설정을 확인하세요.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "일렉트릭 퍼플",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "연결 중"
+  },
+  "popup_upload": {
+    "message": "업로드"
+  },
+  "popup_action_failed": {
+    "message": "작업을 완료하지 못했습니다."
+  },
+  "options_about": {
+    "message": "정보"
+  },
+  "options_api_secret_hint": {
+    "message": "Rayburst 설정 → 연결에서 확인하세요."
+  },
+  "options_backup_secret_hint": {
+    "message": "설정 백업에는 API 비밀 키가 포함됩니다."
+  },
+  "options_remove_rule": {
+    "message": "규칙 삭제"
+  },
+  "options_site_pattern": {
+    "message": "웹사이트 패턴"
+  },
+  "options_rule_action": {
+    "message": "동작"
+  },
+  "media_source_auth": {
+    "message": "원본 웹사이트에 로그인한 후 다시 시도하세요."
+  },
+  "media_protected": {
+    "message": "보호된 미디어는 다운로드할 수 없습니다."
+  },
+  "popup_download": {
+    "message": "다운로드"
+  },
+  "media_api_auth": {
+    "message": "API 비밀키 불일치 설정의 API 비밀키가 Rayburst 구성과 일치하는지 확인하세요."
+  },
+  "options_theme_label": {
+    "message": "테마"
+  },
+  "options_section_general": {
+    "message": "일반"
+  },
+  "options_custom_color": {
+    "message": "사용자 지정 색상"
+  },
+  "options_color_scheme_custom": {
+    "message": "사용자 지정"
+  },
+  "control_confirm": {
+    "message": "확인"
+  },
+  "control_cancel": {
+    "message": "취소"
+  },
+  "control_undo": {
+    "message": "실행 취소"
+  },
+  "control_redo": {
+    "message": "다시 실행"
+  },
+  "control_clear": {
+    "message": "지우기"
+  },
+  "control_add": {
+    "message": "추가"
+  },
+  "control_empty": {
+    "message": "결과 없음"
+  },
+  "control_select": {
+    "message": "선택"
+  },
+  "control_input": {
+    "message": "값 입력"
   }
 }

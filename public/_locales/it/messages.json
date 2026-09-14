@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Abilita intercettazione download",
+    "message": "Intercetta download",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "Lingua",
-    "description": "Settings section for interface language"
+    "message": "Lingua / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "Automatica",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Segui la lingua del browser",
-    "description": "Description for auto language option"
+    "message": "Automatico / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Quando Rayburst non è disponibile",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Completati",
+    "message": "Arrestati",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "Intercettazione attiva",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "In pausa",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Fai di nuovo clic per ripristinare",
+    "message": "Ripristinare le impostazioni predefinite?",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Conferma cancellazione",
+    "message": "Cancellare tutte le voci del registro?",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "Download",
+    "message": "Panoramica",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "Rileva i media della pagina",
+    "message": "Trova contenuti",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "Cancella sorgenti",
+    "message": "Svuota elenco",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "Torna alle sorgenti",
+    "message": "Elenco contenuti",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "Formato di uscita",
+    "message": "Formato",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "Riprova",
+    "message": "Verifica stato",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "Sorgente o analisi scaduta. Riproduci e analizza di nuovo.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "Verifica l’accesso al sito, l’inoltro delle richieste o la chiave API desktop.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Avvia Rayburst e verifica la connessione.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "Viola elettrico",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "Connessione…"
+  },
+  "popup_upload": {
+    "message": "Caricamento"
+  },
+  "popup_action_failed": {
+    "message": "Impossibile completare questa azione."
+  },
+  "options_about": {
+    "message": "Informazioni"
+  },
+  "options_api_secret_hint": {
+    "message": "Si trova in Rayburst: Impostazioni → Connessioni."
+  },
+  "options_backup_secret_hint": {
+    "message": "I backup delle impostazioni includono la chiave API."
+  },
+  "options_remove_rule": {
+    "message": "Rimuovi regola"
+  },
+  "options_site_pattern": {
+    "message": "Schema del sito"
+  },
+  "options_rule_action": {
+    "message": "Azione"
+  },
+  "media_source_auth": {
+    "message": "Accedi al sito di origine e riprova."
+  },
+  "media_protected": {
+    "message": "Questo contenuto è protetto e non può essere scaricato."
+  },
+  "popup_download": {
+    "message": "Scarica"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "Tema"
+  },
+  "options_section_general": {
+    "message": "Generale"
+  },
+  "options_custom_color": {
+    "message": "Colore personalizzato"
+  },
+  "options_color_scheme_custom": {
+    "message": "Personalizzato"
+  },
+  "control_confirm": {
+    "message": "Conferma"
+  },
+  "control_cancel": {
+    "message": "Annulla"
+  },
+  "control_undo": {
+    "message": "Annulla modifica"
+  },
+  "control_redo": {
+    "message": "Ripeti"
+  },
+  "control_clear": {
+    "message": "Cancella"
+  },
+  "control_add": {
+    "message": "Aggiungi"
+  },
+  "control_empty": {
+    "message": "Nessun risultato"
+  },
+  "control_select": {
+    "message": "Seleziona"
+  },
+  "control_input": {
+    "message": "Inserisci un valore"
   }
 }

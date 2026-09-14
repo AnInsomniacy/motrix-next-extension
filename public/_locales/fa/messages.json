@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "فعال‌سازی رهگیری دانلود",
+    "message": "دریافت بارگیری‌ها",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "زبان",
-    "description": "Settings section for interface language"
+    "message": "زبان / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "خودکار",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "پیروی از زبان مرورگر",
-    "description": "Description for auto language option"
+    "message": "خودکار / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "وقتی Rayburst در دسترس نیست",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "تکمیل شده",
+    "message": "متوقف‌شده",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "رهگیری فعال",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "متوقف شده",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -337,7 +329,7 @@
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
-    "message": "دانلودهای مرورگر",
+    "message": "بارگیری‌های مرورگر",
     "description": "Label for the browser download interception scope toggle."
   },
   "options_scope_magnet_label": {
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "برای بازنشانی دوباره کلیک کنید",
+    "message": "تنظیمات پیش‌فرض بازیابی شود؟",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "تأیید پاک‌سازی",
+    "message": "همهٔ رویدادهای گزارش پاک شوند؟",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "بارگیری‌ها",
+    "message": "نمای کلی",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "شناسایی رسانه‌های صفحه",
+    "message": "یافتن رسانه",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "پاک کردن منابع",
+    "message": "پاک کردن فهرست",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "بازگشت به منابع",
+    "message": "فهرست رسانه‌ها",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "قالب خروجی",
+    "message": "قالب",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "تلاش مجدد",
+    "message": "بررسی وضعیت",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "منبع یا بررسی منقضی شده است. رسانه را پخش و دوباره بررسی کنید.",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "ورود به سایت، ارسال درخواست یا کلید API برنامه را بررسی کنید.",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "Rayburst را اجرا و تنظیمات اتصال را بررسی کنید.",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "بنفش الکتریکی",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "در حال اتصال"
+  },
+  "popup_upload": {
+    "message": "بارگذاری"
+  },
+  "popup_action_failed": {
+    "message": "این عملیات تکمیل نشد."
+  },
+  "options_about": {
+    "message": "درباره"
+  },
+  "options_api_secret_hint": {
+    "message": "در Rayburst به تنظیمات ← اتصال‌ها بروید."
+  },
+  "options_backup_secret_hint": {
+    "message": "نسخه‌های پشتیبان تنظیمات شامل کلید API شما هستند."
+  },
+  "options_remove_rule": {
+    "message": "حذف قانون"
+  },
+  "options_site_pattern": {
+    "message": "الگوی وب‌سایت"
+  },
+  "options_rule_action": {
+    "message": "عملیات"
+  },
+  "media_source_auth": {
+    "message": "وارد وب‌سایت منبع شوید و دوباره تلاش کنید."
+  },
+  "media_protected": {
+    "message": "این رسانه محافظت‌شده است و نمی‌توان آن را بارگیری کرد."
+  },
+  "popup_download": {
+    "message": "بارگیری"
+  },
+  "media_api_auth": {
+    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
+  },
+  "options_theme_label": {
+    "message": "پوسته"
+  },
+  "options_section_general": {
+    "message": "عمومی"
+  },
+  "options_custom_color": {
+    "message": "رنگ سفارشی"
+  },
+  "options_color_scheme_custom": {
+    "message": "سفارشی"
+  },
+  "control_confirm": {
+    "message": "تأیید"
+  },
+  "control_cancel": {
+    "message": "لغو"
+  },
+  "control_undo": {
+    "message": "واگرد"
+  },
+  "control_redo": {
+    "message": "بازانجام"
+  },
+  "control_clear": {
+    "message": "پاک کردن"
+  },
+  "control_add": {
+    "message": "افزودن"
+  },
+  "control_empty": {
+    "message": "نتیجه‌ای یافت نشد"
+  },
+  "control_select": {
+    "message": "انتخاب کنید"
+  },
+  "control_input": {
+    "message": "مقداری وارد کنید"
   }
 }

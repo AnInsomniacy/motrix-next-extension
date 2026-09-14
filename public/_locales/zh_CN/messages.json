@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "启用下载拦截",
+    "message": "接管下载",
     "description": "启用/禁用下载拦截的开关"
   },
   "options_section_rules": {
@@ -241,16 +241,16 @@
     }
   },
   "options_section_language": {
-    "message": "语言",
-    "description": "界面语言设置区域"
+    "message": "语言 / Language",
+    "description": "Language setting label; retain the English Language locator in non-English locales."
   },
   "options_locale_auto": {
     "message": "跟随系统",
     "description": "语言选项：跟随浏览器语言"
   },
   "options_locale_auto_desc": {
-    "message": "跟随浏览器语言",
-    "description": "自动语言选项的说明"
+    "message": "自动 / Auto",
+    "description": "Follow the browser language automatically; keep the English Auto locator."
   },
   "options_desktop_unavailable_label": {
     "message": "Rayburst 不可用时",
@@ -281,16 +281,8 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "完成",
+    "message": "已停止",
     "description": "Task count label: completed or stopped"
-  },
-  "popup_toggle_enabled": {
-    "message": "接管中",
-    "description": "Label next to the interception toggle when active"
-  },
-  "popup_toggle_disabled": {
-    "message": "已暂停",
-    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API 端口",
@@ -337,7 +329,7 @@
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
-    "message": "常规下载（HTTP / HTTPS / FTP / Torrent）",
+    "message": "浏览器下载",
     "description": "Label for the browser download interception scope toggle."
   },
   "options_scope_magnet_label": {
@@ -433,7 +425,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "再次点击恢复",
+    "message": "恢复默认设置？",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -583,7 +575,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "确认清除",
+    "message": "清空所有日志？",
     "description": "Second-click confirmation label for clearing diagnostic logs"
   },
   "media_tab": {
@@ -591,11 +583,11 @@
     "description": "Media discovery: tab"
   },
   "media_downloads": {
-    "message": "下载",
+    "message": "概览",
     "description": "Media discovery: downloads"
   },
   "media_discover": {
-    "message": "发现网页媒体",
+    "message": "发现媒体",
     "description": "Media discovery: discover"
   },
   "media_scan": {
@@ -603,7 +595,7 @@
     "description": "Media discovery: scan"
   },
   "media_clear": {
-    "message": "清空来源",
+    "message": "清空列表",
     "description": "Media discovery: clear"
   },
   "media_filter": {
@@ -635,7 +627,7 @@
     "description": "Media discovery: options"
   },
   "media_back": {
-    "message": "返回来源列表",
+    "message": "媒体列表",
     "description": "Media discovery: back"
   },
   "media_video": {
@@ -651,7 +643,7 @@
     "description": "Media discovery: subtitles"
   },
   "media_format": {
-    "message": "输出格式",
+    "message": "格式",
     "description": "Media discovery: format"
   },
   "media_original": {
@@ -679,7 +671,7 @@
     "description": "Media discovery: cancel"
   },
   "media_retry": {
-    "message": "重试",
+    "message": "检查状态",
     "description": "Media discovery: retry"
   },
   "media_close": {
@@ -758,10 +750,6 @@
     "message": "来源或探测已过期，请播放媒体后重新探测。",
     "description": "Media discovery: expired"
   },
-  "media_auth": {
-    "message": "请检查来源登录状态、请求转发或桌面 API 密钥。",
-    "description": "Media discovery: auth"
-  },
   "media_connection": {
     "message": "请启动 Rayburst 并检查连接设置。",
     "description": "Media discovery: connection"
@@ -809,5 +797,83 @@
   "options_color_scheme_electric": {
     "message": "闪电紫",
     "description": "Electric Purple color scheme"
+  },
+  "popup_status_connecting": {
+    "message": "连接中"
+  },
+  "popup_upload": {
+    "message": "上传"
+  },
+  "popup_action_failed": {
+    "message": "操作未完成，请重试。"
+  },
+  "options_about": {
+    "message": "关于"
+  },
+  "options_api_secret_hint": {
+    "message": "在 Rayburst 的设置 → 连接中查看。"
+  },
+  "options_backup_secret_hint": {
+    "message": "设置备份包含 API 密钥。"
+  },
+  "options_remove_rule": {
+    "message": "删除规则"
+  },
+  "options_site_pattern": {
+    "message": "网站匹配规则"
+  },
+  "options_rule_action": {
+    "message": "操作"
+  },
+  "media_source_auth": {
+    "message": "请登录来源网站后重试。"
+  },
+  "media_protected": {
+    "message": "此媒体受保护，无法下载。"
+  },
+  "popup_download": {
+    "message": "下载"
+  },
+  "media_api_auth": {
+    "message": "API 密钥不匹配 请检查设置中的 API 密钥是否与 Rayburst 配置一致。"
+  },
+  "options_theme_label": {
+    "message": "主题"
+  },
+  "options_section_general": {
+    "message": "常规"
+  },
+  "options_custom_color": {
+    "message": "自定义颜色"
+  },
+  "options_color_scheme_custom": {
+    "message": "自定义"
+  },
+  "control_confirm": {
+    "message": "确认"
+  },
+  "control_cancel": {
+    "message": "取消"
+  },
+  "control_undo": {
+    "message": "撤销"
+  },
+  "control_redo": {
+    "message": "重做"
+  },
+  "control_clear": {
+    "message": "清除"
+  },
+  "control_add": {
+    "message": "添加"
+  },
+  "control_empty": {
+    "message": "无结果"
+  },
+  "control_select": {
+    "message": "请选择"
+  },
+  "control_input": {
+    "message": "请输入"
   }
 }
