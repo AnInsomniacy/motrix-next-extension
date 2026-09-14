@@ -113,6 +113,12 @@ export type PingResponse = z.output<typeof PingResponseSchema>;
 export type StatResponse = z.output<typeof StatResponseSchema>;
 type ActionResponse = z.output<typeof ActionResponseSchema>;
 
+type ConnectionSnapshot = {
+  config: ConnectionConfig;
+  http: KyInstance;
+  authHeaders: Record<string, string>;
+};
+
 // ─── Client ─────────────────────────────────────────────
 
 export class DesktopApiClient {
@@ -141,8 +147,13 @@ export class DesktopApiClient {
   }
 
   /** Bearer auth headers; empty when no secret is configured. */
-  private authHeaders(): Record<string, string> {
-    return this.config.secret ? { Authorization: `Bearer ${this.config.secret}` } : {};
+  private authHeaders(config: ConnectionConfig = this.config): Record<string, string> {
+    return config.secret ? { Authorization: `Bearer ${config.secret}` } : {};
+  }
+
+  private captureConnection(): ConnectionSnapshot {
+    const config = { ...this.config };
+    return { config, http: this.http, authHeaders: this.authHeaders(config) };
   }
 
   private async request<T>(
@@ -150,9 +161,10 @@ export class DesktopApiClient {
     schema: z.ZodType<T>,
     options: KyOptions,
     label: string,
+    http: KyInstance = this.http,
   ): Promise<T> {
     try {
-      const payload = await this.http(path, options).json<unknown>();
+      const payload = await http(path, options).json<unknown>();
       return schema.parse(payload);
     } catch (error) {
       if (path.startsWith(MEDIA_API_PATH)) {
@@ -197,19 +209,28 @@ export class DesktopApiClient {
   }
 
   async addDownload(request: AddDownloadRequest): Promise<AddDownloadResponse> {
+    return this.addDownloadWithSnapshot(request, this.captureConnection());
+  }
+
+  private async addDownloadWithSnapshot(
+    request: AddDownloadRequest,
+    connection: ConnectionSnapshot,
+  ): Promise<AddDownloadResponse> {
     await this.request(
       'downloads/capabilities',
       z.object({ protocolVersion: z.literal(2), filenameHints: z.literal(true) }),
-      { method: 'GET', headers: this.authHeaders(), retry: 0 },
+      { method: 'GET', headers: connection.authHeaders, retry: 0 },
       'Check download support',
+      connection.http,
     );
-    await rememberDownload(request, this.config);
+    await rememberDownload(request, connection.config);
     try {
       const response = await this.request(
         'add',
         AddDownloadResponseSchema,
-        { method: 'POST', headers: this.authHeaders(), json: request, retry: 0 },
+        { method: 'POST', headers: connection.authHeaders, json: request, retry: 0 },
         'Add download',
+        connection.http,
       );
       if (response.id !== request.id || (response.action === 'submitted' && !response.gid))
         throw new Error('Download receipt does not match its request');
@@ -225,8 +246,11 @@ export class DesktopApiClient {
   }
 
   async reconcileDownloads(): Promise<number> {
-    const pending = await pendingDownloads(this.config);
-    const results = await Promise.allSettled(pending.map((request) => this.addDownload(request)));
+    const connection = this.captureConnection();
+    const pending = await pendingDownloads(connection.config);
+    const results = await Promise.allSettled(
+      pending.map((request) => this.addDownloadWithSnapshot(request, connection)),
+    );
     return results.filter((result) => result.status === 'rejected').length;
   }
 
