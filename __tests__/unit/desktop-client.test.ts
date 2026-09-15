@@ -81,6 +81,40 @@ describe('DesktopApiClient', () => {
     await expect(jsonBody(requestAt(1))).resolves.toEqual(payload);
   });
 
+  it('keeps an in-flight handoff on its captured connection after a config change', async () => {
+    const capabilities = Promise.withResolvers<Response>();
+    const payload = { id: 'handoff', url: 'https://example.com/file.zip' };
+    const setPending = vi.spyOn(browser.storage.session, 'set');
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const request = input as Request;
+      if (request.url.endsWith('/capabilities')) return capabilities.promise;
+      return new Response(JSON.stringify({ id: payload.id, action: 'submitted', gid: 'gid' }));
+    });
+
+    const handoff = client.addDownload(payload);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    client.updateConfig({ port: 29111, secret: 'new-secret' });
+    capabilities.resolve(new Response(JSON.stringify({ protocolVersion: 2, filenameHints: true })));
+
+    await expect(handoff).resolves.toEqual({ id: payload.id, action: 'submitted', gid: 'gid' });
+    expect(fetchMock.mock.calls.map((call) => (call[0] as Request).url)).toEqual([
+      'http://127.0.0.1:29110/downloads/capabilities',
+      'http://127.0.0.1:29110/add',
+    ]);
+    expect((fetchMock.mock.calls[0]?.[0] as Request).headers.get('authorization')).toBe(
+      'Bearer secret',
+    );
+    expect((fetchMock.mock.calls[1]?.[0] as Request).headers.get('authorization')).toBe(
+      'Bearer secret',
+    );
+    expect(setPending).toHaveBeenCalledWith({
+      'pending-download:handoff': {
+        request: payload,
+        connection: { port: 29110, secret: 'secret' },
+      },
+    });
+  });
+
   it('uses the authenticated stat and task-control endpoints', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(
       async (input) =>
