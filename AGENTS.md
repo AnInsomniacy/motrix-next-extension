@@ -379,3 +379,9 @@ Follow `docs/BRAND.md` and `docs/RELEASING.md`. Store identities and update sign
 be configured explicitly for Rayburst. Local verification never submits to a store,
 publishes a website, changes remotes or starts release automation. Native end-to-end
 acceptance belongs to the user. Work on the current branch; do not spawn agents.
+
+## Documentation editing
+
+Preserve the existing README and documentation structure, wording and tone. Make
+minimal edits for branding, outdated behavior, commands, links and directory layouts.
+Do not rewrite unaffected prose or restore acknowledgements sections.

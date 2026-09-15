@@ -9,7 +9,7 @@
 </div>
 
 > [!IMPORTANT]
-> **Rayburst Connect is the new name of the Motrix Next Extension.** The rebrand is in transition: the GitHub repository and the browser store listings still carry the Motrix Next name until the move completes, so links on this page open `motrix-next-extension`. Rayburst Connect pairs with the Rayburst desktop app; the previous store builds pair with Motrix Next 3.9.x. Until the Rayburst Connect store listings are live, install from GitHub Releases or build from source.
+> **Rayburst Connect is the new name of the Motrix Next Extension.** The rebrand is in transition: the GitHub repository and the browser store listings still carry the Motrix Next name until the move completes, so links on this page open `motrix-next-extension`. Rayburst Connect pairs with the Rayburst desktop app; the previous store builds pair with Motrix Next 3.9.x. The upcoming Rayburst Connect release adds media discovery and HLS/DASH track selection. Build from source to try the current code; use GitHub Releases once the new build is published.
 
 ---
 
@@ -100,7 +100,7 @@ The broad host permissions (`*://*/*`) are required so cookie forwarding works i
 
 <br>
 
-No. This extension does **not** collect, store, or transmit any personal data. All communication occurs exclusively between your browser and the Rayburst app on your local machine (`127.0.0.1`). No analytics, no telemetry, no external requests. See the [full Privacy Policy](PRIVACY_POLICY.md).
+No personal data is sent to the developer or third parties. Settings, diagnostics and discovered media context are stored locally. All communication occurs exclusively between your browser and the Rayburst app on your local machine (`127.0.0.1`). No analytics, no telemetry, no external requests. See the [full Privacy Policy](PRIVACY_POLICY.md).
 
 </details>
 
@@ -121,8 +121,7 @@ pnpm install
 # Start the development server with hot reload
 pnpm dev
 
-# In a regular Chrome profile, open chrome://extensions and load:
-# .output/chrome-mv3-dev
+# WXT launches Chrome with the extension in a persistent development profile.
 
 # Build for production
 pnpm build
@@ -137,7 +136,8 @@ pnpm zip
 rayburst-connect/
 ├── entrypoints/                # Extension entry points
 │   ├── background.ts           #   Service worker — orchestrator wiring, listeners
-│   ├── content.ts              #   Content script — magnet/ed2k/thunder link interception
+│   ├── content.ts              #   Protocol links, media discovery and player controls
+│   ├── media/App.vue           #   In-page media selection panel
 │   ├── popup/App.vue           #   Browser action popup — status, speed, task dashboard
 │   └── options/App.vue         #   Full-page settings — one staged-snapshot state model
 ├── lib/                        # Core logic
@@ -148,7 +148,8 @@ rayburst-connect/
 │   ├── browser.ts              #   Permissions, context menu, webRequest helpers
 │   ├── backup.ts               #   Settings backup import/export
 │   ├── diagnostics.ts          #   Sanitized, serialized diagnostic journal
-│   └── download/               #   Orchestrator, filter pipeline, request context
+│   ├── download/               #   Orchestrator, filter pipeline, request context
+│   └── media/                  #   Discovery, source catalogue, inspection and submission
 ├── shared/                     # Shared UI infrastructure
 │   ├── i18n/                   #   Runtime i18n engine + virtual:locales loader
 │   └── theme.ts                #   M3 color system — bootstrap, CSS vars, Naive UI

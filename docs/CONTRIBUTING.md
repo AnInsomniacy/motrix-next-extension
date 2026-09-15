@@ -10,13 +10,13 @@ Before you start contributing, make sure you understand [GitHub flow](https://gu
 
 - [Node.js](https://nodejs.org/) 24.16.0 LTS
 - [pnpm](https://pnpm.io/) 10.34.1
-- [Rayburst](https://github.com/AnInsomniacy/rayburst) desktop app running with its Extension API enabled (for manual testing)
+- [Rayburst](https://github.com/AnInsomniacy/motrix-next) desktop app running with its Extension API enabled (for manual testing)
 
 ### Getting Started
 
 ```bash
-git clone https://github.com/AnInsomniacy/rayburst-connect.git
-cd rayburst-connect
+git clone https://github.com/AnInsomniacy/motrix-next-extension.git
+cd motrix-next-extension
 pnpm install
 pnpm dev    # Launch Chrome with the development extension and hot reload
 ```
