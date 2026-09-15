@@ -310,12 +310,12 @@ describe('settings drafts', () => {
       colorScheme: 'custom',
       customColorScheme: '#D75A35',
     });
-    const accent = document.documentElement.style.getPropertyValue('--color-primary');
+    const accent = document.documentElement.style.getPropertyValue('--rb-accent');
     edit(hex, '#315AA0');
     hex.dispatchEvent(new Event('change', { bubbles: true }));
     await settle();
     expect(picker.textContent).toContain('#D75A35');
-    expect(document.documentElement.style.getPropertyValue('--color-primary')).toBe(accent);
+    expect(document.documentElement.style.getPropertyValue('--rb-accent')).toBe(accent);
   });
 
   it('retains a rejected site rule and does not submit while selecting an action with Enter', async () => {

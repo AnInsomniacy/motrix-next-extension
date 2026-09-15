@@ -54,8 +54,9 @@ onUnmounted(() => {
 <style scoped>
 :global(body) {
   margin: 0;
-  padding: 12px 16px;
+  padding: 12px 14px;
   min-width: 0;
+  background: var(--rb-canvas);
 }
 :deep(.media-panel) {
   max-height: calc(100vh - 24px);

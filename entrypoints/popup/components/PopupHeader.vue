@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NIcon } from 'naive-ui';
-import { SettingsOutline } from '@vicons/ionicons5';
+import { Settings } from '@lucide/vue';
 import BrandLogo from '@/shared/components/BrandLogo.vue';
 import { useI18n } from '@/shared/i18n/engine';
 defineProps<{
@@ -12,15 +12,17 @@ const { t } = useI18n();
 </script>
 <template>
   <header class="popup-header">
-    <BrandLogo :size="18" />
-    <span class="wordmark">Rayburst Connect</span>
+    <BrandLogo :size="22" class="brand-mark" />
+    <span class="wordmark">Rayburst<span class="wordmark-edition">Connect</span></span>
     <span
-      class="connection"
-      :class="{ connected: status === 'connected' }"
+      class="rb-pill connection"
+      :data-tone="
+        status === 'connected' ? 'success' : status === 'launching' ? 'active' : undefined
+      "
+      :class="{ pulsing: status === 'launching' || status === 'initializing' }"
       :title="version ? `Rayburst v${version}` : undefined"
       role="status"
     >
-      <span class="status-dot" />
       <span class="connection-text"
         ><Transition name="content"
           ><span :key="status">{{
@@ -35,7 +37,7 @@ const { t } = useI18n();
       :title="t('popup_action_settings')"
       @click="$emit('settings')"
     >
-      <NIcon :size="16"><SettingsOutline /></NIcon>
+      <NIcon :size="17"><Settings /></NIcon>
     </button>
   </header>
 </template>
@@ -44,40 +46,54 @@ const { t } = useI18n();
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 10px 10px 8px 14px;
 }
+
+.brand-mark {
+  filter: drop-shadow(0 2px 6px var(--rb-glow));
+}
+
 .wordmark {
-  font-size: 13px;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
   white-space: nowrap;
 }
-.connection {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-  margin-inline-end: auto;
-  color: var(--color-on-surface-variant);
+
+.wordmark-edition {
   font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--rb-text-muted);
 }
+
+.connection {
+  min-width: 0;
+  margin-inline-start: auto;
+  margin-inline-end: 2px;
+}
+
+.connection.pulsing::before {
+  animation: connection-pulse 1.2s var(--rb-ease) infinite;
+}
+
 .connection-text {
   position: relative;
   display: grid;
 }
+
 .connection-text > span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.status-dot {
-  inline-size: 5px;
-  block-size: 5px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--color-outline);
-  transition: background-color 160ms;
-}
-.connected .status-dot {
-  background: var(--color-success);
+
+@keyframes connection-pulse {
+  50% {
+    opacity: 0.3;
+  }
 }
 </style>

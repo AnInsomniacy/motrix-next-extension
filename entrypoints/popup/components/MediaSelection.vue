@@ -14,7 +14,7 @@ import {
   NCollapseTransition,
   NIcon,
 } from 'naive-ui';
-import { OpenOutline } from '@vicons/ionicons5';
+import { ExternalLink, ArrowLeft } from '@lucide/vue';
 import type { MediaItem } from '@/lib/media/messages';
 import { selectionError, type MediaSelection } from '@/lib/media/contracts';
 import {
@@ -151,9 +151,11 @@ function submit() {
 
 <template>
   <section class="media-selection" :aria-label="i18n('media_options')" :aria-busy="busy">
-    <NButton size="small" text class="back-button" @click="emit('back')">{{
-      i18n('media_back')
-    }}</NButton>
+    <NButton size="small" quaternary class="back-button" @click="emit('back')"
+      ><template #icon
+        ><NIcon :size="14"><ArrowLeft /></NIcon></template
+      >{{ i18n('media_back') }}</NButton
+    >
     <h3 id="media-options-heading" tabindex="-1">
       {{ item.filename || item.title || i18n('media_source') }}
     </h3>
@@ -298,7 +300,7 @@ function submit() {
               :loading="opening"
               @click="openDesktop"
               ><template #icon
-                ><NIcon :size="14"><OpenOutline /></NIcon></template
+                ><NIcon :size="14"><ExternalLink /></NIcon></template
               >{{ i18n('popup_action_open') }}</NButton
             >
             <NButton
@@ -337,48 +339,61 @@ function submit() {
 <style scoped>
 .media-selection {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
+
 h3 {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   overflow-wrap: anywhere;
-  line-height: 1.45;
+  line-height: 1.4;
 }
+
 .media-meta {
-  color: var(--color-on-surface-variant);
+  color: var(--rb-text-muted);
   font-size: 12px;
 }
+
 .media-progress {
   display: flex;
   align-items: center;
   gap: 12px;
   font-size: 13px;
   min-height: 48px;
+  color: var(--rb-text-muted);
 }
+
 .n-form {
-  gap: 20px;
-}
-.selection-status {
-  display: grid;
   gap: 16px;
 }
+
+.selection-status {
+  display: grid;
+  gap: 14px;
+}
+
 .selection-stage {
   min-height: 48px;
 }
+
 .back-button {
   justify-self: start;
+  margin-inline-start: -6px;
 }
+
 .n-space {
   position: sticky;
   bottom: 0;
-  padding-block: 12px;
-  background: var(--color-surface);
+  padding-block: 10px;
+  background: var(--rb-canvas);
   z-index: 1;
 }
+
 .n-form-item {
   margin: 0;
 }
+
 .n-input-number {
   width: 100%;
 }

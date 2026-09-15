@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { NButton, NDescriptions, NDescriptionsItem, NIcon, NPopover, NTag } from 'naive-ui';
-import { ChevronForwardOutline } from '@vicons/ionicons5';
+import { ChevronRight } from '@lucide/vue';
 import type { DiagnosticEvent } from '@/lib/schema';
 import { useI18n } from '@/shared/i18n/engine';
 
@@ -36,7 +36,7 @@ function formatContextValue(value: string | number | boolean): string {
         :aria-label="i18n('options_diagnostics_view_details', 'View event details')"
       >
         <template #icon>
-          <NIcon :size="16"><ChevronForwardOutline /></NIcon>
+          <NIcon :size="16"><ChevronRight /></NIcon>
         </template>
       </NButton>
     </template>
@@ -82,7 +82,7 @@ function formatContextValue(value: string | number | boolean): string {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  color: var(--color-on-surface-variant);
+  color: var(--rb-text-muted);
   font-size: 12px;
 }
 
@@ -90,7 +90,7 @@ function formatContextValue(value: string | number | boolean): string {
   display: block;
   margin-top: 12px;
   overflow-wrap: anywhere;
-  color: var(--color-on-surface);
+  color: var(--rb-text);
   font-size: 13px;
   font-weight: 400;
 }
@@ -101,7 +101,7 @@ function formatContextValue(value: string | number | boolean): string {
 
 .diagnostic-details-section h4 {
   margin-bottom: 8px;
-  color: var(--color-on-surface-variant);
+  color: var(--rb-text-muted);
   font-size: 12px;
   font-weight: 500;
 }
@@ -109,7 +109,7 @@ function formatContextValue(value: string | number | boolean): string {
 .diagnostic-details-section p,
 .diagnostic-details-section code {
   overflow-wrap: anywhere;
-  font-family: var(--font-mono);
+  font-family: var(--rb-font-mono);
   font-size: 12px;
 }
 </style>

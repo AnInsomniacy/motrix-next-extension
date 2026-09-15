@@ -26,6 +26,7 @@ export async function createPlayerOverlay(
   mark.querySelector('title')?.remove();
   button.append(document.importNode(mark, true), label);
   const close = document.createElement('button');
+  close.className = 'close';
   close.textContent = '×';
   const ui = await createShadowRootUi(ctx, {
     name: 'rayburst-media-control',
@@ -33,10 +34,12 @@ export async function createPlayerOverlay(
     position: 'inline',
     isolateEvents: ['click', 'keydown', 'keyup', 'pointerdown'],
     css: `:host{position:fixed!important;z-index:2147483647!important;display:block!important}
-      div{display:flex;gap:4px;font:13px system-ui}
-      button{display:inline-flex;align-items:center;gap:6px;color-scheme:light dark;font:inherit;cursor:pointer;max-width:calc(100vw - 52px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid GrayText;border-radius:7px;padding:7px 10px;background:Canvas;color:CanvasText;transition:background-color .12s ease}
+      div{display:flex;gap:6px;font:500 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+      button{display:inline-flex;align-items:center;gap:7px;font:inherit;cursor:pointer;max-width:calc(100vw - 52px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:0;border-radius:999px;padding:8px 14px 8px 10px;background:linear-gradient(135deg,#a580ef 0%,#7945c8 100%);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.18),0 8px 22px -8px rgba(121,69,200,.6);transition:filter .12s ease,transform .12s ease}
+      button:hover{filter:brightness(1.06)}button:active{transform:scale(.98)}
+      button.close{padding:0;width:32px;justify-content:center;background:rgba(20,12,36,.72);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18)}
       svg{flex-shrink:0}span{overflow:hidden;text-overflow:ellipsis}
-      button:hover{background:ButtonFace}button:focus-visible{outline:2px solid Highlight;outline-offset:2px}
+      button:focus-visible{outline:2px solid #fff;outline-offset:2px}
       @media(prefers-reduced-motion:reduce){button{transition:none}}`,
     onMount(container) {
       const bar = document.createElement('div');
@@ -140,7 +143,7 @@ export async function createPlayerOverlay(
         wrapper.style.cssText =
           'position:fixed;z-index:2147483646;width:min(420px,100vw);height:min(480px,calc(100vh - 48px));';
         iframe.style.cssText =
-          'display:block;width:100%;height:100%;border:0;border-radius:8px;background:Canvas;box-shadow:0 4px 18px #0002;color-scheme:light dark;';
+          'display:block;width:100%;height:100%;border:0;border-radius:16px;background:Canvas;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 24px 64px -16px rgba(20,12,36,.45);color-scheme:light dark;';
       },
     });
     panel.mount();

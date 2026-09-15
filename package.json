@@ -31,11 +31,15 @@
     "brand:assets": "node scripts/generate-brand-assets.mjs"
   },
   "dependencies": {
-    "@material/material-color-utilities": "^0.4.0",
-    "@vicons/ionicons5": "^0.13.0",
+    "@fontsource-variable/geist": "5.3.0",
+    "@fontsource-variable/geist-mono": "5.3.0",
+    "@lucide/vue": "1.46.0",
     "content-disposition": "^1.1.0",
+    "culori": "4.0.2",
+    "d3-shape": "3.2.0",
     "ky": "^2.0.2",
     "lettercoder": "^0.1.1",
+    "motion-v": "2.4.2",
     "naive-ui": "^2.44.1",
     "picomatch": "^4.0.4",
     "sanitize-filename": "^1.6.4",
@@ -45,6 +49,8 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/content-disposition": "^0.5.9",
+    "@types/culori": "4.0.1",
+    "@types/d3-shape": "3.2.0",
     "@types/picomatch": "^4.0.3",
     "@vitejs/plugin-vue": "6.0.5",
     "@vitest/coverage-v8": "4.1.2",

@@ -12,8 +12,8 @@ media sources, then delegates transfers to Rayburst. Aria2 Next remains the engi
 - `lib/api.ts`, `lib/desktop.ts`: local HTTP API and activation-only Native Messaging.
 - `lib/download/`: interception and immutable handoff identity.
 - `lib/media/`: discovery, scoped request context and inspection coordination.
-- `shared/theme.ts`: Material colors, pre-mount bootstrap and Naive UI mapping.
-- `shared/color-schemes.ts`: preset seeds for theme and persistence validation.
+- `shared/theme.ts`: pre-mount bootstrap and the theme composable.
+- `shared/theme/`: accent schemes, the OKLCH color engine and Naive UI overrides.
 - `public/_locales/`: all 27 native browser locale bundles.
 
 No shared parent package, cross-repository tests or desktop source imports.
@@ -35,8 +35,12 @@ Do not add compatibility aliases, speculative repairs or obsolete API fallbacks.
 `assets/rayburst-connect.svg` is the logo source. WXT's official auto-icons module
 creates platform PNGs at build time; development retains full color.
 `pnpm brand:assets` exports local promotional graphics and the test-page favicon.
-UI uses SVG directly. Electric Purple (`#7B3ED1`) is the default Material seed.
-Warning, success, error and information retain distinct semantic roles.
+UI uses SVG directly. Electric Purple (`#7B3ED1`) is the default accent seed;
+`shared/theme/palette.ts` derives every role from it in OKLCH and writes `--rb-*`
+custom properties. Geist is bundled through fontsource, icons come from
+`@lucide/vue`, and Motion for Vue owns sliding indicators and the save bar.
+Warning, success, error and information retain distinct semantic roles. The
+visual language is shared with the desktop app; see docs/DESIGN.md.
 
 Update all 27 locales in one Python batch operation. Preserve placeholders and
 native message structure. English (en) is the schema. Run `pnpm lint:i18n`.

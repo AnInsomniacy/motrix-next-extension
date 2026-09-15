@@ -7,7 +7,8 @@ import { hostname } from '@/lib/media/detection';
 import { mediaFailureKey, mediaSize } from '@/lib/media/presentation';
 import { useI18n } from '@/shared/i18n/engine';
 const { t: i18n, effectiveLocale } = useI18n();
-import { DocumentOutline, ChevronForwardOutline } from '@vicons/ionicons5';
+import { ChevronRight, Film, Music, Radio, File, type LucideProps } from '@lucide/vue';
+import type { FunctionalComponent } from 'vue';
 import type { MediaSelection as Selection } from '@/lib/media/contracts';
 import { MEDIA_SESSION_KEY } from '@/lib/schema';
 import { usePolling } from '@/shared/use-polling';
@@ -19,6 +20,16 @@ const sourceScroll = ref<InstanceType<typeof window.HTMLElement>>();
 let scrollTop = 0;
 const props = defineProps<{ frame?: boolean; playerUrl?: string; active?: boolean }>();
 const send = (value: MediaCommand) => sendMediaCommand(value, props.frame);
+const KIND_ICONS: Record<string, FunctionalComponent<LucideProps>> = {
+  hls: Radio,
+  dash: Radio,
+  file: Film,
+  audio: Music,
+  embedded: File,
+};
+function kindIcon(kind: string): FunctionalComponent<LucideProps> {
+  return KIND_ICONS[kind] ?? File;
+}
 const panelRoot = ref<InstanceType<typeof window.HTMLElement>>();
 const state = ref<MediaList | null>(null);
 const tabId = ref<number | null>(null);
@@ -280,7 +291,9 @@ onUnmounted(() => {
                     :data-media-id="item.id"
                     @click="selectSource(item.id)"
                   >
-                    <NIcon :size="18"><DocumentOutline /></NIcon>
+                    <span class="media-tile" :data-kind="item.kind" aria-hidden="true">
+                      <NIcon :size="16"><component :is="kindIcon(item.kind)" /></NIcon>
+                    </span>
                     <span class="media-source-copy">
                       <strong
                         ><bdi>{{
@@ -302,7 +315,7 @@ onUnmounted(() => {
                         i18n('media_ready')
                       }}</span>
                     </span>
-                    <NIcon :size="14" class="source-chevron"><ChevronForwardOutline /></NIcon>
+                    <NIcon :size="14" class="source-chevron"><ChevronRight /></NIcon>
                   </button>
                   <NButton
                     size="tiny"
@@ -356,26 +369,30 @@ onUnmounted(() => {
 .media-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 0 16px 14px;
+  gap: 10px;
+  padding: 0 14px 14px;
   max-height: 440px;
   overflow: hidden;
 }
+
 .media-panel--frame {
   max-height: calc(100dvh - 24px);
   padding: 0;
 }
+
 .media-stage {
   position: relative;
   min-width: 0;
   min-height: 0;
   overflow: auto;
 }
+
 .media-source-view {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
+
 .media-toolbar {
   display: flex;
   justify-content: space-between;
@@ -383,91 +400,139 @@ onUnmounted(() => {
   gap: 16px;
   min-height: 30px;
 }
+
 .media-host {
   font-size: 12px;
-  color: var(--color-on-surface-variant);
+  font-weight: 500;
+  color: var(--rb-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .media-loading {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   min-height: 140px;
+  color: var(--rb-text-muted);
 }
+
 .source-scroll {
   max-height: 300px;
   overflow: auto;
   min-height: 80px;
 }
+
 .media-sources {
   list-style: none;
   margin: 0;
   padding: 0;
   position: relative;
+  border-radius: var(--rb-radius-card);
+  background: var(--rb-raised);
+  box-shadow: var(--rb-shadow-raised);
+  overflow: hidden;
 }
+
 .source-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 64px;
+  gap: 4px;
+  min-height: 60px;
+  padding-inline-end: 8px;
 }
+
+.source-row + .source-row {
+  border-top: 1px solid var(--rb-hairline);
+}
+
 .media-source {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 4px;
+  gap: 12px;
+  padding: 10px 8px 10px 12px;
   border: 0;
-  border-radius: 6px;
   background: transparent;
   text-align: start;
   cursor: pointer;
-  transition: background-color 120ms;
+  transition: background-color var(--rb-motion-feedback) var(--rb-ease);
 }
+
 .media-source:hover {
-  background: var(--color-hover);
+  background: var(--rb-hover);
 }
-.media-source > .n-icon {
-  flex-shrink: 0;
-  color: var(--color-on-surface-variant);
+
+.media-tile {
+  --tile: var(--rb-text-muted);
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: var(--tile);
+  background: color-mix(in srgb, var(--tile) 13%, transparent);
 }
+
+.media-tile[data-kind='hls'],
+.media-tile[data-kind='dash'] {
+  --tile: #e0447c;
+}
+
+.media-tile[data-kind='file'] {
+  --tile: var(--rb-accent);
+}
+
+.media-tile[data-kind='audio'] {
+  --tile: #d9418f;
+}
+
 .media-source-copy {
   flex: 1;
   min-width: 0;
   display: grid;
-  gap: 3px;
+  gap: 2px;
 }
+
 .media-source-copy strong {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 560;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .media-source-copy > span,
 .media-hint {
   font-size: 12px;
-  color: var(--color-on-surface-variant);
+  color: var(--rb-text-muted);
   overflow-wrap: anywhere;
 }
+
 .media-source-copy > .media-success {
-  color: var(--color-success);
+  color: var(--rb-success);
 }
+
+.source-chevron {
+  color: var(--rb-text-faint);
+}
+
 .media-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  padding-block: 12px 2px;
-  border-block-start: 1px solid var(--color-outline-variant);
+  gap: 12px;
+  padding-block: 4px 0;
 }
+
 .media-actions > :last-child {
   margin-inline-start: auto;
 }
+
 :dir(rtl) .source-chevron {
   transform: rotate(180deg);
 }

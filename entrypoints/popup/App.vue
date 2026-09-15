@@ -12,7 +12,9 @@ import {
   NTabPane,
   NCollapseTransition,
 } from 'naive-ui';
-import { PauseOutline, PlayOutline } from '@vicons/ionicons5';
+import { Pause, Play, ExternalLink, Unplug, KeyRound } from '@lucide/vue';
+import { LayoutGroup, motion } from 'motion-v';
+import BrandLogo from '@/shared/components/BrandLogo.vue';
 import { DesktopApiClient, checkConnection, type StatResponse } from '@/lib/api';
 import { loadSnapshot, updateSettings } from '@/lib/storage';
 import { parseDesktopActionResponse, type DesktopAction } from '@/lib/desktop';
@@ -43,6 +45,8 @@ const version = ref<string | null>(null);
 const errorType = ref<string | null>(null);
 const port = ref(DEFAULT_CONNECTION_CONFIG.port);
 const stat = ref<StatResponse | null>(null);
+const history = ref<number[]>([]);
+const HISTORY_LENGTH = 60;
 const enabled = ref(true);
 const toggling = ref(false);
 const opening = ref(false);
@@ -87,6 +91,10 @@ async function refresh(): Promise<boolean> {
     version.value = result.version;
     errorType.value = result.status === 'disconnected' ? result.error : null;
     stat.value = result.status === 'connected' ? result.stat : null;
+    history.value = [
+      ...history.value.slice(-(HISTORY_LENGTH - 1)),
+      result.status === 'connected' ? Number(result.stat.downloadSpeed) || 0 : 0,
+    ];
     if (result.status === 'connected') phase.value = 'connected';
     else if (!['launching', 'failed'].includes(phase.value)) phase.value = 'disconnected';
     return result.status === 'connected';
@@ -208,27 +216,49 @@ onUnmounted(() => {
         :version="version"
         @settings="openSettings"
       />
-      <NTabs
-        v-model:value="view"
-        type="line"
-        :animated="!reducedMotion"
-        :tabs-padding="16"
-        size="small"
-      >
-        <template #suffix>
-          <div class="interception-row">
-            <span>{{ t('options_enabled_label') }}</span>
-            <NSwitch
-              size="small"
-              :value="enabled"
-              :loading="toggling"
-              :disabled="phase === 'initializing'"
-              :aria-label="t('options_enabled_label')"
-              @update:value="toggleEnabled"
-            />
+      <div class="popup-tabs-row">
+        <LayoutGroup id="popup-tabs">
+          <div class="segments" role="tablist">
+            <button
+              v-for="tab in [
+                { key: 'overview', label: t('media_downloads') },
+                {
+                  key: 'media',
+                  label: mediaCount ? `${t('media_tab')} ${mediaCount}` : t('media_tab'),
+                },
+              ]"
+              :key="tab.key"
+              type="button"
+              role="tab"
+              class="segment"
+              :class="{ 'is-active': view === tab.key }"
+              :aria-selected="view === tab.key"
+              @click="view = tab.key"
+            >
+              <motion.span
+                v-if="view === tab.key"
+                layout-id="popup-tab"
+                class="segment-indicator"
+                aria-hidden="true"
+              />
+              <span>{{ tab.label }}</span>
+            </button>
           </div>
-        </template>
-        <NTabPane name="overview" :tab="t('media_downloads')" display-directive="show">
+        </LayoutGroup>
+        <label class="interception-row">
+          <span>{{ t('options_enabled_label') }}</span>
+          <NSwitch
+            size="small"
+            :value="enabled"
+            :loading="toggling"
+            :disabled="phase === 'initializing'"
+            :aria-label="t('options_enabled_label')"
+            @update:value="toggleEnabled"
+          />
+        </label>
+      </div>
+      <NTabs v-model:value="view" type="line" :animated="!reducedMotion" class="popup-panes">
+        <NTabPane name="overview" display-directive="show">
           <div class="overview">
             <div class="content-stage overview-stage">
               <Transition
@@ -236,22 +266,42 @@ onUnmounted(() => {
                 @before-enter="(el) => el.removeAttribute('inert')"
                 @before-leave="(el) => el.setAttribute('inert', '')"
               >
-                <StatDashboard v-if="phase === 'connected' && stat" key="connected" :stat="stat" />
+                <StatDashboard
+                  v-if="phase === 'connected' && stat"
+                  key="connected"
+                  :stat="stat"
+                  :history="history"
+                />
                 <div
                   v-else-if="phase === 'initializing' || phase === 'launching'"
                   key="waiting"
-                  class="connection-copy"
+                  class="connection-state"
                   role="status"
                 >
-                  <NSpin size="small" /><span>{{
-                    t(phase === 'launching' ? 'popup_launching_hint' : 'popup_status_connecting')
-                  }}</span>
+                  <span class="state-mark state-mark--brand"><BrandLogo :size="30" /></span>
+                  <p class="state-title">
+                    {{
+                      t(phase === 'launching' ? 'popup_launching_title' : 'popup_status_connecting')
+                    }}
+                  </p>
+                  <p class="hint">
+                    {{
+                      t(phase === 'launching' ? 'popup_launching_hint' : 'popup_status_connecting')
+                    }}
+                  </p>
+                  <NSpin size="small" class="state-spin" />
                 </div>
-                <div v-else key="unavailable" class="connection-copy">
-                  <div>
-                    <p>{{ unavailableTitle }}</p>
-                    <p class="hint">{{ unavailableHint }}</p>
-                  </div>
+                <div v-else key="unavailable" class="connection-state">
+                  <span
+                    class="state-mark"
+                    :class="{ 'state-mark--error': errorType === 'ApiAuthError' }"
+                  >
+                    <NIcon :size="24"
+                      ><KeyRound v-if="errorType === 'ApiAuthError'" /><Unplug v-else
+                    /></NIcon>
+                  </span>
+                  <p class="state-title">{{ unavailableTitle }}</p>
+                  <p class="hint">{{ unavailableHint }}</p>
                 </div>
               </Transition>
             </div>
@@ -263,7 +313,7 @@ onUnmounted(() => {
             <footer class="popup-actions">
               <div class="settings-actions">
                 <NButton
-                  text
+                  quaternary
                   size="small"
                   :disabled="phase !== 'connected' || Boolean(taskAction)"
                   :loading="taskAction === 'PAUSE_ALL'"
@@ -271,11 +321,11 @@ onUnmounted(() => {
                   :title="t('popup_action_pause_all')"
                   @click="runTaskAction('PAUSE_ALL')"
                   ><template #icon
-                    ><NIcon :size="14"><PauseOutline /></NIcon></template
+                    ><NIcon :size="14"><Pause /></NIcon></template
                   >{{ t('popup_action_pause_all') }}</NButton
                 >
                 <NButton
-                  text
+                  quaternary
                   size="small"
                   :disabled="phase !== 'connected' || Boolean(taskAction)"
                   :loading="taskAction === 'RESUME_ALL'"
@@ -283,13 +333,13 @@ onUnmounted(() => {
                   :title="t('popup_action_resume_all')"
                   @click="runTaskAction('RESUME_ALL')"
                   ><template #icon
-                    ><NIcon :size="14"><PlayOutline /></NIcon></template
+                    ><NIcon :size="14"><Play /></NIcon></template
                   >{{ t('popup_action_resume_all') }}</NButton
                 >
               </div>
               <NButton
                 v-if="errorType === 'ApiAuthError' && phase !== 'connected'"
-                text
+                size="small"
                 type="primary"
                 @click="openSettings"
                 >{{ t('popup_action_settings') }}</NButton
@@ -301,15 +351,22 @@ onUnmounted(() => {
                 :loading="opening"
                 :disabled="phase === 'initializing'"
                 @click="openApp"
-                >{{ t(phase === 'failed' ? 'popup_action_retry' : 'popup_action_open') }}</NButton
+                ><template #icon
+                  ><NIcon :size="14"><ExternalLink /></NIcon></template
+                >{{
+                  t(
+                    phase === 'failed'
+                      ? 'popup_action_retry'
+                      : phase === 'connected'
+                        ? 'popup_action_open'
+                        : 'popup_action_launch',
+                  )
+                }}</NButton
               >
             </footer>
           </div>
         </NTabPane>
-        <NTabPane
-          name="media"
-          :tab="`${t('media_tab')}${mediaCount ? ` ${mediaCount}` : ''}`"
-          display-directive="show"
+        <NTabPane name="media" display-directive="show"
           ><MediaPanel :active="view === 'media'" @count="mediaCount = $event"
         /></NTabPane>
       </NTabs>
@@ -319,46 +376,141 @@ onUnmounted(() => {
 <style scoped>
 .popup-root {
   width: 420px;
-  font: 13px/1.5 var(--font-sans);
   max-height: 600px;
   overflow: auto;
-  background: var(--color-surface);
-  color: var(--color-on-surface);
+  background: var(--rb-canvas);
+  color: var(--rb-text);
 }
-.overview {
-  padding: 0 16px 14px;
+
+.popup-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 14px 10px;
 }
+
+.segments {
+  position: relative;
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--rb-radius-control);
+  background: var(--rb-fill);
+}
+
+.segment {
+  position: relative;
+  min-height: 26px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: calc(var(--rb-radius-control) - 2px);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--rb-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--rb-motion-feedback) var(--rb-ease);
+}
+
+.segment:hover,
+.segment.is-active {
+  color: var(--rb-text);
+}
+
+.segment-indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--rb-raised);
+  box-shadow: var(--rb-shadow-raised);
+}
+
+.segment > span {
+  position: relative;
+}
+
 .interception-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-inline: 12px 16px;
   font-size: 12px;
+  color: var(--rb-text-muted);
+  cursor: pointer;
 }
-.interception-row > .n-switch {
-  margin-inline-start: auto;
+
+.popup-panes :deep(.n-tabs-nav) {
+  display: none;
 }
+
+.popup-panes :deep(.n-tab-pane) {
+  padding: 0 !important;
+}
+
+.overview {
+  padding: 0 14px 14px;
+}
+
 .overview-stage {
-  min-height: 108px;
+  min-height: 150px;
 }
-.connection-copy {
+
+.connection-state {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 12px;
-  min-height: 108px;
-  padding-block: 12px;
+  gap: 4px;
+  min-height: 150px;
+  padding: 14px 16px;
+  border-radius: var(--rb-radius-card);
+  background: var(--rb-raised);
+  box-shadow: var(--rb-shadow-raised);
 }
-.connection-copy .hint {
-  margin-block-start: 6px;
+
+.state-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+  border-radius: 16px;
+  color: var(--rb-text-muted);
+  background: var(--rb-fill);
 }
+
+.state-mark--brand::before {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--rb-glow), transparent 72%);
+  z-index: -1;
+}
+
+.state-mark--error {
+  color: var(--rb-danger);
+  background: var(--rb-danger-soft);
+}
+
+.state-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.state-spin {
+  margin-top: 8px;
+}
+
 .popup-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding-block-start: 8px;
+  padding-block-start: 10px;
 }
 </style>

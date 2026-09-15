@@ -17,7 +17,7 @@
 import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
 import { browser } from 'wxt/browser';
 import type { UiPrefs as InitialUiPrefs } from '@/lib/schema';
-import { OpenOutline, InformationCircleOutline } from '@vicons/ionicons5';
+import { ExternalLink, Info } from '@lucide/vue';
 import { parseDesktopActionResponse } from '@/lib/desktop';
 import { NConfigProvider, NButton, NPopover, NIcon, createDiscreteApi } from 'naive-ui';
 import {
@@ -53,7 +53,7 @@ import {
   requestCookieForwardingAccess,
   requestDownloadUiAccess,
 } from '@/lib/browser';
-import { CUSTOM_COLOR_SCHEME_ID, normalizeCustomColorScheme } from '@/shared/color-schemes';
+import { CUSTOM_COLOR_SCHEME_ID, normalizeCustomColorScheme } from '@/shared/theme/schemes';
 import { deepEqual, jsonClone } from '@/shared/json';
 import { useAppTheme } from '@/shared/theme';
 import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
@@ -653,20 +653,27 @@ onUnmounted(() => {
     <div class="options-root" :dir="['ar', 'fa'].includes(effectiveLocale) ? 'rtl' : 'ltr'">
       <aside class="options-sidebar">
         <div class="options-brand">
-          <BrandLogo :size="30" /><span>Rayburst<span class="brand-edition">Connect</span></span>
+          <BrandLogo :size="30" class="brand-mark" /><span class="brand-copy"
+            >Rayburst<span class="brand-edition">Connect</span></span
+          >
         </div>
         <OptionsNav :active="activeSection" @select="selectSection" />
         <div class="sidebar-footer">
-          <NButton text :loading="opening" @click="openDesktop"
+          <NButton
+            quaternary
+            size="small"
+            class="footer-link"
+            :loading="opening"
+            @click="openDesktop"
             ><template #icon
-              ><NIcon :size="16"><OpenOutline /></NIcon></template
+              ><NIcon :size="15"><ExternalLink /></NIcon></template
             >{{ i18n('popup_action_open') }}</NButton
           >
           <NPopover trigger="click" placement="right-end"
             ><template #trigger
-              ><NButton text
+              ><NButton quaternary size="small" class="footer-link"
                 ><template #icon
-                  ><NIcon :size="16"><InformationCircleOutline /></NIcon></template
+                  ><NIcon :size="15"><Info /></NIcon></template
                 >{{ i18n('options_about') }}</NButton
               ></template
             >{{ i18nSub('options_footer', [extensionVersion]) }}</NPopover
@@ -812,49 +819,70 @@ onUnmounted(() => {
   display: flex;
   min-height: 360px;
   height: 100dvh;
-  font: 14px/1.5 var(--font-sans);
-  background: var(--color-surface);
-  color: var(--color-on-surface);
+  background: var(--rb-canvas);
+  color: var(--rb-text);
 }
+
 .options-sidebar {
-  flex: 0 0 180px;
+  flex: 0 0 224px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 28px 12px 20px;
-  background: var(--color-surface-container-low);
+  gap: 20px;
+  padding: 22px 12px 16px;
+  background: var(--rb-sidebar);
+  border-inline-end: 1px solid var(--rb-hairline);
 }
+
 .options-brand {
   display: flex;
   align-items: center;
   gap: 10px;
   padding-inline: 8px;
+}
+
+.brand-mark {
+  flex: none;
+  filter: drop-shadow(0 2px 6px var(--rb-glow));
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
   font-size: 15px;
-  font-weight: 500;
-  line-height: 1.25;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
+
 .brand-edition {
-  display: block;
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--color-on-surface-variant);
-  margin-block-start: 2px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--rb-text-muted);
 }
+
 .sidebar-footer {
   margin-block-start: auto;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 18px;
-  padding: 16px 8px 0;
-  border-block-start: 1px solid var(--color-outline-variant);
+  align-items: stretch;
+  gap: 2px;
+  padding-top: 12px;
+  border-block-start: 1px solid var(--rb-hairline);
 }
+
+.footer-link {
+  justify-content: flex-start;
+}
+
 .options-body {
   flex: 1;
   min-width: 0;
+  position: relative;
   display: flex;
   flex-direction: column;
 }
+
 .options-pages {
   flex: 1;
   min-height: 0;
@@ -862,19 +890,25 @@ onUnmounted(() => {
   display: grid;
   overflow: hidden;
 }
+
 @media (max-width: 640px) {
   .options-root {
     flex-direction: column;
   }
+
   .options-sidebar {
     flex: none;
     gap: 12px;
-    padding: 16px;
+    padding: 14px 16px;
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--rb-hairline);
   }
+
   .sidebar-footer {
     flex-direction: row;
     margin: 0;
     padding: 0;
+    border: 0;
   }
 }
 </style>

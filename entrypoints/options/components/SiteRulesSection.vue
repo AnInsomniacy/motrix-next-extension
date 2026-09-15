@@ -2,7 +2,7 @@
 /** Site rules management section. */
 import { ref, computed } from 'vue';
 import { NInput, NSelect, NButton, NIcon, NFormItem } from 'naive-ui';
-import { CloseOutline, AddOutline } from '@vicons/ionicons5';
+import { X, Plus } from '@lucide/vue';
 import type { SiteRule } from '@/lib/schema';
 
 const props = defineProps<{
@@ -63,7 +63,7 @@ async function handleAdd(): Promise<void> {
           :title="i18n('options_remove_rule')"
           @click="emit('remove', rule.id)"
         >
-          <NIcon :size="16"><CloseOutline /></NIcon>
+          <NIcon :size="16"><X /></NIcon>
         </button>
       </li>
     </TransitionGroup>
@@ -83,7 +83,7 @@ async function handleAdd(): Promise<void> {
       /></NFormItem>
       <NButton @click="handleAdd" :disabled="!newPattern.trim()" :loading="adding"
         ><template #icon
-          ><NIcon :size="16"><AddOutline /></NIcon></template
+          ><NIcon :size="16"><Plus /></NIcon></template
         >{{ i18n('options_add_rule') }}</NButton
       >
     </div>

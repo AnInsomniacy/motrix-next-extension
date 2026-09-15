@@ -2,7 +2,7 @@
 /** Connection settings section. */
 import { computed, shallowRef, watch } from 'vue';
 import { NInput, NInputNumber, NButton, NIcon, NCollapseTransition } from 'naive-ui';
-import { CheckmarkCircleOutline, CloseCircleOutline } from '@vicons/ionicons5';
+import { CircleCheck, CircleX } from '@lucide/vue';
 import type { ConnectionStatus } from '@/lib/api';
 import SettingsRow from './SettingsRow.vue';
 import { DEFAULT_CONNECTION_CONFIG } from '@/lib/schema';
@@ -120,9 +120,7 @@ watch(
             class="feedback-result"
             :class="feedback.error ? 'feedback--error' : 'feedback--success'"
           >
-            <NIcon :size="16"
-              ><CloseCircleOutline v-if="feedback.error" /><CheckmarkCircleOutline v-else
-            /></NIcon>
+            <NIcon :size="16"><CircleX v-if="feedback.error" /><CircleCheck v-else /></NIcon>
             <span
               >{{ feedback.message
               }}<bdi v-if="feedback.version">{{ `\u00a0v${feedback.version}` }}</bdi></span

@@ -60,20 +60,30 @@ watch(
   padding: 0;
   border: 0;
 }
-.settings-page-enter-active,
-.settings-page-leave-active {
-  transition: opacity 160ms ease;
+.settings-page-enter-active {
+  transition:
+    opacity var(--rb-motion-view) var(--rb-ease),
+    transform var(--rb-motion-view) var(--rb-ease);
 }
-.settings-page-enter-from,
+.settings-page-leave-active {
+  transition:
+    opacity var(--rb-motion-exit) var(--rb-ease-exit),
+    transform var(--rb-motion-exit) var(--rb-ease-exit);
+}
+.settings-page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
 .settings-page-leave-to {
   opacity: 0;
+  transform: translateY(-4px);
 }
 .settings-page-leave-active {
   pointer-events: none;
 }
 @media (max-width: 640px) {
   .options-content {
-    padding: 24px 20px;
+    padding: 20px 16px 120px;
   }
 }
 </style>

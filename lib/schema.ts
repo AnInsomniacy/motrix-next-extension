@@ -2,7 +2,7 @@ import {
   COLOR_SCHEMES,
   CUSTOM_COLOR_SCHEME_ID,
   normalizeCustomColorScheme,
-} from '@/shared/color-schemes';
+} from '@/shared/theme/schemes';
 /**
  * Single source of truth for every persisted data structure.
  *

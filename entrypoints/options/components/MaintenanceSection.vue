@@ -14,13 +14,7 @@ import {
   type DataTableColumns,
   type PaginationProps,
 } from 'naive-ui';
-import {
-  CloudDownloadOutline,
-  CloudUploadOutline,
-  DownloadOutline,
-  RefreshOutline,
-  TrashOutline,
-} from '@vicons/ionicons5';
+import { CloudDownload, CloudUpload, Download, RefreshCw, Trash2 } from '@lucide/vue';
 import {
   DIAGNOSTIC_EVENT_LIMIT_MAX,
   DIAGNOSTIC_EVENT_LIMIT_MIN,
@@ -223,13 +217,13 @@ function formatDateTime(ts: number): string {
       <div class="maintenance-actions">
         <NButton size="small" @click="emit('exportSettings')">
           <template #icon>
-            <NIcon :size="14"><CloudDownloadOutline /></NIcon>
+            <NIcon :size="14"><CloudDownload /></NIcon>
           </template>
           {{ i18n('options_settings_backup_export', 'Export Settings') }}
         </NButton>
         <NButton size="small" @click="chooseBackupFile">
           <template #icon>
-            <NIcon :size="14"><CloudUploadOutline /></NIcon>
+            <NIcon :size="14"><CloudUpload /></NIcon>
           </template>
           {{ i18n('options_settings_backup_import', 'Import Settings') }}
         </NButton>
@@ -241,7 +235,7 @@ function formatDateTime(ts: number): string {
           <template #trigger
             ><NButton size="small"
               ><template #icon
-                ><NIcon :size="14"><RefreshOutline /></NIcon></template
+                ><NIcon :size="14"><RefreshCw /></NIcon></template
               >{{ i18n('options_factory_reset_button') }}</NButton
             ></template
           >
@@ -316,7 +310,7 @@ function formatDateTime(ts: number): string {
         <div class="maintenance-actions diagnostics-actions">
           <NButton size="small" @click="emit('exportDiagnostics')">
             <template #icon>
-              <NIcon :size="14"><DownloadOutline /></NIcon>
+              <NIcon :size="14"><Download /></NIcon>
             </template>
             {{ i18n('options_diagnostics_export', 'Export Report') }}
           </NButton>
@@ -328,7 +322,7 @@ function formatDateTime(ts: number): string {
             <template #trigger
               ><NButton size="small" :disabled="!events.length"
                 ><template #icon
-                  ><NIcon :size="14"><TrashOutline /></NIcon></template
+                  ><NIcon :size="14"><Trash2 /></NIcon></template
                 >{{ i18n('options_diagnostics_clear') }}</NButton
               ></template
             >
@@ -410,7 +404,7 @@ function formatDateTime(ts: number): string {
 }
 
 .diagnostics-table :deep(.diagnostic-code) {
-  font-family: var(--font-mono);
+  font-family: var(--rb-font-mono);
   font-weight: 400;
 }
 
