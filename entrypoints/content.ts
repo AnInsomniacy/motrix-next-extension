@@ -43,7 +43,7 @@ export default defineContentScript({
           await updateLabels();
           const created = await createPlayerOverlay(
             ctx,
-            (key) => labels[key.replace('media_', '')] ?? 'Motrix Next',
+            (key) => labels[key.replace('media_', '')] ?? 'Rayburst',
           );
           if (invalidated || !settings.mediaDiscovery.enabled) created.stop();
           else overlay = created;

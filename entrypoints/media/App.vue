@@ -30,7 +30,7 @@ onMounted(() => {
   browser.storage.onChanged.addListener(changed);
 });
 function closeOnEscape(event: InstanceType<typeof window.KeyboardEvent>) {
-  if (event.key === 'Escape') window.parent.postMessage('MOTRIX_MEDIA_CLOSE', '*');
+  if (event.key === 'Escape') window.parent.postMessage('RAYBURST_MEDIA_CLOSE', '*');
 }
 onUnmounted(() => {
   browser.storage.onChanged.removeListener(changed);

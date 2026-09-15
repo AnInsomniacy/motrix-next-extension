@@ -88,6 +88,7 @@ export const MediaPresentationSchema = z
   });
 
 export const MediaCapabilitiesSchema = z.strictObject({
+  product: z.literal('rayburst'),
   protocolVersion: z.literal(MEDIA_PROTOCOL_VERSION),
   sourceKinds: z.array(MediaSourceKindSchema).min(1).max(2),
   requestContexts: z.literal(true),

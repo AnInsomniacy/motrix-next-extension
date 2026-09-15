@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   resolve-version:
+    if: vars.RAYBURST_STORE_PUBLISHING_ENABLED == 'true'
     name: Resolve Version
     runs-on: ubuntu-24.04
     timeout-minutes: 2
@@ -184,6 +185,7 @@ jobs:
         id: publish
         working-directory: source
         env:
+          EDGE_EXTENSION_ID: ${{ vars.EDGE_EXTENSION_ID }}
           EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
           EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}

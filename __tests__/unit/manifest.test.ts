@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createHash } from 'node:crypto';
 import {
-  CHROME_EXTENSION_ID,
-  CHROME_EXTENSION_PUBLIC_KEY,
+  CHROMIUM_EXTENSION_ID,
+  CHROMIUM_EXTENSION_PUBLIC_KEY,
   buildExtensionManifest,
 } from '@/shared/manifest';
 
@@ -18,30 +18,30 @@ function extensionIdFromPublicKey(publicKey: string): string {
 describe('buildExtensionManifest', () => {
   it('uses a single background writer and a private-browsing mode supported by both browsers', () => {
     for (const browser of ['chromium', 'firefox']) {
-      expect(buildExtensionManifest(browser, 'production').incognito).toBe('spanning');
+      expect(buildExtensionManifest(browser).incognito).toBe('spanning');
     }
   });
   it('requires Native Messaging on Chromium', () => {
-    const manifest = buildExtensionManifest('chromium', 'production');
+    const manifest = buildExtensionManifest('chromium');
 
     expect(manifest.permissions).toContain('nativeMessaging');
     expect(manifest.permissions).not.toContain('webRequestBlocking');
   });
 
-  it('pins Chromium development builds to the Chrome Web Store identity', () => {
-    const manifest = buildExtensionManifest('chrome', 'development');
+  it('pins unpacked Chromium builds to the Rayburst Connect identity', () => {
+    const manifest = buildExtensionManifest('chrome');
 
-    expect(manifest.key).toBe(CHROME_EXTENSION_PUBLIC_KEY);
-    expect(extensionIdFromPublicKey(CHROME_EXTENSION_PUBLIC_KEY)).toBe(CHROME_EXTENSION_ID);
+    expect(manifest.key).toBe(CHROMIUM_EXTENSION_PUBLIC_KEY);
+    expect(extensionIdFromPublicKey(CHROMIUM_EXTENSION_PUBLIC_KEY)).toBe(CHROMIUM_EXTENSION_ID);
   });
 
-  it('leaves store identities to Chromium production packages', () => {
-    expect(buildExtensionManifest('chrome', 'production').key).toBeUndefined();
-    expect(buildExtensionManifest('edge', 'production').key).toBeUndefined();
+  it('keeps packaged builds usable for local browser verification', () => {
+    expect(buildExtensionManifest('chrome').key).toBe(CHROMIUM_EXTENSION_PUBLIC_KEY);
+    expect(buildExtensionManifest('edge').key).toBe(CHROMIUM_EXTENSION_PUBLIC_KEY);
   });
 
   it('requires Native Messaging and response blocking on Firefox', () => {
-    const manifest = buildExtensionManifest('firefox', 'development');
+    const manifest = buildExtensionManifest('firefox');
 
     expect(manifest.permissions).toContain('nativeMessaging');
     expect(manifest.permissions).toContain('webRequestBlocking');

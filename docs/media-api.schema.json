@@ -6,6 +6,7 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "product": { "type": "string", "const": "rayburst" },
         "protocolVersion": { "type": "number", "const": 1 },
         "sourceKinds": {
           "minItems": 1,
@@ -15,7 +16,7 @@
         },
         "requestContexts": { "type": "boolean", "const": true }
       },
-      "required": ["protocolVersion", "sourceKinds", "requestContexts"],
+      "required": ["product", "protocolVersion", "sourceKinds", "requestContexts"],
       "additionalProperties": false
     },
     "probeRequest": {

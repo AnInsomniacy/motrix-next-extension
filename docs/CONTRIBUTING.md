@@ -1,4 +1,4 @@
-# Motrix Next Extension Contributing Guide
+# Rayburst Connect Contributing Guide
 
 Maintained by [@AnInsomniacy](https://github.com/AnInsomniacy). PRs and issues are welcome!
 
@@ -10,13 +10,13 @@ Before you start contributing, make sure you understand [GitHub flow](https://gu
 
 - [Node.js](https://nodejs.org/) 24.16.0 LTS
 - [pnpm](https://pnpm.io/) 10.34.1
-- [Motrix Next](https://github.com/AnInsomniacy/motrix-next) desktop app running with RPC enabled (for manual testing)
+- [Rayburst](https://github.com/AnInsomniacy/rayburst) desktop app running with its Extension API enabled (for manual testing)
 
 ### Getting Started
 
 ```bash
-git clone https://github.com/AnInsomniacy/motrix-next-extension.git
-cd motrix-next-extension
+git clone https://github.com/AnInsomniacy/rayburst-connect.git
+cd rayburst-connect
 pnpm install
 pnpm dev    # Launch Chrome with the development extension and hot reload
 ```

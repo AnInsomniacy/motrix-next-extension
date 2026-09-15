@@ -19,6 +19,7 @@ async function fixture() {
   let key = 'connection-one';
   const settings = parseDownloadSettings({ forwardCookies: false });
   vi.spyOn(client, 'mediaCapabilities').mockResolvedValue({
+    product: 'rayburst',
     protocolVersion: 1,
     sourceKinds: ['hls', 'dash'],
     requestContexts: true,

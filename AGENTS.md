@@ -1,4 +1,4 @@
-# AGENTS.md — Motrix Next Extension
+# AGENTS.md — Rayburst Connect
 
 > This file provides context and instructions for AI coding agents.
 > For human contributors, see [README.md](README.md) and [CONTRIBUTING.md](docs/CONTRIBUTING.md).
@@ -58,7 +58,7 @@ shared/
 ├── json.ts                      # jsonClone / deepEqual for JSON-safe data
 ├── use-polling.ts               # Visibility-aware polling with backoff
 ├── manifest.ts                  # Manifest builder (per-browser permissions)
-└── components/                  # NextLogo, CollapsePanel
+└── components/                  # BrandLogo, CollapsePanel
 
 __tests__/                       # Behavior-level unit + integration tests
 public/_locales/                 # Chrome i18n bundles (27 languages, SSOT)
@@ -261,8 +261,8 @@ git tag -d v1.0.6
 
 ### Build Artifact
 
-`pnpm zip` produces `motrix-next-extension-{version}-chromium-mv3.zip` for Chromium browsers.
-`pnpm zip:firefox` produces `motrix-next-extension-{version}-firefox-mv3.zip` for Firefox.
+`pnpm zip` produces `rayburst-connect-{version}-chromium-mv3.zip` for Chromium browsers.
+`pnpm zip:firefox` produces `rayburst-connect-{version}-firefox-mv3.zip` for Firefox.
 
 ### Release Notes Conventions
 
@@ -367,3 +367,14 @@ All checks must pass with zero errors before any PR or release.
 > header/filename heuristics, and real bug regressions (e.g. the stale-download state
 > guard, #267). Do not write tests that merely mirror an implementation or assert that a
 > one-line wrapper forwards its arguments.
+
+## Brand and delivery
+
+Use the supplied SVG master and purple seed `#7B3ED1`. Keep all implementation
+comments, documentation and new brand copy in English. Existing interface translations
+remain supported. Product names and approved slogans are invariant. Review prose with Sepia.
+
+Follow `docs/BRAND.md` and `docs/RELEASING.md`. Store identities and update signing must
+be configured explicitly for Rayburst. Local verification never submits to a store,
+publishes a website, changes remotes or starts release automation. Native end-to-end
+acceptance belongs to the user. Work on the current branch; do not spawn agents.

@@ -1,3 +1,4 @@
+import identity from '../../browser-identity.json';
 import { appendFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -101,4 +102,16 @@ export function escapeCode(value: string): string {
   return String(value || '-')
     .replaceAll('`', '\\`')
     .replaceAll('\n', ' ');
+}
+
+export function requireStoreIdentity(
+  store: 'chromeId' | 'edgeId' | 'firefoxSlug',
+  value: string,
+): void {
+  const configuredIdentity: string | null = identity.stores[store];
+  if (!configuredIdentity || configuredIdentity !== value) {
+    throw new Error(
+      `Rayburst Connect ${store} is unset or does not match the requested store target`,
+    );
+  }
 }

@@ -3,7 +3,7 @@
 The desktop provides protocol 2 in `services/downloads/contracts.rs`. This
 repository owns its consumer validators in `lib/download/contracts.ts`; it does
 not import desktop source or run desktop fixtures. The provider's full contract
-is documented in [Download ownership](https://github.com/AnInsomniacy/motrix-next/blob/main/docs/DOWNLOADS.md).
+is documented in [Download ownership](https://github.com/AnInsomniacy/rayburst/blob/main/docs/DOWNLOADS.md).
 
 Before `POST /add`, check authenticated `GET /downloads/capabilities` for
 `protocolVersion: 2` and `filenameHints: true`. An old queued response is not a
@@ -37,3 +37,14 @@ receipt identity, ambiguous delivery and worker restart. Run `pnpm compile`,
 `pnpm test --maxWorkers=4`, lint, i18n, format checks and Chromium/Firefox builds.
 Manual acceptance uses separately built extension, desktop and engine applications;
 there is no parent workspace package or cross-repository test runner.
+
+## Product identity
+
+The desktop advertises `product: "rayburst"` in `/ping`, download capabilities and
+media capabilities. Rayburst Connect validates that field and sends
+`X-Rayburst-Client: rayburst-connect` on authenticated requests. Browser-origin
+requests without that header are rejected. Native clients without an Origin header
+continue to authenticate with the Extension API secret.
+
+The `rayburst://` scheme activates the desktop only. It never creates a download or
+transports cookies. Downloads use the authenticated HTTP handoff and its receipts.

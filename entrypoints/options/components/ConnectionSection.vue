@@ -29,7 +29,7 @@ const isConnected = computed(() => props.status === 'connected');
 
 /** Map API error names to translated messages. */
 const ERROR_I18N: Record<string, [key: string, fallback: string]> = {
-  ApiUnreachableError: ['error_api_unreachable', 'Cannot connect to Motrix Next'],
+  ApiUnreachableError: ['error_api_unreachable', 'Cannot connect to Rayburst'],
   ApiAuthError: ['error_api_auth', 'API secret is incorrect'],
   ApiTimeoutError: ['error_api_timeout', 'Connection timed out'],
   UnknownError: ['error_unknown', 'An unknown error occurred'],
@@ -87,7 +87,7 @@ const errorMessage = computed(() => {
           class="section__feedback section__feedback--ok"
         >
           <NIcon :size="16"><CheckmarkCircleOutline /></NIcon>
-          {{ i18n('options_connection_success_prefix', 'Connected · Motrix Next') }}
+          {{ i18n('options_connection_success_prefix', 'Connected · Rayburst') }}
           <NTag size="small" round>v{{ version }}</NTag>
         </span>
         <span v-else-if="error" key="err" class="section__feedback section__feedback--err">

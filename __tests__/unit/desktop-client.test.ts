@@ -39,7 +39,8 @@ describe('DesktopApiClient', () => {
 
   it('uses the configured port and keeps ping unauthenticated', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(
-      async () => new Response(JSON.stringify({ status: 'ok', version: '1.0.0' })),
+      async () =>
+        new Response(JSON.stringify({ product: 'rayburst', status: 'ok', version: '1.0.0' })),
     );
 
     await client.ping();
@@ -54,7 +55,9 @@ describe('DesktopApiClient', () => {
   it('submits the complete download contract with bearer authentication', async () => {
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(
-        new Response(JSON.stringify({ protocolVersion: 2, filenameHints: true })),
+        new Response(
+          JSON.stringify({ product: 'rayburst', protocolVersion: 2, filenameHints: true }),
+        ),
       )
       .mockResolvedValueOnce(
         new Response(JSON.stringify({ id: 'request', action: 'submitted', gid: 'gid' })),
@@ -79,6 +82,23 @@ describe('DesktopApiClient', () => {
     expect(requestAt(1).method).toBe('POST');
     expect(requestAt(1).headers.get('authorization')).toBe('Bearer secret');
     await expect(jsonBody(requestAt(1))).resolves.toEqual(payload);
+  });
+
+  it('rejects another product before submitting a download', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          product: 'another-product',
+          protocolVersion: 2,
+          filenameHints: true,
+        }),
+      ),
+    );
+    await expect(
+      client.addDownload({ id: 'isolated', url: 'https://example.test/file' }),
+    ).rejects.toThrow();
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(requestAt(0).method).toBe('GET');
   });
 
   it('uses the authenticated stat and task-control endpoints', async () => {
@@ -152,6 +172,9 @@ describe('DesktopApiClient', () => {
 
   it('reports readiness without throwing', async () => {
     vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ product: 'rayburst', status: 'ok', version: '1.0.0' })),
+      )
       .mockResolvedValueOnce(new Response(JSON.stringify(stat)))
       .mockResolvedValueOnce(new Response('Unavailable', { status: 503 }));
 
@@ -162,7 +185,9 @@ describe('DesktopApiClient', () => {
     const payload = { id: 'durable', url: 'https://example.test/file', filename: 'literal%20.zip' };
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
       if ((input as Request).url.endsWith('/capabilities'))
-        return new Response(JSON.stringify({ protocolVersion: 2, filenameHints: true }));
+        return new Response(
+          JSON.stringify({ product: 'rayburst', protocolVersion: 2, filenameHints: true }),
+        );
       throw new TypeError('reply lost');
     });
     await expect(client.addDownload(payload)).rejects.toBeInstanceOf(ApiDeliveryUncertainError);
@@ -174,7 +199,7 @@ describe('DesktopApiClient', () => {
         new Response(
           JSON.stringify(
             (input as Request).url.endsWith('/capabilities')
-              ? { protocolVersion: 2, filenameHints: true }
+              ? { product: 'rayburst', protocolVersion: 2, filenameHints: true }
               : { id: 'durable', action: 'submitted', gid: 'original' },
           ),
         ),

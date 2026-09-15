@@ -20,7 +20,7 @@ export async function createPlayerOverlay(
   const close = document.createElement('button');
   close.textContent = '×';
   const ui = await createShadowRootUi(ctx, {
-    name: 'motrix-media-control',
+    name: 'rayburst-media-control',
     mode: 'closed',
     position: 'inline',
     isolateEvents: ['click', 'keydown', 'keyup', 'pointerdown'],
@@ -36,7 +36,7 @@ export async function createPlayerOverlay(
     },
   });
   function localize() {
-    button.textContent = `${translate('media_download')} · Motrix Next`;
+    button.textContent = `${translate('media_download')} · Rayburst`;
     button.setAttribute('aria-expanded', String(Boolean(panel)));
     close.setAttribute('aria-label', translate('media_close'));
     if (panel) panel.iframe.title = translate('media_options');
@@ -155,7 +155,7 @@ export async function createPlayerOverlay(
     if (
       panel &&
       event.source === panel.iframe.contentWindow &&
-      event.data === 'MOTRIX_MEDIA_CLOSE'
+      event.data === 'RAYBURST_MEDIA_CLOSE'
     ) {
       closePanel();
       button.focus();

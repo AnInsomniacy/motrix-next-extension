@@ -132,7 +132,20 @@ const SiteRulesSchema = filteredArray(SiteRuleSchema);
 const UiPrefsSchema = lenient(
   z.object({
     theme: z.enum(['system', 'light', 'dark']).catch('system'),
-    colorScheme: z.string().catch('amber'),
+    colorScheme: z
+      .enum([
+        'rayburst',
+        'amber',
+        'space',
+        'mint',
+        'rose',
+        'coral',
+        'glacier',
+        'evergreen',
+        'graphite',
+        'sakura',
+      ])
+      .catch('rayburst'),
     locale: z.string().catch('auto'),
   }),
 );
@@ -228,7 +241,7 @@ const StorageSnapshotSchema = lenient(
 
 export type StorageSnapshot = z.output<typeof StorageSnapshotSchema>;
 
-export const SETTINGS_BACKUP_KIND = 'motrix-next-extension-settings';
+export const SETTINGS_BACKUP_KIND = 'rayburst-connect-settings';
 
 export const SettingsBackupSchema = z.strictObject({
   kind: z.literal(SETTINGS_BACKUP_KIND),

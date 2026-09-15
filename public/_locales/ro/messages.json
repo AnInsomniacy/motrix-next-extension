@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Motrix Next Extension",
+    "message": "Rayburst Connect",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "Trimiteți descărcările din browser către Motrix Next — un manager modern de descărcări bazat pe aria2",
+    "message": "Trimiteți descărcările din browser către Rayburst — un manager modern de descărcări bazat pe aria2",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Pornește Motrix Next",
+    "message": "Pornește Rayburst",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Deschide Motrix Next",
+    "message": "Deschide Rayburst",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "Nu se poate conecta la Motrix Next",
+    "message": "Nu se poate conecta la Rayburst",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -84,11 +84,11 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "Descarcă cu Motrix Next",
-    "description": "Context menu item for downloading a link with Motrix Next"
+    "message": "Descarcă cu Rayburst",
+    "description": "Context menu item for downloading a link with Rayburst"
   },
   "options_header_title": {
-    "message": "Motrix Next",
+    "message": "Rayburst Connect",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
@@ -100,7 +100,7 @@
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Conectat · Motrix Next",
+    "message": "Conectat · Rayburst",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Motrix Next Extension v$version$",
+    "message": "Rayburst Connect v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -172,10 +172,6 @@
     "message": "Roșu trandafir",
     "description": "Rose Red color scheme"
   },
-  "options_color_scheme_aurora": {
-    "message": "Violet aurora",
-    "description": "Aurora Purple color scheme"
-  },
   "options_color_scheme_coral": {
     "message": "Portocaliu coral",
     "description": "Coral Orange color scheme"
@@ -217,7 +213,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
+    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -235,7 +231,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Motrix Next is running. API port: $1",
+    "message": "Make sure Rayburst is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -257,11 +253,11 @@
     "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "Când Motrix Next nu este disponibil",
+    "message": "Când Rayburst nu este disponibil",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "Pornește Motrix Next",
+    "message": "Pornește Rayburst",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -309,7 +305,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Motrix Next",
+    "message": "Cannot connect to Rayburst",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -337,7 +333,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "Acordă permisiuni pentru cookie-uri și site-uri ca să redirecționezi cookie-uri către Motrix Next.",
+    "message": "Acordă permisiuni pentru cookie-uri și site-uri ca să redirecționezi cookie-uri către Rayburst.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -369,8 +365,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "Transferă către Motrix Next",
-    "description": "Option label for routing unknown-size downloads to Motrix Next."
+    "message": "Transferă către Rayburst",
+    "description": "Option label for routing unknown-size downloads to Rayburst."
   },
   "options_min_size_unknown_skip": {
     "message": "Transferă către browser",
@@ -425,8 +421,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "Trimite la Motrix Next",
-    "description": "Option label for routing a matched extension to Motrix Next."
+    "message": "Trimite la Rayburst",
+    "description": "Option label for routing a matched extension to Rayburst."
   },
   "options_file_extension_action_skip": {
     "message": "Folosește browserul",
@@ -509,7 +505,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "Se pornește Motrix Next",
+    "message": "Se pornește Rayburst",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -517,11 +513,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "Motrix Next nu a putut fi pornit",
+    "message": "Rayburst nu a putut fi pornit",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "Verifică dacă Motrix Next este instalat și setările API sunt corecte.",
+    "message": "Verifică dacă Rayburst este instalat și setările API sunt corecte.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -735,7 +731,7 @@
     "description": "Media discovery: loading"
   },
   "media_submitted": {
-    "message": "Descărcare creată în Motrix Next.",
+    "message": "Descărcare creată în Rayburst.",
     "description": "Media discovery: submitted"
   },
   "media_cancelled": {
@@ -755,7 +751,7 @@
     "description": "Media discovery: invalid"
   },
   "media_unavailable": {
-    "message": "Motrix Next nu acceptă încă interfața media.",
+    "message": "Rayburst nu acceptă încă interfața media.",
     "description": "Media discovery: unavailable"
   },
   "media_expired": {
@@ -767,7 +763,7 @@
     "description": "Media discovery: auth"
   },
   "media_connection": {
-    "message": "Porniți Motrix Next și verificați conexiunea.",
+    "message": "Porniți Rayburst și verificați conexiunea.",
     "description": "Media discovery: connection"
   },
   "media_size_unknown": {
@@ -783,7 +779,7 @@
     "description": "Media discovery: includes audio"
   },
   "media_record_hint": {
-    "message": "Zero înregistrează până la oprirea în Motrix Next.",
+    "message": "Zero înregistrează până la oprirea în Rayburst.",
     "description": "Media discovery: record hint"
   },
   "media_inspect_hint": {
@@ -809,5 +805,8 @@
   "media_cancelling": {
     "message": "Se anulează verificarea…",
     "description": "Media discovery: cancelling"
+  },
+  "options_color_scheme_rayburst": {
+    "message": "Rayburst"
   }
 }

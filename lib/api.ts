@@ -1,5 +1,5 @@
 /**
- * HTTP client for the Motrix Next desktop app's embedded REST API
+ * HTTP client for the Rayburst desktop app's embedded REST API
  * (Axum server at `127.0.0.1:{port}`), plus the extension's single error
  * taxonomy and the two-step connection check.
  *
@@ -60,7 +60,7 @@ class ApiError extends Error {
 
 export class ApiUnreachableError extends ApiError {
   constructor(cause?: unknown) {
-    super('Cannot connect to Motrix Next API', cause);
+    super('Cannot connect to Rayburst API', cause);
     this.name = 'ApiUnreachableError';
   }
 }
@@ -96,7 +96,11 @@ export class MediaApiError extends ApiError {
 // ─── Response Schemas ───────────────────────────────────
 // Validate the fields consumed by the extension at the HTTP boundary.
 
-const PingResponseSchema = z.object({ status: z.string(), version: z.string() });
+const PingResponseSchema = z.object({
+  product: z.literal('rayburst'),
+  status: z.literal('ok'),
+  version: z.string(),
+});
 
 const StatResponseSchema = z.object({
   downloadSpeed: z.string(),
@@ -142,7 +146,10 @@ export class DesktopApiClient {
 
   /** Bearer auth headers; empty when no secret is configured. */
   private authHeaders(): Record<string, string> {
-    return this.config.secret ? { Authorization: `Bearer ${this.config.secret}` } : {};
+    return {
+      'X-Rayburst-Client': 'rayburst-connect',
+      ...(this.config.secret ? { Authorization: `Bearer ${this.config.secret}` } : {}),
+    };
   }
 
   private async request<T>(
@@ -199,7 +206,11 @@ export class DesktopApiClient {
   async addDownload(request: AddDownloadRequest): Promise<AddDownloadResponse> {
     await this.request(
       'downloads/capabilities',
-      z.object({ protocolVersion: z.literal(2), filenameHints: z.literal(true) }),
+      z.object({
+        product: z.literal('rayburst'),
+        protocolVersion: z.literal(2),
+        filenameHints: z.literal(true),
+      }),
       { method: 'GET', headers: this.authHeaders(), retry: 0 },
       'Check download support',
     );
@@ -306,6 +317,7 @@ export class DesktopApiClient {
   /** Non-throwing readiness check for both the desktop app and its engine. */
   async isReady(): Promise<boolean> {
     try {
+      await this.ping();
       await this.request(
         'stat',
         StatResponseSchema,

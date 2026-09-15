@@ -1,3 +1,4 @@
+import { requireStoreIdentity } from './workflow-utils';
 import { readFile } from 'node:fs/promises';
 
 import {
@@ -131,6 +132,7 @@ export function decideEdgePreflightAction(
 }
 
 async function publishEdgeFromEnv(): Promise<void> {
+  requireStoreIdentity('edgeId', requiredEnv('EDGE_EXTENSION_ID'));
   const productId = requiredEnv('EDGE_PRODUCT_ID');
   const clientId = requiredEnv('EDGE_CLIENT_ID');
   const apiKey = requiredEnv('EDGE_API_KEY');

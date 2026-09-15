@@ -30,7 +30,7 @@ export const requestDownloadUiAccess = (): Promise<boolean> =>
 
 // ─── Context Menu ───────────────────────────────────────
 
-export const CONTEXT_MENU_ID = 'download-with-motrix-next';
+export const CONTEXT_MENU_ID = 'download-with-rayburst';
 export const CONTEXT_MENU_CONTEXTS = ['link', 'image', 'audio', 'video'] as const;
 
 /**

@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Motrix Next Extension",
+    "message": "Rayburst Connect",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "أرسل تنزيلات المتصفح إلى Motrix Next — مدير تنزيل حديث يعمل بمحرك aria2",
+    "message": "أرسل تنزيلات المتصفح إلى Rayburst — مدير تنزيل حديث يعمل بمحرك aria2",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "تشغيل Motrix Next",
+    "message": "تشغيل Rayburst",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "فتح Motrix Next",
+    "message": "فتح Rayburst",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "تعذر الاتصال بـ Motrix Next",
+    "message": "تعذر الاتصال بـ Rayburst",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -84,11 +84,11 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "التنزيل بواسطة Motrix Next",
-    "description": "Context menu item for downloading a link with Motrix Next"
+    "message": "التنزيل بواسطة Rayburst",
+    "description": "Context menu item for downloading a link with Rayburst"
   },
   "options_header_title": {
-    "message": "Motrix Next",
+    "message": "Rayburst Connect",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
@@ -100,7 +100,7 @@
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "متصل · Motrix Next",
+    "message": "متصل · Rayburst",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Motrix Next Extension v$version$",
+    "message": "Rayburst Connect v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -172,10 +172,6 @@
     "message": "أحمر وردي",
     "description": "Rose Red color scheme"
   },
-  "options_color_scheme_aurora": {
-    "message": "بنفسجي شفقي",
-    "description": "Aurora Purple color scheme"
-  },
   "options_color_scheme_coral": {
     "message": "برتقالي مرجاني",
     "description": "Coral Orange color scheme"
@@ -217,7 +213,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
+    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -235,7 +231,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Motrix Next is running. API port: $1",
+    "message": "Make sure Rayburst is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -257,11 +253,11 @@
     "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "عند عدم توفر Motrix Next",
+    "message": "عند عدم توفر Rayburst",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "تشغيل Motrix Next",
+    "message": "تشغيل Rayburst",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -309,7 +305,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Motrix Next",
+    "message": "Cannot connect to Rayburst",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -337,7 +333,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "امنح أذونات ملفات تعريف الارتباط والمواقع لإعادة توجيه ملفات تعريف الارتباط إلى Motrix Next.",
+    "message": "امنح أذونات ملفات تعريف الارتباط والمواقع لإعادة توجيه ملفات تعريف الارتباط إلى Rayburst.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -369,8 +365,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "نقل إلى Motrix Next",
-    "description": "Option label for routing unknown-size downloads to Motrix Next."
+    "message": "نقل إلى Rayburst",
+    "description": "Option label for routing unknown-size downloads to Rayburst."
   },
   "options_min_size_unknown_skip": {
     "message": "نقل إلى المتصفح",
@@ -425,8 +421,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "إرسال إلى Motrix Next",
-    "description": "Option label for routing a matched extension to Motrix Next."
+    "message": "إرسال إلى Rayburst",
+    "description": "Option label for routing a matched extension to Rayburst."
   },
   "options_file_extension_action_skip": {
     "message": "استخدام المتصفح",
@@ -509,7 +505,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "جارٍ بدء Motrix Next",
+    "message": "جارٍ بدء Rayburst",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -517,11 +513,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "تعذر بدء Motrix Next",
+    "message": "تعذر بدء Rayburst",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "تحقق من تثبيت Motrix Next وصحة إعدادات API.",
+    "message": "تحقق من تثبيت Rayburst وصحة إعدادات API.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -735,7 +731,7 @@
     "description": "Media discovery: loading"
   },
   "media_submitted": {
-    "message": "تم إنشاء التنزيل في Motrix Next.",
+    "message": "تم إنشاء التنزيل في Rayburst.",
     "description": "Media discovery: submitted"
   },
   "media_cancelled": {
@@ -755,7 +751,7 @@
     "description": "Media discovery: invalid"
   },
   "media_unavailable": {
-    "message": "لا يدعم Motrix Next واجهة الوسائط بعد.",
+    "message": "لا يدعم Rayburst واجهة الوسائط بعد.",
     "description": "Media discovery: unavailable"
   },
   "media_expired": {
@@ -767,7 +763,7 @@
     "description": "Media discovery: auth"
   },
   "media_connection": {
-    "message": "شغّل Motrix Next وتحقق من إعدادات الاتصال.",
+    "message": "شغّل Rayburst وتحقق من إعدادات الاتصال.",
     "description": "Media discovery: connection"
   },
   "media_size_unknown": {
@@ -783,7 +779,7 @@
     "description": "Media discovery: includes audio"
   },
   "media_record_hint": {
-    "message": "الصفر يعني التسجيل حتى إيقافه في Motrix Next.",
+    "message": "الصفر يعني التسجيل حتى إيقافه في Rayburst.",
     "description": "Media discovery: record hint"
   },
   "media_inspect_hint": {
@@ -809,5 +805,8 @@
   "media_cancelling": {
     "message": "جارٍ إلغاء الفحص…",
     "description": "Media discovery: cancelling"
+  },
+  "options_color_scheme_rayburst": {
+    "message": "Rayburst"
   }
 }

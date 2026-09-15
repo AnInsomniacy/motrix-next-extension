@@ -269,7 +269,7 @@ onUnmounted(() => {
                     <div class="popup-launching__content">
                       <NSpin size="large" />
                       <div class="popup-launching__copy" role="status" aria-live="polite">
-                        <h2>{{ i18n('popup_launching_title', 'Starting Motrix Next') }}</h2>
+                        <h2>{{ i18n('popup_launching_title', 'Starting Rayburst') }}</h2>
                         <p>
                           {{
                             i18n(
@@ -307,7 +307,7 @@ onUnmounted(() => {
                         <template #icon>
                           <NIcon :size="12"><RocketOutline /></NIcon>
                         </template>
-                        {{ i18n('popup_action_open', 'Open Motrix Next') }}
+                        {{ i18n('popup_action_open', 'Open Rayburst') }}
                       </NButton>
                     </div>
                   </section>
@@ -319,13 +319,13 @@ onUnmounted(() => {
                       </NIcon>
                       <div v-if="phase === 'failed'">
                         <p class="popup-banner__title">
-                          {{ i18n('popup_launch_failed_title', 'Could not start Motrix Next') }}
+                          {{ i18n('popup_launch_failed_title', 'Could not start Rayburst') }}
                         </p>
                         <p class="popup-banner__hint">
                           {{
                             i18n(
                               'popup_launch_failed_hint',
-                              'Check that Motrix Next is installed and its API settings are correct.',
+                              'Check that Rayburst is installed and its API settings are correct.',
                             )
                           }}
                         </p>
@@ -338,7 +338,7 @@ onUnmounted(() => {
                           {{
                             i18n(
                               'popup_error_auth_hint',
-                              'Check that the API secret in Settings matches your Motrix Next configuration.',
+                              'Check that the API secret in Settings matches your Rayburst configuration.',
                             )
                           }}
                         </p>
@@ -359,14 +359,14 @@ onUnmounted(() => {
                       </div>
                       <div v-else>
                         <p class="popup-banner__title">
-                          {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
+                          {{ i18n('popup_error_unreachable', 'Cannot connect to Rayburst') }}
                         </p>
                         <p class="popup-banner__hint">
                           {{
                             i18nSub(
                               'popup_error_unreachable_hint',
                               [String(connectionPort)],
-                              `Make sure Motrix Next is running. API port: ${connectionPort}`,
+                              `Make sure Rayburst is running. API port: ${connectionPort}`,
                             )
                           }}
                         </p>
@@ -380,7 +380,7 @@ onUnmounted(() => {
                         {{
                           phase === 'failed'
                             ? i18n('popup_action_retry', 'Try Again')
-                            : i18n('popup_action_launch', 'Launch Motrix Next')
+                            : i18n('popup_action_launch', 'Launch Rayburst')
                         }}
                       </NButton>
                     </div>

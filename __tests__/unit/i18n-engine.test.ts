@@ -6,7 +6,7 @@ describe('I18nEngine', () => {
     const engine = new I18nEngine('zh_CN');
 
     expect(engine.t('popup_status_connected')).toBe('已连接');
-    expect(engine.t('ext_name')).toBe('Motrix Next Extension');
+    expect(engine.t('ext_name')).toBe('Rayburst Connect');
   });
 
   it('uses fallback string before returning the raw missing key', () => {

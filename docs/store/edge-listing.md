@@ -1,109 +1,23 @@
-# Microsoft Edge Add-ons — Store Listing
+# Rayburst Connect listing
 
-This file contains all text content needed for the Microsoft Partner Center submission.
+Name: Rayburst Connect
 
----
+Short description: Send browser downloads and media to Rayburst.
 
-## Extension Name
+Trace the stream, bridge the void.
 
-```
-Motrix Next
-```
+Rayburst Connect hands browser downloads to the Rayburst desktop app. Send a link
+from the context menu, set site rules, or choose media tracks from the popup and
+player controls. The extension can activate the desktop app when needed.
 
-## Short Description (132 characters max)
+Requires Rayburst on the same computer. Configure its Extension API port and secret;
+these are separate from the engine RPC settings. Supported desktop platforms are
+Windows, macOS and Linux.
 
-```
-Send browser downloads to Motrix Next — a modern download manager powered by aria2 for accelerated multi-threaded downloading.
-```
+Browser request context is sent to the local desktop for the selected download.
+There is no analytics service or remote account. See the repository privacy policy
+for local storage, cookies, media discovery and pending-request retention.
 
-## Detailed Description
-
-```
-Motrix Next Extension seamlessly bridges your browser with the Motrix Next desktop download manager. When you download a file, the extension automatically intercepts it and delegates the task to Motrix Next's aria2 engine — unlocking multi-threaded, resumable, and accelerated downloads.
-
-KEY FEATURES
-
-• Automatic Download Interception — Captures browser downloads and routes them to aria2 for multi-threaded acceleration. Works transparently — just download as you normally would.
-
-• Smart Filtering Pipeline — Ordered checks apply interception settings, extension ownership, URL schemes, site rules, MIME types, file extensions, and minimum file size.
-
-• Per-Site Rules — Add glob-pattern rules (e.g. *.github.com) to always intercept, always skip, or defer to global settings for specific domains.
-
-• Context Menu — Right-click any link, image, audio, or video and choose "Download with Motrix Next" to send it directly to aria2.
-
-• Magnet Link & Torrent Support — Magnet links and .torrent files are automatically captured and routed to Motrix Next.
-
-• Real-Time Dashboard — The popup displays live download/upload speeds, active/waiting/completed task counts, and connection status.
-
-• Cookie Forwarding — Forward cookies to the local desktop app for authenticated downloads. Enabled by default and configurable in Settings.
-
-• Auto-Launch — When Motrix Next is not running, the extension activates it through its allowlisted Native Messaging host, waits for the local API, then retries the download.
-
-• Duplicate Notifications — Get a brief notification when a repeated download request is skipped.
-
-• Appearance Customization — System/Light/Dark themes with 10 Material You color schemes.
-
-• Multi-Language — Localized settings and dashboard in 27 languages.
-
-HOW IT WORKS
-
-1. Install the extension and configure the RPC port and secret in Settings
-2. Make sure Motrix Next is running on your computer with RPC enabled
-3. Download any file — the extension intercepts it and sends it to Motrix Next
-4. The file downloads through aria2 with multi-threaded acceleration
-
-PRIVACY
-
-This extension does NOT collect, store, or transmit any personal data. All communication occurs between your browser and the locally running Motrix Next app (127.0.0.1). No data is sent to any external server.
-
-REQUIREMENTS
-
-• Motrix Next desktop application (https://github.com/AnInsomniacy/motrix-next)
-• aria2 RPC service enabled in Motrix Next
-
-OPEN SOURCE
-
-Free and open source under the MIT License.
-Source code: https://github.com/AnInsomniacy/motrix-next-extension
-```
-
-## Category
-
-```
-Productivity
-```
-
-## Privacy Policy URL
-
-```
-https://github.com/AnInsomniacy/motrix-next-extension/blob/main/PRIVACY_POLICY.md
-```
-
-## Website URL
-
-```
-https://github.com/AnInsomniacy/motrix-next
-```
-
-## Support URL
-
-```
-https://github.com/AnInsomniacy/motrix-next-extension/issues
-```
-
----
-
-## Screenshots
-
-Same screenshots as Chrome Web Store submission:
-
-1. **Popup view**: `docs/store/assets/screenshot-popup.png` (1280×800)
-2. **Settings page**: `docs/store/assets/screenshot-settings.png` (1280×800)
-
-> **Note:** Edge accepts the same image dimensions as Chrome (1280×800 or 640×400).
-
-## Additional Notes
-
-- Edge Add-ons does NOT require a small promotional tile (440×280)
-- Edge accepts the same ZIP package built for Chrome (`pnpm zip`)
-- Edge review typically takes 3-7 business days
+Use real screenshots from the current product. Store IDs, listing URLs and screenshot
+requirements must be confirmed during publication; this repository does not claim an
+existing listing. The approved banner is `../brand/banner.png`.

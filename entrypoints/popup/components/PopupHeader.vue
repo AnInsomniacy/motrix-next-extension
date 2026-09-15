@@ -4,7 +4,7 @@ import { NIcon, NSwitch } from 'naive-ui';
 import { SettingsOutline } from '@vicons/ionicons5';
 import type { ConnectionStatus } from '@/lib/api';
 import { useI18n } from '@/shared/i18n/engine';
-import NextLogo from '@/shared/components/NextLogo.vue';
+import BrandLogo from '@/shared/components/BrandLogo.vue';
 
 const props = defineProps<{
   status: ConnectionStatus | 'launching';
@@ -23,7 +23,7 @@ const { t: i18n } = useI18n();
 <template>
   <header class="popup-header">
     <div class="popup-header__brand">
-      <NextLogo class="popup-header__logo" />
+      <BrandLogo class="popup-header__logo" />
       <span
         class="popup-header__badge"
         :class="{

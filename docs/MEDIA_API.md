@@ -21,13 +21,13 @@ Return quickly (within five seconds). Inspection is asynchronous; network/manife
 work must not hold the initial HTTP request open. No content or segments pass through
 the extension. Cap request size at 256 KiB and validate all input at the desktop boundary.
 
-| Method | Path                  | Result                                                        |
-| ------ | --------------------- | ------------------------------------------------------------- |
-| GET    | `/capabilities`       | Actual engine-supported source kinds and `protocolVersion: 1` |
-| POST   | `/probes`             | Create or retrieve an idempotent inspection                   |
-| GET    | `/probes/{id}`        | Read inspection or submission state                           |
-| POST   | `/probes/{id}/submit` | Apply selection and create/start exactly one task             |
-| POST   | `/probes/{id}/cancel` | Cancel an inspection, without deleting an existing download   |
+| Method | Path                  | Result                                                                               |
+| ------ | --------------------- | ------------------------------------------------------------------------------------ |
+| GET    | `/capabilities`       | Actual engine-supported source kinds and `product: "rayburst"`, `protocolVersion: 1` |
+| POST   | `/probes`             | Create or retrieve an idempotent inspection                                          |
+| GET    | `/probes/{id}`        | Read inspection or submission state                                                  |
+| POST   | `/probes/{id}/submit` | Apply selection and create/start exactly one task                                    |
+| POST   | `/probes/{id}/cancel` | Cancel an inspection, without deleting an existing download                          |
 
 There are no aliases or older media contracts. Do not infer capabilities from an app
 version or expose an unrestricted engine RPC proxy to the extension.

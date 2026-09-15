@@ -16,7 +16,9 @@ function mockClient(overrides: {
   return {
     ping:
       overrides.ping ??
-      vi.fn<() => Promise<PingResponse>>().mockResolvedValue({ status: 'ok', version: '3.7.3' }),
+      vi
+        .fn<() => Promise<PingResponse>>()
+        .mockResolvedValue({ product: 'rayburst', status: 'ok', version: '3.7.3' }),
     getStat:
       overrides.getStat ??
       vi.fn<() => Promise<StatResponse>>().mockResolvedValue({
