@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next Extension",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "원본을 찾아 매끄럽게 전달하세요.",
+    "message": "브라우저 다운로드를 Motrix Next로 전송 — aria2 기반 최신 다운로드 관리자",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Rayburst 실행",
+    "message": "Motrix Next 실행",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Rayburst 열기",
+    "message": "Motrix Next 열기",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "Rayburst에 연결할 수 없습니다",
+    "message": "Motrix Next에 연결할 수 없습니다",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "다운로드 가로채기",
+    "message": "다운로드 가로채기 활성화",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "Rayburst로 다운로드",
-    "description": "Context menu item for downloading a link with Rayburst"
+    "message": "Motrix Next로 다운로드",
+    "description": "Context menu item for downloading a link with Motrix Next"
   },
   "options_header_title": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "원본을 찾아 매끄럽게 전달하세요.",
-    "description": "Rayburst Connect slogan"
+    "message": "확장 프로그램 설정",
+    "description": "Options page header subtitle"
   },
   "options_testing_connection": {
     "message": "테스트 중...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "연결됨 · Rayburst",
+    "message": "연결됨 · Motrix Next",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Rayburst Connect v$version$",
+    "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,6 +155,10 @@
   "options_color_scheme": {
     "message": "색상 구성",
     "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "앰버 골드",
+    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "스페이스 블루",
@@ -213,7 +217,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "설정의 API 비밀키가 Rayburst 구성과 일치하는지 확인하세요.",
+    "message": "설정의 API 비밀키가 Motrix Next 구성과 일치하는지 확인하세요.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -231,7 +235,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Rayburst가 실행 중인지 확인하세요. API 포트: $1",
+    "message": "Motrix Next가 실행 중인지 확인하세요. API 포트: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -241,23 +245,23 @@
     }
   },
   "options_section_language": {
-    "message": "언어 / Language",
-    "description": "Language setting label; retain the English Language locator in non-English locales."
+    "message": "언어",
+    "description": "Settings section for interface language"
   },
   "options_locale_auto": {
     "message": "자동",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "자동 / Auto",
-    "description": "Follow the browser language automatically; keep the English Auto locator."
+    "message": "브라우저 언어를 따릅니다",
+    "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "Rayburst를 사용할 수 없을 때",
+    "message": "Motrix Next를 사용할 수 없을 때",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "Rayburst 실행",
+    "message": "Motrix Next 실행",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -281,8 +285,16 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "중지됨",
+    "message": "완료",
     "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "가로채기 중",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "일시정지됨",
+    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API 포트",
@@ -297,7 +309,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Rayburst에 연결할 수 없습니다",
+    "message": "Motrix Next에 연결할 수 없습니다",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -325,7 +337,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "쿠키를 Rayburst로 전달하려면 쿠키 및 사이트 권한을 허용하세요.",
+    "message": "쿠키를 Motrix Next로 전달하려면 쿠키 및 사이트 권한을 허용하세요.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -357,8 +369,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "Rayburst로 넘기기",
-    "description": "Option label for routing unknown-size downloads to Rayburst."
+    "message": "Motrix Next로 넘기기",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
   },
   "options_min_size_unknown_skip": {
     "message": "브라우저로 넘기기",
@@ -413,8 +425,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "Rayburst로 보내기",
-    "description": "Option label for routing a matched extension to Rayburst."
+    "message": "Motrix Next로 보내기",
+    "description": "Option label for routing a matched extension to Motrix Next."
   },
   "options_file_extension_action_skip": {
     "message": "브라우저 사용",
@@ -425,7 +437,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "기본 설정으로 복원할까요?",
+    "message": "다시 클릭하여 초기화",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -497,7 +509,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "Rayburst 시작 중",
+    "message": "Motrix Next 시작 중",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -505,11 +517,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "Rayburst를 시작할 수 없음",
+    "message": "Motrix Next를 시작할 수 없음",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "Rayburst가 설치되어 있고 API 설정이 올바른지 확인하세요.",
+    "message": "Motrix Next가 설치되어 있고 API 설정이 올바른지 확인하세요.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -575,305 +587,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "모든 로그를 삭제할까요?",
+    "message": "지우기 확인",
     "description": "Second-click confirmation label for clearing diagnostic logs"
-  },
-  "media_tab": {
-    "message": "미디어",
-    "description": "Media discovery: tab"
-  },
-  "media_downloads": {
-    "message": "개요",
-    "description": "Media discovery: downloads"
-  },
-  "media_discover": {
-    "message": "미디어 찾기",
-    "description": "Media discovery: discover"
-  },
-  "media_scan": {
-    "message": "페이지 검색",
-    "description": "Media discovery: scan"
-  },
-  "media_clear": {
-    "message": "목록 비우기",
-    "description": "Media discovery: clear"
-  },
-  "media_filter": {
-    "message": "소스 필터",
-    "description": "Media discovery: filter"
-  },
-  "media_sources": {
-    "message": "미디어 소스",
-    "description": "Media discovery: sources"
-  },
-  "media_source": {
-    "message": "소스",
-    "description": "Media discovery: source"
-  },
-  "media_enable_site": {
-    "message": "이 사이트에서 사용",
-    "description": "Media discovery: enable site"
-  },
-  "media_disable_site": {
-    "message": "이 사이트에서 사용 안 함",
-    "description": "Media discovery: disable site"
-  },
-  "media_inspect": {
-    "message": "형식 확인",
-    "description": "Media discovery: inspect"
-  },
-  "media_options": {
-    "message": "미디어 옵션",
-    "description": "Media discovery: options"
-  },
-  "media_back": {
-    "message": "미디어 목록",
-    "description": "Media discovery: back"
-  },
-  "media_video": {
-    "message": "동영상 화질",
-    "description": "Media discovery: video"
-  },
-  "media_audio": {
-    "message": "오디오",
-    "description": "Media discovery: audio"
-  },
-  "media_subtitles": {
-    "message": "자막",
-    "description": "Media discovery: subtitles"
-  },
-  "media_format": {
-    "message": "형식",
-    "description": "Media discovery: format"
-  },
-  "media_original": {
-    "message": "원본 파일",
-    "description": "Media discovery: original"
-  },
-  "media_record_limit": {
-    "message": "녹화 제한 시간(초)",
-    "description": "Media discovery: record limit"
-  },
-  "media_live": {
-    "message": "라이브 녹화",
-    "description": "Media discovery: live"
-  },
-  "media_download": {
-    "message": "다운로드",
-    "description": "Media discovery: download"
-  },
-  "media_record": {
-    "message": "녹화 시작",
-    "description": "Media discovery: record"
-  },
-  "media_cancel": {
-    "message": "취소",
-    "description": "Media discovery: cancel"
-  },
-  "media_retry": {
-    "message": "상태 확인",
-    "description": "Media discovery: retry"
-  },
-  "media_close": {
-    "message": "닫기",
-    "description": "Media discovery: close"
-  },
-  "media_locate": {
-    "message": "플레이어 찾기",
-    "description": "Media discovery: locate"
-  },
-  "media_no_video": {
-    "message": "동영상 없음",
-    "description": "Media discovery: no video"
-  },
-  "media_no_audio": {
-    "message": "오디오 없음",
-    "description": "Media discovery: no audio"
-  },
-  "media_no_subtitles": {
-    "message": "자막 없음",
-    "description": "Media discovery: no subtitles"
-  },
-  "media_excluded_sites": {
-    "message": "제외된 미디어 사이트",
-    "description": "Media discovery: excluded sites"
-  },
-  "media_waiting": {
-    "message": "플레이어를 찾았습니다. 미디어 소스를 기다리는 중입니다.",
-    "description": "Media discovery: waiting"
-  },
-  "media_none": {
-    "message": "미디어 소스를 찾지 못했습니다.",
-    "description": "Media discovery: none"
-  },
-  "media_paused": {
-    "message": "미디어 감지가 일시 중지되었습니다.",
-    "description": "Media discovery: paused"
-  },
-  "media_excluded": {
-    "message": "이 사이트에서는 미디어 감지가 꺼져 있습니다.",
-    "description": "Media discovery: excluded"
-  },
-  "media_ambiguous": {
-    "message": "소스를 특정 플레이어와 연결할 수 없습니다. 다운로드 전에 확인하세요.",
-    "description": "Media discovery: ambiguous"
-  },
-  "media_loading": {
-    "message": "미디어 확인 중…",
-    "description": "Media discovery: loading"
-  },
-  "media_submitted": {
-    "message": "Rayburst에 다운로드를 생성했습니다.",
-    "description": "Media discovery: submitted"
-  },
-  "media_cancelled": {
-    "message": "확인을 취소했습니다.",
-    "description": "Media discovery: cancelled"
-  },
-  "media_failed": {
-    "message": "작업에 실패했습니다. 다시 시도하여 상태를 확인하세요.",
-    "description": "Media discovery: failed"
-  },
-  "media_unsupported": {
-    "message": "이 미디어 또는 요청 방식은 지원하지 않습니다.",
-    "description": "Media discovery: unsupported"
-  },
-  "media_invalid": {
-    "message": "지원되는 트랙, 형식 및 시간 조합을 선택하세요.",
-    "description": "Media discovery: invalid"
-  },
-  "media_unavailable": {
-    "message": "Rayburst가 아직 미디어 인터페이스를 지원하지 않습니다.",
-    "description": "Media discovery: unavailable"
-  },
-  "media_expired": {
-    "message": "소스 또는 확인 시간이 만료되었습니다. 재생 후 다시 확인하세요.",
-    "description": "Media discovery: expired"
-  },
-  "media_connection": {
-    "message": "Rayburst를 시작하고 연결 설정을 확인하세요.",
-    "description": "Media discovery: connection"
-  },
-  "media_size_unknown": {
-    "message": "크기 알 수 없음",
-    "description": "Media discovery: size unknown"
-  },
-  "media_duration_unknown": {
-    "message": "길이 알 수 없음",
-    "description": "Media discovery: duration unknown"
-  },
-  "media_includes_audio": {
-    "message": "오디오 포함",
-    "description": "Media discovery: includes audio"
-  },
-  "media_record_hint": {
-    "message": "0이면 Rayburst에서 중지할 때까지 녹화합니다.",
-    "description": "Media discovery: record hint"
-  },
-  "media_inspect_hint": {
-    "message": "형식을 확인한 후 다운로드를 확정하세요.",
-    "description": "Media discovery: inspect hint"
-  },
-  "media_open_page": {
-    "message": "웹페이지를 열어 미디어를 감지하세요.",
-    "description": "Media discovery: open page"
-  },
-  "media_hint": {
-    "message": "동영상이나 오디오를 재생하면 소스를 자동으로 감지합니다.",
-    "description": "Media discovery: hint"
-  },
-  "media_ready": {
-    "message": "형식 준비 완료",
-    "description": "Media discovery: ready"
-  },
-  "media_confirming": {
-    "message": "다운로드 확인 중…",
-    "description": "Media discovery: confirming"
-  },
-  "media_cancelling": {
-    "message": "확인 취소 중…",
-    "description": "Media discovery: cancelling"
-  },
-  "options_color_scheme_electric": {
-    "message": "일렉트릭 퍼플",
-    "description": "Electric Purple color scheme"
-  },
-  "popup_status_connecting": {
-    "message": "연결 중"
-  },
-  "popup_upload": {
-    "message": "업로드"
-  },
-  "popup_action_failed": {
-    "message": "작업을 완료하지 못했습니다."
-  },
-  "options_about": {
-    "message": "정보"
-  },
-  "options_api_secret_hint": {
-    "message": "Rayburst 설정 → 연결에서 확인하세요."
-  },
-  "options_backup_secret_hint": {
-    "message": "설정 백업에는 API 비밀 키가 포함됩니다."
-  },
-  "options_remove_rule": {
-    "message": "규칙 삭제"
-  },
-  "options_site_pattern": {
-    "message": "웹사이트 패턴"
-  },
-  "options_rule_action": {
-    "message": "동작"
-  },
-  "media_source_auth": {
-    "message": "원본 웹사이트에 로그인한 후 다시 시도하세요."
-  },
-  "media_protected": {
-    "message": "보호된 미디어는 다운로드할 수 없습니다."
-  },
-  "popup_download": {
-    "message": "다운로드"
-  },
-  "media_api_auth": {
-    "message": "API 비밀키 불일치 설정의 API 비밀키가 Rayburst 구성과 일치하는지 확인하세요."
-  },
-  "options_theme_label": {
-    "message": "테마"
-  },
-  "options_section_general": {
-    "message": "일반"
-  },
-  "options_custom_color": {
-    "message": "사용자 지정 색상"
-  },
-  "options_color_scheme_custom": {
-    "message": "사용자 지정"
-  },
-  "control_confirm": {
-    "message": "확인"
-  },
-  "control_cancel": {
-    "message": "취소"
-  },
-  "control_undo": {
-    "message": "실행 취소"
-  },
-  "control_redo": {
-    "message": "다시 실행"
-  },
-  "control_clear": {
-    "message": "지우기"
-  },
-  "control_add": {
-    "message": "추가"
-  },
-  "control_empty": {
-    "message": "결과 없음"
-  },
-  "control_select": {
-    "message": "선택"
-  },
-  "control_input": {
-    "message": "값 입력"
   }
 }

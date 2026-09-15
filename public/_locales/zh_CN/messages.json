@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next Extension",
     "description": "扩展显示名称"
   },
   "ext_description": {
-    "message": "网端寻影，无缝接力。",
+    "message": "将浏览器下载发送到 Motrix Next — 基于 aria2 的现代下载管理器",
     "description": "在浏览器和应用商店中显示的扩展描述"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "打开设置页的按钮"
   },
   "popup_action_launch": {
-    "message": "启动 Rayburst",
+    "message": "启动 Motrix Next",
     "description": "断连时启动桌面应用的按钮"
   },
   "popup_action_open": {
-    "message": "打开 Rayburst",
+    "message": "打开 Motrix Next",
     "description": "已连接时聚焦桌面应用的按钮"
   },
   "popup_error_unreachable": {
-    "message": "无法连接到 Rayburst",
+    "message": "无法连接到 Motrix Next",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "接管",
+    "message": "启用下载拦截",
     "description": "启用/禁用下载拦截的开关"
   },
   "options_section_rules": {
@@ -84,23 +84,23 @@
     "description": "诊断事件日志区域"
   },
   "context_menu_download": {
-    "message": "使用 Rayburst 下载",
-    "description": "使用 Rayburst 下载链接的右键菜单项"
+    "message": "使用 Motrix Next 下载",
+    "description": "使用 Motrix Next 下载链接的右键菜单项"
   },
   "options_header_title": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next",
     "description": "设置页标题"
   },
   "options_header_subtitle": {
-    "message": "网端寻影，无缝接力。",
-    "description": "Rayburst Connect slogan"
+    "message": "扩展设置",
+    "description": "设置页副标题"
   },
   "options_testing_connection": {
     "message": "测试中...",
     "description": "测试连接时的按钮文字"
   },
   "options_connection_success_prefix": {
-    "message": "已连接 · Rayburst",
+    "message": "已连接 · Motrix Next",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "诊断日志为空时的占位提示"
   },
   "options_footer": {
-    "message": "Rayburst Connect v$version$",
+    "message": "Motrix Next Extension v$version$",
     "description": "页脚版本文字",
     "placeholders": {
       "version": {
@@ -155,6 +155,10 @@
   "options_color_scheme": {
     "message": "配色方案",
     "description": "配色方案选择器标签"
+  },
+  "options_color_scheme_amber": {
+    "message": "琥珀金",
+    "description": "琥珀金配色方案"
   },
   "options_color_scheme_space": {
     "message": "太空蓝",
@@ -213,7 +217,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "请检查设置中的 API 密钥是否与 Rayburst 配置一致。",
+    "message": "请检查设置中的 API 密钥是否与 Motrix Next 配置一致。",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -231,7 +235,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "请确保 Rayburst 正在运行。API 端口：$1",
+    "message": "请确保 Motrix Next 正在运行。API 端口：$1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -241,23 +245,23 @@
     }
   },
   "options_section_language": {
-    "message": "语言 / Language",
-    "description": "Language setting label; retain the English Language locator in non-English locales."
+    "message": "语言",
+    "description": "界面语言设置区域"
   },
   "options_locale_auto": {
     "message": "跟随系统",
     "description": "语言选项：跟随浏览器语言"
   },
   "options_locale_auto_desc": {
-    "message": "自动 / Auto",
-    "description": "Follow the browser language automatically; keep the English Auto locator."
+    "message": "跟随浏览器语言",
+    "description": "自动语言选项的说明"
   },
   "options_desktop_unavailable_label": {
-    "message": "Rayburst 不可用时",
+    "message": "Motrix Next 不可用时",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "启动 Rayburst",
+    "message": "启动 Motrix Next",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -281,8 +285,16 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "已停止",
+    "message": "完成",
     "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "接管中",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "已暂停",
+    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API 端口",
@@ -297,7 +309,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "无法连接到 Rayburst",
+    "message": "无法连接到 Motrix Next",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -325,11 +337,11 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "请授予 Cookie 和站点权限以将 Cookie 转发给 Rayburst。",
+    "message": "请授予 Cookie 和站点权限以将 Cookie 转发给 Motrix Next。",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
-    "message": "浏览器下载",
+    "message": "常规下载（HTTP / HTTPS / FTP / Torrent）",
     "description": "Label for the browser download interception scope toggle."
   },
   "options_scope_magnet_label": {
@@ -357,8 +369,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "移交 Rayburst",
-    "description": "Option label for routing unknown-size downloads to Rayburst."
+    "message": "移交 Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
   },
   "options_min_size_unknown_skip": {
     "message": "移交浏览器",
@@ -413,8 +425,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "移交 Rayburst",
-    "description": "Option label for routing a matched extension to Rayburst."
+    "message": "移交 Motrix Next",
+    "description": "Option label for routing a matched extension to Motrix Next."
   },
   "options_file_extension_action_skip": {
     "message": "使用浏览器",
@@ -425,7 +437,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "恢复默认设置？",
+    "message": "再次点击恢复",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -497,7 +509,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "正在启动 Rayburst",
+    "message": "正在启动 Motrix Next",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -505,11 +517,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "无法启动 Rayburst",
+    "message": "无法启动 Motrix Next",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "请确认 Rayburst 已安装，且 API 设置正确。",
+    "message": "请确认 Motrix Next 已安装，且 API 设置正确。",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -575,305 +587,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "清空所有日志？",
+    "message": "确认清除",
     "description": "Second-click confirmation label for clearing diagnostic logs"
-  },
-  "media_tab": {
-    "message": "媒体",
-    "description": "Media discovery: tab"
-  },
-  "media_downloads": {
-    "message": "概览",
-    "description": "Media discovery: downloads"
-  },
-  "media_discover": {
-    "message": "发现媒体",
-    "description": "Media discovery: discover"
-  },
-  "media_scan": {
-    "message": "扫描页面",
-    "description": "Media discovery: scan"
-  },
-  "media_clear": {
-    "message": "清空列表",
-    "description": "Media discovery: clear"
-  },
-  "media_filter": {
-    "message": "筛选来源",
-    "description": "Media discovery: filter"
-  },
-  "media_sources": {
-    "message": "媒体来源",
-    "description": "Media discovery: sources"
-  },
-  "media_source": {
-    "message": "来源",
-    "description": "Media discovery: source"
-  },
-  "media_enable_site": {
-    "message": "在本站启用",
-    "description": "Media discovery: enable site"
-  },
-  "media_disable_site": {
-    "message": "在本站停用",
-    "description": "Media discovery: disable site"
-  },
-  "media_inspect": {
-    "message": "探测格式",
-    "description": "Media discovery: inspect"
-  },
-  "media_options": {
-    "message": "媒体选项",
-    "description": "Media discovery: options"
-  },
-  "media_back": {
-    "message": "媒体列表",
-    "description": "Media discovery: back"
-  },
-  "media_video": {
-    "message": "视频画质",
-    "description": "Media discovery: video"
-  },
-  "media_audio": {
-    "message": "音轨",
-    "description": "Media discovery: audio"
-  },
-  "media_subtitles": {
-    "message": "字幕",
-    "description": "Media discovery: subtitles"
-  },
-  "media_format": {
-    "message": "格式",
-    "description": "Media discovery: format"
-  },
-  "media_original": {
-    "message": "原始文件",
-    "description": "Media discovery: original"
-  },
-  "media_record_limit": {
-    "message": "录制时限（秒）",
-    "description": "Media discovery: record limit"
-  },
-  "media_live": {
-    "message": "直播录制",
-    "description": "Media discovery: live"
-  },
-  "media_download": {
-    "message": "下载",
-    "description": "Media discovery: download"
-  },
-  "media_record": {
-    "message": "开始录制",
-    "description": "Media discovery: record"
-  },
-  "media_cancel": {
-    "message": "取消",
-    "description": "Media discovery: cancel"
-  },
-  "media_retry": {
-    "message": "检查状态",
-    "description": "Media discovery: retry"
-  },
-  "media_close": {
-    "message": "关闭",
-    "description": "Media discovery: close"
-  },
-  "media_locate": {
-    "message": "定位播放器",
-    "description": "Media discovery: locate"
-  },
-  "media_no_video": {
-    "message": "不含视频",
-    "description": "Media discovery: no video"
-  },
-  "media_no_audio": {
-    "message": "不含音频",
-    "description": "Media discovery: no audio"
-  },
-  "media_no_subtitles": {
-    "message": "不含字幕",
-    "description": "Media discovery: no subtitles"
-  },
-  "media_excluded_sites": {
-    "message": "已停用的媒体网站",
-    "description": "Media discovery: excluded sites"
-  },
-  "media_waiting": {
-    "message": "已发现播放器，等待媒体来源。",
-    "description": "Media discovery: waiting"
-  },
-  "media_none": {
-    "message": "尚未发现媒体来源。",
-    "description": "Media discovery: none"
-  },
-  "media_paused": {
-    "message": "媒体发现已暂停。",
-    "description": "Media discovery: paused"
-  },
-  "media_excluded": {
-    "message": "本站已停用媒体发现。",
-    "description": "Media discovery: excluded"
-  },
-  "media_ambiguous": {
-    "message": "这些来源无法精确关联到某个播放器，请核对后下载。",
-    "description": "Media discovery: ambiguous"
-  },
-  "media_loading": {
-    "message": "正在探测媒体…",
-    "description": "Media discovery: loading"
-  },
-  "media_submitted": {
-    "message": "已在 Rayburst 中创建下载。",
-    "description": "Media discovery: submitted"
-  },
-  "media_cancelled": {
-    "message": "已取消探测。",
-    "description": "Media discovery: cancelled"
-  },
-  "media_failed": {
-    "message": "操作失败，请重试以确认状态。",
-    "description": "Media discovery: failed"
-  },
-  "media_unsupported": {
-    "message": "不支持此媒体或请求方式。",
-    "description": "Media discovery: unsupported"
-  },
-  "media_invalid": {
-    "message": "请选择受支持的音视频轨道、格式和时长组合。",
-    "description": "Media discovery: invalid"
-  },
-  "media_unavailable": {
-    "message": "Rayburst 尚未支持媒体接口。",
-    "description": "Media discovery: unavailable"
-  },
-  "media_expired": {
-    "message": "来源或探测已过期，请播放媒体后重新探测。",
-    "description": "Media discovery: expired"
-  },
-  "media_connection": {
-    "message": "请启动 Rayburst 并检查连接设置。",
-    "description": "Media discovery: connection"
-  },
-  "media_size_unknown": {
-    "message": "大小未知",
-    "description": "Media discovery: size unknown"
-  },
-  "media_duration_unknown": {
-    "message": "时长未知",
-    "description": "Media discovery: duration unknown"
-  },
-  "media_includes_audio": {
-    "message": "包含音频",
-    "description": "Media discovery: includes audio"
-  },
-  "media_record_hint": {
-    "message": "设为零将持续录制，直到在 Rayburst 中结束录制。",
-    "description": "Media discovery: record hint"
-  },
-  "media_inspect_hint": {
-    "message": "先探测格式，确认后再下载。",
-    "description": "Media discovery: inspect hint"
-  },
-  "media_open_page": {
-    "message": "打开网页即可发现媒体。",
-    "description": "Media discovery: open page"
-  },
-  "media_hint": {
-    "message": "播放视频或音频，自动发现媒体来源。",
-    "description": "Media discovery: hint"
-  },
-  "media_ready": {
-    "message": "格式已就绪",
-    "description": "Media discovery: ready"
-  },
-  "media_confirming": {
-    "message": "正在确认下载…",
-    "description": "Media discovery: confirming"
-  },
-  "media_cancelling": {
-    "message": "正在取消探测…",
-    "description": "Media discovery: cancelling"
-  },
-  "options_color_scheme_electric": {
-    "message": "闪电紫",
-    "description": "Electric Purple color scheme"
-  },
-  "popup_status_connecting": {
-    "message": "连接中"
-  },
-  "popup_upload": {
-    "message": "上传"
-  },
-  "popup_action_failed": {
-    "message": "操作未完成，请重试。"
-  },
-  "options_about": {
-    "message": "关于"
-  },
-  "options_api_secret_hint": {
-    "message": "在 Rayburst 的设置 → 连接中查看。"
-  },
-  "options_backup_secret_hint": {
-    "message": "设置备份包含 API 密钥。"
-  },
-  "options_remove_rule": {
-    "message": "删除规则"
-  },
-  "options_site_pattern": {
-    "message": "网站匹配规则"
-  },
-  "options_rule_action": {
-    "message": "操作"
-  },
-  "media_source_auth": {
-    "message": "请登录来源网站后重试。"
-  },
-  "media_protected": {
-    "message": "此媒体受保护，无法下载。"
-  },
-  "popup_download": {
-    "message": "下载"
-  },
-  "media_api_auth": {
-    "message": "API 密钥不匹配 请检查设置中的 API 密钥是否与 Rayburst 配置一致。"
-  },
-  "options_theme_label": {
-    "message": "主题"
-  },
-  "options_section_general": {
-    "message": "常规"
-  },
-  "options_custom_color": {
-    "message": "自定义颜色"
-  },
-  "options_color_scheme_custom": {
-    "message": "自定义"
-  },
-  "control_confirm": {
-    "message": "确认"
-  },
-  "control_cancel": {
-    "message": "取消"
-  },
-  "control_undo": {
-    "message": "撤销"
-  },
-  "control_redo": {
-    "message": "重做"
-  },
-  "control_clear": {
-    "message": "清除"
-  },
-  "control_add": {
-    "message": "添加"
-  },
-  "control_empty": {
-    "message": "无结果"
-  },
-  "control_select": {
-    "message": "请选择"
-  },
-  "control_input": {
-    "message": "请输入"
   }
 }

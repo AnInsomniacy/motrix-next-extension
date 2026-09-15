@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { computed, h, ref, watch } from 'vue';
+import { computed, h, onUnmounted, ref, watch } from 'vue';
 import {
   NButton,
   NButtonGroup,
-  NPopconfirm,
   NDataTable,
   NEmpty,
   NFormItem,
@@ -14,7 +13,13 @@ import {
   type DataTableColumns,
   type PaginationProps,
 } from 'naive-ui';
-import { CloudDownload, CloudUpload, Download, RefreshCw, Trash2 } from '@lucide/vue';
+import {
+  CloudDownloadOutline,
+  CloudUploadOutline,
+  DownloadOutline,
+  RefreshOutline,
+  TrashOutline,
+} from '@vicons/ionicons5';
 import {
   DIAGNOSTIC_EVENT_LIMIT_MAX,
   DIAGNOSTIC_EVENT_LIMIT_MIN,
@@ -22,6 +27,7 @@ import {
   type DiagnosticLevel,
 } from '@/lib/schema';
 import { useI18n } from '@/shared/i18n/engine';
+import ClearDiagnosticsButtonLabel from './ClearDiagnosticsButtonLabel.vue';
 import DiagnosticDetailsPopover from './DiagnosticDetailsPopover.vue';
 
 const props = defineProps<{
@@ -40,9 +46,16 @@ const emit = defineEmits<{
 
 const { effectiveLocale, t: i18n, tSub: i18nSub } = useI18n();
 const fileInput = ref<globalThis.HTMLInputElement | null>(null);
+const confirmingReset = ref(false);
+const confirmingClearDiagnostics = ref(false);
+const clearConfirmationSeconds = ref(0);
 const levelFilter = ref<'all' | DiagnosticLevel>('all');
 const codeFilter = ref<string | null>(null);
 const diagnosticPage = ref(1);
+let resetConfirmTimer: ReturnType<typeof setTimeout> | null = null;
+let clearConfirmationTimer: ReturnType<typeof setInterval> | null = null;
+
+const CLEAR_CONFIRMATION_SECONDS = 4;
 const DIAGNOSTIC_PAGE_SIZE = 10;
 const DIAGNOSTIC_ROW_HEIGHT = 38;
 const DIAGNOSTIC_BODY_HEIGHT = DIAGNOSTIC_PAGE_SIZE * DIAGNOSTIC_ROW_HEIGHT;
@@ -173,6 +186,22 @@ watch(
   },
 );
 
+function clearResetConfirmTimer(): void {
+  if (resetConfirmTimer) {
+    clearTimeout(resetConfirmTimer);
+    resetConfirmTimer = null;
+  }
+}
+
+function cancelClearDiagnosticsConfirmation(): void {
+  if (clearConfirmationTimer) {
+    clearInterval(clearConfirmationTimer);
+    clearConfirmationTimer = null;
+  }
+  confirmingClearDiagnostics.value = false;
+  clearConfirmationSeconds.value = 0;
+}
+
 function chooseBackupFile(): void {
   fileInput.value?.click();
 }
@@ -182,6 +211,36 @@ function handleFileChange(event: globalThis.Event): void {
   const file = input.files?.[0];
   input.value = '';
   if (file) emit('importSettings', file);
+}
+
+function handleResetClick(): void {
+  if (confirmingReset.value) {
+    clearResetConfirmTimer();
+    confirmingReset.value = false;
+    emit('resetSettings');
+    return;
+  }
+
+  confirmingReset.value = true;
+  resetConfirmTimer = setTimeout(() => {
+    confirmingReset.value = false;
+    resetConfirmTimer = null;
+  }, 4000);
+}
+
+function handleClearDiagnosticsClick(): void {
+  if (confirmingClearDiagnostics.value) {
+    cancelClearDiagnosticsConfirmation();
+    emit('clearDiagnostics');
+    return;
+  }
+
+  confirmingClearDiagnostics.value = true;
+  clearConfirmationSeconds.value = CLEAR_CONFIRMATION_SECONDS;
+  clearConfirmationTimer = setInterval(() => {
+    clearConfirmationSeconds.value -= 1;
+    if (clearConfirmationSeconds.value <= 0) cancelClearDiagnosticsConfirmation();
+  }, 1000);
 }
 
 function handleMaxDiagnosticEvents(value: number | null): void {
@@ -205,45 +264,50 @@ function formatTime(ts: number): string {
 function formatDateTime(ts: number): string {
   return diagnosticDateTimeFormatter.value.format(new Date(ts));
 }
+
+onUnmounted(() => {
+  clearResetConfirmTimer();
+  cancelClearDiagnosticsConfirmation();
+});
 </script>
 
 <template>
   <div class="settings-section">
     <section class="settings-group">
-      <h2 class="settings-group-title">
+      <h3 class="settings-group-title">
         {{ i18n('options_settings_backup_title', 'Settings Backup') }}
-      </h2>
+      </h3>
 
       <div class="maintenance-actions">
         <NButton size="small" @click="emit('exportSettings')">
           <template #icon>
-            <NIcon :size="14"><CloudDownload /></NIcon>
+            <NIcon :size="14"><CloudDownloadOutline /></NIcon>
           </template>
           {{ i18n('options_settings_backup_export', 'Export Settings') }}
         </NButton>
         <NButton size="small" @click="chooseBackupFile">
           <template #icon>
-            <NIcon :size="14"><CloudUpload /></NIcon>
+            <NIcon :size="14"><CloudUploadOutline /></NIcon>
           </template>
           {{ i18n('options_settings_backup_import', 'Import Settings') }}
         </NButton>
-        <NPopconfirm
-          :positive-text="i18n('options_factory_reset_button')"
-          :negative-text="i18n('media_cancel')"
-          @positive-click="emit('resetSettings')"
+        <NButton
+          class="maintenance-reset-button"
+          size="small"
+          :type="confirmingReset ? 'error' : 'default'"
+          @click="handleResetClick"
         >
-          <template #trigger
-            ><NButton size="small"
-              ><template #icon
-                ><NIcon :size="14"><RefreshCw /></NIcon></template
-              >{{ i18n('options_factory_reset_button') }}</NButton
-            ></template
-          >
-          {{ i18n('options_factory_reset_confirm') }}
-        </NPopconfirm>
+          <template #icon>
+            <NIcon :size="14"><RefreshOutline /></NIcon>
+          </template>
+          {{
+            confirmingReset
+              ? i18n('options_factory_reset_confirm', 'Click Again to Reset')
+              : i18n('options_factory_reset_button', 'Reset Settings')
+          }}
+        </NButton>
       </div>
 
-      <p class="hint">{{ i18n('options_backup_secret_hint') }}</p>
       <input
         ref="fileInput"
         class="maintenance-file-input"
@@ -254,9 +318,9 @@ function formatDateTime(ts: number): string {
     </section>
 
     <section class="settings-group">
-      <h2 class="settings-group-title">
+      <h3 class="settings-group-title">
         {{ i18n('options_section_diagnostics', 'Diagnostics') }}
-      </h2>
+      </h3>
 
       <NFormItem
         class="diagnostics-retention-setting"
@@ -265,7 +329,6 @@ function formatDateTime(ts: number): string {
         :show-feedback="false"
       >
         <NInputNumber
-          :aria-label="i18n('options_diagnostics_log_entry_limit')"
           :max="DIAGNOSTIC_EVENT_LIMIT_MAX"
           :min="DIAGNOSTIC_EVENT_LIMIT_MIN"
           :precision="0"
@@ -299,7 +362,6 @@ function formatDateTime(ts: number): string {
         <NSelect
           v-model:value="codeFilter"
           class="diagnostics-code-filter"
-          :aria-label="i18n('options_diagnostics_filter_code')"
           size="small"
           clearable
           filterable
@@ -310,24 +372,22 @@ function formatDateTime(ts: number): string {
         <div class="maintenance-actions diagnostics-actions">
           <NButton size="small" @click="emit('exportDiagnostics')">
             <template #icon>
-              <NIcon :size="14"><Download /></NIcon>
+              <NIcon :size="14"><DownloadOutline /></NIcon>
             </template>
             {{ i18n('options_diagnostics_export', 'Export Report') }}
           </NButton>
-          <NPopconfirm
-            :positive-text="i18n('options_diagnostics_clear')"
-            :negative-text="i18n('media_cancel')"
-            @positive-click="emit('clearDiagnostics')"
-          >
-            <template #trigger
-              ><NButton size="small" :disabled="!events.length"
-                ><template #icon
-                  ><NIcon :size="14"><Trash2 /></NIcon></template
-                >{{ i18n('options_diagnostics_clear') }}</NButton
-              ></template
-            >
-            {{ i18n('options_diagnostics_clear_confirm') }}
-          </NPopconfirm>
+          <NButton ghost size="small" type="error" @click="handleClearDiagnosticsClick">
+            <template #icon>
+              <NIcon :size="14"><TrashOutline /></NIcon>
+            </template>
+            <ClearDiagnosticsButtonLabel
+              :clear-label="i18n('options_diagnostics_clear', 'Clear Log')"
+              :confirm-label="i18n('options_diagnostics_clear_confirm', 'Confirm Clear')"
+              :confirming="confirmingClearDiagnostics"
+              :seconds="clearConfirmationSeconds"
+              :seconds-suffix="i18n('options_seconds_suffix', 's')"
+            />
+          </NButton>
         </div>
       </div>
 
@@ -336,11 +396,10 @@ function formatDateTime(ts: number): string {
         :columns="diagnosticColumns"
         :data="filteredEvents"
         :max-height="DIAGNOSTIC_BODY_HEIGHT"
-        :scroll-x="708"
+        :min-height="DIAGNOSTIC_BODY_HEIGHT"
         :pagination="diagnosticPagination"
         :row-key="(event: DiagnosticEvent) => event.id"
-        :bordered="false"
-        :single-line="true"
+        :single-line="false"
         size="small"
         table-layout="fixed"
         @update:page="diagnosticPage = $event"
@@ -367,6 +426,10 @@ function formatDateTime(ts: number): string {
   display: none;
 }
 
+.maintenance-reset-button {
+  flex-shrink: 0;
+}
+
 .diagnostics-retention-setting {
   max-width: 300px;
   margin-bottom: 12px;
@@ -389,12 +452,16 @@ function formatDateTime(ts: number): string {
 }
 
 .diagnostics-actions {
-  margin-inline-start: auto;
+  margin-left: auto;
+}
+
+.diagnostics-table {
+  font-family: var(--font-mono);
 }
 
 .diagnostics-table :deep(.n-data-table-th),
 .diagnostics-table :deep(.n-data-table-td) {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .diagnostics-table :deep(.n-data-table-td) {
@@ -404,8 +471,7 @@ function formatDateTime(ts: number): string {
 }
 
 .diagnostics-table :deep(.diagnostic-code) {
-  font-family: var(--rb-font-mono);
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .diagnostics-table :deep(.n-data-table__pagination .n-pagination) {
@@ -413,13 +479,13 @@ function formatDateTime(ts: number): string {
 }
 
 .diagnostics-table :deep(.n-pagination-prefix) {
-  margin-inline-end: auto;
+  margin-right: auto;
 }
 
 @media (max-width: 700px) {
   .diagnostics-actions {
     width: 100%;
-    margin-inline-start: 0;
+    margin-left: 0;
   }
 }
 </style>

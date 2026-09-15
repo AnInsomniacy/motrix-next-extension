@@ -27,7 +27,8 @@ fi
 
 # Check if tag already exists
 if git tag -l "$TAG" | grep -q "$TAG"; then
-  echo "Error: Tag $TAG already exists. Use a new version for changed source."
+  echo "Error: Tag $TAG already exists. Delete it first if re-releasing:"
+  echo "  git tag -d $TAG && git push origin --delete $TAG"
   exit 1
 fi
 
@@ -46,8 +47,7 @@ echo "Running pre-release checks..."
 pnpm compile || { echo "❌ TypeScript type check failed."; exit 1; }
 pnpm test || { echo "❌ Tests failed."; exit 1; }
 pnpm lint || { echo "❌ ESLint check failed."; exit 1; }
-pnpm lint:i18n || { echo "❌ i18n lint failed."; exit 1; }
-pnpm media:contract:check || { echo "❌ Media contract schema check failed."; exit 1; }
+npx tsx scripts/lint-i18n.ts || { echo "❌ i18n lint failed."; exit 1; }
 pnpm format:check || { echo "❌ Format check failed. Run 'pnpm format' first."; exit 1; }
 pnpm build || { echo "❌ Chromium build failed."; exit 1; }
 pnpm build:firefox || { echo "❌ Firefox build failed."; exit 1; }

@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next Extension",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "Знайдіть джерело та передайте завантаження без зайвих дій.",
+    "message": "Надсилайте завантаження з браузера до Motrix Next — сучасного менеджера завантажень на базі aria2",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Запустити Rayburst",
+    "message": "Запустити Motrix Next",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Відкрити Rayburst",
+    "message": "Відкрити Motrix Next",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "Не вдається підключитися до Rayburst",
+    "message": "Не вдається підключитися до Motrix Next",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Перехоплювати завантаження",
+    "message": "Увімкнути перехоплення завантажень",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "Завантажити з Rayburst",
-    "description": "Context menu item for downloading a link with Rayburst"
+    "message": "Завантажити з Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
   },
   "options_header_title": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "Знайдіть джерело та передайте завантаження без зайвих дій.",
-    "description": "Rayburst Connect slogan"
+    "message": "Налаштування розширення",
+    "description": "Options page header subtitle"
   },
   "options_testing_connection": {
     "message": "Тестування...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Підключено · Rayburst",
+    "message": "Підключено · Motrix Next",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Rayburst Connect v$version$",
+    "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,6 +155,10 @@
   "options_color_scheme": {
     "message": "Кольорова схема",
     "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "Бурштинове золото",
+    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "Космічний синій",
@@ -213,7 +217,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
+    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -231,7 +235,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Rayburst is running. API port: $1",
+    "message": "Make sure Motrix Next is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -241,23 +245,23 @@
     }
   },
   "options_section_language": {
-    "message": "Мова / Language",
-    "description": "Language setting label; retain the English Language locator in non-English locales."
+    "message": "Мова",
+    "description": "Settings section for interface language"
   },
   "options_locale_auto": {
     "message": "Автоматична",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Автоматично / Auto",
-    "description": "Follow the browser language automatically; keep the English Auto locator."
+    "message": "Слідувати за мовою браузера",
+    "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "Якщо Rayburst недоступний",
+    "message": "Якщо Motrix Next недоступний",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "Запустити Rayburst",
+    "message": "Запустити Motrix Next",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -281,8 +285,16 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Зупинені",
+    "message": "Завершені",
     "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "Перехоплення увімкнено",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "На паузі",
+    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -297,7 +309,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Rayburst",
+    "message": "Cannot connect to Motrix Next",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -325,7 +337,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "Надайте дозволи cookie та сайтів, щоб передавати cookie до Rayburst.",
+    "message": "Надайте дозволи cookie та сайтів, щоб передавати cookie до Motrix Next.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -357,8 +369,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "Передати до Rayburst",
-    "description": "Option label for routing unknown-size downloads to Rayburst."
+    "message": "Передати до Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
   },
   "options_min_size_unknown_skip": {
     "message": "Передати до браузера",
@@ -413,8 +425,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "Надіслати до Rayburst",
-    "description": "Option label for routing a matched extension to Rayburst."
+    "message": "Надіслати до Motrix Next",
+    "description": "Option label for routing a matched extension to Motrix Next."
   },
   "options_file_extension_action_skip": {
     "message": "Використати браузер",
@@ -425,7 +437,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Відновити типові налаштування?",
+    "message": "Натисніть ще раз, щоб скинути",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -497,7 +509,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "Запуск Rayburst",
+    "message": "Запуск Motrix Next",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -505,11 +517,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "Не вдалося запустити Rayburst",
+    "message": "Не вдалося запустити Motrix Next",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "Перевірте, що Rayburst установлено й налаштування API правильні.",
+    "message": "Перевірте, що Motrix Next установлено й налаштування API правильні.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -575,305 +587,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Видалити всі записи журналу?",
+    "message": "Підтвердити очищення",
     "description": "Second-click confirmation label for clearing diagnostic logs"
-  },
-  "media_tab": {
-    "message": "Медіа",
-    "description": "Media discovery: tab"
-  },
-  "media_downloads": {
-    "message": "Огляд",
-    "description": "Media discovery: downloads"
-  },
-  "media_discover": {
-    "message": "Шукати медіа",
-    "description": "Media discovery: discover"
-  },
-  "media_scan": {
-    "message": "Сканувати сторінку",
-    "description": "Media discovery: scan"
-  },
-  "media_clear": {
-    "message": "Очистити список",
-    "description": "Media discovery: clear"
-  },
-  "media_filter": {
-    "message": "Фільтрувати джерела",
-    "description": "Media discovery: filter"
-  },
-  "media_sources": {
-    "message": "Медіаджерела",
-    "description": "Media discovery: sources"
-  },
-  "media_source": {
-    "message": "Джерело",
-    "description": "Media discovery: source"
-  },
-  "media_enable_site": {
-    "message": "Увімкнути на цьому сайті",
-    "description": "Media discovery: enable site"
-  },
-  "media_disable_site": {
-    "message": "Вимкнути на цьому сайті",
-    "description": "Media discovery: disable site"
-  },
-  "media_inspect": {
-    "message": "Перевірити формати",
-    "description": "Media discovery: inspect"
-  },
-  "media_options": {
-    "message": "Параметри медіа",
-    "description": "Media discovery: options"
-  },
-  "media_back": {
-    "message": "Список медіа",
-    "description": "Media discovery: back"
-  },
-  "media_video": {
-    "message": "Якість відео",
-    "description": "Media discovery: video"
-  },
-  "media_audio": {
-    "message": "Аудіо",
-    "description": "Media discovery: audio"
-  },
-  "media_subtitles": {
-    "message": "Субтитри",
-    "description": "Media discovery: subtitles"
-  },
-  "media_format": {
-    "message": "Формат",
-    "description": "Media discovery: format"
-  },
-  "media_original": {
-    "message": "Оригінальний файл",
-    "description": "Media discovery: original"
-  },
-  "media_record_limit": {
-    "message": "Обмеження запису (секунди)",
-    "description": "Media discovery: record limit"
-  },
-  "media_live": {
-    "message": "Запис трансляції",
-    "description": "Media discovery: live"
-  },
-  "media_download": {
-    "message": "Завантажити",
-    "description": "Media discovery: download"
-  },
-  "media_record": {
-    "message": "Почати запис",
-    "description": "Media discovery: record"
-  },
-  "media_cancel": {
-    "message": "Скасувати",
-    "description": "Media discovery: cancel"
-  },
-  "media_retry": {
-    "message": "Перевірити стан",
-    "description": "Media discovery: retry"
-  },
-  "media_close": {
-    "message": "Закрити",
-    "description": "Media discovery: close"
-  },
-  "media_locate": {
-    "message": "Знайти програвач",
-    "description": "Media discovery: locate"
-  },
-  "media_no_video": {
-    "message": "Без відео",
-    "description": "Media discovery: no video"
-  },
-  "media_no_audio": {
-    "message": "Без аудіо",
-    "description": "Media discovery: no audio"
-  },
-  "media_no_subtitles": {
-    "message": "Без субтитрів",
-    "description": "Media discovery: no subtitles"
-  },
-  "media_excluded_sites": {
-    "message": "Виключені медіасайти",
-    "description": "Media discovery: excluded sites"
-  },
-  "media_waiting": {
-    "message": "Програвач знайдено; очікування медіаджерела.",
-    "description": "Media discovery: waiting"
-  },
-  "media_none": {
-    "message": "Медіаджерел не знайдено.",
-    "description": "Media discovery: none"
-  },
-  "media_paused": {
-    "message": "Виявлення медіа призупинено.",
-    "description": "Media discovery: paused"
-  },
-  "media_excluded": {
-    "message": "Виявлення медіа вимкнено на цьому сайті.",
-    "description": "Media discovery: excluded"
-  },
-  "media_ambiguous": {
-    "message": "Неможливо однозначно пов’язати джерела з програвачем. Перевірте перед завантаженням.",
-    "description": "Media discovery: ambiguous"
-  },
-  "media_loading": {
-    "message": "Перевірка медіа…",
-    "description": "Media discovery: loading"
-  },
-  "media_submitted": {
-    "message": "Завантаження створено в Rayburst.",
-    "description": "Media discovery: submitted"
-  },
-  "media_cancelled": {
-    "message": "Перевірку скасовано.",
-    "description": "Media discovery: cancelled"
-  },
-  "media_failed": {
-    "message": "Операція не вдалася. Повторіть для перевірки стану.",
-    "description": "Media discovery: failed"
-  },
-  "media_unsupported": {
-    "message": "Медіа або метод запиту не підтримується.",
-    "description": "Media discovery: unsupported"
-  },
-  "media_invalid": {
-    "message": "Виберіть підтримуване поєднання доріжок, формату й тривалості.",
-    "description": "Media discovery: invalid"
-  },
-  "media_unavailable": {
-    "message": "Rayburst поки не підтримує медіаінтерфейс.",
-    "description": "Media discovery: unavailable"
-  },
-  "media_expired": {
-    "message": "Джерело або перевірка застаріли. Відтворіть медіа й перевірте знову.",
-    "description": "Media discovery: expired"
-  },
-  "media_connection": {
-    "message": "Запустіть Rayburst і перевірте з’єднання.",
-    "description": "Media discovery: connection"
-  },
-  "media_size_unknown": {
-    "message": "Розмір невідомий",
-    "description": "Media discovery: size unknown"
-  },
-  "media_duration_unknown": {
-    "message": "Тривалість невідома",
-    "description": "Media discovery: duration unknown"
-  },
-  "media_includes_audio": {
-    "message": "Містить аудіо",
-    "description": "Media discovery: includes audio"
-  },
-  "media_record_hint": {
-    "message": "Нуль означає запис до зупинки в Rayburst.",
-    "description": "Media discovery: record hint"
-  },
-  "media_inspect_hint": {
-    "message": "Спочатку перевірте формати, потім підтвердьте завантаження.",
-    "description": "Media discovery: inspect hint"
-  },
-  "media_open_page": {
-    "message": "Відкрийте вебсторінку для виявлення медіа.",
-    "description": "Media discovery: open page"
-  },
-  "media_hint": {
-    "message": "Відтворіть відео або аудіо для автоматичного виявлення джерел.",
-    "description": "Media discovery: hint"
-  },
-  "media_ready": {
-    "message": "Формати готові",
-    "description": "Media discovery: ready"
-  },
-  "media_confirming": {
-    "message": "Підтвердження завантаження…",
-    "description": "Media discovery: confirming"
-  },
-  "media_cancelling": {
-    "message": "Скасування перевірки…",
-    "description": "Media discovery: cancelling"
-  },
-  "options_color_scheme_electric": {
-    "message": "Електричний фіолетовий",
-    "description": "Electric Purple color scheme"
-  },
-  "popup_status_connecting": {
-    "message": "Підключення"
-  },
-  "popup_upload": {
-    "message": "Віддача"
-  },
-  "popup_action_failed": {
-    "message": "Не вдалося виконати дію."
-  },
-  "options_about": {
-    "message": "Про розширення"
-  },
-  "options_api_secret_hint": {
-    "message": "Дивіться в Rayburst: Налаштування → З’єднання."
-  },
-  "options_backup_secret_hint": {
-    "message": "Резервні копії налаштувань містять ваш ключ API."
-  },
-  "options_remove_rule": {
-    "message": "Видалити правило"
-  },
-  "options_site_pattern": {
-    "message": "Шаблон сайту"
-  },
-  "options_rule_action": {
-    "message": "Дія"
-  },
-  "media_source_auth": {
-    "message": "Увійдіть на сайт-джерело та спробуйте ще раз."
-  },
-  "media_protected": {
-    "message": "Цей матеріал захищено, його неможливо завантажити."
-  },
-  "popup_download": {
-    "message": "Завантажити"
-  },
-  "media_api_auth": {
-    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
-  },
-  "options_theme_label": {
-    "message": "Тема"
-  },
-  "options_section_general": {
-    "message": "Загальні"
-  },
-  "options_custom_color": {
-    "message": "Власний колір"
-  },
-  "options_color_scheme_custom": {
-    "message": "Власна"
-  },
-  "control_confirm": {
-    "message": "Підтвердити"
-  },
-  "control_cancel": {
-    "message": "Скасувати"
-  },
-  "control_undo": {
-    "message": "Скасувати дію"
-  },
-  "control_redo": {
-    "message": "Повторити"
-  },
-  "control_clear": {
-    "message": "Очистити"
-  },
-  "control_add": {
-    "message": "Додати"
-  },
-  "control_empty": {
-    "message": "Немає результатів"
-  },
-  "control_select": {
-    "message": "Виберіть"
-  },
-  "control_input": {
-    "message": "Введіть значення"
   }
 }

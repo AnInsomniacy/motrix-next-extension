@@ -1,186 +1,234 @@
 <div align="center">
-  <img src="docs/media/rayburst-connect-banner.png" alt="Rayburst Connect — Spot the source, hand it off seamlessly" width="600" />
-  <br><br>
+  <img src="public/icon/icon.svg" alt="Motrix Next Extension" width="128" height="128" />
+  <h1>Motrix Next Extension</h1>
+  <p>Browser extension for <a href="https://github.com/AnInsomniacy/motrix-next">Motrix Next</a> — seamless download interception &amp; delegation.</p>
 
-[![Release](https://img.shields.io/github/v/release/AnInsomniacy/motrix-next-extension?label=release&color=7B3ED1)](https://github.com/AnInsomniacy/motrix-next-extension/releases)
-[![GitHub downloads](https://img.shields.io/github/downloads/AnInsomniacy/motrix-next-extension/total?label=GitHub%20downloads&color=7B3ED1)](https://github.com/AnInsomniacy/motrix-next-extension/releases)
-[![Build](https://img.shields.io/github/actions/workflow/status/AnInsomniacy/motrix-next-extension/ci.yml?branch=main&label=build)](https://github.com/AnInsomniacy/motrix-next-extension/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/AnInsomniacy/motrix-next-extension?color=7B3ED1)](LICENSE)
-![Manifest V3](https://img.shields.io/badge/manifest-V3-5F526D)
+![Version](https://img.shields.io/github/v/release/AnInsomniacy/motrix-next-extension?label=Version)
+![Build](https://img.shields.io/github/actions/workflow/status/AnInsomniacy/motrix-next-extension/ci.yml?branch=main&label=Build)
+![Manifest](https://img.shields.io/badge/manifest-v3-blue)
 
-**[Install](#install)** · **[Connect to Rayburst](#connect-to-rayburst)** · **[Media discovery](#find-and-download-media)** · **[Development](#development)**
+  <p>
+    <a href="https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb"><img src="docs/badges/edge-add-ons.png?v=2" alt="Get it from Microsoft Edge" height="58" /></a>
+    &nbsp;&nbsp;
+    <a href="https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl"><img src="docs/badges/chrome-web-store.png?v=2" alt="Available in the Chrome Web Store" height="58" /></a>
+    &nbsp;&nbsp;
+    <a href="https://addons.mozilla.org/firefox/addon/motrix-next-extension/"><img src="docs/badges/firefox-add-ons.svg?v=2" alt="Get the Add-on for Firefox" height="58" /></a>
+  </p>
 
 </div>
 
-**Rayburst Connect** brings browser downloads and discovered media to the
-[Rayburst desktop app](https://github.com/AnInsomniacy/motrix-next). Send a file from
-your browser, choose which sites to intercept, or find a playing video's source
-and select its tracks before downloading.
-
-> [!NOTE]
-> The Rayburst Connect rebrand is currently available in source. Existing store
-> listings and GitHub packages still use the Motrix Next Extension name. Repository
-> addresses and installation IDs are unchanged. To try the current branding and
-> media integration, build this extension and Rayburst from their current sources.
-
-## Install
-
-### Browser stores
+---
 
 <div align="center">
-  <a href="https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl"><img src="docs/badges/chrome-web-store.png" alt="Available in the Chrome Web Store" height="58" /></a>
-  &nbsp;&nbsp;
-  <a href="https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb"><img src="docs/badges/edge-add-ons.png" alt="Get it from Microsoft Edge" height="58" /></a>
-  &nbsp;&nbsp;
-  <a href="https://addons.mozilla.org/firefox/addon/motrix-next-extension/"><img src="docs/badges/firefox-add-ons.svg" alt="Get the Add-on for Firefox" height="58" /></a>
+  <table><tr>
+    <td><img src="docs/images/popup.png" alt="Popup" width="400" /></td>
+    <td><img src="docs/images/settings.png" alt="Settings" width="400" /></td>
+  </tr><tr>
+    <td align="center"><sub>Popup — Live speed &amp; task dashboard</sub></td>
+    <td align="center"><sub>Settings — Connection, behavior, rules, appearance</sub></td>
+  </tr></table>
 </div>
-
-| Browser | Published listing                                                                                            |
-| ------- | ------------------------------------------------------------------------------------------------------------ |
-| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl)                |
-| Edge    | [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb) |
-| Firefox | [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/motrix-next-extension/)                           |
-
-Stores review releases independently, so their versions may differ. Install a
-desktop version compatible with the extension you choose; current source builds
-are not a compatibility layer for older desktop releases.
-
-### GitHub packages and local builds
-
-[GitHub Releases](https://github.com/AnInsomniacy/motrix-next-extension/releases)
-provides published browser ZIPs and release notes. For the current Rayburst Connect
-source, install dependencies as described in [Development](#development), then build:
-
-```sh
-pnpm build
-pnpm build:firefox
-```
-
-Load the generated files:
-
-- **Chrome / Edge:** open `chrome://extensions` or `edge://extensions`, enable
-  **Developer mode**, choose **Load unpacked**, and select `.output/chromium-mv3`.
-- **Firefox:** open `about:debugging#/runtime/this-firefox`, choose
-  **Load Temporary Add-on**, and select `.output/firefox-mv3/manifest.json`.
-
-For a downloaded ZIP, extract it and select its root folder (Chromium) or its
-`manifest.json` (Firefox) instead. Firefox's temporary installation ends
-when the browser restarts; use the signed store release for normal installation.
-Current source targets Chromium 132+ and desktop Firefox 140+. Downloads require
-Rayburst on the same computer.
-
-## Connect to Rayburst
-
-1. Install and open [Rayburst](https://github.com/AnInsomniacy/motrix-next).
-2. In the desktop app's Settings → Connections, find the **Extension API** port and secret.
-3. Enter the same values in the extension's Settings → General → Connection. The default port is
-   `29110`. The Extension API secret is separate from the engine RPC secret.
-4. Confirm the popup reports a connection, then download a file or use a right-click
-   **Download with Rayburst** action.
-
-Rayburst Connect communicates with the desktop over a local loopback HTTP API.
-Native Messaging can activate the installed app when it is closed; it does not
-perform the download itself. If activation fails, open Rayburst manually and check
-the connection settings and desktop Native Messaging diagnostics.
 
 ## Features
 
-| Feature               | What it does                                                                                            |
-| --------------------- | ------------------------------------------------------------------------------------------------------- |
-| Download interception | Hands browser downloads to Rayburst with filename hints and the relevant request context.               |
-| Site and file rules   | Controls interception by site, file type, MIME type and minimum size.                                   |
-| Context menu          | Sends a link, image, audio or video directly from the page.                                             |
-| Media discovery       | Finds HLS/DASH manifests and direct audio/video sources while playback continues.                       |
-| Track selection       | Shows available video, audio and subtitle choices, MP4/MKV output and live-recording options.           |
-| Protocol links        | Handles magnet, ED2K and Thunder links, plus torrent downloads.                                         |
-| Popup dashboard       | Shows connection status, transfer speeds and task counts.                                               |
-| Browser controls      | Configures desktop activation, cookie/header forwarding and the optional Chromium download bar control. |
-| Appearance            | Light, dark and system themes, Electric Purple, additional presets, custom HEX colors and 27 languages. |
-| Diagnostics           | Keeps a bounded local event log with filtering and export for troubleshooting.                          |
+- **Download interception** — Automatically captures browser downloads and routes them to Motrix Next for multi-threaded acceleration
+- **Smart filtering** — Ordered checks for interception settings, extension-owned downloads, URL schemes, site rules, MIME types, file extensions, and minimum file size
+- **Per-site rules** — Glob-pattern rules (e.g. `*.github.com`) to always intercept, always skip, or defer to global settings
+- **Context menu** — Right-click any link, image, audio, or video → "Download with Motrix Next"
+- **Magnet & torrent** — `magnet:` URIs and `.torrent` files are automatically captured and routed to aria2
+- **Cookie forwarding** — Cookie forwarding is enabled by default for authenticated downloads and uses required cookie and site permissions
+- **Real-time dashboard** — Popup shows live download/upload speeds, active/waiting/completed task counts
+- **Auto-launch** — Activates Motrix Next through its allowlisted Native Messaging host, waits for API readiness, then retries
+- **Duplicate notifications** — Alerts when a repeated download request is skipped
+- **Download bar control** — Optionally hides Chrome's native download shelf (Chromium 115+, not available on Firefox)
+- **Dark mode** — System / Light / Dark with 10 Material You color schemes
+- **i18n** — 27 languages including English, Hindi, Chinese, Japanese, Korean, French, German, Spanish, and more
+- **Diagnostics** — Privacy-sanitized outcome log with severity filters, configurable bounded history (100 events by default), and one-click export
 
-## Find and download media
+## Installation
 
-1. Open a page and start playback. The extension badge counts discovered sources.
-2. Open the popup's **Media** tab or use the **Download · Rayburst** button beside
-   a supported player.
-3. Select a source. Rayburst inspects a streaming manifest and returns its available
-   tracks; choose the video, audio, subtitles and output container.
-4. Confirm the selection. The task is created in Rayburst while page playback continues.
+### From Store (recommended)
 
-Discovery also works while the desktop is disconnected; inspection and downloading
-need Rayburst. Media discovery has its own global switch and site exclusions,
-independent of ordinary download interception.
+| Browser | Link                                                                                               |
+| ------- | -------------------------------------------------------------------------------------------------- |
+| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl)      |
+| Edge    | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb) |
+| Firefox | [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/motrix-next-extension/)                 |
 
-The extension observes browser requests and public media elements. Rayburst and
-Aria2 Next handle inspection, transfer and media packaging. DRM-protected playback,
-transcoding and universal website extraction are outside the supported scope.
-A `blob:` player can expose several sources; the extension lists candidates without
-claiming an uncertain match. See [Media discovery](docs/MEDIA.md) for details.
+### From Source
 
-## Permissions and privacy
-
-Rayburst Connect has no analytics, advertising or telemetry. Settings and diagnostic
-logs stay in browser storage. Temporary source and request context is held in browser
-session storage; selected download information is sent to your local desktop app.
-
-Website access is needed to discover sources and preserve request context for
-authenticated downloads. Cookie and header forwarding can be disabled in Settings.
-Source URLs may contain private tokens; review copied URLs and diagnostic exports
-before sharing them.
-
-See [Privacy Policy](PRIVACY_POLICY.md) and [Permissions](docs/store/permissions.md)
-for the data handled and the purpose of each browser permission.
-
-## Development
-
-Use Node.js 24.16 or later within the range in `package.json`, and the pinned pnpm
-version. No desktop or engine source checkout is required to build the extension.
-
-```sh
+```bash
 git clone https://github.com/AnInsomniacy/motrix-next-extension.git
 cd motrix-next-extension
 pnpm install
-pnpm dev
+
+# Chrome / Edge
+pnpm build
+
+# Firefox
+pnpm build:firefox
 ```
 
-WXT launches Chrome with a persistent development profile in `.wxt/chrome-data`.
-Settings survive restarts; deleting that directory resets the development browser.
-Use `pnpm dev:firefox` for Firefox. Both development and production Chromium builds
-retain the public key needed for the local native-host identity.
+Then load the unpacked extension:
 
-| Command                             | Purpose                                                      |
-| ----------------------------------- | ------------------------------------------------------------ |
-| `pnpm build` / `pnpm build:firefox` | Build Chromium / Firefox production files.                   |
-| `pnpm zip` / `pnpm zip:firefox`     | Build and package browser ZIPs locally; no store submission. |
-| `pnpm compile`                      | Check TypeScript and Vue types.                              |
-| `pnpm lint` / `pnpm format:check`   | Check source style and formatting.                           |
-| `pnpm lint:i18n`                    | Validate the 27 locale bundles.                              |
-| `pnpm media:contract:check`         | Check the repository's media schema export.                  |
-| `pnpm test`                         | Run repository-local behavior tests.                         |
-| `pnpm brand:assets`                 | Export promotional assets and the manual test-page favicon.  |
+**Chrome / Edge:**
 
-The logo source is `assets/rayburst-connect.svg`. WXT's official auto-icons module
-generates browser icon sizes; the approved README banner lives separately in
-`docs/media/`. Code and engineering documentation use English.
+1. Navigate to `chrome://extensions` (or `edge://extensions`)
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the `.output/chromium-mv3` directory
 
-Tests use Vitest and WXT's `fakeBrowser`. The maintainer performs browser-to-desktop
-acceptance with independently built applications; no cross-repository test runner
-is required. The `test-site/` directory contains a standalone page for manual
-download checks.
+**Firefox:**
 
-## Documentation and support
+1. Navigate to `about:debugging#/runtime/this-firefox`
+2. Click **Load Temporary Add-on...**
+3. Select `.output/firefox-mv3/manifest.json`
 
-- [Contributing](docs/CONTRIBUTING.md) · [Code of Conduct](docs/CODE_OF_CONDUCT.md)
-- [Download handoff](docs/DOWNLOADS.md) · [Media discovery](docs/MEDIA.md) · [Media API](docs/MEDIA_API.md)
-- [Versioning, releases and store submission](docs/RELEASING.md)
-- [Report a bug or request a feature](https://github.com/AnInsomniacy/motrix-next-extension/issues)
-- [Support development](https://github.com/AnInsomniacy/AnInsomniacy/blob/main/SPONSOR.md)
+## FAQ
 
-For connection or interception issues, include the browser, extension and desktop
-versions, reproduction steps and relevant diagnostics. Do not publish cookies,
-API secrets or private source URLs.
+<details>
+<summary><strong>What is Motrix Next?</strong></summary>
+
+<br>
+
+[Motrix Next](https://github.com/AnInsomniacy/motrix-next) is a full-featured download manager powered by aria2 — a ground-up rewrite of the original [Motrix](https://github.com/agalwood/Motrix) with Tauri 2, Vue 3, and Rust. This extension bridges your browser to the Motrix Next desktop app running on your local machine.
+
+</details>
+
+<details>
+<summary><strong>Do I need the desktop app?</strong></summary>
+
+<br>
+
+Yes. This extension sends downloads to the Motrix Next desktop app via its HTTP API on `127.0.0.1:29110`. Without the desktop app running, the extension will show a "Disconnected" status and cannot process downloads.
+
+</details>
+
+<details>
+<summary><strong>Why does the extension request broad host permissions?</strong></summary>
+
+<br>
+
+The broad host permissions (`*://*/*`) are required so cookie forwarding works immediately for authenticated downloads from any site. The `chrome.cookies.getAll()` and `webRequest` APIs require matching host permissions for the target domain, and browser downloads can originate from any domain. The same access lets the extension preserve filtered request context and, on Firefox, identify attachment and binary responses before the native save dialog opens. Cookies and filtered request metadata are sent only to the Motrix Next API on `127.0.0.1`. Users can disable cookie forwarding and request header forwarding in Settings.
+
+</details>
+
+<details>
+<summary><strong>Does this extension collect any data?</strong></summary>
+
+<br>
+
+No. This extension does **not** collect, store, or transmit any personal data. All communication occurs exclusively between your browser and the Motrix Next app on your local machine (`127.0.0.1`). No analytics, no telemetry, no external requests. See the [full Privacy Policy](PRIVACY_POLICY.md).
+
+</details>
+
+## Development
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 24.16.0 LTS
+- [pnpm](https://pnpm.io/) 10.34.1
+- [Motrix Next](https://github.com/AnInsomniacy/motrix-next) desktop app running
+
+### Setup
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start the development server with hot reload
+pnpm dev
+
+# In a regular Chrome profile, open chrome://extensions and load:
+# .output/chrome-mv3-dev
+
+# Build for production
+pnpm build
+
+# Package as .zip for store submission
+pnpm zip
+```
+
+### Project Structure
+
+```
+motrix-next-extension/
+├── entrypoints/                # Extension entry points
+│   ├── background.ts           #   Service worker — orchestrator wiring, listeners
+│   ├── content.ts              #   Content script — magnet/ed2k/thunder link interception
+│   ├── popup/App.vue           #   Browser action popup — status, speed, task dashboard
+│   └── options/App.vue         #   Full-page settings — one staged-snapshot state model
+├── lib/                        # Core logic
+│   ├── schema.ts               #   Zod schemas — single source of types + defaults
+│   ├── storage.ts              #   Schema-validated browser.storage access
+│   ├── api.ts                  #   Desktop HTTP API client + error taxonomy
+│   ├── desktop.ts              #   Native Messaging activation + readiness coordination
+│   ├── browser.ts              #   Permissions, context menu, webRequest helpers
+│   ├── backup.ts               #   Settings backup import/export
+│   ├── diagnostics.ts          #   Sanitized, serialized diagnostic journal
+│   └── download/               #   Orchestrator, filter pipeline, request context
+├── shared/                     # Shared UI infrastructure
+│   ├── i18n/                   #   Runtime i18n engine + virtual:locales loader
+│   └── theme.ts                #   M3 color system — bootstrap, CSS vars, Naive UI
+├── __tests__/                  # Behavior-level unit + integration tests
+├── public/_locales/            # Chrome i18n message bundles (27 languages, SSOT)
+└── .github/workflows/ci.yml   # CI: compile → test → lint → i18n → format → build
+```
+
+### Scripts
+
+| Command              | Description                                             |
+| -------------------- | ------------------------------------------------------- |
+| `pnpm dev`           | Build the Chrome development extension with hot reload  |
+| `pnpm dev:firefox`   | Build the Firefox development extension with hot reload |
+| `pnpm build`         | Production build → `.output/chromium-mv3/`              |
+| `pnpm build:firefox` | Production build → `.output/firefox-mv3/`               |
+| `pnpm zip`           | Package Chromium build as `.zip` for store submission   |
+| `pnpm zip:firefox`   | Package Firefox build as `.zip` for AMO submission      |
+| `pnpm zip:all`       | Package both Chrome and Firefox builds                  |
+| `pnpm test`          | Run all unit and integration tests                      |
+| `pnpm test:watch`    | Run tests in watch mode                                 |
+| `pnpm compile`       | TypeScript type checking (`vue-tsc --noEmit`)           |
+| `pnpm lint`          | ESLint (flat config, Vue 3 + TypeScript)                |
+| `pnpm lint:i18n`     | Validate i18n key consistency across all locales        |
+| `pnpm format`        | Auto-format all files with Prettier                     |
+| `pnpm format:check`  | Verify formatting without writing                       |
+
+### Testing
+
+Tests run on Vitest with WXT’s `fakeBrowser` polyfill for extension APIs. Run the full suite before committing:
+
+```bash
+pnpm format:check && pnpm lint && pnpm compile && pnpm test && pnpm build
+```
+
+### Test Site
+
+A self-contained static page for manually verifying download interception:
+
+```bash
+npx serve test-site -p 3001
+```
+
+Covers: Apple IPSW direct links, `.torrent` files, `magnet:` URIs, Linux ISOs, speed test binaries, and edge cases (`blob:`, `data:`).
+
+## Contributing
+
+PRs and issues are welcome! Before submitting:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Ensure all quality gates pass (`pnpm format:check && pnpm lint && pnpm compile && pnpm test`)
+4. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+## Sponsor
+
+Downloads go faster. Thesis progress does not. If you'd like to help with at least one of those —
+
+[Consider sponsoring the project ❤️](https://github.com/AnInsomniacy/AnInsomniacy/blob/main/SPONSOR.md) — your support keeps the code open, the releases shipping, and proof that a PhD can ship more than just papers.
 
 ## License
 
-[MIT](LICENSE) — Copyright © 2025–present AnInsomniacy.
-Dependencies retain their own licenses and notices.
+[MIT](https://opensource.org/licenses/MIT) — Copyright (c) 2025-present AnInsomniacy

@@ -1,8 +1,3 @@
-import {
-  COLOR_SCHEMES,
-  CUSTOM_COLOR_SCHEME_ID,
-  normalizeCustomColorScheme,
-} from '@/shared/theme/schemes';
 /**
  * Single source of truth for every persisted data structure.
  *
@@ -15,12 +10,6 @@ import {
  */
 import { z } from 'zod';
 import { normalizeFileExtensionList } from './file-extensions';
-import {
-  MediaProbeRequestSchema,
-  MediaProbeSchema,
-  MediaRequestContextSchema,
-  MediaSelectionSchema,
-} from './media/contracts';
 
 // MV3 CSP forbids eval/new Function() in extension contexts; use zod's
 // interpreted path instead of its JIT compiler.
@@ -64,12 +53,6 @@ const interceptOrSkip = z.enum(['intercept', 'skip']);
 const DownloadSettingsSchema = lenient(
   z.object({
     enabled: z.boolean().catch(true),
-    mediaDiscovery: lenient(
-      z.object({
-        enabled: z.boolean().catch(true),
-        excludedHosts: z.array(z.string().min(1).max(253)).max(100).catch([]),
-      }),
-    ),
     hideDownloadBar: z.boolean().catch(false),
     desktopUnavailable: lenient(
       z.object({
@@ -137,10 +120,7 @@ const SiteRulesSchema = filteredArray(SiteRuleSchema);
 const UiPrefsSchema = lenient(
   z.object({
     theme: z.enum(['system', 'light', 'dark']).catch('system'),
-    colorScheme: z
-      .enum([...COLOR_SCHEMES.map(({ id }) => id), CUSTOM_COLOR_SCHEME_ID])
-      .catch(COLOR_SCHEMES[0]!.id),
-    customColorScheme: z.unknown().transform(normalizeCustomColorScheme),
+    colorScheme: z.string().catch('amber'),
     locale: z.string().catch('auto'),
   }),
 );
@@ -182,7 +162,8 @@ const DiagnosticCodeSchema = z.enum([
   'download_duplicate_blocked',
   'download_cancel_failed',
   'download_handler_failed',
-  'media_discovery_failed',
+  'request_headers_degraded',
+  'request_headers_failed',
   'firefox_interception_failed',
   'desktop_activation_failed',
   'cookie_collect_failed',
@@ -236,7 +217,7 @@ const StorageSnapshotSchema = lenient(
 
 export type StorageSnapshot = z.output<typeof StorageSnapshotSchema>;
 
-export const SETTINGS_BACKUP_KIND = 'rayburst-connect-settings';
+export const SETTINGS_BACKUP_KIND = 'motrix-next-extension-settings';
 
 export const SettingsBackupSchema = z.strictObject({
   kind: z.literal(SETTINGS_BACKUP_KIND),
@@ -279,69 +260,3 @@ export const parseDiagnosticEvents = (input: unknown): DiagnosticEvent[] =>
   DiagnosticEventsSchema.parse(input);
 export const parseSnapshot = (input: unknown): StorageSnapshot =>
   StorageSnapshotSchema.parse(input);
-
-// Media URLs and credentials are session data, never settings or backup data.
-export const MEDIA_SESSION_KEY = 'mediaSession';
-export const MEDIA_MAX_CANDIDATES = 128;
-export const MEDIA_MAX_PER_TAB = 40;
-export const MEDIA_RETENTION_MS = 30 * 60_000;
-export const MediaCapturedContextSchema = MediaRequestContextSchema.extend({
-  capturedAt: z.number().int().nonnegative(),
-});
-export type MediaCapturedContext = z.infer<typeof MediaCapturedContextSchema>;
-export const MediaCandidateSchema = z.strictObject({
-  id: z.uuid(),
-  tabId: z.number().int().nonnegative(),
-  frameId: z.number().int().nonnegative(),
-  documentId: z.string().max(512),
-  frameUrl: z.string().max(16_384),
-  pageUrl: z.string().max(16_384),
-  url: z.string().max(16_384),
-  kind: z.enum(['file', 'hls', 'dash', 'embedded']),
-  title: z.string().max(512),
-  filename: z.string().max(255),
-  mime: z.string().max(128),
-  size: z.number().int().nonnegative().nullable(),
-  method: z.string().max(16),
-  evidence: z.enum(['network', 'element', 'resource']),
-  firstSeen: z.number().nonnegative(),
-  lastSeen: z.number().nonnegative(),
-  context: MediaCapturedContextSchema.optional(),
-  sentToDesktop: z.boolean().optional(),
-});
-export const MediaOperationSchema = z.strictObject({
-  candidateId: z.uuid(),
-  connectionKey: z.string().max(128),
-  request: MediaProbeRequestSchema,
-  createdAt: z.number().nonnegative(),
-  state: z.enum([
-    'probing',
-    'ready',
-    'submitting',
-    'submitted',
-    'cancelling',
-    'cancelled',
-    'failed',
-  ]),
-  probe: MediaProbeSchema.optional(),
-  submissionId: z.uuid().optional(),
-  selection: MediaSelectionSchema.optional(),
-  gid: z.string().max(128).optional(),
-  error: z.string().max(64).optional(),
-});
-export const MediaScopedContextSchema = MediaCapturedContextSchema.extend({
-  tabId: z.number().int().nonnegative(),
-  frameId: z.number().int().nonnegative(),
-  documentId: z.string().max(512),
-  frameUrl: z.string().max(16_384),
-  pageUrl: z.string().max(16_384),
-});
-export const MediaSessionSchema = z.strictObject({
-  candidates: z.array(MediaCandidateSchema).max(MEDIA_MAX_CANDIDATES),
-  operations: z.array(MediaOperationSchema).max(MEDIA_MAX_CANDIDATES),
-  contexts: z.array(MediaScopedContextSchema).max(128),
-});
-export type MediaCandidate = z.infer<typeof MediaCandidateSchema>;
-export type MediaOperation = z.infer<typeof MediaOperationSchema>;
-export type MediaSession = z.infer<typeof MediaSessionSchema>;
-export type MediaScopedContext = z.infer<typeof MediaScopedContextSchema>;

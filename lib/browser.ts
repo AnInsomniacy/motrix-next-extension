@@ -1,6 +1,7 @@
 /**
  * Thin, typed helpers over `browser.*` APIs: permissions, context
- * menu definitions, notifications, and external protocol links.
+ * menu definitions, notifications, external protocol links, and the
+ * webRequest listener types WXT's cross-browser typings omit.
  */
 import { browser, type Browser } from 'wxt/browser';
 import type { InterceptionScope } from './schema';
@@ -30,7 +31,7 @@ export const requestDownloadUiAccess = (): Promise<boolean> =>
 
 // ─── Context Menu ───────────────────────────────────────
 
-export const CONTEXT_MENU_ID = 'download-with-rayburst';
+export const CONTEXT_MENU_ID = 'download-with-motrix-next';
 export const CONTEXT_MENU_CONTEXTS = ['link', 'image', 'audio', 'video'] as const;
 
 /**
@@ -46,12 +47,7 @@ export function extractContextMenuUrl(info: { linkUrl?: string; srcUrl?: string 
 export function buildDuplicateDownloadNotification(title: string, message: string) {
   return {
     id: `duplicate-download-${Date.now()}`,
-    options: {
-      type: 'basic',
-      title,
-      message,
-      iconUrl: browser.runtime.getURL('/icons/128.png'),
-    } as const,
+    options: { type: 'basic', title, message, iconUrl: 'icon/128.png' } as const,
   };
 }
 
@@ -101,3 +97,37 @@ export function createExternalProtocolClickHandler(deps: ExternalProtocolClickHa
       .catch(() => {});
   };
 }
+
+// ─── webRequest Types ───────────────────────────────────
+// WXT's cross-browser typings omit Firefox's blocking listener contract.
+
+type WebRequestHeader = { name?: string; value?: string };
+
+interface WebRequestHeadersDetails {
+  url: string;
+  method: string;
+  type: string;
+  statusCode: number;
+  originUrl?: string;
+  documentUrl?: string;
+  responseHeaders?: WebRequestHeader[];
+}
+
+interface WebRequestApi {
+  onBeforeSendHeaders?: {
+    addListener: (
+      callback: (details: { url: string; requestHeaders?: WebRequestHeader[] }) => void,
+      filter: { urls: string[] },
+      extraInfoSpec?: string[],
+    ) => void;
+  };
+  onHeadersReceived?: {
+    addListener: (
+      callback: (details: WebRequestHeadersDetails) => void | { cancel?: boolean },
+      filter: { urls: string[]; types?: string[] },
+      extraInfoSpec?: string[],
+    ) => void;
+  };
+}
+
+export const webRequest = (browser as unknown as { webRequest?: WebRequestApi }).webRequest;

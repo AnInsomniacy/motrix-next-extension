@@ -22,7 +22,7 @@ function createDeps(
     if (options.routeFails || !(options.ready || options.activationResult))
       throw new ApiUnreachableError();
     options.calls?.push('route');
-    return { id: 'request', action: 'needs-confirmation' };
+    return { action: 'queued' };
   });
   vi.mocked(deps.downloads.cancel).mockImplementation(async () => {
     options.calls?.push('cancel');
@@ -36,7 +36,7 @@ function createDeps(
 }
 
 describe('automatic download fallback', () => {
-  it('leaves the browser download untouched when Rayburst is unavailable', async () => {
+  it('leaves the browser download untouched when Motrix Next is unavailable', async () => {
     const deps = createDeps();
     const orchestrator = new DownloadOrchestrator(deps);
 
@@ -55,7 +55,7 @@ describe('automatic download fallback', () => {
     );
   });
 
-  it('intercepts normally in browser mode when Rayburst and its engine are ready', async () => {
+  it('intercepts normally in browser mode when Motrix Next and its engine are ready', async () => {
     const calls: string[] = [];
     const deps = createDeps({ action: 'browser', ready: true, calls });
     const orchestrator = new DownloadOrchestrator(deps);

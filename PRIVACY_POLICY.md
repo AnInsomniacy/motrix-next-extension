@@ -1,10 +1,10 @@
-# Privacy Policy — Rayburst Connect
+# Privacy Policy — Motrix Next Extension
 
-**Last updated:** September 12, 2026
+**Last updated:** May 27, 2026
 
 ## Overview
 
-Rayburst Connect ("the Extension") is a browser extension that intercepts browser downloads and redirects them to the [Rayburst](https://github.com/AnInsomniacy/motrix-next) desktop application for accelerated downloading via aria2.
+Motrix Next Extension ("the Extension") is a browser extension that intercepts browser downloads and redirects them to the [Motrix Next](https://github.com/AnInsomniacy/motrix-next) desktop application for accelerated downloading via aria2.
 
 This privacy policy explains what data the Extension accesses, how it is used, and how it is protected.
 
@@ -12,33 +12,9 @@ This privacy policy explains what data the Extension accesses, how it is used, a
 
 **The Extension does not collect, store, transmit, or share any personal data with the developer or any third party.**
 
-The Extension operates entirely on your local machine. All communication occurs exclusively between your browser and the locally running Rayburst desktop application.
+The Extension operates entirely on your local machine. All communication occurs exclusively between your browser and the locally running Motrix Next desktop application.
 
 ## Data Access
-
-### Page Media Discovery
-
-When media discovery is enabled, the Extension observes HTTP(S) request/response
-metadata and public media elements/resource timing in browser frames. It stores
-media candidate URLs, page titles, frame identity, MIME types, file-size hints and
-filtered request context in browser session memory. This supports the local Media
-list and user-requested desktop format inspection. It does not read response bodies,
-record playback, instrument player functions, or upload browsing activity.
-
-Discovery can be disabled independently, globally or by page host. Records expire
-after 30 minutes without observation and are bounded by count and memory limits.
-Browser restart or extension reload clears them. Settings backups exclude this data.
-The popup receives metadata and operation status, not credential header values.
-
-Cookie and request-header forwarding controls also apply to media inspection. When
-exposed by the browser, Authorization and site-specific end-to-end headers may be
-sent to the local desktop for the selected media. Additional observed media contexts
-are separated by origin and document. Fallback cookie lookup uses the source tab's
-store/container and applicable Chromium partition. The desktop then uses source
-credentials only for their intended resource origins when fetching the user's media.
-
-Native Messaging remains activation-only. Missing media integration is reported;
-the Extension does not silently save a manifest as a finished video.
 
 The Extension accesses the following data solely to perform its core functionality:
 
@@ -46,24 +22,24 @@ The Extension accesses the following data solely to perform its core functionali
 
 When a browser download is initiated and intercepted by the Extension, it reads:
 
-- **Download URL** — to forward to the local Rayburst HTTP API
-- **Filename** — to pass to Rayburst when the browser provides a reliable name
+- **Download URL** — to forward to the local Motrix Next HTTP API
+- **Filename** — to pass to Motrix Next when the browser provides a reliable name
 - **HTTP Referer** — to include with the task submission when available
 
-This data is sent only to the Rayburst HTTP API running on `127.0.0.1` (localhost) — **never to any external server**.
+This data is sent only to the Motrix Next HTTP API running on `127.0.0.1` (localhost) — **never to any external server**.
 
 ### Request Context
 
 When request header forwarding is enabled, the Extension reads a limited allowlist of request
 headers for intercepted downloads, such as User-Agent, Accept, language, client hints, fetch
-metadata, DNT, and Origin. This helps the local Rayburst desktop application reproduce
+metadata, DNT, and Origin. This helps the local Motrix Next desktop application reproduce
 browser-authenticated downloads more accurately.
 
 The Extension does not forward Host, Connection, Content-Length, Transfer-Encoding, Range,
 Proxy headers, conditional request headers, or Cookie through request header forwarding. Cookies
 are handled separately as described below. Request header forwarding can be disabled in Settings.
 
-Request context is sent only to the local Rayburst HTTP API running on `127.0.0.1`
+Request context is sent only to the local Motrix Next HTTP API running on `127.0.0.1`
 (localhost) — **never to any external server**.
 
 ### Cookies
@@ -71,9 +47,9 @@ Request context is sent only to the local Rayburst HTTP API running on `127.0.0.
 Cookie forwarding is enabled by default and uses the required cookie and site permissions declared by the Extension:
 
 - The Extension reads cookies for the download URL's domain
-- These cookies are forwarded to the local Rayburst HTTP API
+- These cookies are forwarded to the local Motrix Next HTTP API
 - This enables authenticated downloads (e.g., from file hosting services that require login)
-- **Cookies are never sent to any external server** — only to the locally running Rayburst instance
+- **Cookies are never sent to any external server** — only to the locally running Motrix Next instance
 - Cookies are never sent to the activation-only Native Messaging host
 
 The user can disable cookie forwarding in Settings at any time.
@@ -82,7 +58,7 @@ The user can disable cookie forwarding in Settings at any time.
 
 The Extension stores the following user-configured preferences in `chrome.storage.local`:
 
-- Extension API connection settings (port number, secret token)
+- RPC connection settings (port number, secret token)
 - Download behavior preferences (enabled/disabled, auto-launch, cookie forwarding, download bar visibility)
 - Site rules (per-domain interception settings)
 - Appearance settings (theme, color scheme, language)
@@ -96,8 +72,8 @@ backup is complete. The Extension never uploads backup files.
 
 The Extension makes network requests **only** to the following local addresses:
 
-- `http://127.0.0.1:{port}` — Rayburst HTTP API
-- `http://localhost:{port}` — Rayburst HTTP API (alternative)
+- `http://127.0.0.1:{port}` — Motrix Next HTTP API
+- `http://localhost:{port}` — Motrix Next HTTP API (alternative)
 
 Where `{port}` is the user-configured API port (default: 29110).
 
@@ -107,17 +83,15 @@ Where `{port}` is the user-configured API port (default: 29110).
 
 | Permission                                 | Why It's Needed                                                                     |
 | ------------------------------------------ | ----------------------------------------------------------------------------------- |
-| `downloads`                                | Intercept, cancel, and erase browser downloads that are delegated to Rayburst       |
+| `downloads`                                | Intercept, cancel, and erase browser downloads that are delegated to Motrix Next    |
 | `storage`                                  | Save user settings, site rules, and diagnostic logs locally                         |
-| `contextMenus`                             | Add "Download with Rayburst" to the right-click menu                                |
+| `contextMenus`                             | Add "Download with Motrix Next" to the right-click menu                             |
 | `notifications`                            | Show desktop notifications for download events                                      |
 | `webRequest`                               | Read filtered request headers and filename response headers for delegated downloads |
-| `webNavigation`                            | Associate media with its source frame and invalidate stale navigation data          |
-| `alarms`                                   | Expire bounded media session data after worker suspension                           |
-| `cookies`                                  | Forward cookies to local Rayburst for authenticated downloads                       |
-| `nativeMessaging`                          | Activate the installed Rayburst desktop application                                 |
+| `cookies`                                  | Forward cookies to local Motrix Next for authenticated downloads                    |
+| `nativeMessaging`                          | Activate the installed Motrix Next desktop application                              |
 | `downloads.ui` _(optional)_                | Hide the browser download bar after interception                                    |
-| `http://127.0.0.1/*`, `http://localhost/*` | Communicate with the local Rayburst HTTP API                                        |
+| `http://127.0.0.1/*`, `http://localhost/*` | Communicate with the local Motrix Next HTTP API                                     |
 | `https://*/*`, `http://*/*`                | Read cookies and request/response metadata for delegated downloads                  |
 
 ## Third-Party Services

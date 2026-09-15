@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next Extension",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "Spot the source, hand it off seamlessly.",
+    "message": "Send browser downloads to Motrix Next — a modern download manager powered by aria2",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Launch Rayburst",
+    "message": "Launch Motrix Next",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Open Rayburst",
+    "message": "Open Motrix Next",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "Cannot connect to Rayburst",
+    "message": "Cannot connect to Motrix Next",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Intercept downloads",
+    "message": "Enable Download Interception",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "Download with Rayburst",
-    "description": "Context menu item for downloading a link with Rayburst"
+    "message": "Download with Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
   },
   "options_header_title": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "Spot the source, hand it off seamlessly.",
-    "description": "Rayburst Connect slogan"
+    "message": "Extension Settings",
+    "description": "Options page header subtitle"
   },
   "options_testing_connection": {
     "message": "Testing...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Connected · Rayburst",
+    "message": "Connected · Motrix Next",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Rayburst Connect v$version$",
+    "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,6 +155,10 @@
   "options_color_scheme": {
     "message": "Color Scheme",
     "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "Amber Gold",
+    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "Space Blue",
@@ -213,7 +217,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
+    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -231,7 +235,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Rayburst is running. API port: $1",
+    "message": "Make sure Motrix Next is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -242,22 +246,22 @@
   },
   "options_section_language": {
     "message": "Language",
-    "description": "Language setting label; retain the English Language locator in non-English locales."
+    "description": "Settings section for interface language"
   },
   "options_locale_auto": {
     "message": "Auto",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Auto",
-    "description": "Follow the browser language automatically; keep the English Auto locator."
+    "message": "Follow browser language",
+    "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "When Rayburst Is Unavailable",
+    "message": "When Motrix Next Is Unavailable",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "Launch Rayburst",
+    "message": "Launch Motrix Next",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -281,8 +285,16 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Stopped",
+    "message": "Done",
     "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "Intercepting",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "Paused",
+    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -297,7 +309,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Rayburst",
+    "message": "Cannot connect to Motrix Next",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -325,11 +337,11 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "Grant cookie and site permissions to forward cookies to Rayburst.",
+    "message": "Grant cookie and site permissions to forward cookies to Motrix Next.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
-    "message": "Browser downloads",
+    "message": "Regular Downloads (HTTP / HTTPS / FTP / Torrent)",
     "description": "Label for the browser download interception scope toggle."
   },
   "options_scope_magnet_label": {
@@ -357,8 +369,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "Transfer to Rayburst",
-    "description": "Option label for routing unknown-size downloads to Rayburst."
+    "message": "Transfer to Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
   },
   "options_min_size_unknown_skip": {
     "message": "Transfer to browser",
@@ -413,8 +425,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "Send to Rayburst",
-    "description": "Option label for routing a matched extension to Rayburst."
+    "message": "Send to Motrix Next",
+    "description": "Option label for routing a matched extension to Motrix Next."
   },
   "options_file_extension_action_skip": {
     "message": "Use browser",
@@ -425,7 +437,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Restore default settings?",
+    "message": "Click Again to Reset",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -497,7 +509,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "Starting Rayburst",
+    "message": "Starting Motrix Next",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -505,11 +517,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "Could not start Rayburst",
+    "message": "Could not start Motrix Next",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "Check that Rayburst is installed and its API settings are correct.",
+    "message": "Check that Motrix Next is installed and its API settings are correct.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -575,305 +587,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Clear all log entries?",
+    "message": "Confirm Clear",
     "description": "Second-click confirmation label for clearing diagnostic logs"
-  },
-  "media_tab": {
-    "message": "Media",
-    "description": "Media discovery: tab"
-  },
-  "media_downloads": {
-    "message": "Overview",
-    "description": "Media discovery: downloads"
-  },
-  "media_discover": {
-    "message": "Find media",
-    "description": "Media discovery: discover"
-  },
-  "media_scan": {
-    "message": "Scan page",
-    "description": "Media discovery: scan"
-  },
-  "media_clear": {
-    "message": "Clear list",
-    "description": "Media discovery: clear"
-  },
-  "media_filter": {
-    "message": "Filter sources",
-    "description": "Media discovery: filter"
-  },
-  "media_sources": {
-    "message": "Media sources",
-    "description": "Media discovery: sources"
-  },
-  "media_source": {
-    "message": "Source",
-    "description": "Media discovery: source"
-  },
-  "media_enable_site": {
-    "message": "Enable on this site",
-    "description": "Media discovery: enable site"
-  },
-  "media_disable_site": {
-    "message": "Disable on this site",
-    "description": "Media discovery: disable site"
-  },
-  "media_inspect": {
-    "message": "Inspect formats",
-    "description": "Media discovery: inspect"
-  },
-  "media_options": {
-    "message": "Media options",
-    "description": "Media discovery: options"
-  },
-  "media_back": {
-    "message": "Media list",
-    "description": "Media discovery: back"
-  },
-  "media_video": {
-    "message": "Video quality",
-    "description": "Media discovery: video"
-  },
-  "media_audio": {
-    "message": "Audio",
-    "description": "Media discovery: audio"
-  },
-  "media_subtitles": {
-    "message": "Subtitles",
-    "description": "Media discovery: subtitles"
-  },
-  "media_format": {
-    "message": "Format",
-    "description": "Media discovery: format"
-  },
-  "media_original": {
-    "message": "Original file",
-    "description": "Media discovery: original"
-  },
-  "media_record_limit": {
-    "message": "Recording limit (seconds)",
-    "description": "Media discovery: record limit"
-  },
-  "media_live": {
-    "message": "Live recording",
-    "description": "Media discovery: live"
-  },
-  "media_download": {
-    "message": "Download",
-    "description": "Media discovery: download"
-  },
-  "media_record": {
-    "message": "Start recording",
-    "description": "Media discovery: record"
-  },
-  "media_cancel": {
-    "message": "Cancel",
-    "description": "Media discovery: cancel"
-  },
-  "media_retry": {
-    "message": "Check status",
-    "description": "Media discovery: retry"
-  },
-  "media_close": {
-    "message": "Close",
-    "description": "Media discovery: close"
-  },
-  "media_locate": {
-    "message": "Locate player",
-    "description": "Media discovery: locate"
-  },
-  "media_no_video": {
-    "message": "No video",
-    "description": "Media discovery: no video"
-  },
-  "media_no_audio": {
-    "message": "No audio",
-    "description": "Media discovery: no audio"
-  },
-  "media_no_subtitles": {
-    "message": "No subtitles",
-    "description": "Media discovery: no subtitles"
-  },
-  "media_excluded_sites": {
-    "message": "Excluded media sites",
-    "description": "Media discovery: excluded sites"
-  },
-  "media_waiting": {
-    "message": "Player found; waiting for a media source.",
-    "description": "Media discovery: waiting"
-  },
-  "media_none": {
-    "message": "No media sources found.",
-    "description": "Media discovery: none"
-  },
-  "media_paused": {
-    "message": "Media discovery is paused.",
-    "description": "Media discovery: paused"
-  },
-  "media_excluded": {
-    "message": "Media discovery is disabled on this site.",
-    "description": "Media discovery: excluded"
-  },
-  "media_ambiguous": {
-    "message": "These sources cannot be matched to one player. Check the source before downloading.",
-    "description": "Media discovery: ambiguous"
-  },
-  "media_loading": {
-    "message": "Inspecting media…",
-    "description": "Media discovery: loading"
-  },
-  "media_submitted": {
-    "message": "Download created in Rayburst.",
-    "description": "Media discovery: submitted"
-  },
-  "media_cancelled": {
-    "message": "Inspection cancelled.",
-    "description": "Media discovery: cancelled"
-  },
-  "media_failed": {
-    "message": "Operation failed. Retry to check its status.",
-    "description": "Media discovery: failed"
-  },
-  "media_unsupported": {
-    "message": "This media or request method is not supported.",
-    "description": "Media discovery: unsupported"
-  },
-  "media_invalid": {
-    "message": "Choose a supported combination of tracks, format and duration.",
-    "description": "Media discovery: invalid"
-  },
-  "media_unavailable": {
-    "message": "Rayburst does not support the media interface yet.",
-    "description": "Media discovery: unavailable"
-  },
-  "media_expired": {
-    "message": "The source or inspection expired. Play the media and inspect again.",
-    "description": "Media discovery: expired"
-  },
-  "media_connection": {
-    "message": "Start Rayburst and check connection settings.",
-    "description": "Media discovery: connection"
-  },
-  "media_size_unknown": {
-    "message": "Size unknown",
-    "description": "Media discovery: size unknown"
-  },
-  "media_duration_unknown": {
-    "message": "Duration unknown",
-    "description": "Media discovery: duration unknown"
-  },
-  "media_includes_audio": {
-    "message": "Includes audio",
-    "description": "Media discovery: includes audio"
-  },
-  "media_record_hint": {
-    "message": "Zero records until you stop recording in Rayburst.",
-    "description": "Media discovery: record hint"
-  },
-  "media_inspect_hint": {
-    "message": "Inspect first, then confirm the download.",
-    "description": "Media discovery: inspect hint"
-  },
-  "media_open_page": {
-    "message": "Open a web page to discover media.",
-    "description": "Media discovery: open page"
-  },
-  "media_hint": {
-    "message": "Play a video or audio to discover its sources automatically.",
-    "description": "Media discovery: hint"
-  },
-  "media_ready": {
-    "message": "Formats ready",
-    "description": "Media discovery: ready"
-  },
-  "media_confirming": {
-    "message": "Confirming download…",
-    "description": "Media discovery: confirming"
-  },
-  "media_cancelling": {
-    "message": "Cancelling inspection…",
-    "description": "Media discovery: cancelling"
-  },
-  "options_color_scheme_electric": {
-    "message": "Electric Purple",
-    "description": "Electric Purple color scheme"
-  },
-  "popup_status_connecting": {
-    "message": "Connecting"
-  },
-  "popup_upload": {
-    "message": "Upload"
-  },
-  "popup_action_failed": {
-    "message": "Could not complete this action."
-  },
-  "options_about": {
-    "message": "About"
-  },
-  "options_api_secret_hint": {
-    "message": "Find this in Rayburst Settings → Connections."
-  },
-  "options_backup_secret_hint": {
-    "message": "Settings backups include your API secret."
-  },
-  "options_remove_rule": {
-    "message": "Remove rule"
-  },
-  "options_site_pattern": {
-    "message": "Website pattern"
-  },
-  "options_rule_action": {
-    "message": "Action"
-  },
-  "media_source_auth": {
-    "message": "Sign in to the source website and try again."
-  },
-  "media_protected": {
-    "message": "This media is protected and cannot be downloaded."
-  },
-  "popup_download": {
-    "message": "Download"
-  },
-  "media_api_auth": {
-    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
-  },
-  "options_theme_label": {
-    "message": "Theme"
-  },
-  "options_section_general": {
-    "message": "General"
-  },
-  "options_custom_color": {
-    "message": "Custom Color"
-  },
-  "options_color_scheme_custom": {
-    "message": "Custom"
-  },
-  "control_confirm": {
-    "message": "Confirm"
-  },
-  "control_cancel": {
-    "message": "Cancel"
-  },
-  "control_undo": {
-    "message": "Undo"
-  },
-  "control_redo": {
-    "message": "Redo"
-  },
-  "control_clear": {
-    "message": "Clear"
-  },
-  "control_add": {
-    "message": "Add"
-  },
-  "control_empty": {
-    "message": "No results"
-  },
-  "control_select": {
-    "message": "Select"
-  },
-  "control_input": {
-    "message": "Enter a value"
   }
 }

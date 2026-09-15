@@ -16,7 +16,7 @@ const RESOLVED_ID = '\0virtual:locales';
 
 export function localesPlugin(root: string = process.cwd()) {
   return {
-    name: 'rayburst:locales',
+    name: 'motrix-next:locales',
     enforce: 'pre' as const,
     resolveId(source: string) {
       if (source === VIRTUAL_ID) return RESOLVED_ID;

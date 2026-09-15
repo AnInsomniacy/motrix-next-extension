@@ -53,7 +53,7 @@ async function publishFirefoxFromEnv(): Promise<void> {
   const apiKey = requiredEnv('FIREFOX_API_KEY');
   const apiSecret = requiredEnv('FIREFOX_API_SECRET');
   const version = requiredEnv('VERSION');
-  const slug = requiredEnv('FIREFOX_ADDON_SLUG');
+  const slug = optionalEnv('FIREFOX_ADDON_SLUG') || 'motrix-next-extension';
   const authHeader = createAmoJwt({ apiKey, apiSecret });
   const versions = await getFirefoxVersions(slug, authHeader, 'all_without_unlisted');
   const decision = decideFirefoxPublishAction(versions, version);

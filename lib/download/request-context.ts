@@ -10,9 +10,6 @@ interface RawRequestHeader {
 
 export interface RequestHeaderContext {
   url: string;
-  tabId?: number;
-  frameId?: number;
-  documentId?: string;
   createdAt: number;
   cookie?: string;
   referer?: string;
@@ -21,7 +18,7 @@ export interface RequestHeaderContext {
 }
 
 type RequestHeaderMatchSource = 'finalUrl' | 'url';
-export type RequestHeaderMatchReason = 'matched' | 'not-found' | 'expired' | 'ambiguous';
+export type RequestHeaderMatchReason = 'matched' | 'not-found' | 'expired';
 
 export interface RequestHeaderMatchResult {
   matched: boolean;
@@ -32,12 +29,11 @@ export interface RequestHeaderMatchResult {
 
 interface CaptureRequestHeaderContextInput {
   url: string;
-  tabId?: number;
-  frameId?: number;
-  documentId?: string;
   requestHeaders?: RawRequestHeader[];
   now?: number;
 }
+
+type RequestHeaderBrowser = 'chromium' | 'firefox';
 
 const DEFAULT_TTL_MS = 30_000;
 const DEFAULT_MAX_ENTRIES = 512;
@@ -84,7 +80,6 @@ function sanitizeHeaderValue(value: string): string {
 
 function cloneContext(context: RequestHeaderContext): RequestHeaderContext {
   return {
-    ...context,
     url: context.url,
     createdAt: context.createdAt,
     ...(context.cookie ? { cookie: context.cookie } : {}),
@@ -92,6 +87,10 @@ function cloneContext(context: RequestHeaderContext): RequestHeaderContext {
     ...(context.userAgent ? { userAgent: context.userAgent } : {}),
     requestHeaders: context.requestHeaders.map((header) => ({ ...header })),
   };
+}
+
+export function buildRequestHeaderExtraInfoSpec(browser: RequestHeaderBrowser): string[] {
+  return browser === 'firefox' ? ['requestHeaders'] : ['requestHeaders', 'extraHeaders'];
 }
 
 export function captureRequestHeaderContext(
@@ -137,9 +136,6 @@ export function captureRequestHeaderContext(
 
   return {
     url: input.url,
-    tabId: input.tabId,
-    frameId: input.frameId,
-    documentId: input.documentId,
     createdAt: input.now ?? Date.now(),
     ...(cookie ? { cookie } : {}),
     ...(referer ? { referer } : {}),
@@ -159,13 +155,7 @@ export class RequestHeaderContextStore {
 
   remember(context: RequestHeaderContext): void {
     this.prune();
-    const key = JSON.stringify([
-      canonicalUrl(context.url),
-      context.tabId,
-      context.frameId,
-      context.documentId,
-    ]);
-    this.byUrl.set(key, cloneContext(context));
+    this.byUrl.set(canonicalUrl(context.url), cloneContext(context));
     this.evictOverflow();
   }
 
@@ -193,20 +183,15 @@ export class RequestHeaderContextStore {
       if (seen.has(key)) continue;
       seen.add(key);
 
-      const matches = [...this.byUrl.entries()].filter(
-        ([, context]) => canonicalUrl(context.url) === key,
-      );
-      const fresh = matches.filter(([entryKey, context]) => {
-        if (context.createdAt >= now - this.ttlMs) return true;
-        this.byUrl.delete(entryKey);
+      const context = this.byUrl.get(key);
+      if (!context) continue;
+      if (context.createdAt < now - this.ttlMs) {
+        this.byUrl.delete(key);
         sawExpiredCandidate = true;
-        return false;
-      });
-      if (fresh.length > 1) return { matched: false, reason: 'ambiguous' };
-      const match = fresh[0];
-      if (!match) continue;
-      const [entryKey, context] = match;
-      if (consume) this.byUrl.delete(entryKey);
+        continue;
+      }
+
+      if (consume) this.byUrl.delete(key);
       return {
         matched: true,
         reason: 'matched',
@@ -225,12 +210,6 @@ export class RequestHeaderContextStore {
       if (context.createdAt < cutoff) {
         this.byUrl.delete(url);
       }
-    }
-  }
-
-  clear(tabId?: number): void {
-    for (const [key, context] of this.byUrl) {
-      if (tabId === undefined || context.tabId === tabId) this.byUrl.delete(key);
     }
   }
 

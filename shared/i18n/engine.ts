@@ -6,66 +6,8 @@
  *   useI18n()        — inject helper for child components
  *   useNaiveLocale() — Naive UI NConfigProvider locale mapping
  */
+import { computed, inject, ref, type ComputedRef, type InjectionKey, type Ref } from 'vue';
 import {
-  computed,
-  inject,
-  ref,
-  watchEffect,
-  type ComputedRef,
-  type InjectionKey,
-  type Ref,
-} from 'vue';
-import {
-  createLocale,
-  unstableButtonRtl,
-  unstableButtonGroupRtl,
-  unstableCheckboxRtl,
-  unstableCollapseTransitionRtl,
-  unstableDataTableRtl,
-  unstableInputNumberRtl,
-  unstableInputRtl,
-  unstablePaginationRtl,
-  unstablePopoverRtl,
-  unstableRadioRtl,
-  unstableSelectRtl,
-  unstableSpaceRtl,
-  unstableTagRtl,
-  arDZ,
-  dateArDZ,
-  deDE,
-  dateDeDE,
-  esAR,
-  dateEsAR,
-  faIR,
-  dateFaIR,
-  frFR,
-  dateFrFR,
-  idID,
-  dateIdID,
-  itIT,
-  dateItIT,
-  koKR,
-  dateKoKR,
-  nbNO,
-  dateNbNO,
-  nlNL,
-  dateNlNL,
-  plPL,
-  datePlPL,
-  ptBR,
-  datePtBR,
-  ruRU,
-  dateRuRU,
-  thTH,
-  dateThTH,
-  trTR,
-  dateTrTR,
-  ukUA,
-  dateUkUA,
-  viVN,
-  dateViVN,
-  zhTW,
-  dateZhTW,
   dateEnUS,
   dateJaJP,
   dateZhCN,
@@ -181,78 +123,14 @@ export function useI18n(): I18nContext {
 
 const NAIVE_MAP: Record<string, { locale: NLocale; dateLocale: NDateLocale }> = {
   en: { locale: enUS, dateLocale: dateEnUS },
-  ar: { locale: arDZ, dateLocale: dateArDZ },
-  de: { locale: deDE, dateLocale: dateDeDE },
-  es: { locale: esAR, dateLocale: dateEsAR },
-  fa: { locale: faIR, dateLocale: dateFaIR },
-  fr: { locale: frFR, dateLocale: dateFrFR },
-  id: { locale: idID, dateLocale: dateIdID },
-  it: { locale: itIT, dateLocale: dateItIT },
-  ko: { locale: koKR, dateLocale: dateKoKR },
-  nb: { locale: nbNO, dateLocale: dateNbNO },
-  nl: { locale: nlNL, dateLocale: dateNlNL },
-  pl: { locale: plPL, dateLocale: datePlPL },
-  pt_BR: { locale: ptBR, dateLocale: datePtBR },
-  ru: { locale: ruRU, dateLocale: dateRuRU },
-  th: { locale: thTH, dateLocale: dateThTH },
-  tr: { locale: trTR, dateLocale: dateTrTR },
-  uk: { locale: ukUA, dateLocale: dateUkUA },
-  vi: { locale: viVN, dateLocale: dateViVN },
-  zh_TW: { locale: zhTW, dateLocale: dateZhTW },
   ja: { locale: jaJP, dateLocale: dateJaJP },
   zh_CN: { locale: zhCN, dateLocale: dateZhCN },
 };
 
 /** Reactive Naive UI locale objects for NConfigProvider. */
 export function useNaiveLocale(effectiveLocale: ComputedRef<string> | Ref<string>) {
-  const isRtl = computed(() => ['ar', 'fa'].includes(effectiveLocale.value));
-  const naiveLocale = computed(() => {
-    const id = effectiveLocale.value;
-    const dict = DICTIONARIES[id] ?? FALLBACK_DICT;
-    const message = (key: string) => translate(dict, `control_${key}`);
-    return createLocale(
-      {
-        global: {
-          confirm: message('confirm'),
-          clear: message('clear'),
-          undo: message('undo'),
-          redo: message('redo'),
-        },
-        Popconfirm: { positiveText: message('confirm'), negativeText: message('cancel') },
-        Select: { placeholder: message('select') },
-        Input: { placeholder: message('input') },
-        InputNumber: { placeholder: message('input') },
-        Empty: { description: message('empty') },
-        DynamicTags: { add: message('add') },
-      },
-      (NAIVE_MAP[id] ?? NAIVE_MAP.en!).locale,
-    );
-  });
-  watchEffect(() => {
-    document.documentElement.lang = effectiveLocale.value.replace('_', '-');
-    document.documentElement.dir = isRtl.value ? 'rtl' : 'ltr';
-  });
   return {
-    naiveRtl: computed(() =>
-      isRtl.value
-        ? [
-            unstableButtonRtl,
-            unstableButtonGroupRtl,
-            unstableCheckboxRtl,
-            unstableCollapseTransitionRtl,
-            unstableDataTableRtl,
-            unstableInputNumberRtl,
-            unstableInputRtl,
-            unstablePaginationRtl,
-            unstablePopoverRtl,
-            unstableRadioRtl,
-            unstableSelectRtl,
-            unstableSpaceRtl,
-            unstableTagRtl,
-          ]
-        : [],
-    ),
-    naiveLocale,
+    naiveLocale: computed(() => (NAIVE_MAP[effectiveLocale.value] ?? NAIVE_MAP.en!).locale),
     naiveDateLocale: computed(() => (NAIVE_MAP[effectiveLocale.value] ?? NAIVE_MAP.en!).dateLocale),
   };
 }

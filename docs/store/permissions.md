@@ -6,31 +6,6 @@ Text to enter in the Chrome Web Store Developer Dashboard when prompted to justi
 
 ## Required Permissions
 
-### `webNavigation`
-
-Used to associate discovered media with its actual tab, frame, and document; remove
-stale sources after navigation; and retain correct provenance across same-document
-history changes. No browsing history is exported or sent to a remote service.
-
-The floating media interface is an extension iframe (`media.html`, exposed as a
-web-accessible resource). Its native parent-frame identity scopes media commands;
-the content script cannot select another tab or frame by supplying an ID. The panel
-receives sanitized source metadata and shares the popup's download confirmation UI.
-
-### `alarms`
-
-Runs bounded media session cleanup after extension worker suspension. It expires
-inactive local media metadata and request context. It does not schedule downloads.
-
-### Media discovery and session storage
-
-The Media tab observes response MIME types, media URLs and public media elements.
-`storage.session` holds a bounded catalogue and operation receipts until expiry or
-browser restart. Cookie/header controls apply to captured context; only user-selected
-media inspection sends that context to the local desktop. Source credentials are not
-exposed to content scripts or included in settings backups. Native Messaging remains
-activation-only. See [Media](../MEDIA.md) for scope and retention.
-
 ### `downloads`
 
 ```
@@ -46,7 +21,7 @@ Used to persist user-configured settings in chrome.storage.local, including: API
 ### `contextMenus`
 
 ```
-Adds a single "Download with Rayburst" context menu item that appears when right-clicking on links, images, audio, and video elements. This allows users to manually send a specific resource to the Rayburst download manager without relying on automatic interception. The context menu is registered once at extension startup and its title updates to match the user's selected language.
+Adds a single "Download with Motrix Next" context menu item that appears when right-clicking on links, images, audio, and video elements. This allows users to manually send a specific resource to the Motrix Next download manager without relying on automatic interception. The context menu is registered once at extension startup and its title updates to match the user's selected language.
 ```
 
 ### `notifications`
@@ -58,7 +33,7 @@ Displays a brief desktop notification when the duplicate guard skips a repeated 
 ### `webRequest`
 
 ```
-Observes request headers for download requests. On Firefox, it also inspects response headers so attachments and binary MIME responses can be handled before the native save dialog opens. Request headers are filtered to a strict allowlist and forwarded only to the local Rayburst API so the desktop app can reproduce browser-authenticated downloads more accurately. Users can disable request header forwarding in Settings. The extension does not transmit request metadata to any external service.
+Observes request headers for download requests. On Firefox, it also inspects response headers so attachments and binary MIME responses can be handled before the native save dialog opens. Request headers are filtered to a strict allowlist and forwarded only to the local Motrix Next API so the desktop app can reproduce browser-authenticated downloads more accurately. Users can disable request header forwarding in Settings. The extension does not transmit request metadata to any external service.
 ```
 
 ### `webRequestBlocking` (Firefox only)
@@ -70,7 +45,7 @@ Firefox opens its native save dialog before the downloads API exposes a download
 ### `nativeMessaging`
 
 ```
-Activates the installed Rayburst desktop application when its local HTTP API is unavailable. The extension sends one fixed {"action":"activate"} request to the allowlisted dev.aninsomniacy.rayburst.browser host. The host cannot receive download URLs, cookies, request headers, file paths, or arbitrary commands. It exits immediately after requesting desktop activation.
+Activates the installed Motrix Next desktop application when its local HTTP API is unavailable. The extension sends one fixed {"action":"activate"} request to the allowlisted com.motrix.next.browser host. The host cannot receive download URLs, cookies, request headers, file paths, or arbitrary commands. It exits immediately after requesting desktop activation.
 ```
 
 ## Required Host Permissions
@@ -78,19 +53,19 @@ Activates the installed Rayburst desktop application when its local HTTP API is 
 ### `http://127.0.0.1/*` and `http://localhost/*`
 
 ```
-Required to communicate with the Rayburst HTTP API running on the user's local machine inside the desktop application. This is the ONLY network communication the extension makes. The extension sends requests to http://127.0.0.1:{port} (default port: 29110) to submit download tasks, check connection status, query stats, and control tasks. No requests are ever made to any remote server.
+Required to communicate with the Motrix Next HTTP API running on the user's local machine inside the desktop application. This is the ONLY network communication the extension makes. The extension sends requests to http://127.0.0.1:{port} (default port: 29110) to submit download tasks, check connection status, query stats, and control tasks. No requests are ever made to any remote server.
 ```
 
 ### `cookies`
 
 ```
-Required to read cookies for the download URL's domain when cookie forwarding is enabled. Cookie forwarding is enabled by default so authenticated downloads work immediately for sites that require login, such as private file hosting services. Cookies are sent ONLY to the local Rayburst instance (127.0.0.1) and are never sent through Native Messaging. Users can disable cookie forwarding in Settings.
+Required to read cookies for the download URL's domain when cookie forwarding is enabled. Cookie forwarding is enabled by default so authenticated downloads work immediately for sites that require login, such as private file hosting services. Cookies are sent ONLY to the local Motrix Next instance (127.0.0.1) and are never sent through Native Messaging. Users can disable cookie forwarding in Settings.
 ```
 
 ### `https://*/*` and `http://*/*`
 
 ```
-Required because chrome.cookies.getAll() and webRequest need matching host permissions for the target download domain. Since delegated downloads can originate from any site, broad HTTP and HTTPS access is necessary for authenticated downloads and request context preservation. Firefox also uses this access to identify attachment and binary responses before its native save dialog opens. Cookies and filtered request metadata are sent only to the local Rayburst HTTP API.
+Required because chrome.cookies.getAll() and webRequest need matching host permissions for the target download domain. Since delegated downloads can originate from any site, broad HTTP and HTTPS access is necessary for authenticated downloads and request context preservation. Firefox also uses this access to identify attachment and binary responses before its native save dialog opens. Cookies and filtered request metadata are sent only to the local Motrix Next HTTP API.
 ```
 
 ## Optional Permissions
@@ -98,7 +73,7 @@ Required because chrome.cookies.getAll() and webRequest need matching host permi
 ### `downloads.ui`
 
 ```
-When the user enables "Hide Browser Download Bar" in Settings, this optional permission is requested and then used to call chrome.downloads.setUiOptions() to suppress the browser's native download shelf after downloads are intercepted and delegated to Rayburst. Only available on Chrome 115+; the extension gracefully degrades on browsers that do not support this API.
+When the user enables "Hide Browser Download Bar" in Settings, this optional permission is requested and then used to call chrome.downloads.setUiOptions() to suppress the browser's native download shelf after downloads are intercepted and delegated to Motrix Next. Only available on Chrome 115+; the extension gracefully degrades on browsers that do not support this API.
 ```
 
 ---
@@ -108,13 +83,13 @@ When the user enables "Hide Browser Download Bar" in Settings, this optional per
 ### Single Purpose Description
 
 ```
-Intercept browser downloads and delegate them to the Rayburst desktop download manager for accelerated multi-threaded downloading via aria2.
+Intercept browser downloads and delegate them to the Motrix Next desktop download manager for accelerated multi-threaded downloading via aria2.
 ```
 
 ### Permission Justification Summary
 
 ```
-This extension intercepts browser downloads and sends them to a locally running download manager (Rayburst). Required permissions: 'downloads' to intercept browser downloads, 'webRequest' to observe filtered request headers, 'storage' for local settings persistence, 'contextMenus' for the right-click download option, 'notifications' for duplicate download alerts, 'cookies' for authenticated download forwarding, and 'nativeMessaging' to activate the installed Rayburst application. Firefox also uses 'webRequest' and 'webRequestBlocking' to handle attachment and binary responses before its native save dialog opens. Required host permissions include localhost for the Rayburst HTTP API plus broad HTTP/HTTPS origins so cookie forwarding and request context forwarding work for downloads from any site. The only optional permission is 'downloads.ui' for hiding the Chromium download bar. No data is collected, transmitted, or shared with any external service.
+This extension intercepts browser downloads and sends them to a locally running download manager (Motrix Next). Required permissions: 'downloads' to intercept browser downloads, 'webRequest' to observe filtered request headers, 'storage' for local settings persistence, 'contextMenus' for the right-click download option, 'notifications' for duplicate download alerts, 'cookies' for authenticated download forwarding, and 'nativeMessaging' to activate the installed Motrix Next application. Firefox also uses 'webRequest' and 'webRequestBlocking' to handle attachment and binary responses before its native save dialog opens. Required host permissions include localhost for the Motrix Next HTTP API plus broad HTTP/HTTPS origins so cookie forwarding and request context forwarding work for downloads from any site. The only optional permission is 'downloads.ui' for hiding the Chromium download bar. No data is collected, transmitted, or shared with any external service.
 ```
 
 ### Data Use Disclosures

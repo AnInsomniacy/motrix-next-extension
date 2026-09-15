@@ -1,71 +1,191 @@
-<script setup lang="ts">
-import { NButton } from 'naive-ui';
-import { AnimatePresence, motion } from 'motion-v';
-import { useI18n } from '@/shared/i18n/engine';
-defineProps<{ isDirty: boolean; saving: boolean; disabled: boolean }>();
+<script lang="ts" setup>
+/** Sticky save/discard action bar for the Options page. */
+import { NButton, NIcon } from 'naive-ui';
+import { SaveOutline, ArrowUndoOutline } from '@vicons/ionicons5';
+
+defineProps<{ isDirty: boolean }>();
 defineEmits<{ save: []; discard: [] }>();
-const { t } = useI18n();
+
+import { useI18n } from '@/shared/i18n/engine';
+
+const { t: i18n } = useI18n();
 </script>
+
 <template>
-  <AnimatePresence>
-    <motion.div
-      v-if="isDirty"
-      key="bar"
-      class="action-bar-host"
-      :initial="{ opacity: 0, y: 24 }"
-      :animate="{ opacity: 1, y: 0 }"
-      :exit="{ opacity: 0, y: 24 }"
-    >
-      <footer class="action-bar">
-        <span class="hint" role="status">{{ t('options_changes_indicator') }}</span>
-        <div class="settings-actions">
-          <NButton size="small" :disabled="saving || disabled" @click="$emit('discard')">{{
-            t('options_discard')
-          }}</NButton>
-          <NButton
-            size="small"
-            type="primary"
-            :disabled="disabled"
-            :loading="saving"
-            @click="$emit('save')"
-            >{{ t('options_save') }}</NButton
-          >
+  <div class="action-bar-wrapper" :class="{ 'action-bar-wrapper--open': isDirty }">
+    <div class="action-bar-inner">
+      <div class="action-bar">
+        <div class="action-bar__indicator">
+          <span class="action-bar__dot" />
+          <span class="action-bar__label">
+            {{ i18n('options_changes_indicator', 'Unsaved changes') }}
+          </span>
         </div>
-      </footer>
-    </motion.div>
-  </AnimatePresence>
+
+        <div class="action-bar__buttons">
+          <NButton class="save-btn" type="primary" @click="$emit('save')">
+            <template #icon>
+              <NIcon :size="16"><SaveOutline /></NIcon>
+            </template>
+            {{ i18n('options_save', 'Save') }}
+          </NButton>
+          <NButton class="discard-btn" @click="$emit('discard')">
+            <template #icon>
+              <NIcon :size="14"><ArrowUndoOutline /></NIcon>
+            </template>
+            {{ i18n('options_discard', 'Discard') }}
+          </NButton>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
+
 <style scoped>
-.action-bar-host {
-  position: absolute;
-  inset-inline: 36px;
-  bottom: 18px;
-  z-index: 5;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
+/* ═══════════════════════════════════════════════════════════════════
+ * ── CSS Grid Expand/Collapse ────────────────────────────────────
+ * grid-template-rows: 0fr → 1fr is smooth because the browser
+ * interpolates the grid track size natively. The inner wrapper
+ * with min-height:0 + overflow:hidden clips the content.
+ * Opacity fades in/out simultaneously.
+ * ═══════════════════════════════════════════════════════════════════ */
+.action-bar-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.25s ease,
+    opacity 0.2s ease;
 }
 
+.action-bar-wrapper--open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.action-bar-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Bar Layout ──────────────────────────────────────────────────── */
 .action-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  width: min(100%, 560px);
-  padding: 8px 8px 8px 16px;
-  border-radius: 999px;
-  background: var(--rb-overlay);
-  box-shadow: var(--rb-shadow-overlay);
-  pointer-events: auto;
+  gap: 12px;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--color-outline-variant);
+  margin-top: 20px;
 }
 
-.action-bar .hint {
+.action-bar__buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* ── Unsaved changes indicator ──────────────────────────────────── */
+.action-bar__indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-bar__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-warning);
+  animation: pulse-dot 2s ease infinite;
+}
+
+.action-bar__label {
+  font-size: 12px;
   font-weight: 500;
+  color: var(--color-on-surface-variant);
 }
 
-@media (max-width: 640px) {
-  .action-bar-host {
-    inset-inline: 16px;
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * ── Save Button — success fill ──────────────────────────────────
+ * ═══════════════════════════════════════════════════════════════════ */
+.save-btn {
+  background-color: var(--color-success) !important;
+  color: var(--color-on-success) !important;
+  transition:
+    background-color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.35s cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+.save-btn:hover {
+  filter: brightness(1.1);
+  box-shadow: var(--shadow-elevated);
+}
+
+.save-btn :deep(.n-button__border) {
+  border-color: var(--color-success) !important;
+  transition: border-color 0.35s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.save-btn :deep(.n-button__state-border) {
+  border-color: var(--color-success) !important;
+  transition: border-color 0.35s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.save-btn:active {
+  transform: scale(0.97);
+  transition:
+    background-color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * ── Discard Button — error-container tonal fill ─────────────────
+ * ═══════════════════════════════════════════════════════════════════ */
+.discard-btn {
+  background-color: var(--color-error-container) !important;
+  color: var(--color-error) !important;
+  transition:
+    background-color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.35s cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+.discard-btn:hover {
+  filter: brightness(1.1);
+  box-shadow: var(--shadow-elevated);
+}
+
+.discard-btn :deep(.n-button__border) {
+  border-color: var(--color-error-container) !important;
+  transition: border-color 0.35s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.discard-btn :deep(.n-button__state-border) {
+  border-color: var(--color-error-container) !important;
+  transition: border-color 0.35s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.discard-btn:active {
+  transform: scale(0.97);
+  transition:
+    background-color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    border-color 0.35s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.15s cubic-bezier(0.2, 0, 0, 1);
 }
 </style>

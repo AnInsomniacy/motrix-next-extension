@@ -1,8 +1,14 @@
 <script lang="ts" setup>
 /** Left-rail navigation for the Options page. */
 import { NIcon } from 'naive-ui';
-import { LayoutGroup, motion } from 'motion-v';
-import { SlidersHorizontal, Download, ListChecks, Wrench } from '@lucide/vue';
+import {
+  LinkOutline,
+  SettingsOutline,
+  ListOutline,
+  ColorPaletteOutline,
+  GlobeOutline,
+  ConstructOutline,
+} from '@vicons/ionicons5';
 import { useI18n } from '@/shared/i18n/engine';
 
 defineProps<{
@@ -10,38 +16,58 @@ defineProps<{
 }>();
 const emit = defineEmits<{ select: [id: string] }>();
 
-const { t } = useI18n();
+const { t, tEn } = useI18n();
+
+// Bilingual helper for the Language tab — always shows native + English
+function bilingual(key: string, enFallback: string): string {
+  const native = t(key, enFallback);
+  const en = tEn(key, enFallback);
+  return native === en ? native : `${native} / ${en}`;
+}
 
 const sections = [
-  { id: 'general', icon: SlidersHorizontal, label: () => t('options_section_general') },
-  { id: 'behavior', icon: Download, label: () => t('options_section_behavior', 'Download') },
-  { id: 'rules', icon: ListChecks, label: () => t('options_section_rules', 'Rules') },
-  { id: 'diagnostics', icon: Wrench, label: () => t('options_section_maintenance', 'Maintenance') },
+  {
+    id: 'connection',
+    icon: LinkOutline,
+    label: () => t('options_section_connection', 'Connection'),
+  },
+  {
+    id: 'behavior',
+    icon: SettingsOutline,
+    label: () => t('options_section_behavior', 'Download'),
+  },
+  { id: 'rules', icon: ListOutline, label: () => t('options_section_rules', 'Rules') },
+  {
+    id: 'appearance',
+    icon: ColorPaletteOutline,
+    label: () => t('options_section_appearance', 'Appearance'),
+  },
+  {
+    id: 'language',
+    icon: GlobeOutline,
+    label: () => bilingual('options_section_language', 'Language'),
+  },
+  {
+    id: 'diagnostics',
+    icon: ConstructOutline,
+    label: () => t('options_section_maintenance', 'Maintenance'),
+  },
 ];
 </script>
 
 <template>
-  <LayoutGroup id="options-navigation">
-    <nav class="options-nav">
-      <button
-        v-for="s in sections"
-        :key="s.id"
-        type="button"
-        :aria-current="active === s.id ? 'page' : undefined"
-        :class="['nav-item', { 'nav-item--active': active === s.id }]"
-        @click="emit('select', s.id)"
-      >
-        <motion.span
-          v-if="active === s.id"
-          layout-id="options-nav-active"
-          class="nav-item__active"
-          aria-hidden="true"
-        />
-        <NIcon :size="17" class="nav-item__icon"><component :is="s.icon" /></NIcon>
-        <span class="nav-item__label">{{ s.label() }}</span>
-      </button>
-    </nav>
-  </LayoutGroup>
+  <nav class="options-nav">
+    <button
+      v-for="s in sections"
+      :key="s.id"
+      type="button"
+      :class="['nav-item', { 'nav-item--active': active === s.id }]"
+      @click="emit('select', s.id)"
+    >
+      <NIcon :size="18" class="nav-item__icon"><component :is="s.icon" /></NIcon>
+      <span class="nav-item__label">{{ s.label() }}</span>
+    </button>
+  </nav>
 </template>
 
 <style scoped>
@@ -49,63 +75,42 @@ const sections = [
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 8px;
+  flex: 1;
+  min-width: 150px;
 }
 
 .nav-item {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 36px;
-  padding: 0 10px;
-  border-radius: var(--rb-radius-control);
+  padding: 10px 14px;
+  border-radius: 10px;
   border: none;
   background: transparent;
-  color: var(--rb-text-muted);
+  color: var(--color-on-surface-variant);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  text-align: start;
-  transition: color var(--rb-motion-feedback) var(--rb-ease);
+  text-align: left;
+  transition:
+    background-color 0.15s cubic-bezier(0.2, 0, 0, 1),
+    color 0.15s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .nav-item:hover {
-  color: var(--rb-text);
-}
-
-.nav-item:hover:not(.nav-item--active)::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--rb-hover);
+  background: color-mix(in srgb, var(--color-on-surface) 6%, transparent);
+  color: var(--color-on-surface);
 }
 
 .nav-item--active {
-  color: var(--rb-accent-text);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
 }
 
-.nav-item__active {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: var(--rb-raised);
-  box-shadow: var(--rb-shadow-raised);
-}
-
-.nav-item__active::before {
-  content: '';
-  position: absolute;
-  inset-block: 9px;
-  inset-inline-start: 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--rb-gradient);
-}
-
-.nav-item__icon,
-.nav-item__label {
-  position: relative;
+.nav-item--active:hover {
+  background: var(--color-primary-container);
+  filter: brightness(0.96);
 }
 
 .nav-item__icon {
@@ -113,13 +118,28 @@ const sections = [
 }
 
 .nav-item__label {
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* ── Responsive: collapse to icon-only on narrow viewports ─── */
 @media (max-width: 640px) {
   .options-nav {
     flex-direction: row;
-    flex-wrap: wrap;
+    width: 100%;
+    overflow-x: auto;
+    padding: 6px 12px;
+    gap: 4px;
+  }
+
+  .nav-item {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    font-size: 11px;
+    min-width: 64px;
+    align-items: center;
   }
 }
 </style>

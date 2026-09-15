@@ -52,7 +52,7 @@ async function loadSettings(): Promise<DownloadSettings> {
   return parseDownloadSettings(await storage.getItem(local('settings')));
 }
 
-export async function loadUiPrefs(): Promise<UiPrefs> {
+async function loadUiPrefs(): Promise<UiPrefs> {
   return parseUiPrefs(await storage.getItem(local('uiPrefs')));
 }
 

@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next Extension",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "ค้นหาต้นทาง ส่งต่ออย่างไร้รอยต่อ",
+    "message": "ส่งการดาวน์โหลดจากเบราว์เซอร์ไปยัง Motrix Next — ตัวจัดการดาวน์โหลดสมัยใหม่ที่ขับเคลื่อนด้วย aria2",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "เปิด Rayburst",
+    "message": "เปิด Motrix Next",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "เปิด Rayburst",
+    "message": "เปิด Motrix Next",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "ไม่สามารถเชื่อมต่อกับ Rayburst ได้",
+    "message": "ไม่สามารถเชื่อมต่อกับ Motrix Next ได้",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "รับช่วงการดาวน์โหลด",
+    "message": "เปิดใช้งานการดักจับดาวน์โหลด",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "ดาวน์โหลดด้วย Rayburst",
-    "description": "Context menu item for downloading a link with Rayburst"
+    "message": "ดาวน์โหลดด้วย Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
   },
   "options_header_title": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "ค้นหาต้นทาง ส่งต่ออย่างไร้รอยต่อ",
-    "description": "Rayburst Connect slogan"
+    "message": "ตั้งค่าส่วนขยาย",
+    "description": "Options page header subtitle"
   },
   "options_testing_connection": {
     "message": "กำลังทดสอบ...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "เชื่อมต่อแล้ว · Rayburst",
+    "message": "เชื่อมต่อแล้ว · Motrix Next",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Rayburst Connect v$version$",
+    "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,6 +155,10 @@
   "options_color_scheme": {
     "message": "โทนสี",
     "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "ทองอำพัน",
+    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "น้ำเงินอวกาศ",
@@ -213,7 +217,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
+    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -231,7 +235,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Rayburst is running. API port: $1",
+    "message": "Make sure Motrix Next is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -241,23 +245,23 @@
     }
   },
   "options_section_language": {
-    "message": "ภาษา / Language",
-    "description": "Language setting label; retain the English Language locator in non-English locales."
+    "message": "ภาษา",
+    "description": "Settings section for interface language"
   },
   "options_locale_auto": {
     "message": "อัตโนมัติ",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "อัตโนมัติ / Auto",
-    "description": "Follow the browser language automatically; keep the English Auto locator."
+    "message": "ตามภาษาของเบราว์เซอร์",
+    "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "เมื่อ Rayburst ไม่พร้อมใช้งาน",
+    "message": "เมื่อ Motrix Next ไม่พร้อมใช้งาน",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "เปิด Rayburst",
+    "message": "เปิด Motrix Next",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -281,8 +285,16 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "หยุดแล้ว",
+    "message": "เสร็จสิ้น",
     "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "กำลังดักจับ",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "หยุดชั่วคราว",
+    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -297,7 +309,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Rayburst",
+    "message": "Cannot connect to Motrix Next",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -325,7 +337,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "อนุญาตสิทธิ์คุกกี้และไซต์เพื่อส่งต่อคุกกี้ไปยัง Rayburst",
+    "message": "อนุญาตสิทธิ์คุกกี้และไซต์เพื่อส่งต่อคุกกี้ไปยัง Motrix Next",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -357,8 +369,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "โอนไปยัง Rayburst",
-    "description": "Option label for routing unknown-size downloads to Rayburst."
+    "message": "โอนไปยัง Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
   },
   "options_min_size_unknown_skip": {
     "message": "โอนไปยังเบราว์เซอร์",
@@ -413,8 +425,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "ส่งไปยัง Rayburst",
-    "description": "Option label for routing a matched extension to Rayburst."
+    "message": "ส่งไปยัง Motrix Next",
+    "description": "Option label for routing a matched extension to Motrix Next."
   },
   "options_file_extension_action_skip": {
     "message": "ใช้เบราว์เซอร์",
@@ -425,7 +437,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "คืนค่าการตั้งค่าเริ่มต้นหรือไม่",
+    "message": "คลิกอีกครั้งเพื่อรีเซ็ต",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -497,7 +509,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "กำลังเริ่ม Rayburst",
+    "message": "กำลังเริ่ม Motrix Next",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -505,11 +517,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "ไม่สามารถเริ่ม Rayburst ได้",
+    "message": "ไม่สามารถเริ่ม Motrix Next ได้",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "ตรวจสอบว่าติดตั้ง Rayburst แล้วและการตั้งค่า API ถูกต้อง",
+    "message": "ตรวจสอบว่าติดตั้ง Motrix Next แล้วและการตั้งค่า API ถูกต้อง",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -575,305 +587,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "ล้างรายการบันทึกทั้งหมดหรือไม่",
+    "message": "ยืนยันการล้าง",
     "description": "Second-click confirmation label for clearing diagnostic logs"
-  },
-  "media_tab": {
-    "message": "สื่อ",
-    "description": "Media discovery: tab"
-  },
-  "media_downloads": {
-    "message": "ภาพรวม",
-    "description": "Media discovery: downloads"
-  },
-  "media_discover": {
-    "message": "ค้นหาสื่อ",
-    "description": "Media discovery: discover"
-  },
-  "media_scan": {
-    "message": "สแกนหน้าเว็บ",
-    "description": "Media discovery: scan"
-  },
-  "media_clear": {
-    "message": "ล้างรายการ",
-    "description": "Media discovery: clear"
-  },
-  "media_filter": {
-    "message": "กรองแหล่งที่มา",
-    "description": "Media discovery: filter"
-  },
-  "media_sources": {
-    "message": "แหล่งสื่อ",
-    "description": "Media discovery: sources"
-  },
-  "media_source": {
-    "message": "แหล่งที่มา",
-    "description": "Media discovery: source"
-  },
-  "media_enable_site": {
-    "message": "เปิดใช้บนเว็บไซต์นี้",
-    "description": "Media discovery: enable site"
-  },
-  "media_disable_site": {
-    "message": "ปิดใช้บนเว็บไซต์นี้",
-    "description": "Media discovery: disable site"
-  },
-  "media_inspect": {
-    "message": "ตรวจสอบรูปแบบ",
-    "description": "Media discovery: inspect"
-  },
-  "media_options": {
-    "message": "ตัวเลือกสื่อ",
-    "description": "Media discovery: options"
-  },
-  "media_back": {
-    "message": "รายการสื่อ",
-    "description": "Media discovery: back"
-  },
-  "media_video": {
-    "message": "คุณภาพวิดีโอ",
-    "description": "Media discovery: video"
-  },
-  "media_audio": {
-    "message": "เสียง",
-    "description": "Media discovery: audio"
-  },
-  "media_subtitles": {
-    "message": "คำบรรยาย",
-    "description": "Media discovery: subtitles"
-  },
-  "media_format": {
-    "message": "รูปแบบ",
-    "description": "Media discovery: format"
-  },
-  "media_original": {
-    "message": "ไฟล์ต้นฉบับ",
-    "description": "Media discovery: original"
-  },
-  "media_record_limit": {
-    "message": "จำกัดเวลาบันทึก (วินาที)",
-    "description": "Media discovery: record limit"
-  },
-  "media_live": {
-    "message": "บันทึกสด",
-    "description": "Media discovery: live"
-  },
-  "media_download": {
-    "message": "ดาวน์โหลด",
-    "description": "Media discovery: download"
-  },
-  "media_record": {
-    "message": "เริ่มบันทึก",
-    "description": "Media discovery: record"
-  },
-  "media_cancel": {
-    "message": "ยกเลิก",
-    "description": "Media discovery: cancel"
-  },
-  "media_retry": {
-    "message": "ตรวจสอบสถานะ",
-    "description": "Media discovery: retry"
-  },
-  "media_close": {
-    "message": "ปิด",
-    "description": "Media discovery: close"
-  },
-  "media_locate": {
-    "message": "ค้นหาเครื่องเล่น",
-    "description": "Media discovery: locate"
-  },
-  "media_no_video": {
-    "message": "ไม่มีวิดีโอ",
-    "description": "Media discovery: no video"
-  },
-  "media_no_audio": {
-    "message": "ไม่มีเสียง",
-    "description": "Media discovery: no audio"
-  },
-  "media_no_subtitles": {
-    "message": "ไม่มีคำบรรยาย",
-    "description": "Media discovery: no subtitles"
-  },
-  "media_excluded_sites": {
-    "message": "เว็บไซต์สื่อที่ยกเว้น",
-    "description": "Media discovery: excluded sites"
-  },
-  "media_waiting": {
-    "message": "พบเครื่องเล่นแล้ว กำลังรอแหล่งสื่อ",
-    "description": "Media discovery: waiting"
-  },
-  "media_none": {
-    "message": "ไม่พบแหล่งสื่อ",
-    "description": "Media discovery: none"
-  },
-  "media_paused": {
-    "message": "หยุดค้นหาสื่อชั่วคราว",
-    "description": "Media discovery: paused"
-  },
-  "media_excluded": {
-    "message": "ปิดการค้นหาสื่อบนเว็บไซต์นี้แล้ว",
-    "description": "Media discovery: excluded"
-  },
-  "media_ambiguous": {
-    "message": "ไม่สามารถจับคู่แหล่งสื่อกับเครื่องเล่นเดียวได้ โปรดตรวจสอบก่อนดาวน์โหลด",
-    "description": "Media discovery: ambiguous"
-  },
-  "media_loading": {
-    "message": "กำลังตรวจสอบสื่อ…",
-    "description": "Media discovery: loading"
-  },
-  "media_submitted": {
-    "message": "สร้างการดาวน์โหลดใน Rayburst แล้ว",
-    "description": "Media discovery: submitted"
-  },
-  "media_cancelled": {
-    "message": "ยกเลิกการตรวจสอบแล้ว",
-    "description": "Media discovery: cancelled"
-  },
-  "media_failed": {
-    "message": "ดำเนินการไม่สำเร็จ ลองอีกครั้งเพื่อตรวจสอบสถานะ",
-    "description": "Media discovery: failed"
-  },
-  "media_unsupported": {
-    "message": "ไม่รองรับสื่อหรือวิธีส่งคำขอนี้",
-    "description": "Media discovery: unsupported"
-  },
-  "media_invalid": {
-    "message": "เลือกแทร็ก รูปแบบ และระยะเวลาที่รองรับ",
-    "description": "Media discovery: invalid"
-  },
-  "media_unavailable": {
-    "message": "Rayburst ยังไม่รองรับอินเทอร์เฟซสื่อ",
-    "description": "Media discovery: unavailable"
-  },
-  "media_expired": {
-    "message": "แหล่งสื่อหรือการตรวจสอบหมดอายุ โปรดเล่นและตรวจสอบอีกครั้ง",
-    "description": "Media discovery: expired"
-  },
-  "media_connection": {
-    "message": "เปิด Rayburst และตรวจสอบการเชื่อมต่อ",
-    "description": "Media discovery: connection"
-  },
-  "media_size_unknown": {
-    "message": "ไม่ทราบขนาด",
-    "description": "Media discovery: size unknown"
-  },
-  "media_duration_unknown": {
-    "message": "ไม่ทราบระยะเวลา",
-    "description": "Media discovery: duration unknown"
-  },
-  "media_includes_audio": {
-    "message": "มีเสียง",
-    "description": "Media discovery: includes audio"
-  },
-  "media_record_hint": {
-    "message": "ศูนย์หมายถึงบันทึกจนกว่าจะหยุดใน Rayburst",
-    "description": "Media discovery: record hint"
-  },
-  "media_inspect_hint": {
-    "message": "ตรวจสอบก่อน แล้วจึงยืนยันการดาวน์โหลด",
-    "description": "Media discovery: inspect hint"
-  },
-  "media_open_page": {
-    "message": "เปิดหน้าเว็บเพื่อค้นหาสื่อ",
-    "description": "Media discovery: open page"
-  },
-  "media_hint": {
-    "message": "เล่นวิดีโอหรือเสียงเพื่อค้นหาแหล่งสื่อโดยอัตโนมัติ",
-    "description": "Media discovery: hint"
-  },
-  "media_ready": {
-    "message": "รูปแบบพร้อมแล้ว",
-    "description": "Media discovery: ready"
-  },
-  "media_confirming": {
-    "message": "กำลังยืนยันการดาวน์โหลด…",
-    "description": "Media discovery: confirming"
-  },
-  "media_cancelling": {
-    "message": "กำลังยกเลิกการตรวจสอบ…",
-    "description": "Media discovery: cancelling"
-  },
-  "options_color_scheme_electric": {
-    "message": "ม่วงประกายไฟ",
-    "description": "Electric Purple color scheme"
-  },
-  "popup_status_connecting": {
-    "message": "กำลังเชื่อมต่อ"
-  },
-  "popup_upload": {
-    "message": "อัปโหลด"
-  },
-  "popup_action_failed": {
-    "message": "ไม่สามารถดำเนินการนี้ให้เสร็จสิ้นได้"
-  },
-  "options_about": {
-    "message": "เกี่ยวกับ"
-  },
-  "options_api_secret_hint": {
-    "message": "ดูได้ใน Rayburst: การตั้งค่า → การเชื่อมต่อ"
-  },
-  "options_backup_secret_hint": {
-    "message": "ข้อมูลสำรองการตั้งค่ามีคีย์ API ของคุณรวมอยู่ด้วย"
-  },
-  "options_remove_rule": {
-    "message": "ลบกฎ"
-  },
-  "options_site_pattern": {
-    "message": "รูปแบบเว็บไซต์"
-  },
-  "options_rule_action": {
-    "message": "การทำงาน"
-  },
-  "media_source_auth": {
-    "message": "ลงชื่อเข้าใช้เว็บไซต์ต้นทางแล้วลองอีกครั้ง"
-  },
-  "media_protected": {
-    "message": "สื่อนี้ได้รับการป้องกันและไม่สามารถดาวน์โหลดได้"
-  },
-  "popup_download": {
-    "message": "ดาวน์โหลด"
-  },
-  "media_api_auth": {
-    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
-  },
-  "options_theme_label": {
-    "message": "ธีม"
-  },
-  "options_section_general": {
-    "message": "ทั่วไป"
-  },
-  "options_custom_color": {
-    "message": "สีที่กำหนดเอง"
-  },
-  "options_color_scheme_custom": {
-    "message": "กำหนดเอง"
-  },
-  "control_confirm": {
-    "message": "ยืนยัน"
-  },
-  "control_cancel": {
-    "message": "ยกเลิก"
-  },
-  "control_undo": {
-    "message": "เลิกทำ"
-  },
-  "control_redo": {
-    "message": "ทำซ้ำ"
-  },
-  "control_clear": {
-    "message": "ล้าง"
-  },
-  "control_add": {
-    "message": "เพิ่ม"
-  },
-  "control_empty": {
-    "message": "ไม่พบผลลัพธ์"
-  },
-  "control_select": {
-    "message": "เลือก"
-  },
-  "control_input": {
-    "message": "ป้อนค่า"
   }
 }

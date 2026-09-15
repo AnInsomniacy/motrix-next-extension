@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { NButton, NDescriptions, NDescriptionsItem, NIcon, NPopover, NTag } from 'naive-ui';
-import { ChevronRight } from '@lucide/vue';
+import { ChevronForwardOutline } from '@vicons/ionicons5';
 import type { DiagnosticEvent } from '@/lib/schema';
 import { useI18n } from '@/shared/i18n/engine';
 
@@ -31,12 +31,12 @@ function formatContextValue(value: string | number | boolean): string {
     <template #trigger>
       <NButton
         circle
-        size="small"
+        size="tiny"
         text
         :aria-label="i18n('options_diagnostics_view_details', 'View event details')"
       >
         <template #icon>
-          <NIcon :size="16"><ChevronRight /></NIcon>
+          <NIcon :size="16"><ChevronForwardOutline /></NIcon>
         </template>
       </NButton>
     </template>
@@ -62,7 +62,7 @@ function formatContextValue(value: string | number | boolean): string {
 
       <section v-if="contextEntries.length" class="diagnostic-details-section">
         <h4>{{ i18n('options_diagnostics_details_context', 'Context') }}</h4>
-        <NDescriptions :column="1" label-placement="left" size="small">
+        <NDescriptions bordered :column="1" label-placement="left" size="small">
           <NDescriptionsItem v-for="[key, value] in contextEntries" :key="key" :label="key">
             <code>{{ formatContextValue(value) }}</code>
           </NDescriptionsItem>
@@ -82,7 +82,7 @@ function formatContextValue(value: string | number | boolean): string {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  color: var(--rb-text-muted);
+  color: var(--color-on-surface-variant);
   font-size: 12px;
 }
 
@@ -90,9 +90,9 @@ function formatContextValue(value: string | number | boolean): string {
   display: block;
   margin-top: 12px;
   overflow-wrap: anywhere;
-  color: var(--rb-text);
+  color: var(--color-on-surface);
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 600;
 }
 
 .diagnostic-details-section {
@@ -101,7 +101,7 @@ function formatContextValue(value: string | number | boolean): string {
 
 .diagnostic-details-section h4 {
   margin-bottom: 8px;
-  color: var(--rb-text-muted);
+  color: var(--color-on-surface-variant);
   font-size: 12px;
   font-weight: 500;
 }
@@ -109,7 +109,7 @@ function formatContextValue(value: string | number | boolean): string {
 .diagnostic-details-section p,
 .diagnostic-details-section code {
   overflow-wrap: anywhere;
-  font-family: var(--rb-font-mono);
+  font-family: var(--font-mono);
   font-size: 12px;
 }
 </style>

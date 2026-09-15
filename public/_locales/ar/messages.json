@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next Extension",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "اعثر على المصدر وسلّمه بسلاسة.",
+    "message": "أرسل تنزيلات المتصفح إلى Motrix Next — مدير تنزيل حديث يعمل بمحرك aria2",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "تشغيل Rayburst",
+    "message": "تشغيل Motrix Next",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "فتح Rayburst",
+    "message": "فتح Motrix Next",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "تعذر الاتصال بـ Rayburst",
+    "message": "تعذر الاتصال بـ Motrix Next",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "اعتراض التنزيلات",
+    "message": "تفعيل اعتراض التنزيل",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "التنزيل بواسطة Rayburst",
-    "description": "Context menu item for downloading a link with Rayburst"
+    "message": "التنزيل بواسطة Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
   },
   "options_header_title": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "اعثر على المصدر وسلّمه بسلاسة.",
-    "description": "Rayburst Connect slogan"
+    "message": "إعدادات الإضافة",
+    "description": "Options page header subtitle"
   },
   "options_testing_connection": {
     "message": "جارٍ الاختبار...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "متصل · Rayburst",
+    "message": "متصل · Motrix Next",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Rayburst Connect v$version$",
+    "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,6 +155,10 @@
   "options_color_scheme": {
     "message": "نظام الألوان",
     "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "ذهبي كهرماني",
+    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "أزرق فضائي",
@@ -213,7 +217,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
+    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -231,7 +235,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Rayburst is running. API port: $1",
+    "message": "Make sure Motrix Next is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -241,23 +245,23 @@
     }
   },
   "options_section_language": {
-    "message": "اللغة / Language",
-    "description": "Language setting label; retain the English Language locator in non-English locales."
+    "message": "اللغة",
+    "description": "Settings section for interface language"
   },
   "options_locale_auto": {
     "message": "تلقائي",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "تلقائي / Auto",
-    "description": "Follow the browser language automatically; keep the English Auto locator."
+    "message": "اتباع لغة المتصفح",
+    "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "عند عدم توفر Rayburst",
+    "message": "عند عدم توفر Motrix Next",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "تشغيل Rayburst",
+    "message": "تشغيل Motrix Next",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -281,8 +285,16 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "متوقفة",
+    "message": "مكتمل",
     "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "جارٍ الاعتراض",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "متوقف مؤقتاً",
+    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -297,7 +309,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Rayburst",
+    "message": "Cannot connect to Motrix Next",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -325,7 +337,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "امنح أذونات ملفات تعريف الارتباط والمواقع لإعادة توجيه ملفات تعريف الارتباط إلى Rayburst.",
+    "message": "امنح أذونات ملفات تعريف الارتباط والمواقع لإعادة توجيه ملفات تعريف الارتباط إلى Motrix Next.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -357,8 +369,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "نقل إلى Rayburst",
-    "description": "Option label for routing unknown-size downloads to Rayburst."
+    "message": "نقل إلى Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
   },
   "options_min_size_unknown_skip": {
     "message": "نقل إلى المتصفح",
@@ -413,8 +425,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "إرسال إلى Rayburst",
-    "description": "Option label for routing a matched extension to Rayburst."
+    "message": "إرسال إلى Motrix Next",
+    "description": "Option label for routing a matched extension to Motrix Next."
   },
   "options_file_extension_action_skip": {
     "message": "استخدام المتصفح",
@@ -425,7 +437,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "استعادة الإعدادات الافتراضية؟",
+    "message": "انقر مرة أخرى لإعادة الضبط",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -497,7 +509,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "جارٍ بدء Rayburst",
+    "message": "جارٍ بدء Motrix Next",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -505,11 +517,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "تعذر بدء Rayburst",
+    "message": "تعذر بدء Motrix Next",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "تحقق من تثبيت Rayburst وصحة إعدادات API.",
+    "message": "تحقق من تثبيت Motrix Next وصحة إعدادات API.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -575,305 +587,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "مسح جميع إدخالات السجل؟",
+    "message": "تأكيد المسح",
     "description": "Second-click confirmation label for clearing diagnostic logs"
-  },
-  "media_tab": {
-    "message": "الوسائط",
-    "description": "Media discovery: tab"
-  },
-  "media_downloads": {
-    "message": "نظرة عامة",
-    "description": "Media discovery: downloads"
-  },
-  "media_discover": {
-    "message": "اكتشاف الوسائط",
-    "description": "Media discovery: discover"
-  },
-  "media_scan": {
-    "message": "فحص الصفحة",
-    "description": "Media discovery: scan"
-  },
-  "media_clear": {
-    "message": "مسح القائمة",
-    "description": "Media discovery: clear"
-  },
-  "media_filter": {
-    "message": "تصفية المصادر",
-    "description": "Media discovery: filter"
-  },
-  "media_sources": {
-    "message": "مصادر الوسائط",
-    "description": "Media discovery: sources"
-  },
-  "media_source": {
-    "message": "المصدر",
-    "description": "Media discovery: source"
-  },
-  "media_enable_site": {
-    "message": "تفعيل في هذا الموقع",
-    "description": "Media discovery: enable site"
-  },
-  "media_disable_site": {
-    "message": "تعطيل في هذا الموقع",
-    "description": "Media discovery: disable site"
-  },
-  "media_inspect": {
-    "message": "فحص الصيغ",
-    "description": "Media discovery: inspect"
-  },
-  "media_options": {
-    "message": "خيارات الوسائط",
-    "description": "Media discovery: options"
-  },
-  "media_back": {
-    "message": "قائمة الوسائط",
-    "description": "Media discovery: back"
-  },
-  "media_video": {
-    "message": "جودة الفيديو",
-    "description": "Media discovery: video"
-  },
-  "media_audio": {
-    "message": "الصوت",
-    "description": "Media discovery: audio"
-  },
-  "media_subtitles": {
-    "message": "الترجمة",
-    "description": "Media discovery: subtitles"
-  },
-  "media_format": {
-    "message": "التنسيق",
-    "description": "Media discovery: format"
-  },
-  "media_original": {
-    "message": "الملف الأصلي",
-    "description": "Media discovery: original"
-  },
-  "media_record_limit": {
-    "message": "حد التسجيل (ثوانٍ)",
-    "description": "Media discovery: record limit"
-  },
-  "media_live": {
-    "message": "تسجيل مباشر",
-    "description": "Media discovery: live"
-  },
-  "media_download": {
-    "message": "تنزيل",
-    "description": "Media discovery: download"
-  },
-  "media_record": {
-    "message": "بدء التسجيل",
-    "description": "Media discovery: record"
-  },
-  "media_cancel": {
-    "message": "إلغاء",
-    "description": "Media discovery: cancel"
-  },
-  "media_retry": {
-    "message": "التحقق من الحالة",
-    "description": "Media discovery: retry"
-  },
-  "media_close": {
-    "message": "إغلاق",
-    "description": "Media discovery: close"
-  },
-  "media_locate": {
-    "message": "تحديد موقع المشغّل",
-    "description": "Media discovery: locate"
-  },
-  "media_no_video": {
-    "message": "بلا فيديو",
-    "description": "Media discovery: no video"
-  },
-  "media_no_audio": {
-    "message": "بلا صوت",
-    "description": "Media discovery: no audio"
-  },
-  "media_no_subtitles": {
-    "message": "بلا ترجمة",
-    "description": "Media discovery: no subtitles"
-  },
-  "media_excluded_sites": {
-    "message": "مواقع الوسائط المستثناة",
-    "description": "Media discovery: excluded sites"
-  },
-  "media_waiting": {
-    "message": "تم العثور على المشغّل؛ بانتظار مصدر الوسائط.",
-    "description": "Media discovery: waiting"
-  },
-  "media_none": {
-    "message": "لم يتم العثور على مصادر وسائط.",
-    "description": "Media discovery: none"
-  },
-  "media_paused": {
-    "message": "اكتشاف الوسائط متوقف مؤقتًا.",
-    "description": "Media discovery: paused"
-  },
-  "media_excluded": {
-    "message": "اكتشاف الوسائط معطّل في هذا الموقع.",
-    "description": "Media discovery: excluded"
-  },
-  "media_ambiguous": {
-    "message": "لا يمكن ربط المصادر بمشغّل واحد بدقة. تحقق قبل التنزيل.",
-    "description": "Media discovery: ambiguous"
-  },
-  "media_loading": {
-    "message": "جارٍ فحص الوسائط…",
-    "description": "Media discovery: loading"
-  },
-  "media_submitted": {
-    "message": "تم إنشاء التنزيل في Rayburst.",
-    "description": "Media discovery: submitted"
-  },
-  "media_cancelled": {
-    "message": "تم إلغاء الفحص.",
-    "description": "Media discovery: cancelled"
-  },
-  "media_failed": {
-    "message": "فشلت العملية. أعد المحاولة للتحقق من الحالة.",
-    "description": "Media discovery: failed"
-  },
-  "media_unsupported": {
-    "message": "هذه الوسائط أو طريقة الطلب غير مدعومة.",
-    "description": "Media discovery: unsupported"
-  },
-  "media_invalid": {
-    "message": "اختر مجموعة مدعومة من المسارات والصيغة والمدة.",
-    "description": "Media discovery: invalid"
-  },
-  "media_unavailable": {
-    "message": "لا يدعم Rayburst واجهة الوسائط بعد.",
-    "description": "Media discovery: unavailable"
-  },
-  "media_expired": {
-    "message": "انتهت صلاحية المصدر أو الفحص. شغّل الوسائط وافحص مجددًا.",
-    "description": "Media discovery: expired"
-  },
-  "media_connection": {
-    "message": "شغّل Rayburst وتحقق من إعدادات الاتصال.",
-    "description": "Media discovery: connection"
-  },
-  "media_size_unknown": {
-    "message": "الحجم غير معروف",
-    "description": "Media discovery: size unknown"
-  },
-  "media_duration_unknown": {
-    "message": "المدة غير معروفة",
-    "description": "Media discovery: duration unknown"
-  },
-  "media_includes_audio": {
-    "message": "يتضمن صوتًا",
-    "description": "Media discovery: includes audio"
-  },
-  "media_record_hint": {
-    "message": "الصفر يعني التسجيل حتى إيقافه في Rayburst.",
-    "description": "Media discovery: record hint"
-  },
-  "media_inspect_hint": {
-    "message": "افحص أولًا ثم أكد التنزيل.",
-    "description": "Media discovery: inspect hint"
-  },
-  "media_open_page": {
-    "message": "افتح صفحة ويب لاكتشاف الوسائط.",
-    "description": "Media discovery: open page"
-  },
-  "media_hint": {
-    "message": "شغّل فيديو أو صوتًا لاكتشاف مصادره تلقائيًا.",
-    "description": "Media discovery: hint"
-  },
-  "media_ready": {
-    "message": "الصيغ جاهزة",
-    "description": "Media discovery: ready"
-  },
-  "media_confirming": {
-    "message": "جارٍ تأكيد التنزيل…",
-    "description": "Media discovery: confirming"
-  },
-  "media_cancelling": {
-    "message": "جارٍ إلغاء الفحص…",
-    "description": "Media discovery: cancelling"
-  },
-  "options_color_scheme_electric": {
-    "message": "بنفسجي كهربائي",
-    "description": "Electric Purple color scheme"
-  },
-  "popup_status_connecting": {
-    "message": "جارٍ الاتصال"
-  },
-  "popup_upload": {
-    "message": "الرفع"
-  },
-  "popup_action_failed": {
-    "message": "تعذّر إكمال هذا الإجراء."
-  },
-  "options_about": {
-    "message": "حول"
-  },
-  "options_api_secret_hint": {
-    "message": "ستجده في Rayburst: الإعدادات ← الاتصالات."
-  },
-  "options_backup_secret_hint": {
-    "message": "تتضمن نسخ الإعدادات الاحتياطية مفتاح API الخاص بك."
-  },
-  "options_remove_rule": {
-    "message": "إزالة القاعدة"
-  },
-  "options_site_pattern": {
-    "message": "نمط الموقع"
-  },
-  "options_rule_action": {
-    "message": "الإجراء"
-  },
-  "media_source_auth": {
-    "message": "سجّل الدخول إلى الموقع المصدر وحاول مجددًا."
-  },
-  "media_protected": {
-    "message": "هذه الوسائط محمية ولا يمكن تنزيلها."
-  },
-  "popup_download": {
-    "message": "تنزيل"
-  },
-  "media_api_auth": {
-    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
-  },
-  "options_theme_label": {
-    "message": "المظهر"
-  },
-  "options_section_general": {
-    "message": "عام"
-  },
-  "options_custom_color": {
-    "message": "لون مخصص"
-  },
-  "options_color_scheme_custom": {
-    "message": "لون مخصص"
-  },
-  "control_confirm": {
-    "message": "تأكيد"
-  },
-  "control_cancel": {
-    "message": "إلغاء"
-  },
-  "control_undo": {
-    "message": "تراجع"
-  },
-  "control_redo": {
-    "message": "إعادة"
-  },
-  "control_clear": {
-    "message": "مسح"
-  },
-  "control_add": {
-    "message": "إضافة"
-  },
-  "control_empty": {
-    "message": "لا توجد نتائج"
-  },
-  "control_select": {
-    "message": "اختر"
-  },
-  "control_input": {
-    "message": "أدخل قيمة"
   }
 }

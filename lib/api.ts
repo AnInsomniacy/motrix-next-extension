@@ -1,5 +1,5 @@
 /**
- * HTTP client for the Rayburst desktop app's embedded REST API
+ * HTTP client for the Motrix Next desktop app's embedded REST API
  * (Axum server at `127.0.0.1:{port}`), plus the extension's single error
  * taxonomy and the two-step connection check.
  *
@@ -15,24 +15,7 @@ import ky, {
 } from 'ky';
 import { z } from 'zod';
 import type { ConnectionConfig } from './schema';
-import {
-  AddDownloadResponseSchema,
-  type AddDownloadRequest,
-  type AddDownloadResponse,
-} from './download/contracts';
-import { rememberDownload, forgetDownload, pendingDownloads } from './download/pending';
-import {
-  MEDIA_API_PATH,
-  MediaCapabilitiesSchema,
-  MediaProbeRequestSchema,
-  MediaProbeSchema,
-  MediaSubmitRequestSchema,
-  MediaSubmitResponseSchema,
-  MediaCancelResponseSchema,
-  MediaErrorResponseSchema,
-  type MediaProbeRequest,
-  type MediaSubmitRequest,
-} from './media/contracts';
+import type { RequestHeader } from './download/request-context';
 
 z.config({ jitless: true });
 
@@ -60,7 +43,7 @@ class ApiError extends Error {
 
 export class ApiUnreachableError extends ApiError {
   constructor(cause?: unknown) {
-    super('Cannot connect to Rayburst API', cause);
+    super('Cannot connect to Motrix Next API', cause);
     this.name = 'ApiUnreachableError';
   }
 }
@@ -76,20 +59,6 @@ export class ApiTimeoutError extends ApiError {
   constructor(timeoutMs: number) {
     super(`API call timed out after ${timeoutMs}ms`);
     this.name = 'ApiTimeoutError';
-  }
-}
-
-export class ApiDeliveryUncertainError extends ApiError {
-  constructor(cause: unknown) {
-    super('The desktop may have accepted this download; its receipt is pending', cause);
-    this.name = 'ApiDeliveryUncertainError';
-  }
-}
-
-export class MediaApiError extends ApiError {
-  constructor(public readonly code: string) {
-    super('Media request failed');
-    this.name = 'MediaApiError';
   }
 }
 
@@ -109,9 +78,26 @@ const StatResponseSchema = z.object({
 
 const ActionResponseSchema = z.object({ status: z.string(), error: z.string().optional() });
 
+const AddDownloadResponseSchema = z.object({
+  action: z.string(),
+  gid: z.string().optional(),
+  message: z.string().optional(),
+});
+
 export type PingResponse = z.output<typeof PingResponseSchema>;
 export type StatResponse = z.output<typeof StatResponseSchema>;
 type ActionResponse = z.output<typeof ActionResponseSchema>;
+type AddDownloadResponse = z.output<typeof AddDownloadResponseSchema>;
+
+interface AddDownloadRequest {
+  url: string;
+  finalUrl?: string;
+  referer?: string;
+  cookie?: string;
+  filename?: string;
+  userAgent?: string;
+  requestHeaders?: RequestHeader[];
+}
 
 // ─── Client ─────────────────────────────────────────────
 
@@ -133,10 +119,8 @@ export class DesktopApiClient {
   private createHttpClient(): KyInstance {
     return ky.create({
       prefix: `http://127.0.0.1:${this.config.port}`,
-      credentials: 'omit',
-      cache: 'no-store',
       timeout: API_REQUEST_TIMEOUT_MS,
-      retry: { limit: API_MAX_RETRIES, methods: ['get'] },
+      retry: { limit: API_MAX_RETRIES, methods: ['get', 'post'] },
     });
   }
 
@@ -155,20 +139,6 @@ export class DesktopApiClient {
       const payload = await this.http(path, options).json<unknown>();
       return schema.parse(payload);
     } catch (error) {
-      if (path.startsWith(MEDIA_API_PATH)) {
-        if (error instanceof z.ZodError) throw new MediaApiError('invalid_response');
-        if (error instanceof HTTPError && error.response.status !== 401) {
-          const parsed = MediaErrorResponseSchema.safeParse(error.data);
-          const code = parsed.success
-            ? parsed.data.error
-            : [404, 405].includes(error.response.status)
-              ? 'integration_unavailable'
-              : error.response.status === 410
-                ? 'expired'
-                : 'desktop_error';
-          throw new MediaApiError(code);
-        }
-      }
       throw normalizeApiError(
         error,
         label,
@@ -197,91 +167,11 @@ export class DesktopApiClient {
   }
 
   async addDownload(request: AddDownloadRequest): Promise<AddDownloadResponse> {
-    await this.request(
-      'downloads/capabilities',
-      z.object({ protocolVersion: z.literal(2), filenameHints: z.literal(true) }),
-      { method: 'GET', headers: this.authHeaders(), retry: 0 },
-      'Check download support',
-    );
-    await rememberDownload(request, this.config);
-    try {
-      const response = await this.request(
-        'add',
-        AddDownloadResponseSchema,
-        { method: 'POST', headers: this.authHeaders(), json: request, retry: 0 },
-        'Add download',
-      );
-      if (response.id !== request.id || (response.action === 'submitted' && !response.gid))
-        throw new Error('Download receipt does not match its request');
-      await forgetDownload(request.id);
-      return response;
-    } catch (error) {
-      if (error instanceof ApiAuthError) {
-        await forgetDownload(request.id);
-        throw error;
-      }
-      throw new ApiDeliveryUncertainError(error);
-    }
-  }
-
-  async reconcileDownloads(): Promise<number> {
-    const pending = await pendingDownloads(this.config);
-    const results = await Promise.allSettled(pending.map((request) => this.addDownload(request)));
-    return results.filter((result) => result.status === 'rejected').length;
-  }
-
-  async mediaCapabilities() {
     return this.request(
-      `${MEDIA_API_PATH}/capabilities`,
-      MediaCapabilitiesSchema,
-      { headers: this.authHeaders(), retry: 0 },
-      'Media capabilities',
-    );
-  }
-
-  async createMediaProbe(request: MediaProbeRequest) {
-    return this.request(
-      `${MEDIA_API_PATH}/probes`,
-      MediaProbeSchema,
-      {
-        method: 'POST',
-        headers: this.authHeaders(),
-        json: MediaProbeRequestSchema.parse(request),
-        retry: 0,
-      },
-      'Probe media',
-    );
-  }
-
-  async getMediaProbe(id: string) {
-    return this.request(
-      `${MEDIA_API_PATH}/probes/${encodeURIComponent(id)}`,
-      MediaProbeSchema,
-      { headers: this.authHeaders(), retry: 0 },
-      'Read media probe',
-    );
-  }
-
-  async submitMediaProbe(id: string, request: MediaSubmitRequest) {
-    return this.request(
-      `${MEDIA_API_PATH}/probes/${encodeURIComponent(id)}/submit`,
-      MediaSubmitResponseSchema,
-      {
-        method: 'POST',
-        headers: this.authHeaders(),
-        json: MediaSubmitRequestSchema.parse(request),
-        retry: 0,
-      },
-      'Submit media',
-    );
-  }
-
-  async cancelMediaProbe(id: string) {
-    return this.request(
-      `${MEDIA_API_PATH}/probes/${encodeURIComponent(id)}/cancel`,
-      MediaCancelResponseSchema,
-      { method: 'POST', headers: this.authHeaders(), json: {}, retry: 0 },
-      'Cancel media probe',
+      'add',
+      AddDownloadResponseSchema,
+      { method: 'POST', headers: this.authHeaders(), json: request },
+      'Add download',
     );
   }
 

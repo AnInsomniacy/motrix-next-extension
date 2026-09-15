@@ -1,7 +1,5 @@
 import type { UserManifest } from 'wxt';
 
-export const EXTENSION_ICON_SIZES = [16, 20, 24, 32, 48, 64, 96, 128, 256, 512];
-
 export const CHROME_EXTENSION_ID = 'ofeajdebdjajhkmcmamagokecnbephhl';
 export const CHROME_EXTENSION_PUBLIC_KEY =
   'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxCnWi95LaR4hmUK5XWjZ1ukXDuzdsYOW4u+YCXDCK2xY4KvgO9zZPaJyfk1+cQjYyItGoaCPUleSF3ITE3nIHdEXfU9fYO8a2e0lbdn5YCWsUWI1KdU/hGjqxACWspkSfV2DAyWqaALQWM2bsMBBJSBbLCrXTpIJ4YPiEXHq8h+spEhjGh119rBzc+CUYq55o/oSgIumLdpwEdnQDIUDSnSv29M7BZyLNDSvEI/4CC/hrJKNARAZyms6yYt18UDxsOLO3Lo9rEVQCZbFzCemfPUsGOFSqR4c2bHI40sK1/ilLAKJk5YL38JX/n92PGDl/9e2cZmACD59DkuHqrnkqQIDAQAB';
@@ -12,8 +10,6 @@ const REQUIRED_PERMISSIONS = [
   'contextMenus',
   'notifications',
   'webRequest',
-  'webNavigation',
-  'alarms',
   'cookies',
   'nativeMessaging',
 ] as const;
@@ -21,31 +17,23 @@ const FIREFOX_REQUIRED_PERMISSIONS = [...REQUIRED_PERMISSIONS, 'webRequestBlocki
 const LOOPBACK_HOST_PERMISSIONS = ['http://127.0.0.1/*', 'http://localhost/*'] as const;
 const BROAD_DOWNLOAD_ORIGINS = ['https://*/*', 'http://*/*'] as const;
 
-export function buildExtensionManifest(browser: string) {
+export function buildExtensionManifest(browser: string, mode: string) {
   const optionalPermissions: UserManifest['optional_permissions'] =
     browser === 'firefox' ? [] : ['downloads.ui'];
   const permissions =
     browser === 'firefox' ? [...FIREFOX_REQUIRED_PERMISSIONS] : [...REQUIRED_PERMISSIONS];
 
   const manifest = {
-    ...(browser !== 'firefox' ? { minimum_chrome_version: '132' } : {}),
-    // One session writer; private resources remain scoped by native tab/document/store IDs.
-    incognito: 'spanning' as const,
     name: '__MSG_ext_name__',
     description: '__MSG_ext_description__',
-    action: {
-      default_icon: Object.fromEntries(
-        EXTENSION_ICON_SIZES.map((size) => [size, `icons/${size}.png`]),
-      ),
-    },
     default_locale: 'en',
-    // Keep unpacked builds eligible for the native host, regardless of their output directory.
-    ...(browser !== 'firefox' ? { key: CHROME_EXTENSION_PUBLIC_KEY } : {}),
+    ...(browser !== 'firefox' && mode === 'development'
+      ? { key: CHROME_EXTENSION_PUBLIC_KEY }
+      : {}),
     permissions,
     optional_permissions: optionalPermissions,
     host_permissions: [...LOOPBACK_HOST_PERMISSIONS, ...BROAD_DOWNLOAD_ORIGINS],
     optional_host_permissions: [],
-    web_accessible_resources: [{ resources: ['media.html'], matches: [...BROAD_DOWNLOAD_ORIGINS] }],
     ...(browser === 'firefox'
       ? {
           browser_specific_settings: {

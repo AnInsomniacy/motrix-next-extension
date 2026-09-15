@@ -1,155 +1,187 @@
-<script setup lang="ts">
+<script lang="ts" setup>
+/** Global stat dashboard for the popup. */
 import { computed } from 'vue';
 import { NIcon } from 'naive-ui';
-import { ArrowDown, ArrowUp } from '@lucide/vue';
+import {
+  ArrowDownOutline,
+  ArrowUpOutline,
+  FlashOutline,
+  TimeOutline,
+  CheckmarkDoneOutline,
+} from '@vicons/ionicons5';
 import type { StatResponse } from '@/lib/api';
-import { mediaSize } from '@/lib/media/presentation';
+
 import { useI18n } from '@/shared/i18n/engine';
-import SpeedSparkline from './SpeedSparkline.vue';
-const props = defineProps<{ stat: StatResponse; history: number[] }>();
-const { t, effectiveLocale } = useI18n();
-const number = (value: string) =>
-  new Intl.NumberFormat(effectiveLocale.value.replace('_', '-')).format(Number(value) || 0);
-const speed = (value: string) =>
-  `${mediaSize(Number(value), effectiveLocale.value.replace('_', '-'), '—')}/s`;
-const transferring = computed(() => Number(props.stat.downloadSpeed) > 0);
-const counts = computed(() => [
-  { key: 'active', label: t('popup_stat_active'), value: number(props.stat.numActive) },
-  { key: 'waiting', label: t('popup_stat_waiting'), value: number(props.stat.numWaiting) },
-  { key: 'stopped', label: t('popup_stat_stopped'), value: number(props.stat.numStopped) },
-]);
+
+const { t: i18n } = useI18n();
+
+const props = defineProps<{
+  stat: StatResponse;
+  disabled: boolean;
+}>();
+
+/* ── Speed Formatting ───────────────────────────────────────────── */
+
+function formatSpeed(bytesPerSec: string): string {
+  const n = parseInt(bytesPerSec, 10);
+  if (isNaN(n) || n === 0) return '0 B/s';
+  if (n < 1024) return `${n} B/s`;
+  if (n < 1048576) return `${(n / 1024).toFixed(1)} KB/s`;
+  if (n < 1073741824) return `${(n / 1048576).toFixed(1)} MB/s`;
+  return `${(n / 1073741824).toFixed(2)} GB/s`;
+}
+
+/* ── Derived State ──────────────────────────────────────────────── */
+
+const numActive = computed(() => parseInt(props.stat.numActive, 10) || 0);
+const numWaiting = computed(() => parseInt(props.stat.numWaiting, 10) || 0);
+const numStopped = computed(() => parseInt(props.stat.numStopped, 10) || 0);
+const isIdle = computed(() => numActive.value === 0);
 </script>
+
 <template>
-  <div class="stat-dash" :class="{ transferring }">
-    <span class="stat-rays" aria-hidden="true" />
-    <div class="speed-hero">
-      <div class="speed-main">
-        <span class="speed-label"
-          ><NIcon :size="14"><ArrowDown /></NIcon>{{ t('popup_download') }}</span
-        >
-        <bdi class="speed-value">{{ speed(stat.downloadSpeed) }}</bdi>
+  <div class="stat-dash">
+    <!-- ── Speed Row (side-by-side) ───────────────────────── -->
+    <div :class="['stat-dash__speed', { 'stat-dash__speed--idle': isIdle }]">
+      <div class="stat-dash__speed-col stat-dash__speed-col--dl">
+        <NIcon :size="16" class="stat-dash__speed-icon">
+          <ArrowDownOutline />
+        </NIcon>
+        <span class="stat-dash__speed-value">{{ formatSpeed(stat.downloadSpeed) }}</span>
       </div>
-      <div class="speed-secondary">
-        <span class="speed-label"
-          ><NIcon :size="13"><ArrowUp /></NIcon>{{ t('popup_upload') }}</span
-        >
-        <bdi class="speed-value speed-value--small">{{ speed(stat.uploadSpeed) }}</bdi>
+      <div class="stat-dash__speed-divider" />
+      <div class="stat-dash__speed-col stat-dash__speed-col--ul">
+        <NIcon :size="13" class="stat-dash__speed-icon">
+          <ArrowUpOutline />
+        </NIcon>
+        <span class="stat-dash__speed-value">{{ formatSpeed(stat.uploadSpeed) }}</span>
       </div>
     </div>
-    <SpeedSparkline class="speed-graph" :values="history" :height="34" />
-    <div class="counts">
-      <span v-for="count in counts" :key="count.key" class="count-chip">
-        {{ count.label }} <bdi>{{ count.value }}</bdi>
-      </span>
+
+    <!-- ── Task Counts ─────────────────────────────────────── -->
+    <div :class="['stat-dash__counts', { 'stat-dash__counts--disabled': props.disabled }]">
+      <div class="stat-dash__count stat-dash__count--active">
+        <NIcon :size="13"><FlashOutline /></NIcon>
+        <span class="stat-dash__count-label">{{ i18n('popup_stat_active', 'Active') }}</span>
+        <span class="stat-dash__count-value">{{ numActive }}</span>
+      </div>
+      <div class="stat-dash__count stat-dash__count--waiting">
+        <NIcon :size="13"><TimeOutline /></NIcon>
+        <span class="stat-dash__count-label">{{ i18n('popup_stat_waiting', 'Waiting') }}</span>
+        <span class="stat-dash__count-value">{{ numWaiting }}</span>
+      </div>
+      <div class="stat-dash__count stat-dash__count--stopped">
+        <NIcon :size="13"><CheckmarkDoneOutline /></NIcon>
+        <span class="stat-dash__count-label">{{ i18n('popup_stat_stopped', 'Done') }}</span>
+        <span class="stat-dash__count-value">{{ numStopped }}</span>
+      </div>
     </div>
   </div>
 </template>
+
 <style scoped>
 .stat-dash {
-  position: relative;
+  padding: 0 16px;
+}
+
+/* ── Speed Row ────────────────────────────────────────────────── */
+
+.stat-dash__speed {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px 16px 14px;
-  border-radius: var(--rb-radius-card);
-  background: var(--rb-raised);
-  box-shadow: var(--rb-shadow-raised);
-  overflow: hidden;
-}
-
-.stat-rays {
-  position: absolute;
-  inset: -60% -20% auto;
-  height: 160%;
-  pointer-events: none;
-  background:
-    linear-gradient(118deg, transparent 44%, var(--rb-glow) 52%, transparent 60%),
-    radial-gradient(60% 50% at 85% 0%, var(--rb-glow), transparent 70%);
-  opacity: 0.35;
-  transition: opacity var(--rb-motion-view) var(--rb-ease);
-}
-
-.transferring .stat-rays {
-  opacity: 0.8;
-}
-
-.speed-hero {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.speed-main,
-.speed-secondary {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.speed-secondary {
-  align-items: flex-end;
-  text-align: end;
-}
-
-.speed-label {
-  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--rb-text-muted);
+  justify-content: center;
+  gap: 0;
+  padding: 18px 0 14px;
+  transition: opacity 0.4s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.speed-value {
-  font-size: 30px;
-  line-height: 34px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  background: var(--rb-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  overflow-wrap: anywhere;
+.stat-dash__speed--idle {
+  opacity: 0.4;
 }
 
-.speed-value--small {
-  font-size: 16px;
-  line-height: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  background: none;
-  color: var(--rb-text);
-}
-
-.speed-graph {
-  position: relative;
-}
-
-.counts {
-  position: relative;
+.stat-dash__speed-col {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
+  flex: 1;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
 }
 
-.count-chip {
-  display: inline-flex;
+.stat-dash__speed-col--dl {
+  color: var(--color-primary);
+}
+
+.stat-dash__speed-col--dl .stat-dash__speed-value {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.stat-dash__speed-col--ul {
+  color: var(--color-on-surface-variant);
+}
+
+.stat-dash__speed-col--ul .stat-dash__speed-value {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stat-dash__speed-icon {
+  flex-shrink: 0;
+}
+
+.stat-dash__speed-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--color-outline-variant);
+  flex-shrink: 0;
+}
+
+/* ── Task Counts ──────────────────────────────────────────────── */
+
+.stat-dash__counts {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.stat-dash__count {
+  display: flex;
   align-items: center;
   gap: 5px;
-  padding: 0 9px;
-  border-radius: 999px;
   font-size: 12px;
-  line-height: 22px;
-  color: var(--rb-text-muted);
-  background: var(--rb-fill);
+  font-variant-numeric: tabular-nums;
 }
 
-.count-chip bdi {
-  font-weight: 600;
-  color: var(--rb-text);
-  font-variant-numeric: tabular-nums;
+.stat-dash__count--active {
+  color: var(--color-primary);
+}
+
+.stat-dash__count--waiting {
+  color: var(--color-warning);
+}
+
+.stat-dash__count--stopped {
+  color: var(--color-success);
+}
+
+.stat-dash__count-label {
+  font-weight: 500;
+}
+
+.stat-dash__count-value {
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.stat-dash__counts--disabled {
+  opacity: 0.35;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.2, 0, 0, 1);
 }
 </style>

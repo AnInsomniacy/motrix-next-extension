@@ -1,312 +1,142 @@
-/* Vueuc calculates physical offsets from the top-left, including in RTL documents. */
-.v-binder-follower-content {
-  top: 0;
-  left: 0;
-}
-
-/* First-paint defaults for the Electric scheme; the theme engine overwrites
-   them on the root element before Vue mounts. Shared with the desktop app. */
 :root {
-  --rb-canvas: #faf9ff;
-  --rb-sidebar: #f4f2fb;
-  --rb-raised: #ffffff;
-  --rb-overlay: #ffffff;
-  --rb-fill: #f1eff7;
-  --rb-fill-strong: #e5e3ec;
-  --rb-text: #1b1921;
-  --rb-text-muted: #64616b;
-  --rb-text-faint: #8d8b93;
-  --rb-hairline: #e0dee7;
-  --rb-border: #cbc9d2;
-  --rb-border-strong: #a5a3ab;
-  --rb-hover: #1615190b;
-  --rb-pressed: #16151914;
-  --rb-selected: #834ad81a;
-  --rb-accent: #7945c8;
-  --rb-accent-strong: #623aa1;
-  --rb-accent-bright: #a580ef;
-  --rb-accent-text: #653ba7;
-  --rb-accent-soft: #f0ebff;
-  --rb-on-accent: #ffffff;
-  --rb-glow: #7945c847;
-  --rb-gradient: linear-gradient(135deg, #a580ef 0%, #7945c8 100%);
-  --rb-success: #008c46;
-  --rb-success-soft: #d7f9de;
-  --rb-warning: #af7100;
-  --rb-warning-soft: #ffebd3;
-  --rb-danger: #d02a3a;
-  --rb-danger-soft: #ffe8e7;
-  --rb-info: #0f74c5;
-  --rb-info-soft: #e3f0ff;
-  --rb-inverse: #201e26;
-  --rb-on-inverse: #f5f4fa;
-  --rb-scrollbar: #16151938;
+  /* ── M3 Primary (Amber Gold · seed #E0A422 · desktop-aligned) ────── */
+  --color-primary: #7c5800;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #ffdea3;
+  --color-on-primary-container: #271900;
+  --color-brand: #e0a422;
 
-  --rb-track: var(--rb-fill-strong);
-  --rb-shadow-raised:
-    0 0 0 1px var(--rb-hairline), 0 1px 2px rgb(24 12 48 / 4%), 0 8px 24px -12px rgb(24 12 48 / 16%);
-  --rb-shadow-overlay:
-    0 0 0 1px var(--rb-hairline), 0 2px 6px rgb(24 12 48 / 8%),
-    0 28px 72px -16px rgb(24 12 48 / 30%);
+  /* ── M3 Surface Tonal System (6 layers) ─────────────────────────── */
+  --color-surface: #fefbf6;
+  --color-surface-dim: #dfdbd4;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f9f5ee;
+  --color-surface-container: #f3efe8;
+  --color-surface-container-high: #ede9e2;
+  --color-surface-container-highest: #e7e3dd;
 
-  --rb-font-sans:
-    'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI',
-    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans CJK SC',
-    sans-serif;
-  --rb-font-mono:
-    'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  /* ── M3 On-Surface / Text ──────────────────────────────────────── */
+  --color-on-surface: #1d1b16;
+  --color-on-surface-variant: #4d4639;
 
-  --rb-radius-control: 9px;
-  --rb-radius-tile: 10px;
-  --rb-radius-card: 14px;
-  --rb-radius-dialog: 18px;
+  /* ── M3 Outline / Borders ──────────────────────────────────────── */
+  --color-outline: #7f7667;
+  --color-outline-variant: #d1c7b7;
 
-  --rb-motion-feedback: 120ms;
-  --rb-motion-view: 200ms;
-  --rb-motion-exit: 150ms;
-  --rb-motion-push: 280ms;
-  --rb-motion-layout: 240ms;
-  --rb-motion-progress: 400ms;
-  --rb-ease: cubic-bezier(0.2, 0, 0, 1);
-  --rb-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* ── M3 Semantic ───────────────────────────────────────────────── */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-warning: #7c5800;
+  --color-success: #386a20;
+  --color-on-success: #ffffff;
+
+  /* ── M3 Inverse (toasts / snackbars) ───────────────────────────── */
+  --color-inverse-surface: #32302b;
+  --color-on-inverse-surface: #ebe4db;
+
+  /* ── Typography ────────────────────────────────────────────────── */
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'SF Mono', 'Cascadia Code', Menlo, Monaco, 'Courier New', monospace;
+
+  /* ── Border Radius ─────────────────────────────────────────────── */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* ── Shadows ───────────────────────────────────────────────────── */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
 }
 
+/* Shared motion curves. */
+:root {
+  --m3-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --m3-ease-emphasized-decel: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --m3-ease-emphasized-accel: cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+/* ── Dark Mode (values from desktop Motrix Next .dark block) ─────── */
 html.dark {
-  color-scheme: dark;
-  --rb-canvas: #100e17;
-  --rb-sidebar: #0b0812;
-  --rb-raised: #1a1821;
-  --rb-overlay: #24212a;
-  --rb-fill: #25222b;
-  --rb-fill-strong: #312f38;
-  --rb-text: #eceaf1;
-  --rb-text-muted: #9f9ca7;
-  --rb-text-faint: #72707a;
-  --rb-hairline: #27252f;
-  --rb-border: #393641;
-  --rb-border-strong: #595662;
-  --rb-hover: #efecf80f;
-  --rb-pressed: #efecf81a;
-  --rb-selected: #a989ec29;
-  --rb-accent: #b499f0;
-  --rb-accent-strong: #c4b1f5;
-  --rb-accent-bright: #c8b3fd;
-  --rb-accent-text: #c4b1f5;
-  --rb-accent-soft: #362c4d;
-  --rb-on-accent: #0f091b;
-  --rb-glow: #b499f052;
-  --rb-gradient: linear-gradient(135deg, #c8b3fd 0%, #b499f0 100%);
-  --rb-success: #62d286;
-  --rb-success-soft: #12361e;
-  --rb-warning: #ffb346;
-  --rb-warning-soft: #402804;
-  --rb-danger: #ff8987;
-  --rb-danger-soft: #472020;
-  --rb-info: #7cbdff;
-  --rb-info-soft: #142f4b;
-  --rb-inverse: #efedf4;
-  --rb-on-inverse: #17151c;
-  --rb-scrollbar: #efecf838;
-  --rb-shadow-raised: 0 0 0 1px var(--rb-hairline), 0 8px 24px -12px rgb(0 0 0 / 50%);
-  --rb-shadow-overlay: 0 0 0 1px var(--rb-border), 0 28px 72px -16px rgb(0 0 0 / 70%);
+  --color-primary: #f0bf48;
+  --color-on-primary: #412d00;
+  --color-primary-container: #5e4200;
+  --color-on-primary-container: #ffdea3;
+
+  --color-surface: #141210;
+  --color-surface-dim: #141210;
+  --color-surface-container-lowest: #0e0d0b;
+  --color-surface-container-low: #1c1a17;
+  --color-surface-container: #201e1b;
+  --color-surface-container-high: #2b2926;
+  --color-surface-container-highest: #363331;
+
+  --color-on-surface: #e8e2d9;
+  --color-on-surface-variant: #d0c8b9;
+
+  --color-outline: #998f80;
+  --color-outline-variant: #4d4639;
+
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-success: #8edb6a;
+  --color-on-success: #0a3900;
+  --color-warning: #f0bf48;
+
+  --color-inverse-surface: #e8e2d9;
+  --color-on-inverse-surface: #32302b;
+
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.35), 0 2px 4px -2px rgb(0 0 0 / 0.25);
 }
 
+/* ── Global Reset ────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
-}
-
-body,
-h1,
-h2,
-h3,
-h4,
-p,
-ul,
-dl,
-dd {
   margin: 0;
+  padding: 0;
 }
 
 body {
-  font: 450 13px/1.5 var(--rb-font-sans);
-  font-variant-numeric: tabular-nums;
-  color: var(--rb-text);
-  background: var(--rb-canvas);
+  font-family: var(--font-sans);
+  color: var(--color-on-surface);
+  background: var(--color-surface);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-button,
-input,
-textarea {
-  font: inherit;
+/* ── Card Component ──────────────────────────────────────────────── */
+.card {
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-card);
 }
 
-button {
-  color: inherit;
-}
-
-button:focus-visible,
-a:focus-visible {
-  outline: 2px solid var(--rb-accent);
-  outline-offset: 2px;
-}
-
-a {
-  color: var(--rb-accent-text);
-}
-
-code,
-.rb-mono {
-  font-family: var(--rb-font-mono);
-  font-size: 0.92em;
-}
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--rb-scrollbar) transparent;
-}
-
-.lucide {
-  stroke-width: 1.75;
-}
-
-/* ── Icon button ───────────────────────────────────────────────── */
-.icon-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  inline-size: 32px;
-  block-size: 32px;
-  flex-shrink: 0;
-  padding: 0;
-  border: 0;
-  border-radius: var(--rb-radius-control);
-  background: transparent;
-  color: var(--rb-text-muted);
-  cursor: pointer;
-  transition:
-    color var(--rb-motion-feedback) var(--rb-ease),
-    background-color var(--rb-motion-feedback) var(--rb-ease),
-    transform var(--rb-motion-feedback) var(--rb-ease);
-}
-
-.icon-button:hover {
-  color: var(--rb-text);
-  background: var(--rb-hover);
-}
-
-.icon-button:active {
-  transform: scale(0.96);
-}
-
-.icon-button:disabled {
-  opacity: 0.4;
-  cursor: default;
-  transform: none;
-}
-
-/* ── Accent button: gradient, the one filled element ───────────── */
-.n-button.n-button--primary-type:not(.n-button--ghost):not(.n-button--text):not(
-    .n-button--quaternary
-  ):not(.n-button--tertiary):not(.n-button--secondary) {
-  --n-border: 1px solid transparent;
-  --n-border-hover: 1px solid transparent;
-  --n-border-pressed: 1px solid transparent;
-  --n-border-focus: 1px solid transparent;
-  background: var(--rb-gradient);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 18%),
-    0 1px 2px rgb(0 0 0 / 10%),
-    0 6px 18px -6px var(--rb-glow);
-  transition:
-    filter var(--rb-motion-feedback) var(--rb-ease),
-    box-shadow var(--rb-motion-feedback) var(--rb-ease);
-}
-
-.n-button.n-button--primary-type:not(.n-button--ghost):not(.n-button--text):not(
-    .n-button--quaternary
-  ):not(.n-button--tertiary):not(.n-button--secondary):hover {
-  filter: brightness(1.06);
-}
-
-.n-button.n-button--primary-type:not(.n-button--ghost):not(.n-button--text):not(
-    .n-button--quaternary
-  ):not(.n-button--tertiary):not(.n-button--secondary).n-button--disabled {
-  filter: saturate(0.6);
-  box-shadow: none;
-}
-
-.n-button .n-button__state-border {
-  display: none;
-}
-
-/* ── Status pill ───────────────────────────────────────────────── */
-.rb-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 22px;
-  padding: 0 9px;
-  border-radius: 999px;
-  font-size: 12px;
-  line-height: 20px;
-  font-weight: 500;
-  color: var(--rb-text-muted);
-  background: var(--rb-fill);
-  white-space: nowrap;
-}
-
-.rb-pill::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  flex: none;
-}
-
-.rb-pill[data-tone='success'] {
-  color: var(--rb-success);
-  background: var(--rb-success-soft);
-}
-
-.rb-pill[data-tone='warning'] {
-  color: var(--rb-warning);
-  background: var(--rb-warning-soft);
-}
-
-.rb-pill[data-tone='error'] {
-  color: var(--rb-danger);
-  background: var(--rb-danger-soft);
-}
-
-.rb-pill[data-tone='active'] {
-  color: var(--rb-accent-text);
-  background: var(--rb-accent-soft);
-}
-
-/* ── Cards and sections ────────────────────────────────────────── */
-.rb-card {
-  background: var(--rb-raised);
-  border-radius: var(--rb-radius-card);
-  box-shadow: var(--rb-shadow-raised);
-}
-
+/* ── Section Header ──────────────────────────────────────────────── */
 .section-title {
-  font-size: 22px;
-  line-height: 28px;
-  font-weight: 650;
-  letter-spacing: -0.02em;
-  margin-block-end: 22px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-on-surface-variant);
+  margin-bottom: 0.75rem;
 }
 
+/* ── Settings Groups ─────────────────────────────────────────────── */
 .settings-section {
   display: flex;
   flex-direction: column;
-  gap: 26px;
 }
 
 .settings-group {
@@ -314,318 +144,224 @@ code,
   flex-direction: column;
 }
 
-.settings-group-title {
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--rb-text-muted);
-  margin: 0 0 8px 4px;
+.settings-group + .settings-group {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-outline-variant);
 }
 
-.settings-group-header {
+.settings-group-title {
+  margin: 0 0 16px;
+  color: var(--color-on-surface);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.settings-row.n-form-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 16px;
-  min-height: 32px;
-  margin-bottom: 8px;
-}
-
-.settings-group-header .settings-group-title {
-  margin: 0 0 0 4px;
-}
-
-/* Rows in a group share one raised card. Collapse wrappers are members too. */
-.settings-group > .settings-row,
-.settings-group > .n-collapse-transition,
-.settings-group > .rule-block,
-.settings-group > .settings-subpanel {
-  background: var(--rb-raised);
-  box-shadow: var(--rb-shadow-raised);
-}
-
-.settings-group
-  > :is(.settings-row, .n-collapse-transition, .rule-block, .settings-subpanel):first-child,
-.settings-group
-  > :is(.settings-group-title, .settings-group-header)
-  + :is(.settings-row, .n-collapse-transition, .rule-block, .settings-subpanel) {
-  border-start-start-radius: var(--rb-radius-card);
-  border-start-end-radius: var(--rb-radius-card);
-}
-
-.settings-group
-  > :is(.settings-row, .n-collapse-transition, .rule-block, .settings-subpanel):last-child,
-.settings-group
-  > :is(.settings-row, .n-collapse-transition, .rule-block, .settings-subpanel):has(+ .hint),
-.settings-group
-  > :is(.settings-row, .n-collapse-transition, .rule-block, .settings-subpanel):has(
-    + .settings-group-title
-  ) {
-  border-end-start-radius: var(--rb-radius-card);
-  border-end-end-radius: var(--rb-radius-card);
-}
-
-/* Let NFormItem own its grid areas through label-placement="left". */
-.settings-row.n-form-item {
-  position: relative;
-  align-items: center;
-  column-gap: 24px;
-  min-height: 52px;
-  padding: 10px 16px;
-}
-
-.settings-row.settings-row--compact {
-  min-height: 44px;
-  padding-block: 6px;
-}
-
-.settings-row.n-form-item::before {
-  content: '';
-  position: absolute;
-  inset-inline: 16px;
-  top: 0;
-  height: 1px;
-  background: var(--rb-hairline);
-}
-
-.settings-group > .settings-row:first-child::before,
-.settings-group > :is(.settings-group-title, .settings-group-header) + .settings-row::before,
-.settings-subpanel > .settings-row:first-child::before,
-.rule-block > .settings-row:first-child::before {
-  display: none;
 }
 
 .settings-row .n-form-item-label {
+  flex: 1;
   min-width: 0;
-  max-inline-size: min(300px, 44cqi);
-  padding: 0;
-  text-align: start;
-  color: var(--rb-text);
-  font-weight: 500;
 }
 
 .settings-row .n-form-item-blank {
-  min-width: 0;
   justify-content: flex-end;
+}
+
+.settings-section > .settings-row + .settings-row,
+.settings-group > .settings-row + .settings-row {
+  margin-top: 12px;
 }
 
 .settings-subpanel {
   display: flex;
   flex-direction: column;
-  padding-inline-start: 14px;
+  gap: 12px;
+  padding: 8px 0 0 18px;
 }
 
-.settings-subpanel > .settings-row .n-form-item-label::before {
-  content: '';
-  position: absolute;
-  inset-inline-start: 16px;
-  top: 12px;
-  bottom: 12px;
-  width: 2px;
-  border-radius: 2px;
-  background: var(--rb-accent-soft);
+.settings-row--nested.n-form-item {
+  margin-bottom: 0;
 }
 
-.rule-block {
-  display: flex;
-  flex-direction: column;
-}
+/* Shared Vue transitions. */
 
-.setting-label,
-.setting-hint {
-  display: block;
-}
-
-.setting-hint {
-  margin-block-start: 2px;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--rb-text-muted);
-}
-
-.setting-control {
-  width: 228px;
-  max-width: 100%;
-}
-
-.setting-secret {
-  width: 320px;
-  max-width: 100%;
-}
-
-.setting-number {
-  width: 132px;
-  max-width: 100%;
-}
-
-.setting-port {
-  width: 120px;
-  max-width: 100%;
-}
-
-.setting-tags {
-  max-width: 100%;
-}
-
-.settings-row .n-radio-group {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.form-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.form-stack .n-form-item-label {
-  padding-block-end: 6px;
-  color: var(--rb-text-muted);
-}
-
-.settings-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.hint {
-  color: var(--rb-text-muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.settings-group > .hint {
-  margin: 8px 4px 0;
-}
-
-.feedback {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--rb-text-muted);
-  overflow-wrap: anywhere;
-}
-
-.feedback--error {
-  color: var(--rb-danger);
-}
-
-.feedback--success {
-  color: var(--rb-success);
-}
-
-/* ── Transitions ───────────────────────────────────────────────── */
-.content-stage {
-  position: relative;
-  min-width: 0;
-}
-
-.content-enter-active {
+/* ── fade: shared-axis scale transition ──────────────────────────── */
+.fade-enter-active {
   transition:
-    opacity var(--rb-motion-view) var(--rb-ease),
-    transform var(--rb-motion-view) var(--rb-ease);
+    opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.content-leave-active {
+.fade-leave-active {
   transition:
-    opacity var(--rb-motion-exit) var(--rb-ease-exit),
-    transform var(--rb-motion-exit) var(--rb-ease-exit);
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
+    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
 }
 
-.content-enter-from {
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+/* ── section: options section switch (fade + shared-axis slide) ──── */
+/* Direction follows nav order: moving to a lower tab enters from below,
+ * moving to a higher tab enters from above. App.vue picks the transition
+ * name via `section-down` / `section-up`. */
+.section-down-enter-active,
+.section-up-enter-active {
+  transition:
+    opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.05, 0.7, 0.1, 1);
+}
+
+.section-down-leave-active,
+.section-up-leave-active {
+  transition:
+    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
+    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+/* Forward (down the nav): new content rises from below, old exits upward. */
+.section-down-enter-from {
   opacity: 0;
   transform: translateY(6px);
 }
 
-.content-leave-to {
+.section-down-leave-to {
   opacity: 0;
   transform: translateY(-4px);
 }
 
-.push-enter-active {
-  transition:
-    opacity var(--rb-motion-push) var(--rb-ease),
-    transform var(--rb-motion-push) var(--rb-ease);
-}
-
-.push-leave-active {
-  transition:
-    opacity var(--rb-motion-exit) var(--rb-ease-exit),
-    transform var(--rb-motion-exit) var(--rb-ease-exit);
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.push-enter-from,
-.push-leave-to {
+/* Reverse (up the nav): new content drops from above, old exits downward. */
+.section-up-enter-from {
   opacity: 0;
-  transform: translateX(24px);
+  transform: translateY(-6px);
 }
 
-:dir(rtl) .push-enter-from,
-:dir(rtl) .push-leave-to {
-  transform: translateX(-24px);
-}
-
-.list-move,
-.list-enter-active,
-.list-leave-active {
-  transition:
-    opacity var(--rb-motion-view) var(--rb-ease),
-    transform var(--rb-motion-layout) var(--rb-ease);
-}
-
-.list-enter-from,
-.list-leave-to {
+.section-up-leave-to {
   opacity: 0;
+  transform: translateY(4px);
 }
 
-.list-leave-active {
+/* ── text-swap: vertical roll for in-button text changes ─────────── */
+/* Old text rolls up + fades out, new text enters from below + fades in.
+ * No scale — avoids parent (button) size jitter.
+ * Fast durations (120ms/150ms) for snappy button feel.
+ *
+ * text-swap-reverse: opposite direction for bidirectional state toggles.
+ * Use `:name="forward ? 'text-swap' : 'text-swap-reverse'"` in Vue. */
+.text-swap-enter-active,
+.text-swap-reverse-enter-active {
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.text-swap-leave-active,
+.text-swap-reverse-leave-active {
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+/* Forward: leave ↑, enter from ↓ */
+.text-swap-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.text-swap-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* Reverse: leave ↓, enter from ↑ */
+.text-swap-reverse-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.text-swap-reverse-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* ── phase-switch: vertical content swap for state transitions ───── */
+.phase-switch-enter-active {
+  transition:
+    opacity 0.25s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.phase-switch-leave-active {
+  transition:
+    opacity 0.15s cubic-bezier(0.3, 0, 0.8, 0.15),
+    transform 0.15s cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+.phase-switch-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.phase-switch-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* Site-rule list transitions. Leaving rows exit normal layout. */
+
+.list-item-enter-active {
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.list-item-leave-active {
+  transition: all 0.2s cubic-bezier(0.3, 0, 0.8, 0.15);
   position: absolute;
-  inset-inline: 0;
-  pointer-events: none;
+  width: 100%;
 }
 
-@container (max-width: 520px) {
-  .settings-row.n-form-item:has(
-      .n-select,
-      .n-dynamic-tags,
-      .n-radio-group,
-      .setting-secret,
-      .n-color-picker
-    ) {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .settings-row:has(.n-select, .n-dynamic-tags, .n-radio-group, .setting-secret, .n-color-picker)
-    .n-form-item-label {
-    max-inline-size: none;
-    min-height: 0;
-  }
-
-  .settings-row:has(.n-select, .n-dynamic-tags, .n-radio-group, .setting-secret, .n-color-picker)
-    .n-form-item-blank {
-    justify-content: flex-start;
-  }
-
-  .setting-secret {
-    width: 100%;
-  }
+.list-item-enter-from {
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
 }
 
+.list-item-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.97);
+}
+
+.list-item-move {
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ── Scrollbar (M3-aware, desktop-aligned) ───────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--color-on-surface) 25%, transparent);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-on-surface) 40%, transparent);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ── Reduced Motion ──────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -633,6 +369,5 @@ code,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }

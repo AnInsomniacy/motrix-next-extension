@@ -6,7 +6,7 @@ describe('I18nEngine', () => {
     const engine = new I18nEngine('zh_CN');
 
     expect(engine.t('popup_status_connected')).toBe('已连接');
-    expect(engine.t('ext_name')).toBe('Rayburst Connect');
+    expect(engine.t('ext_name')).toBe('Motrix Next Extension');
   });
 
   it('uses fallback string before returning the raw missing key', () => {
@@ -29,6 +29,7 @@ describe('I18nEngine', () => {
       '1–10 of 25 · max 100',
     );
     ctx.setLocale('zh_CN');
+    expect(ctx.t('options_diagnostics_clear_confirm')).toBe('确认清除');
     expect(ctx.tSub('options_diagnostics_pagination', ['1–10', '25', '100'])).toBe(
       '1–10 / 25 · 最多 100 条',
     );

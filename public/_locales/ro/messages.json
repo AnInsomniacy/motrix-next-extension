@@ -1,10 +1,10 @@
 {
   "ext_name": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next Extension",
     "description": "Extension display name"
   },
   "ext_description": {
-    "message": "Găsește sursa și predă descărcarea fără întreruperi.",
+    "message": "Trimiteți descărcările din browser către Motrix Next — un manager modern de descărcări bazat pe aria2",
     "description": "Extension description shown in browser and web store"
   },
   "popup_status_connected": {
@@ -28,15 +28,15 @@
     "description": "Button to open the options page"
   },
   "popup_action_launch": {
-    "message": "Pornește Rayburst",
+    "message": "Pornește Motrix Next",
     "description": "Button to launch the desktop app when disconnected"
   },
   "popup_action_open": {
-    "message": "Deschide Rayburst",
+    "message": "Deschide Motrix Next",
     "description": "Button to focus the desktop app when already connected"
   },
   "popup_error_unreachable": {
-    "message": "Nu se poate conecta la Rayburst",
+    "message": "Nu se poate conecta la Motrix Next",
     "description": "Error message when API is unreachable"
   },
   "options_section_connection": {
@@ -52,7 +52,7 @@
     "description": "Settings section for download interception behavior"
   },
   "options_enabled_label": {
-    "message": "Preia descărcările",
+    "message": "Activează interceptarea descărcărilor",
     "description": "Toggle label for enabling/disabling download interception"
   },
   "options_section_rules": {
@@ -84,23 +84,23 @@
     "description": "Settings section for diagnostic event log"
   },
   "context_menu_download": {
-    "message": "Descarcă cu Rayburst",
-    "description": "Context menu item for downloading a link with Rayburst"
+    "message": "Descarcă cu Motrix Next",
+    "description": "Context menu item for downloading a link with Motrix Next"
   },
   "options_header_title": {
-    "message": "Rayburst Connect",
+    "message": "Motrix Next",
     "description": "Options page header title"
   },
   "options_header_subtitle": {
-    "message": "Găsește sursa și predă descărcarea fără întreruperi.",
-    "description": "Rayburst Connect slogan"
+    "message": "Setări extensie",
+    "description": "Options page header subtitle"
   },
   "options_testing_connection": {
     "message": "Se testează...",
     "description": "Button text while testing connection"
   },
   "options_connection_success_prefix": {
-    "message": "Conectat · Rayburst",
+    "message": "Conectat · Motrix Next",
     "description": "Prefix for successful connection status"
   },
   "options_rules_empty": {
@@ -120,7 +120,7 @@
     "description": "Placeholder when diagnostic log is empty"
   },
   "options_footer": {
-    "message": "Rayburst Connect v$version$",
+    "message": "Motrix Next Extension v$version$",
     "description": "Footer text with version number",
     "placeholders": {
       "version": {
@@ -155,6 +155,10 @@
   "options_color_scheme": {
     "message": "Schema de culori",
     "description": "Label for the color scheme picker"
+  },
+  "options_color_scheme_amber": {
+    "message": "Auriu chihlimbar",
+    "description": "Amber Gold color scheme"
   },
   "options_color_scheme_space": {
     "message": "Albastru spațial",
@@ -213,7 +217,7 @@
     "description": "Popup banner title when API secret is incorrect"
   },
   "popup_error_auth_hint": {
-    "message": "Check that the API secret in Settings matches your Rayburst configuration.",
+    "message": "Check that the API secret in Settings matches your Motrix Next configuration.",
     "description": "Popup banner hint for API auth error"
   },
   "popup_error_timeout": {
@@ -231,7 +235,7 @@
     }
   },
   "popup_error_unreachable_hint": {
-    "message": "Make sure Rayburst is running. API port: $1",
+    "message": "Make sure Motrix Next is running. API port: $1",
     "description": "Popup banner hint for unreachable error, $1 = port number",
     "placeholders": {
       "1": {
@@ -241,23 +245,23 @@
     }
   },
   "options_section_language": {
-    "message": "Limbă / Language",
-    "description": "Language setting label; retain the English Language locator in non-English locales."
+    "message": "Limbă",
+    "description": "Settings section for interface language"
   },
   "options_locale_auto": {
     "message": "Automat",
     "description": "Language option: follow browser language"
   },
   "options_locale_auto_desc": {
-    "message": "Automat / Auto",
-    "description": "Follow the browser language automatically; keep the English Auto locator."
+    "message": "Urmărește limba browserului",
+    "description": "Description for auto language option"
   },
   "options_desktop_unavailable_label": {
-    "message": "Când Rayburst nu este disponibil",
+    "message": "Când Motrix Next nu este disponibil",
     "description": "Unavailable desktop behavior label"
   },
   "options_desktop_unavailable_launch": {
-    "message": "Pornește Rayburst",
+    "message": "Pornește Motrix Next",
     "description": "Launch desktop option"
   },
   "options_desktop_unavailable_browser": {
@@ -281,8 +285,16 @@
     "description": "Task count label: queued for download"
   },
   "popup_stat_stopped": {
-    "message": "Oprite",
+    "message": "Finalizate",
     "description": "Task count label: completed or stopped"
+  },
+  "popup_toggle_enabled": {
+    "message": "Interceptare activă",
+    "description": "Label next to the interception toggle when active"
+  },
+  "popup_toggle_disabled": {
+    "message": "În pauză",
+    "description": "Label next to the interception toggle when inactive"
   },
   "options_api_port_label": {
     "message": "API Port",
@@ -297,7 +309,7 @@
     "description": "Placeholder text for API secret input"
   },
   "error_api_unreachable": {
-    "message": "Cannot connect to Rayburst",
+    "message": "Cannot connect to Motrix Next",
     "description": "Error when the API endpoint is unreachable"
   },
   "error_api_auth": {
@@ -325,7 +337,7 @@
     "description": "Toast shown when the optional downloads.ui permission is denied."
   },
   "options_permission_cookies_denied": {
-    "message": "Acordă permisiuni pentru cookie-uri și site-uri ca să redirecționezi cookie-uri către Rayburst.",
+    "message": "Acordă permisiuni pentru cookie-uri și site-uri ca să redirecționezi cookie-uri către Motrix Next.",
     "description": "Toast shown when cookie forwarding permissions are unavailable."
   },
   "options_scope_browser_downloads_label": {
@@ -357,8 +369,8 @@
     "description": "Label for the unknown file size behavior selector."
   },
   "options_min_size_unknown_intercept": {
-    "message": "Transferă către Rayburst",
-    "description": "Option label for routing unknown-size downloads to Rayburst."
+    "message": "Transferă către Motrix Next",
+    "description": "Option label for routing unknown-size downloads to Motrix Next."
   },
   "options_min_size_unknown_skip": {
     "message": "Transferă către browser",
@@ -413,8 +425,8 @@
     "description": "Label for the action selector applied when no file extension is detected."
   },
   "options_file_extension_action_intercept": {
-    "message": "Trimite la Rayburst",
-    "description": "Option label for routing a matched extension to Rayburst."
+    "message": "Trimite la Motrix Next",
+    "description": "Option label for routing a matched extension to Motrix Next."
   },
   "options_file_extension_action_skip": {
     "message": "Folosește browserul",
@@ -425,7 +437,7 @@
     "description": "Button to stage a full settings reset."
   },
   "options_factory_reset_confirm": {
-    "message": "Restabilești setările implicite?",
+    "message": "Apasă din nou pentru resetare",
     "description": "Second-click confirmation label for the reset button."
   },
   "options_factory_reset_ready": {
@@ -497,7 +509,7 @@
     "description": "Popup status while the desktop app is starting"
   },
   "popup_launching_title": {
-    "message": "Se pornește Rayburst",
+    "message": "Se pornește Motrix Next",
     "description": "Popup launch progress title"
   },
   "popup_launching_hint": {
@@ -505,11 +517,11 @@
     "description": "Popup launch progress description"
   },
   "popup_launch_failed_title": {
-    "message": "Rayburst nu a putut fi pornit",
+    "message": "Motrix Next nu a putut fi pornit",
     "description": "Popup launch failure title"
   },
   "popup_launch_failed_hint": {
-    "message": "Verifică dacă Rayburst este instalat și setările API sunt corecte.",
+    "message": "Verifică dacă Motrix Next este instalat și setările API sunt corecte.",
     "description": "Popup launch failure guidance"
   },
   "popup_action_retry": {
@@ -575,305 +587,7 @@
     "description": "Heading for diagnostic event context fields"
   },
   "options_diagnostics_clear_confirm": {
-    "message": "Ștergi toate intrările din jurnal?",
+    "message": "Confirmă ștergerea",
     "description": "Second-click confirmation label for clearing diagnostic logs"
-  },
-  "media_tab": {
-    "message": "Media",
-    "description": "Media discovery: tab"
-  },
-  "media_downloads": {
-    "message": "Prezentare generală",
-    "description": "Media discovery: downloads"
-  },
-  "media_discover": {
-    "message": "Detectează conținut",
-    "description": "Media discovery: discover"
-  },
-  "media_scan": {
-    "message": "Scanează pagina",
-    "description": "Media discovery: scan"
-  },
-  "media_clear": {
-    "message": "Golește lista",
-    "description": "Media discovery: clear"
-  },
-  "media_filter": {
-    "message": "Filtrează sursele",
-    "description": "Media discovery: filter"
-  },
-  "media_sources": {
-    "message": "Surse media",
-    "description": "Media discovery: sources"
-  },
-  "media_source": {
-    "message": "Sursă",
-    "description": "Media discovery: source"
-  },
-  "media_enable_site": {
-    "message": "Activează pe acest site",
-    "description": "Media discovery: enable site"
-  },
-  "media_disable_site": {
-    "message": "Dezactivează pe acest site",
-    "description": "Media discovery: disable site"
-  },
-  "media_inspect": {
-    "message": "Verifică formatele",
-    "description": "Media discovery: inspect"
-  },
-  "media_options": {
-    "message": "Opțiuni media",
-    "description": "Media discovery: options"
-  },
-  "media_back": {
-    "message": "Lista de conținut",
-    "description": "Media discovery: back"
-  },
-  "media_video": {
-    "message": "Calitate video",
-    "description": "Media discovery: video"
-  },
-  "media_audio": {
-    "message": "Audio",
-    "description": "Media discovery: audio"
-  },
-  "media_subtitles": {
-    "message": "Subtitrări",
-    "description": "Media discovery: subtitles"
-  },
-  "media_format": {
-    "message": "Format",
-    "description": "Media discovery: format"
-  },
-  "media_original": {
-    "message": "Fișier original",
-    "description": "Media discovery: original"
-  },
-  "media_record_limit": {
-    "message": "Limită de înregistrare (secunde)",
-    "description": "Media discovery: record limit"
-  },
-  "media_live": {
-    "message": "Înregistrare live",
-    "description": "Media discovery: live"
-  },
-  "media_download": {
-    "message": "Descarcă",
-    "description": "Media discovery: download"
-  },
-  "media_record": {
-    "message": "Începe înregistrarea",
-    "description": "Media discovery: record"
-  },
-  "media_cancel": {
-    "message": "Anulează",
-    "description": "Media discovery: cancel"
-  },
-  "media_retry": {
-    "message": "Verifică starea",
-    "description": "Media discovery: retry"
-  },
-  "media_close": {
-    "message": "Închide",
-    "description": "Media discovery: close"
-  },
-  "media_locate": {
-    "message": "Localizează playerul",
-    "description": "Media discovery: locate"
-  },
-  "media_no_video": {
-    "message": "Fără video",
-    "description": "Media discovery: no video"
-  },
-  "media_no_audio": {
-    "message": "Fără audio",
-    "description": "Media discovery: no audio"
-  },
-  "media_no_subtitles": {
-    "message": "Fără subtitrări",
-    "description": "Media discovery: no subtitles"
-  },
-  "media_excluded_sites": {
-    "message": "Site-uri media excluse",
-    "description": "Media discovery: excluded sites"
-  },
-  "media_waiting": {
-    "message": "Player găsit; se așteaptă o sursă media.",
-    "description": "Media discovery: waiting"
-  },
-  "media_none": {
-    "message": "Nu s-au găsit surse media.",
-    "description": "Media discovery: none"
-  },
-  "media_paused": {
-    "message": "Detectarea media este întreruptă.",
-    "description": "Media discovery: paused"
-  },
-  "media_excluded": {
-    "message": "Detectarea media este dezactivată pe acest site.",
-    "description": "Media discovery: excluded"
-  },
-  "media_ambiguous": {
-    "message": "Sursele nu pot fi asociate unui singur player. Verificați înainte de descărcare.",
-    "description": "Media discovery: ambiguous"
-  },
-  "media_loading": {
-    "message": "Se verifică media…",
-    "description": "Media discovery: loading"
-  },
-  "media_submitted": {
-    "message": "Descărcare creată în Rayburst.",
-    "description": "Media discovery: submitted"
-  },
-  "media_cancelled": {
-    "message": "Verificare anulată.",
-    "description": "Media discovery: cancelled"
-  },
-  "media_failed": {
-    "message": "Operația a eșuat. Reîncercați pentru a verifica starea.",
-    "description": "Media discovery: failed"
-  },
-  "media_unsupported": {
-    "message": "Acest conținut sau metodă de solicitare nu este acceptată.",
-    "description": "Media discovery: unsupported"
-  },
-  "media_invalid": {
-    "message": "Alegeți o combinație acceptată de piste, format și durată.",
-    "description": "Media discovery: invalid"
-  },
-  "media_unavailable": {
-    "message": "Rayburst nu acceptă încă interfața media.",
-    "description": "Media discovery: unavailable"
-  },
-  "media_expired": {
-    "message": "Sursa sau verificarea a expirat. Redați și verificați din nou.",
-    "description": "Media discovery: expired"
-  },
-  "media_connection": {
-    "message": "Porniți Rayburst și verificați conexiunea.",
-    "description": "Media discovery: connection"
-  },
-  "media_size_unknown": {
-    "message": "Dimensiune necunoscută",
-    "description": "Media discovery: size unknown"
-  },
-  "media_duration_unknown": {
-    "message": "Durată necunoscută",
-    "description": "Media discovery: duration unknown"
-  },
-  "media_includes_audio": {
-    "message": "Include audio",
-    "description": "Media discovery: includes audio"
-  },
-  "media_record_hint": {
-    "message": "Zero înregistrează până la oprirea în Rayburst.",
-    "description": "Media discovery: record hint"
-  },
-  "media_inspect_hint": {
-    "message": "Verificați mai întâi, apoi confirmați descărcarea.",
-    "description": "Media discovery: inspect hint"
-  },
-  "media_open_page": {
-    "message": "Deschideți o pagină web pentru a detecta media.",
-    "description": "Media discovery: open page"
-  },
-  "media_hint": {
-    "message": "Redați video sau audio pentru a detecta automat sursele.",
-    "description": "Media discovery: hint"
-  },
-  "media_ready": {
-    "message": "Formate pregătite",
-    "description": "Media discovery: ready"
-  },
-  "media_confirming": {
-    "message": "Se confirmă descărcarea…",
-    "description": "Media discovery: confirming"
-  },
-  "media_cancelling": {
-    "message": "Se anulează verificarea…",
-    "description": "Media discovery: cancelling"
-  },
-  "options_color_scheme_electric": {
-    "message": "Violet electric",
-    "description": "Electric Purple color scheme"
-  },
-  "popup_status_connecting": {
-    "message": "Se conectează"
-  },
-  "popup_upload": {
-    "message": "Încărcare"
-  },
-  "popup_action_failed": {
-    "message": "Acțiunea nu a putut fi finalizată."
-  },
-  "options_about": {
-    "message": "Despre"
-  },
-  "options_api_secret_hint": {
-    "message": "Se găsește în Rayburst: Setări → Conexiuni."
-  },
-  "options_backup_secret_hint": {
-    "message": "Copiile setărilor includ cheia API."
-  },
-  "options_remove_rule": {
-    "message": "Elimină regula"
-  },
-  "options_site_pattern": {
-    "message": "Tipar de site"
-  },
-  "options_rule_action": {
-    "message": "Acțiune"
-  },
-  "media_source_auth": {
-    "message": "Autentifică-te pe site-ul sursă și încearcă din nou."
-  },
-  "media_protected": {
-    "message": "Acest conținut este protejat și nu poate fi descărcat."
-  },
-  "popup_download": {
-    "message": "Descarcă"
-  },
-  "media_api_auth": {
-    "message": "API secret mismatch Check that the API secret in Settings matches your Rayburst configuration."
-  },
-  "options_theme_label": {
-    "message": "Temă"
-  },
-  "options_section_general": {
-    "message": "General"
-  },
-  "options_custom_color": {
-    "message": "Culoare personalizată"
-  },
-  "options_color_scheme_custom": {
-    "message": "Personalizat"
-  },
-  "control_confirm": {
-    "message": "Confirmă"
-  },
-  "control_cancel": {
-    "message": "Anulează"
-  },
-  "control_undo": {
-    "message": "Anulează modificarea"
-  },
-  "control_redo": {
-    "message": "Refă"
-  },
-  "control_clear": {
-    "message": "Șterge"
-  },
-  "control_add": {
-    "message": "Adaugă"
-  },
-  "control_empty": {
-    "message": "Niciun rezultat"
-  },
-  "control_select": {
-    "message": "Selectează"
-  },
-  "control_input": {
-    "message": "Introdu o valoare"
   }
 }
