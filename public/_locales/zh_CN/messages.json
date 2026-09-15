@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "确认清除",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "媒体",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "下载",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "发现网页媒体",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "扫描页面",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "清空来源",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "筛选来源",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "媒体来源",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "来源",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "在本站启用",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "在本站停用",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "探测格式",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "媒体选项",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "返回来源列表",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "视频画质",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "音轨",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "字幕",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "输出格式",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "原始文件",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "录制时限（秒）",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "直播录制",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "下载",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "开始录制",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "取消",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "重试",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "关闭",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "定位播放器",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "不含视频",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "不含音频",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "不含字幕",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "已停用的媒体网站",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "已发现播放器，等待媒体来源。",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "尚未发现媒体来源。",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "媒体发现已暂停。",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "本站已停用媒体发现。",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "这些来源无法精确关联到某个播放器，请核对后下载。",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "正在探测媒体…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "已在 Motrix Next 中创建下载。",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "已取消探测。",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "操作失败，请重试以确认状态。",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "不支持此媒体或请求方式。",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "请选择受支持的音视频轨道、格式和时长组合。",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next 尚未支持媒体接口。",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "来源或探测已过期，请播放媒体后重新探测。",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "请检查来源登录状态、请求转发或桌面 API 密钥。",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "请启动 Motrix Next 并检查连接设置。",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "大小未知",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "时长未知",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "包含音频",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "设为零将持续录制，直到在 Motrix Next 中结束录制。",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "先探测格式，确认后再下载。",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "打开网页即可发现媒体。",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "播放视频或音频，自动发现媒体来源。",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "格式已就绪",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "正在确认下载…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "正在取消探测…",
+    "description": "Media discovery: cancelling"
   }
 }

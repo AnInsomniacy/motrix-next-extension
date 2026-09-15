@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Potwierdź wyczyszczenie",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Media",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Pobieranie",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Wykrywaj multimedia na stronie",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Skanuj stronę",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Wyczyść źródła",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Filtruj źródła",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Źródła multimediów",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Źródło",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Włącz w tej witrynie",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Wyłącz w tej witrynie",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Sprawdź formaty",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Opcje multimediów",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Powrót do źródeł",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Jakość wideo",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Dźwięk",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Napisy",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Format wyjściowy",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Oryginalny plik",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Limit nagrywania (sekundy)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Nagrywanie na żywo",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Pobierz",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Rozpocznij nagrywanie",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Anuluj",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Ponów",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Zamknij",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Znajdź odtwarzacz",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Bez wideo",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Bez dźwięku",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Bez napisów",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Wykluczone witryny multimedialne",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Znaleziono odtwarzacz; oczekiwanie na źródło.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "Nie znaleziono źródeł multimediów.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "Wykrywanie multimediów wstrzymane.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "Wykrywanie multimediów wyłączone w tej witrynie.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "Nie można przypisać źródeł do jednego odtwarzacza. Sprawdź je przed pobraniem.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Sprawdzanie multimediów…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Utworzono pobieranie w Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Anulowano sprawdzanie.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "Operacja nie powiodła się. Ponów, aby sprawdzić stan.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Te multimedia lub metoda żądania nie są obsługiwane.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Wybierz obsługiwane połączenie ścieżek, formatu i czasu.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next nie obsługuje jeszcze interfejsu multimediów.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "Źródło lub sprawdzanie wygasło. Odtwórz multimedia i sprawdź ponownie.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Sprawdź logowanie, przekazywanie żądań lub klucz API aplikacji.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Uruchom Motrix Next i sprawdź połączenie.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Nieznany rozmiar",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Nieznany czas trwania",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Zawiera dźwięk",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Zero nagrywa aż do zatrzymania w Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Najpierw sprawdź formaty, potem potwierdź pobieranie.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Otwórz stronę, aby wykryć multimedia.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Odtwórz wideo lub dźwięk, aby automatycznie wykryć źródła.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Formaty gotowe",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Potwierdzanie pobierania…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Anulowanie sprawdzania…",
+    "description": "Media discovery: cancelling"
   }
 }

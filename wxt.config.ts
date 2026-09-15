@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { defineConfig } from 'wxt';
 import Components from 'unplugin-vue-components/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
@@ -7,6 +8,10 @@ import { localesPlugin } from './shared/i18n/locales-plugin';
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
+  webExt: {
+    // Let Chrome create and reuse its data directory; the launcher logs stay temporary.
+    chromiumArgs: [`--user-data-dir=${resolve('.wxt/chrome-data')}`],
+  },
   dev: {
     // Native extension CSP and injected Vite URLs must share one origin.
     // Fail on duplicate dev servers instead of emitting an unloadable build.
@@ -14,11 +19,6 @@ export default defineConfig({
   },
   zip: {
     artifactTemplate: '{{name}}-{{version}}-{{browser}}-mv3.zip',
-  },
-  webExt: {
-    // Native Messaging registrations are scoped to the regular browser data
-    // root on macOS and Linux. Load the dev build into a normal browser profile.
-    disabled: true,
   },
   manifest: ({ browser, mode }) => buildExtensionManifest(browser, mode),
   vite: () => ({

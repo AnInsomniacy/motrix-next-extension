@@ -12,14 +12,9 @@
  */
 import type { DownloadSettings, SiteRule } from '@/lib/schema';
 import type { DiagnosticInput } from '@/lib/diagnostics';
-import { ApiAuthError, type DesktopApiClient } from '@/lib/api';
+import { ApiAuthError, ApiDeliveryUncertainError, type DesktopApiClient } from '@/lib/api';
 import { createFilterPipeline, evaluateFilterPipeline, type FilterContext } from './filter';
-import {
-  decodeMimeEncodedWords,
-  extractFilenameFromUrl,
-  isCookieCollectableUrl,
-  normalizeFilename,
-} from './url';
+import { extractFilenameFromUrl, isCookieCollectableUrl } from './url';
 import type { RequestHeaderContext, RequestHeaderMatchReason } from './request-context';
 import type {
   DuplicateDownloadGuard,
@@ -75,6 +70,7 @@ export interface DownloadItem extends DownloadCandidate {
 
 /** Everything needed to submit one download to the desktop app. */
 interface DownloadJob {
+  id: string;
   url: string;
   finalUrl?: string;
   referer: string;
@@ -97,7 +93,8 @@ type DeliveryFailureReason =
   | 'desktop-activation-disabled'
   | 'desktop-activation-timeout'
   | 'desktop-activation-failed'
-  | 'desktop-routing-failed';
+  | 'desktop-routing-failed'
+  | 'delivery-unknown';
 
 type DeliveryResult = { ok: true } | { ok: false; reason: DeliveryFailureReason; error?: string };
 
@@ -106,87 +103,21 @@ type DownloadSource =
   | 'firefox-download'
   | 'firefox-response'
   | 'context-menu'
-  | 'external-protocol';
+  | 'external-protocol'
+  | 'media';
 
 interface SendUrlOptions {
-  source: Extract<DownloadSource, 'context-menu' | 'external-protocol'>;
+  source: Extract<DownloadSource, 'context-menu' | 'external-protocol' | 'media'>;
+  headerContext?: RequestHeaderContext;
+  filename?: string;
   allowActivation?: boolean;
 }
 
-// ─── Filename Heuristics ────────────────────────────────
-// These guards encode real-world fixes: browsers synthesize weak names
-// ("download", numeric ids) that must not override URL/header-derived names.
-
-const UNRESOLVED_FILENAME = 'unresolved-filename';
-const GENERIC_FILENAME_HINTS = new Set(['download', UNRESOLVED_FILENAME]);
 const SILENT_SKIP_STAGES = new Set(['enabled', 'self-trigger', 'interception-scope', 'scheme']);
-type FilenameHintSource = 'browser-determined' | 'content-disposition' | 'download-item' | 'url';
 
-function extensionOf(filename: string): string {
-  const dot = filename.lastIndexOf('.');
-  if (dot <= 0 || dot === filename.length - 1) return '';
-  return filename.slice(dot + 1).toLowerCase();
-}
-
-function filenameStem(filename: string): string {
-  const dot = filename.lastIndexOf('.');
-  return dot > 0 ? filename.slice(0, dot) : filename;
-}
-
-function extractPathBasename(url: string): string {
-  try {
-    const raw = new URL(url).pathname.split('/').filter(Boolean).pop() ?? '';
-    return normalizeFilename(decodeURIComponent(raw));
-  } catch {
-    return '';
-  }
-}
-
-function isWeakBrowserFilename(url: string, filename: string): boolean {
-  const lower = filename.toLowerCase();
-  const stem = filenameStem(filename).toLowerCase();
-  if (GENERIC_FILENAME_HINTS.has(lower) || GENERIC_FILENAME_HINTS.has(stem)) return true;
-
-  const pathBasename = extractPathBasename(url);
-  const pathHasExtension = extensionOf(pathBasename) !== '';
-  if (pathBasename && !pathHasExtension && stem === pathBasename.toLowerCase()) return true;
-
-  return /^\d+$/.test(stem) && !pathHasExtension;
-}
-
-function resolveFilenameHint(
-  url: string,
-  candidate: { filename: string; source: FilenameHintSource },
-): string | undefined {
-  const trimmed = normalizeFilename(decodeMimeEncodedWords(candidate.filename));
-  if (!trimmed) return undefined;
-  if (
-    candidate.source !== 'browser-determined' &&
-    candidate.source !== 'content-disposition' &&
-    candidate.source !== 'url'
-  ) {
-    if (isWeakBrowserFilename(url, trimmed)) return undefined;
-  }
-  const urlFilename = extractFilenameFromUrl(url);
-  if (
-    urlFilename &&
-    candidate.source !== 'browser-determined' &&
-    candidate.source !== 'content-disposition'
-  ) {
-    const hintExt = extensionOf(trimmed);
-    const urlExt = extensionOf(urlFilename);
-    if (hintExt && urlExt && hintExt !== urlExt) return undefined;
-  }
-  return trimmed;
-}
-
-function resolveBestFilenameHint(
-  url: string,
-  item: Pick<DownloadCandidate, 'filename' | 'filenameSource'>,
-): { filename?: string; source: string } {
-  const source = item.filenameSource ?? 'download-item';
-  const filename = resolveFilenameHint(url, { filename: item.filename, source });
-  return filename ? { filename, source } : { source: 'none' };
+/** Browser names are already decoded text. The engine owns final path policy. */
+function filenameHint(value: string): string | undefined {
+  return value.trim().replace(/^.*[/\\]/, '') || undefined;
 }
 
 // ─── Orchestrator ───────────────────────────────────────
@@ -338,11 +269,9 @@ export class DownloadOrchestrator {
     tabUrl: string,
     options: SendUrlOptions,
   ): Promise<'routed-to-desktop' | 'duplicate-blocked'> {
-    const extracted = extractFilenameFromUrl(url) ?? '';
-    const filenameHint = extracted
-      ? resolveFilenameHint(url, { filename: extracted, source: 'url' })
-      : undefined;
-    const displayName = filenameHint || url.split('/').pop() || 'download';
+    const extracted = options.filename || extractFilenameFromUrl(url) || '';
+    const name = filenameHint(extracted);
+    const displayName = name || url.split('/').pop() || 'download';
 
     const duplicate = this.reserveDuplicate({
       url,
@@ -359,17 +288,23 @@ export class DownloadOrchestrator {
 
     const delivery = await this.sendToDesktop(
       {
+        id: crypto.randomUUID(),
         url,
         referer: tabUrl,
-        cookie: await this.resolveCookieHeader(url),
-        filenameHint,
+        cookie:
+          options.source === 'media'
+            ? { value: options.headerContext?.cookie ?? '', source: 'request' }
+            : await this.resolveCookieHeader(url, options.headerContext),
+        headerContext: options.headerContext,
+        filenameHint: name,
         filenameSource: 'url',
         source: options.source,
       },
       { allowActivation: options.allowActivation ?? true },
     );
     if (!delivery.ok) {
-      this.deps.duplicateGuard.release(duplicate.reservation);
+      if (delivery.reason !== 'delivery-unknown')
+        this.deps.duplicateGuard.release(duplicate.reservation);
       this.log(
         delivery.reason === 'api-auth-failed' ? 'api_auth_failed' : 'download_delivery_failed',
         delivery.reason === 'api-auth-failed'
@@ -465,6 +400,15 @@ export class DownloadOrchestrator {
     const job = await this.buildJob(item, tabUrl, source);
     const delivery = await this.sendToDesktop(job, { allowActivation: false });
     if (!delivery.ok) {
+      if (delivery.reason === 'delivery-unknown') {
+        this.log(
+          'download_delivery_failed',
+          'Desktop receipt is pending; browser restart would duplicate the download',
+          { url: job.url, requestId: job.id, reason: delivery.reason },
+          'error',
+        );
+        return true;
+      }
       this.deps.duplicateGuard.release(reservation);
       await this.restartBrowserDownload(item, delivery.reason, delivery.error);
       return false;
@@ -478,8 +422,10 @@ export class DownloadOrchestrator {
     source: DownloadSource,
   ): Promise<DownloadJob> {
     const effectiveUrl = item.finalUrl || item.url;
-    const { filename, source: filenameSource } = resolveBestFilenameHint(effectiveUrl, item);
+    const filename = filenameHint(item.filename);
+    const filenameSource = item.filenameSource ?? 'suggested';
     return {
+      id: crypto.randomUUID(),
       url: effectiveUrl,
       finalUrl: effectiveUrl,
       referer: tabUrl,
@@ -500,6 +446,14 @@ export class DownloadOrchestrator {
       await this.submitToDesktopApi(job);
       return { ok: true };
     } catch (e) {
+      if (e instanceof ApiDeliveryUncertainError) {
+        try {
+          await this.submitToDesktopApi(job);
+          return { ok: true };
+        } catch (retryError) {
+          return { ok: false, reason: 'delivery-unknown', error: errorMessage(retryError) };
+        }
+      }
       if (e instanceof ApiAuthError) {
         return { ok: false, reason: 'api-auth-failed', error: e.message };
       }
@@ -530,6 +484,8 @@ export class DownloadOrchestrator {
       await this.submitToDesktopApi(job, true);
       return { ok: true };
     } catch (e) {
+      if (e instanceof ApiDeliveryUncertainError)
+        return { ok: false, reason: 'delivery-unknown', error: errorMessage(e) };
       if (e instanceof ApiAuthError) {
         return { ok: false, reason: 'api-auth-failed', error: e.message };
       }
@@ -539,6 +495,10 @@ export class DownloadOrchestrator {
 
   private async submitToDesktopApi(job: DownloadJob, afterActivation = false): Promise<void> {
     const response = await this.deps.desktopClient.addDownload({
+      id: job.id,
+      filenameSource: ['browser-determined', 'content-disposition'].includes(job.filenameSource)
+        ? 'browser'
+        : 'suggested',
       url: job.url,
       finalUrl: job.finalUrl || undefined,
       referer: job.referer || undefined,

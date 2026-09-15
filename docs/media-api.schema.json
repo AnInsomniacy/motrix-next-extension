@@ -1,0 +1,388 @@
+{
+  "protocolVersion": 1,
+  "basePath": "/media/v1",
+  "schemas": {
+    "capabilities": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "protocolVersion": { "type": "number", "const": 1 },
+        "sourceKinds": {
+          "minItems": 1,
+          "maxItems": 2,
+          "type": "array",
+          "items": { "type": "string", "enum": ["hls", "dash"] }
+        },
+        "requestContexts": { "type": "boolean", "const": true }
+      },
+      "required": ["protocolVersion", "sourceKinds", "requestContexts"],
+      "additionalProperties": false
+    },
+    "probeRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "url": { "type": "string", "maxLength": 16384 },
+            "kind": { "type": "string", "enum": ["hls", "dash"] },
+            "pageUrl": { "type": "string", "maxLength": 16384 },
+            "title": { "type": "string", "maxLength": 512 },
+            "filename": { "type": "string", "maxLength": 255 },
+            "mime": { "type": "string", "maxLength": 128 },
+            "requestContexts": {
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string", "maxLength": 16384 },
+                  "headers": {
+                    "maxItems": 32,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": { "type": "string", "minLength": 1, "maxLength": 128 },
+                        "value": { "type": "string", "maxLength": 8192 }
+                      },
+                      "required": ["name", "value"],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": ["url", "headers"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["url", "kind", "pageUrl", "title", "filename", "mime", "requestContexts"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["id", "source"],
+      "additionalProperties": false
+    },
+    "probeResponse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "expiresAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "state": { "type": "string", "const": "probing" }
+          },
+          "required": ["id", "expiresAt", "state"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "expiresAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "state": { "type": "string", "const": "ready" },
+            "presentation": {
+              "type": "object",
+              "properties": {
+                "kind": { "type": "string", "enum": ["hls", "dash"] },
+                "title": { "type": "string", "maxLength": 512 },
+                "live": { "type": "boolean" },
+                "durationMs": {
+                  "anyOf": [
+                    { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                    { "type": "null" }
+                  ]
+                },
+                "size": {
+                  "anyOf": [
+                    { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                    { "type": "null" }
+                  ]
+                },
+                "tracks": {
+                  "maxItems": 256,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+                      "type": { "type": "string", "enum": ["video", "audio", "muxed", "subtitle"] },
+                      "language": { "type": "string", "maxLength": 64 },
+                      "codec": { "type": "string", "maxLength": 128 },
+                      "width": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                      "height": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                      "bandwidth": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+                      "frameRate": { "type": "number", "minimum": 0, "maximum": 1000 }
+                    },
+                    "required": [
+                      "id",
+                      "type",
+                      "language",
+                      "codec",
+                      "width",
+                      "height",
+                      "bandwidth",
+                      "frameRate"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "formats": {
+                  "minItems": 1,
+                  "maxItems": 3,
+                  "type": "array",
+                  "items": { "type": "string", "enum": ["mp4", "mkv"] }
+                },
+                "defaults": {
+                  "type": "object",
+                  "properties": {
+                    "videoId": {
+                      "anyOf": [
+                        { "type": "string", "minLength": 1, "maxLength": 128 },
+                        { "type": "null" }
+                      ]
+                    },
+                    "audioId": {
+                      "anyOf": [
+                        { "type": "string", "minLength": 1, "maxLength": 128 },
+                        { "type": "null" }
+                      ]
+                    },
+                    "subtitleId": {
+                      "anyOf": [
+                        { "type": "string", "minLength": 1, "maxLength": 128 },
+                        { "type": "null" }
+                      ]
+                    },
+                    "format": { "type": "string", "enum": ["mp4", "mkv"] },
+                    "recordTimeSeconds": { "type": "integer", "minimum": 0, "maximum": 31536000 }
+                  },
+                  "required": ["videoId", "audioId", "subtitleId", "format", "recordTimeSeconds"],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "kind",
+                "title",
+                "live",
+                "durationMs",
+                "size",
+                "tracks",
+                "formats",
+                "defaults"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": ["id", "expiresAt", "state", "presentation"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "expiresAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "state": { "type": "string", "const": "failed" },
+            "error": {
+              "type": "string",
+              "enum": [
+                "unsupported_source",
+                "protected_media",
+                "authentication_required",
+                "source_expired",
+                "unsupported_selection",
+                "probe_failed",
+                "expired",
+                "not_found",
+                "conflict"
+              ]
+            }
+          },
+          "required": ["id", "expiresAt", "state", "error"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "expiresAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "state": { "type": "string", "const": "cancelled" }
+          },
+          "required": ["id", "expiresAt", "state"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "expiresAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "state": { "type": "string", "const": "submitting" },
+            "submissionId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "required": ["id", "expiresAt", "state", "submissionId"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "expiresAt": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+            "state": { "type": "string", "const": "submitted" },
+            "submissionId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "gid": { "type": "string", "minLength": 1, "maxLength": 128 }
+          },
+          "required": ["id", "expiresAt", "state", "submissionId", "gid"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "submitRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "submissionId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "selection": {
+          "type": "object",
+          "properties": {
+            "videoId": {
+              "anyOf": [{ "type": "string", "minLength": 1, "maxLength": 128 }, { "type": "null" }]
+            },
+            "audioId": {
+              "anyOf": [{ "type": "string", "minLength": 1, "maxLength": 128 }, { "type": "null" }]
+            },
+            "subtitleId": {
+              "anyOf": [{ "type": "string", "minLength": 1, "maxLength": 128 }, { "type": "null" }]
+            },
+            "format": { "type": "string", "enum": ["mp4", "mkv"] },
+            "recordTimeSeconds": { "type": "integer", "minimum": 0, "maximum": 31536000 }
+          },
+          "required": ["videoId", "audioId", "subtitleId", "format", "recordTimeSeconds"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["submissionId", "selection"],
+      "additionalProperties": false
+    },
+    "submitResponse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "submissionId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "gid": { "type": "string", "minLength": 1, "maxLength": 128 }
+      },
+      "required": ["id", "submissionId", "gid"],
+      "additionalProperties": false
+    },
+    "cancelResponse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "state": { "type": "string", "const": "cancelled" }
+          },
+          "required": ["id", "state"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "state": { "type": "string", "const": "submitted" },
+            "submissionId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "gid": { "type": "string", "minLength": 1, "maxLength": 128 }
+          },
+          "required": ["id", "state", "submissionId", "gid"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "errorResponse": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "enum": [
+            "unsupported_source",
+            "protected_media",
+            "authentication_required",
+            "source_expired",
+            "unsupported_selection",
+            "probe_failed",
+            "expired",
+            "not_found",
+            "conflict"
+          ]
+        }
+      },
+      "required": ["error"],
+      "additionalProperties": false
+    }
+  }
+}

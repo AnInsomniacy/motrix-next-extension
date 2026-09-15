@@ -558,6 +558,7 @@ onUnmounted(() => {
                   :desktop-unavailable="draft.settings.desktopUnavailable"
                   :forward-request-headers="draft.settings.forwardRequestHeaders"
                   :forward-cookies="draft.settings.forwardCookies"
+                  :media-discovery="draft.settings.mediaDiscovery"
                   @update:enabled="handleEnabledChange"
                   @update:scope="handleInterceptionScopeChange"
                   @update:hide-download-bar="handleHideDownloadBarChange"
@@ -569,6 +570,9 @@ onUnmounted(() => {
                   "
                   @update:forward-request-headers="draft.settings.forwardRequestHeaders = $event"
                   @update:forward-cookies="handleForwardCookiesChange"
+                  @update:media-discovery="
+                    draft.settings.mediaDiscovery = { ...draft.settings.mediaDiscovery, ...$event }
+                  "
                 />
               </div>
             </div>

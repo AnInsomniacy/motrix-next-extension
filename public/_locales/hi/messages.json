@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "साफ़ करने की पुष्टि",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "मीडिया",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "डाउनलोड",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "पेज मीडिया खोजें",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "पेज स्कैन करें",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "स्रोत साफ़ करें",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "स्रोत फ़िल्टर करें",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "मीडिया स्रोत",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "स्रोत",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "इस साइट पर चालू करें",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "इस साइट पर बंद करें",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "फ़ॉर्मैट जाँचें",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "मीडिया विकल्प",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "स्रोतों पर वापस जाएँ",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "वीडियो गुणवत्ता",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "ऑडियो",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "उपशीर्षक",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "आउटपुट फ़ॉर्मैट",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "मूल फ़ाइल",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "रिकॉर्डिंग सीमा (सेकंड)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "लाइव रिकॉर्डिंग",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "डाउनलोड करें",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "रिकॉर्डिंग शुरू करें",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "रद्द करें",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "फिर प्रयास करें",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "बंद करें",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "प्लेयर ढूँढें",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "वीडियो नहीं",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "ऑडियो नहीं",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "उपशीर्षक नहीं",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "बाहर रखी गई मीडिया साइटें",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "प्लेयर मिला; मीडिया स्रोत की प्रतीक्षा है।",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "कोई मीडिया स्रोत नहीं मिला।",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "मीडिया खोज रुकी हुई है।",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "इस साइट पर मीडिया खोज बंद है।",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "इन स्रोतों को किसी एक प्लेयर से नहीं जोड़ा जा सका। डाउनलोड से पहले जाँचें।",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "मीडिया जाँचा जा रहा है…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Motrix Next में डाउनलोड बनाया गया।",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "जाँच रद्द कर दी गई।",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "कार्रवाई विफल हुई। स्थिति जाँचने के लिए फिर प्रयास करें।",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "यह मीडिया या अनुरोध विधि समर्थित नहीं है।",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "ट्रैक, फ़ॉर्मैट और अवधि का समर्थित संयोजन चुनें।",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next अभी मीडिया इंटरफ़ेस का समर्थन नहीं करता।",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "स्रोत या जाँच की अवधि समाप्त हुई। मीडिया चलाकर फिर जाँचें।",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "लॉगिन, अनुरोध अग्रेषण या डेस्कटॉप API कुंजी जाँचें।",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Motrix Next शुरू करें और कनेक्शन सेटिंग जाँचें।",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "आकार अज्ञात",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "अवधि अज्ञात",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "ऑडियो शामिल है",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "शून्य रखने पर Motrix Next में रोकने तक रिकॉर्डिंग चलेगी।",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "पहले जाँचें, फिर डाउनलोड की पुष्टि करें।",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "मीडिया खोजने के लिए वेब पेज खोलें।",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "स्रोत अपने आप खोजने के लिए वीडियो या ऑडियो चलाएँ।",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "फ़ॉर्मैट तैयार हैं",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "डाउनलोड की पुष्टि हो रही है…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "जाँच रद्द हो रही है…",
+    "description": "Media discovery: cancelling"
   }
 }

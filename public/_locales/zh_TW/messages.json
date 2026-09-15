@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "確認清除",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "媒體",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "下載",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "偵測網頁媒體",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "掃描頁面",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "清空來源",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "篩選來源",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "媒體來源",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "來源",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "在此網站啟用",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "在此網站停用",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "探測格式",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "媒體選項",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "返回來源清單",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "影片畫質",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "音軌",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "字幕",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "輸出格式",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "原始檔案",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "錄製時限（秒）",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "直播錄製",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "下載",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "開始錄製",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "取消",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "重試",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "關閉",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "定位播放器",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "不含影片",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "不含音訊",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "不含字幕",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "已停用的媒體網站",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "已找到播放器，等待媒體來源。",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "尚未找到媒體來源。",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "媒體偵測已暫停。",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "此網站已停用媒體偵測。",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "這些來源無法精確對應到播放器，請確認後下載。",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "正在探測媒體…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "已在 Motrix Next 中建立下載。",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "已取消探測。",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "操作失敗，請重試以確認狀態。",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "不支援此媒體或請求方式。",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "請選擇支援的音視訊軌道、格式與時長組合。",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next 尚未支援媒體介面。",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "來源或探測已過期，請播放媒體後重新探測。",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "請檢查來源登入狀態、請求轉送或桌面 API 金鑰。",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "請啟動 Motrix Next 並檢查連線設定。",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "大小未知",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "時長未知",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "包含音訊",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "設為零會持續錄製，直到在 Motrix Next 中結束錄製。",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "先探測格式，確認後再下載。",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "開啟網頁即可偵測媒體。",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "播放影片或音訊，自動偵測媒體來源。",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "格式已就緒",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "正在確認下載…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "正在取消探測…",
+    "description": "Media discovery: cancelling"
   }
 }

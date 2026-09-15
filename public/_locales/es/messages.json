@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Confirmar borrado",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Multimedia",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Descargas",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Detectar contenido multimedia",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Analizar página",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Borrar fuentes",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Filtrar fuentes",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Fuentes multimedia",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Fuente",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Activar en este sitio",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Desactivar en este sitio",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Analizar formatos",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Opciones multimedia",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Volver a las fuentes",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Calidad de vídeo",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Audio",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Subtítulos",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Formato de salida",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Archivo original",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Límite de grabación (segundos)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Grabación en directo",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Descargar",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Iniciar grabación",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Cancelar",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Reintentar",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Cerrar",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Localizar reproductor",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Sin vídeo",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Sin audio",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Sin subtítulos",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Sitios multimedia excluidos",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Reproductor detectado; esperando una fuente multimedia.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "No se encontraron fuentes multimedia.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "La detección multimedia está en pausa.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "La detección multimedia está desactivada en este sitio.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "Estas fuentes no se pueden asociar a un solo reproductor. Compruébelas antes de descargar.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Analizando multimedia…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Descarga creada en Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Análisis cancelado.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "La operación falló. Reintente para comprobar su estado.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Este contenido o método de solicitud no es compatible.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Elija una combinación compatible de pistas, formato y duración.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next aún no admite la interfaz multimedia.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "La fuente o el análisis caducó. Reproduzca y analice de nuevo.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Compruebe el inicio de sesión, el reenvío de solicitudes o la clave API de escritorio.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Inicie Motrix Next y compruebe la conexión.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Tamaño desconocido",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Duración desconocida",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Incluye audio",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Cero graba hasta detener la grabación en Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Analice primero y confirme después la descarga.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Abra una página web para detectar contenido multimedia.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Reproduzca vídeo o audio para detectar sus fuentes automáticamente.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Formatos listos",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Confirmando descarga…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Cancelando análisis…",
+    "description": "Media discovery: cancelling"
   }
 }

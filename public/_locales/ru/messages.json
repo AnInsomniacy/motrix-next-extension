@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Подтвердить очистку",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Медиа",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Загрузки",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Обнаруживать медиа на странице",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Сканировать страницу",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Очистить источники",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Фильтр источников",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Медиаисточники",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Источник",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Включить на этом сайте",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Отключить на этом сайте",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Проверить форматы",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Параметры медиа",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Назад к источникам",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Качество видео",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Аудио",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Субтитры",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Выходной формат",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Исходный файл",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Лимит записи (секунды)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Запись трансляции",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Скачать",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Начать запись",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Отмена",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Повторить",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Закрыть",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Найти проигрыватель",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Без видео",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Без аудио",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Без субтитров",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Исключённые медиасайты",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Проигрыватель найден; ожидание медиаисточника.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "Медиаисточники не найдены.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "Обнаружение медиа приостановлено.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "Обнаружение медиа отключено на этом сайте.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "Нельзя однозначно связать источники с проигрывателем. Проверьте их перед загрузкой.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Проверка медиа…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Загрузка создана в Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Проверка отменена.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "Операция не выполнена. Повторите для проверки статуса.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Медиа или метод запроса не поддерживается.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Выберите допустимое сочетание дорожек, формата и длительности.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next пока не поддерживает медиаинтерфейс.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "Источник или проверка устарели. Запустите воспроизведение и повторите проверку.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Проверьте вход на сайт, пересылку запросов или ключ API приложения.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Запустите Motrix Next и проверьте подключение.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Размер неизвестен",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Длительность неизвестна",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Включает аудио",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Ноль означает запись до остановки в Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Сначала проверьте форматы, затем подтвердите загрузку.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Откройте веб-страницу для обнаружения медиа.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Воспроизведите видео или аудио для автоматического обнаружения источников.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Форматы готовы",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Подтверждение загрузки…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Отмена проверки…",
+    "description": "Media discovery: cancelling"
   }
 }

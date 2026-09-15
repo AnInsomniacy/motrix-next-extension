@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Confirma l'esborrat",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Multimèdia",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Baixades",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Detecta contingut multimèdia",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Escaneja la pàgina",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Esborra les fonts",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Filtra les fonts",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Fonts multimèdia",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Font",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Activa en aquest lloc",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Desactiva en aquest lloc",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Inspecciona els formats",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Opcions multimèdia",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Torna a les fonts",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Qualitat del vídeo",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Àudio",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Subtítols",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Format de sortida",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Fitxer original",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Límit de gravació (segons)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Gravació en directe",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Baixa",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Inicia la gravació",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Cancel·la",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Torna-ho a provar",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Tanca",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Localitza el reproductor",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Sense vídeo",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Sense àudio",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Sense subtítols",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Llocs multimèdia exclosos",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Reproductor detectat; esperant una font multimèdia.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "No s’han trobat fonts multimèdia.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "La detecció multimèdia està en pausa.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "La detecció multimèdia està desactivada en aquest lloc.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "No es poden associar les fonts a un únic reproductor. Comproveu-les abans de baixar.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "S’estan inspeccionant els continguts…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Baixada creada a Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Inspecció cancel·lada.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "L’operació ha fallat. Torneu-ho a provar per comprovar-ne l’estat.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Aquest contingut o mètode de petició no és compatible.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Trieu una combinació compatible de pistes, format i durada.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next encara no admet la interfície multimèdia.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "La font o la inspecció ha caducat. Reproduïu i inspeccioneu de nou.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Comproveu l’inici de sessió, el reenviament de peticions o la clau API de l’aplicació.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Inicieu Motrix Next i comproveu la connexió.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Mida desconeguda",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Durada desconeguda",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Inclou àudio",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Zero grava fins que atureu la gravació a Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Inspeccioneu primer i confirmeu després la baixada.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Obriu una pàgina web per detectar contingut multimèdia.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Reproduïu vídeo o àudio per detectar-ne les fonts automàticament.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Formats preparats",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "S’està confirmant la baixada…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "S’està cancel·lant la inspecció…",
+    "description": "Media discovery: cancelling"
   }
 }

@@ -31,6 +31,8 @@
 
 ## Features
 
+- **Page media discovery** — Detect HLS/DASH manifests and audio/video sources without interrupting playback. Inspect and choose native tracks from the extension's Media tab when the desktop implements the [media API](docs/MEDIA_API.md). See [scope and local testing](docs/MEDIA.md).
+
 - **Download interception** — Automatically captures browser downloads and routes them to Motrix Next for multi-threaded acceleration
 - **Smart filtering** — Ordered checks for interception settings, extension-owned downloads, URL schemes, site rules, MIME types, file extensions, and minimum file size
 - **Per-site rules** — Glob-pattern rules (e.g. `*.github.com`) to always intercept, always skip, or defer to global settings

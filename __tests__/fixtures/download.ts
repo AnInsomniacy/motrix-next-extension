@@ -23,7 +23,10 @@ export function downloadDeps(overrides: Partial<OrchestratorDeps> = {}): Orchest
   const snapshot = createDefaultSnapshot();
   const desktopClient = new DesktopApiClient(snapshot.connection);
   vi.spyOn(desktopClient, 'isReady').mockResolvedValue(true);
-  vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({ action: 'queued' });
+  vi.spyOn(desktopClient, 'addDownload').mockResolvedValue({
+    id: 'request',
+    action: 'needs-confirmation',
+  });
   return {
     downloads: {
       cancel: vi.fn().mockResolvedValue(undefined),

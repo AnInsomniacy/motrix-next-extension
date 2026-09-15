@@ -18,15 +18,20 @@ Before you start contributing, make sure you understand [GitHub flow](https://gu
 git clone https://github.com/AnInsomniacy/motrix-next-extension.git
 cd motrix-next-extension
 pnpm install
-pnpm dev    # Build the development extension with hot reload
+pnpm dev    # Launch Chrome with the development extension and hot reload
 ```
 
-Open `chrome://extensions` in a regular Chrome profile and load
-`.output/chrome-mv3-dev` as an unpacked extension. WXT does not launch an
-isolated browser because Native Messaging registrations follow the browser data
-root on macOS and Linux.
+WXT automatically launches Chrome with a persistent, isolated development profile
+in `.wxt/chrome-data` and loads the extension. Saved API connection and appearance
+settings survive browser and dev-server restarts. Chrome creates the directory
+through its native `--user-data-dir` argument on first launch. This directory is Git-ignored;
+deleting it resets the development browser's data. Existing temporary profiles are
+not migrated, so configure the connection once after switching to this setup.
+See [WXT browser persistence](https://wxt.dev/guide/essentials/config/browser-startup#persist-data).
+Run `pnpm dev:firefox` to develop in Firefox instead; the persistent Chromium profile
+does not apply to Firefox.
 
-Load the unpacked extension:
+To manually test a production build, run `pnpm build`, then:
 
 1. Navigate to `chrome://extensions`
 2. Enable **Developer mode**
@@ -43,6 +48,7 @@ pnpm compile         # TypeScript strict mode (vue-tsc --noEmit)
 pnpm test            # Vitest unit and integration tests
 pnpm lint            # ESLint (0 errors, 0 warnings)
 pnpm lint:i18n       # i18n key consistency across locales
+pnpm media:contract:check # Generated desktop media contract
 pnpm build           # Chromium production build
 pnpm build:firefox   # Firefox production build
 pnpm zip             # Chromium store package
@@ -58,6 +64,11 @@ pnpm zip:firefox     # Firefox store package
 - Keep service files focused — one responsibility per module.
 
 ## 🧪 Testing
+
+For media discovery and the desktop interface, see [Media](MEDIA.md) and
+[Desktop media API](MEDIA_API.md). Run static checks within this repository;
+real browser/desktop acceptance is a separate manual maintainer check.
+Code and integration documentation are maintained in English. All user-facing copy must be translated in every supported locale.
 
 - Keep tests focused on download ownership, recovery, data boundaries, and confirmed regressions.
 - Tests live in `__tests__/unit/` and `__tests__/integration/`.

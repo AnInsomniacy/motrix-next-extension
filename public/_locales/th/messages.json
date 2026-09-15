@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "ยืนยันการล้าง",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "สื่อ",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "การดาวน์โหลด",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "ค้นหาสื่อในหน้าเว็บ",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "สแกนหน้าเว็บ",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "ล้างแหล่งที่มา",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "กรองแหล่งที่มา",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "แหล่งสื่อ",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "แหล่งที่มา",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "เปิดใช้บนเว็บไซต์นี้",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "ปิดใช้บนเว็บไซต์นี้",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "ตรวจสอบรูปแบบ",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "ตัวเลือกสื่อ",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "กลับไปยังแหล่งที่มา",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "คุณภาพวิดีโอ",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "เสียง",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "คำบรรยาย",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "รูปแบบผลลัพธ์",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "ไฟล์ต้นฉบับ",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "จำกัดเวลาบันทึก (วินาที)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "บันทึกสด",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "ดาวน์โหลด",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "เริ่มบันทึก",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "ยกเลิก",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "ลองอีกครั้ง",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "ปิด",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "ค้นหาเครื่องเล่น",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "ไม่มีวิดีโอ",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "ไม่มีเสียง",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "ไม่มีคำบรรยาย",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "เว็บไซต์สื่อที่ยกเว้น",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "พบเครื่องเล่นแล้ว กำลังรอแหล่งสื่อ",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "ไม่พบแหล่งสื่อ",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "หยุดค้นหาสื่อชั่วคราว",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "ปิดการค้นหาสื่อบนเว็บไซต์นี้แล้ว",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "ไม่สามารถจับคู่แหล่งสื่อกับเครื่องเล่นเดียวได้ โปรดตรวจสอบก่อนดาวน์โหลด",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "กำลังตรวจสอบสื่อ…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "สร้างการดาวน์โหลดใน Motrix Next แล้ว",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "ยกเลิกการตรวจสอบแล้ว",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "ดำเนินการไม่สำเร็จ ลองอีกครั้งเพื่อตรวจสอบสถานะ",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "ไม่รองรับสื่อหรือวิธีส่งคำขอนี้",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "เลือกแทร็ก รูปแบบ และระยะเวลาที่รองรับ",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next ยังไม่รองรับอินเทอร์เฟซสื่อ",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "แหล่งสื่อหรือการตรวจสอบหมดอายุ โปรดเล่นและตรวจสอบอีกครั้ง",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "ตรวจสอบการเข้าสู่ระบบ การส่งต่อคำขอ หรือคีย์ API ของแอป",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "เปิด Motrix Next และตรวจสอบการเชื่อมต่อ",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "ไม่ทราบขนาด",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "ไม่ทราบระยะเวลา",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "มีเสียง",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "ศูนย์หมายถึงบันทึกจนกว่าจะหยุดใน Motrix Next",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "ตรวจสอบก่อน แล้วจึงยืนยันการดาวน์โหลด",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "เปิดหน้าเว็บเพื่อค้นหาสื่อ",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "เล่นวิดีโอหรือเสียงเพื่อค้นหาแหล่งสื่อโดยอัตโนมัติ",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "รูปแบบพร้อมแล้ว",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "กำลังยืนยันการดาวน์โหลด…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "กำลังยกเลิกการตรวจสอบ…",
+    "description": "Media discovery: cancelling"
   }
 }

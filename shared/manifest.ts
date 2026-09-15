@@ -10,6 +10,8 @@ const REQUIRED_PERMISSIONS = [
   'contextMenus',
   'notifications',
   'webRequest',
+  'webNavigation',
+  'alarms',
   'cookies',
   'nativeMessaging',
 ] as const;
@@ -24,6 +26,9 @@ export function buildExtensionManifest(browser: string, mode: string) {
     browser === 'firefox' ? [...FIREFOX_REQUIRED_PERMISSIONS] : [...REQUIRED_PERMISSIONS];
 
   const manifest = {
+    ...(browser !== 'firefox' ? { minimum_chrome_version: '132' } : {}),
+    // One session writer; private resources remain scoped by native tab/document/store IDs.
+    incognito: 'spanning' as const,
     name: '__MSG_ext_name__',
     description: '__MSG_ext_description__',
     default_locale: 'en',
@@ -34,6 +39,7 @@ export function buildExtensionManifest(browser: string, mode: string) {
     optional_permissions: optionalPermissions,
     host_permissions: [...LOOPBACK_HOST_PERMISSIONS, ...BROAD_DOWNLOAD_ORIGINS],
     optional_host_permissions: [],
+    web_accessible_resources: [{ resources: ['media.html'], matches: [...BROAD_DOWNLOAD_ORIGINS] }],
     ...(browser === 'firefox'
       ? {
           browser_specific_settings: {

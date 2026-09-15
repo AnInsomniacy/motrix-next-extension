@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Xác nhận xóa",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Phương tiện",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Tải xuống",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Phát hiện phương tiện trên trang",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Quét trang",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Xóa nguồn",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Lọc nguồn",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Nguồn phương tiện",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Nguồn",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Bật trên trang này",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Tắt trên trang này",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Kiểm tra định dạng",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Tùy chọn phương tiện",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Quay lại nguồn",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Chất lượng video",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Âm thanh",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Phụ đề",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Định dạng đầu ra",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Tệp gốc",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Giới hạn ghi (giây)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Ghi trực tiếp",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Tải xuống",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Bắt đầu ghi",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Hủy",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Thử lại",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Đóng",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Định vị trình phát",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Không có video",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Không có âm thanh",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Không có phụ đề",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Trang phương tiện bị loại trừ",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Đã tìm thấy trình phát; đang chờ nguồn phương tiện.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "Chưa tìm thấy nguồn phương tiện.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "Đã tạm dừng phát hiện phương tiện.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "Phát hiện phương tiện bị tắt trên trang này.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "Không thể ghép các nguồn với một trình phát cụ thể. Hãy kiểm tra trước khi tải.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Đang kiểm tra phương tiện…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Đã tạo lượt tải trong Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Đã hủy kiểm tra.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "Thao tác thất bại. Thử lại để kiểm tra trạng thái.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Không hỗ trợ phương tiện hoặc phương thức yêu cầu này.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Chọn tổ hợp bản âm thanh, video, định dạng và thời lượng được hỗ trợ.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next chưa hỗ trợ giao diện phương tiện.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "Nguồn hoặc phiên kiểm tra đã hết hạn. Phát lại rồi kiểm tra lại.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Kiểm tra đăng nhập, chuyển tiếp yêu cầu hoặc khóa API ứng dụng.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Khởi động Motrix Next và kiểm tra kết nối.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Chưa rõ kích thước",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Chưa rõ thời lượng",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Có âm thanh",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Đặt bằng không để ghi đến khi dừng trong Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Kiểm tra trước, sau đó xác nhận tải xuống.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Mở trang web để phát hiện phương tiện.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Phát video hoặc âm thanh để tự động phát hiện nguồn.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Định dạng đã sẵn sàng",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Đang xác nhận tải xuống…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Đang hủy kiểm tra…",
+    "description": "Media discovery: cancelling"
   }
 }

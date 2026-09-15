@@ -1,7 +1,6 @@
 /**
  * Thin, typed helpers over `browser.*` APIs: permissions, context
- * menu definitions, notifications, external protocol links, and the
- * webRequest listener types WXT's cross-browser typings omit.
+ * menu definitions, notifications, and external protocol links.
  */
 import { browser, type Browser } from 'wxt/browser';
 import type { InterceptionScope } from './schema';
@@ -97,37 +96,3 @@ export function createExternalProtocolClickHandler(deps: ExternalProtocolClickHa
       .catch(() => {});
   };
 }
-
-// ─── webRequest Types ───────────────────────────────────
-// WXT's cross-browser typings omit Firefox's blocking listener contract.
-
-type WebRequestHeader = { name?: string; value?: string };
-
-interface WebRequestHeadersDetails {
-  url: string;
-  method: string;
-  type: string;
-  statusCode: number;
-  originUrl?: string;
-  documentUrl?: string;
-  responseHeaders?: WebRequestHeader[];
-}
-
-interface WebRequestApi {
-  onBeforeSendHeaders?: {
-    addListener: (
-      callback: (details: { url: string; requestHeaders?: WebRequestHeader[] }) => void,
-      filter: { urls: string[] },
-      extraInfoSpec?: string[],
-    ) => void;
-  };
-  onHeadersReceived?: {
-    addListener: (
-      callback: (details: WebRequestHeadersDetails) => void | { cancel?: boolean },
-      filter: { urls: string[]; types?: string[] },
-      extraInfoSpec?: string[],
-    ) => void;
-  };
-}
-
-export const webRequest = (browser as unknown as { webRequest?: WebRequestApi }).webRequest;

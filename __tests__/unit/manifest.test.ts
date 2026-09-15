@@ -16,6 +16,11 @@ function extensionIdFromPublicKey(publicKey: string): string {
 }
 
 describe('buildExtensionManifest', () => {
+  it('uses a single background writer and a private-browsing mode supported by both browsers', () => {
+    for (const browser of ['chromium', 'firefox']) {
+      expect(buildExtensionManifest(browser, 'production').incognito).toBe('spanning');
+    }
+  });
   it('requires Native Messaging on Chromium', () => {
     const manifest = buildExtensionManifest('chromium', 'production');
 

@@ -1,6 +1,6 @@
 # Privacy Policy — Motrix Next Extension
 
-**Last updated:** May 27, 2026
+**Last updated:** September 12, 2026
 
 ## Overview
 
@@ -15,6 +15,30 @@ This privacy policy explains what data the Extension accesses, how it is used, a
 The Extension operates entirely on your local machine. All communication occurs exclusively between your browser and the locally running Motrix Next desktop application.
 
 ## Data Access
+
+### Page Media Discovery
+
+When media discovery is enabled, the Extension observes HTTP(S) request/response
+metadata and public media elements/resource timing in browser frames. It stores
+media candidate URLs, page titles, frame identity, MIME types, file-size hints and
+filtered request context in browser session memory. This supports the local Media
+list and user-requested desktop format inspection. It does not read response bodies,
+record playback, instrument player functions, or upload browsing activity.
+
+Discovery can be disabled independently, globally or by page host. Records expire
+after 30 minutes without observation and are bounded by count and memory limits.
+Browser restart or extension reload clears them. Settings backups exclude this data.
+The popup receives metadata and operation status, not credential header values.
+
+Cookie and request-header forwarding controls also apply to media inspection. When
+exposed by the browser, Authorization and site-specific end-to-end headers may be
+sent to the local desktop for the selected media. Additional observed media contexts
+are separated by origin and document. Fallback cookie lookup uses the source tab's
+store/container and applicable Chromium partition. The desktop then uses source
+credentials only for their intended resource origins when fetching the user's media.
+
+Native Messaging remains activation-only. Missing media integration is reported;
+the Extension does not silently save a manifest as a finished video.
 
 The Extension accesses the following data solely to perform its core functionality:
 
@@ -88,6 +112,8 @@ Where `{port}` is the user-configured API port (default: 29110).
 | `contextMenus`                             | Add "Download with Motrix Next" to the right-click menu                             |
 | `notifications`                            | Show desktop notifications for download events                                      |
 | `webRequest`                               | Read filtered request headers and filename response headers for delegated downloads |
+| `webNavigation`                            | Associate media with its source frame and invalidate stale navigation data          |
+| `alarms`                                   | Expire bounded media session data after worker suspension                           |
 | `cookies`                                  | Forward cookies to local Motrix Next for authenticated downloads                    |
 | `nativeMessaging`                          | Activate the installed Motrix Next desktop application                              |
 | `downloads.ui` _(optional)_                | Hide the browser download bar after interception                                    |

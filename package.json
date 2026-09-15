@@ -12,6 +12,8 @@
   "scripts": {
     "dev": "wxt",
     "dev:firefox": "wxt -b firefox --mv3",
+    "media:contract": "tsx scripts/export-media-contract.ts",
+    "media:contract:check": "tsx scripts/export-media-contract.ts --check",
     "build": "wxt build -b chromium",
     "build:firefox": "wxt build -b firefox --mv3",
     "zip": "wxt zip -b chromium",

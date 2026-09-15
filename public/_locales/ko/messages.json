@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "지우기 확인",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "미디어",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "다운로드",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "페이지 미디어 감지",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "페이지 검색",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "소스 지우기",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "소스 필터",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "미디어 소스",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "소스",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "이 사이트에서 사용",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "이 사이트에서 사용 안 함",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "형식 확인",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "미디어 옵션",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "소스 목록으로",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "동영상 화질",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "오디오",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "자막",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "출력 형식",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "원본 파일",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "녹화 제한 시간(초)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "라이브 녹화",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "다운로드",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "녹화 시작",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "취소",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "다시 시도",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "닫기",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "플레이어 찾기",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "동영상 없음",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "오디오 없음",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "자막 없음",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "제외된 미디어 사이트",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "플레이어를 찾았습니다. 미디어 소스를 기다리는 중입니다.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "미디어 소스를 찾지 못했습니다.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "미디어 감지가 일시 중지되었습니다.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "이 사이트에서는 미디어 감지가 꺼져 있습니다.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "소스를 특정 플레이어와 연결할 수 없습니다. 다운로드 전에 확인하세요.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "미디어 확인 중…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Motrix Next에 다운로드를 생성했습니다.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "확인을 취소했습니다.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "작업에 실패했습니다. 다시 시도하여 상태를 확인하세요.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "이 미디어 또는 요청 방식은 지원하지 않습니다.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "지원되는 트랙, 형식 및 시간 조합을 선택하세요.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next가 아직 미디어 인터페이스를 지원하지 않습니다.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "소스 또는 확인 시간이 만료되었습니다. 재생 후 다시 확인하세요.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "로그인, 요청 전달 또는 데스크톱 API 암호를 확인하세요.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Motrix Next를 시작하고 연결 설정을 확인하세요.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "크기 알 수 없음",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "길이 알 수 없음",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "오디오 포함",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "0이면 Motrix Next에서 중지할 때까지 녹화합니다.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "형식을 확인한 후 다운로드를 확정하세요.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "웹페이지를 열어 미디어를 감지하세요.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "동영상이나 오디오를 재생하면 소스를 자동으로 감지합니다.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "형식 준비 완료",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "다운로드 확인 중…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "확인 취소 중…",
+    "description": "Media discovery: cancelling"
   }
 }

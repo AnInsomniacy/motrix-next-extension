@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Bekreft tømming",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Medier",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Nedlastinger",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Oppdag medier på siden",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Skann siden",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Tøm kilder",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Filtrer kilder",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Mediekilder",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Kilde",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Aktiver på dette nettstedet",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Deaktiver på dette nettstedet",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Undersøk formater",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Medievalg",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Tilbake til kilder",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Videokvalitet",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Lyd",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Undertekster",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Utdataformat",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Originalfil",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Opptaksgrense (sekunder)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Direkteopptak",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Last ned",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Start opptak",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Avbryt",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Prøv igjen",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Lukk",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Finn avspilleren",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Ingen video",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Ingen lyd",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Ingen undertekster",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Utelatte medienettsteder",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Avspiller funnet; venter på en mediekilde.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "Ingen mediekilder funnet.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "Medieoppdagelse er satt på pause.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "Medieoppdagelse er deaktivert på dette nettstedet.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "Kildene kan ikke knyttes til én avspiller. Kontroller før nedlasting.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Undersøker medier…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Nedlasting opprettet i Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Undersøkelsen er avbrutt.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "Operasjonen mislyktes. Prøv igjen for å kontrollere status.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Mediet eller forespørselsmetoden støttes ikke.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Velg en støttet kombinasjon av spor, format og varighet.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next støtter ikke mediegrensesnittet ennå.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "Kilden eller undersøkelsen er utløpt. Spill av og undersøk igjen.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Kontroller innlogging, videresending av forespørsler eller API-nøkkelen.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Start Motrix Next og kontroller tilkoblingen.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Ukjent størrelse",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Ukjent varighet",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Inkluderer lyd",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Null tar opp til du stopper i Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Undersøk først, og bekreft deretter nedlastingen.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Åpne en nettside for å oppdage medier.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Spill av video eller lyd for å oppdage kildene automatisk.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Formater klare",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Bekrefter nedlasting…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Avbryter undersøkelsen…",
+    "description": "Media discovery: cancelling"
   }
 }

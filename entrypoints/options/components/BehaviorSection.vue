@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 /** Download behavior settings section. */
 import { computed } from 'vue';
-import { NFormItem, NInputNumber, NSelect, NSwitch } from 'naive-ui';
+import { NFormItem, NInputNumber, NSelect, NSwitch, NTag, NSpace } from 'naive-ui';
 import CollapsePanel from '@/shared/components/CollapsePanel.vue';
 import type {
   DesktopUnavailableAction,
   DesktopUnavailableSettings,
   InterceptionScope,
+  DownloadSettings,
 } from '@/lib/schema';
 
 defineProps<{
@@ -17,6 +18,7 @@ defineProps<{
   desktopUnavailable: DesktopUnavailableSettings;
   forwardRequestHeaders: boolean;
   forwardCookies: boolean;
+  mediaDiscovery: DownloadSettings['mediaDiscovery'];
 }>();
 
 const emit = defineEmits<{
@@ -26,6 +28,7 @@ const emit = defineEmits<{
   'update:desktopUnavailable': [value: Partial<DesktopUnavailableSettings>];
   'update:forwardRequestHeaders': [value: boolean];
   'update:forwardCookies': [value: boolean];
+  'update:mediaDiscovery': [value: Partial<DownloadSettings['mediaDiscovery']>];
 }>();
 
 import { useI18n } from '@/shared/i18n/engine';
@@ -46,6 +49,34 @@ const unavailableActionOptions = computed(() => [
 
 <template>
   <div class="settings-section">
+    <section class="settings-group">
+      <NFormItem class="settings-row" :show-feedback="false" :label="i18n('media_discover')">
+        <NSwitch
+          :value="mediaDiscovery.enabled"
+          @update:value="emit('update:mediaDiscovery', { enabled: $event })"
+        />
+      </NFormItem>
+      <p class="settings-hint">
+        {{ i18n('media_hint') }}
+      </p>
+      <NSpace
+        v-if="mediaDiscovery.excludedHosts.length"
+        class="settings-subpanel"
+        :aria-label="i18n('media_excluded_sites')"
+      >
+        <NTag
+          v-for="host in mediaDiscovery.excludedHosts"
+          :key="host"
+          closable
+          @close="
+            emit('update:mediaDiscovery', {
+              excludedHosts: mediaDiscovery.excludedHosts.filter((value) => value !== host),
+            })
+          "
+          >{{ host }}</NTag
+        >
+      </NSpace>
+    </section>
     <section class="settings-group">
       <NFormItem
         class="settings-row"

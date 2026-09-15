@@ -38,6 +38,8 @@ lib/
 ├── diagnostics.ts               # Sanitized, serialized diagnostic journal
 ├── file-extensions.ts           # File extension normalization/matching
 └── download/
+    ├── contracts.ts             # Consumer validation for ordinary desktop handoff
+    ├── pending.ts               # Native session storage for unresolved request IDs
     ├── orchestrator.ts          # Interception flows: automatic, Firefox response, explicit
     ├── chromium-takeover.ts     # Synchronous Chromium cancellation handoff
     ├── filter.ts                # Filter pipeline (pure function stages)
@@ -72,10 +74,12 @@ file-extension-rule → minimum-file-size
 
 ### A″. Persistence Model
 
-- Persisted shapes live ONLY in `lib/schema.ts`. Types are `z.infer`, defaults come from
+- Persisted settings live ONLY in `lib/schema.ts`. Types are `z.infer`, defaults come from
   `Schema.parse({})` — never hand-write a default twice.
 - Every parse helper accepts `unknown` and never throws; corrupt fields collapse to
   defaults, invalid array entries are dropped.
+- Unresolved download requests use native session storage and strict consumer contracts;
+  never repair a malformed request into a new download. See [DOWNLOADS.md](docs/DOWNLOADS.md).
 - `lib/storage.ts` validates on read AND write (writes are re-parsed, which also strips
   Vue reactivity proxies).
 
@@ -327,8 +331,9 @@ beta/prerelease tags are rejected.
 - **`<script setup lang="ts">`** for all components; Naive UI via `NaiveUiResolver`.
 - **CSS**: plain custom properties (M3 tokens in `globals.css`, runtime values injected by
   `shared/theme.ts`). Animations are CSS-only and respect `prefers-reduced-motion`.
-- **Graceful degradation** — API failures around downloads must never block or lose the
-  user's download; log to diagnostics and fall back.
+- **Download ownership** — preflight failures may fall back to the browser. After an
+  ambiguous POST, retain the same request ID and reconcile; never create a second
+  browser download merely because its desktop receipt was lost.
 - **Formatting**: Prettier with project config (`.prettierrc`).
 
 ---

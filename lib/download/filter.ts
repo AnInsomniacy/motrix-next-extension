@@ -8,7 +8,7 @@
  * Order: enabled → self-trigger → scope → scheme → site-rule → mime →
  * file-extension → minimum-size.
  */
-import picomatch from 'picomatch';
+import { matchSiteRule } from '../site-rules';
 import type { DownloadSettings, SiteRule } from '@/lib/schema';
 import { matchesFileExtension, resolveFileExtension } from '@/lib/file-extensions';
 import { extractFilenameFromUrl } from './url';
@@ -40,14 +40,6 @@ interface FilterPipelineResult {
 }
 
 // ─── Stage Helpers ──────────────────────────────────────
-
-function hostnameOf(url: string): string | null {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return null;
-  }
-}
 
 function baseMime(mimeType: string): string {
   return (mimeType.split(';')[0] ?? '').trim().toLowerCase();
@@ -114,22 +106,8 @@ function siteRule(getRules: () => SiteRule[]): FilterStage {
   return {
     name: 'site-rule',
     evaluate: (ctx) => {
-      const rules = getRules();
-      if (!rules.length) return null;
-
-      const hostnames = [
-        ...new Set([ctx.tabUrl, ctx.url, ctx.finalUrl].flatMap((url) => hostnameOf(url) ?? [])),
-      ];
-      if (!hostnames.length) return null;
-
-      for (const rule of rules) {
-        const isMatch = picomatch(rule.pattern);
-        if (!hostnames.some((h) => isMatch(h))) continue;
-        if (rule.action === 'always-intercept') return 'intercept';
-        if (rule.action === 'always-skip') return 'skip';
-        return null; // use-global
-      }
-      return null;
+      const action = matchSiteRule(getRules(), [ctx.tabUrl, ctx.url, ctx.finalUrl]);
+      return action === 'always-intercept' ? 'intercept' : action === 'always-skip' ? 'skip' : null;
     },
   };
 }

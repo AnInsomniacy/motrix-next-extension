@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "تأیید پاک‌سازی",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "رسانه",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "بارگیری‌ها",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "شناسایی رسانه‌های صفحه",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "بررسی صفحه",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "پاک کردن منابع",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "فیلتر منابع",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "منابع رسانه",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "منبع",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "فعال‌سازی در این سایت",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "غیرفعال‌سازی در این سایت",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "بررسی قالب‌ها",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "گزینه‌های رسانه",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "بازگشت به منابع",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "کیفیت ویدیو",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "صدا",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "زیرنویس",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "قالب خروجی",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "فایل اصلی",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "محدودیت ضبط (ثانیه)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "ضبط زنده",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "بارگیری",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "شروع ضبط",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "لغو",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "تلاش مجدد",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "بستن",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "یافتن پخش‌کننده",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "بدون ویدیو",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "بدون صدا",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "بدون زیرنویس",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "سایت‌های رسانه‌ای مستثنا",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "پخش‌کننده پیدا شد؛ در انتظار منبع رسانه.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "منبع رسانه‌ای پیدا نشد.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "شناسایی رسانه متوقف شده است.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "شناسایی رسانه در این سایت غیرفعال است.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "منابع به یک پخش‌کننده مشخص مرتبط نیستند. پیش از بارگیری بررسی کنید.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "در حال بررسی رسانه…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "بارگیری در Motrix Next ایجاد شد.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "بررسی لغو شد.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "عملیات ناموفق بود. برای بررسی وضعیت دوباره تلاش کنید.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "این رسانه یا روش درخواست پشتیبانی نمی‌شود.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "ترکیب پشتیبانی‌شده‌ای از مسیرها، قالب و مدت انتخاب کنید.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next هنوز از رابط رسانه پشتیبانی نمی‌کند.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "منبع یا بررسی منقضی شده است. رسانه را پخش و دوباره بررسی کنید.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "ورود به سایت، ارسال درخواست یا کلید API برنامه را بررسی کنید.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Motrix Next را اجرا و تنظیمات اتصال را بررسی کنید.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "اندازه نامشخص",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "مدت نامشخص",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "شامل صدا",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "صفر یعنی ضبط تا زمانی که در Motrix Next متوقف کنید.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "ابتدا بررسی کنید، سپس بارگیری را تأیید کنید.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "برای شناسایی رسانه یک صفحه وب باز کنید.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "ویدیو یا صدا را پخش کنید تا منابع خودکار شناسایی شوند.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "قالب‌ها آماده‌اند",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "در حال تأیید بارگیری…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "در حال لغو بررسی…",
+    "description": "Media discovery: cancelling"
   }
 }

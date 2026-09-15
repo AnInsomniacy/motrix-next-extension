@@ -589,5 +589,225 @@
   "options_diagnostics_clear_confirm": {
     "message": "Підтвердити очищення",
     "description": "Second-click confirmation label for clearing diagnostic logs"
+  },
+  "media_tab": {
+    "message": "Медіа",
+    "description": "Media discovery: tab"
+  },
+  "media_downloads": {
+    "message": "Завантаження",
+    "description": "Media discovery: downloads"
+  },
+  "media_discover": {
+    "message": "Виявляти медіа на сторінці",
+    "description": "Media discovery: discover"
+  },
+  "media_scan": {
+    "message": "Сканувати сторінку",
+    "description": "Media discovery: scan"
+  },
+  "media_clear": {
+    "message": "Очистити джерела",
+    "description": "Media discovery: clear"
+  },
+  "media_filter": {
+    "message": "Фільтрувати джерела",
+    "description": "Media discovery: filter"
+  },
+  "media_sources": {
+    "message": "Медіаджерела",
+    "description": "Media discovery: sources"
+  },
+  "media_source": {
+    "message": "Джерело",
+    "description": "Media discovery: source"
+  },
+  "media_enable_site": {
+    "message": "Увімкнути на цьому сайті",
+    "description": "Media discovery: enable site"
+  },
+  "media_disable_site": {
+    "message": "Вимкнути на цьому сайті",
+    "description": "Media discovery: disable site"
+  },
+  "media_inspect": {
+    "message": "Перевірити формати",
+    "description": "Media discovery: inspect"
+  },
+  "media_options": {
+    "message": "Параметри медіа",
+    "description": "Media discovery: options"
+  },
+  "media_back": {
+    "message": "Назад до джерел",
+    "description": "Media discovery: back"
+  },
+  "media_video": {
+    "message": "Якість відео",
+    "description": "Media discovery: video"
+  },
+  "media_audio": {
+    "message": "Аудіо",
+    "description": "Media discovery: audio"
+  },
+  "media_subtitles": {
+    "message": "Субтитри",
+    "description": "Media discovery: subtitles"
+  },
+  "media_format": {
+    "message": "Вихідний формат",
+    "description": "Media discovery: format"
+  },
+  "media_original": {
+    "message": "Оригінальний файл",
+    "description": "Media discovery: original"
+  },
+  "media_record_limit": {
+    "message": "Обмеження запису (секунди)",
+    "description": "Media discovery: record limit"
+  },
+  "media_live": {
+    "message": "Запис трансляції",
+    "description": "Media discovery: live"
+  },
+  "media_download": {
+    "message": "Завантажити",
+    "description": "Media discovery: download"
+  },
+  "media_record": {
+    "message": "Почати запис",
+    "description": "Media discovery: record"
+  },
+  "media_cancel": {
+    "message": "Скасувати",
+    "description": "Media discovery: cancel"
+  },
+  "media_retry": {
+    "message": "Повторити",
+    "description": "Media discovery: retry"
+  },
+  "media_close": {
+    "message": "Закрити",
+    "description": "Media discovery: close"
+  },
+  "media_locate": {
+    "message": "Знайти програвач",
+    "description": "Media discovery: locate"
+  },
+  "media_no_video": {
+    "message": "Без відео",
+    "description": "Media discovery: no video"
+  },
+  "media_no_audio": {
+    "message": "Без аудіо",
+    "description": "Media discovery: no audio"
+  },
+  "media_no_subtitles": {
+    "message": "Без субтитрів",
+    "description": "Media discovery: no subtitles"
+  },
+  "media_excluded_sites": {
+    "message": "Виключені медіасайти",
+    "description": "Media discovery: excluded sites"
+  },
+  "media_waiting": {
+    "message": "Програвач знайдено; очікування медіаджерела.",
+    "description": "Media discovery: waiting"
+  },
+  "media_none": {
+    "message": "Медіаджерел не знайдено.",
+    "description": "Media discovery: none"
+  },
+  "media_paused": {
+    "message": "Виявлення медіа призупинено.",
+    "description": "Media discovery: paused"
+  },
+  "media_excluded": {
+    "message": "Виявлення медіа вимкнено на цьому сайті.",
+    "description": "Media discovery: excluded"
+  },
+  "media_ambiguous": {
+    "message": "Неможливо однозначно пов’язати джерела з програвачем. Перевірте перед завантаженням.",
+    "description": "Media discovery: ambiguous"
+  },
+  "media_loading": {
+    "message": "Перевірка медіа…",
+    "description": "Media discovery: loading"
+  },
+  "media_submitted": {
+    "message": "Завантаження створено в Motrix Next.",
+    "description": "Media discovery: submitted"
+  },
+  "media_cancelled": {
+    "message": "Перевірку скасовано.",
+    "description": "Media discovery: cancelled"
+  },
+  "media_failed": {
+    "message": "Операція не вдалася. Повторіть для перевірки стану.",
+    "description": "Media discovery: failed"
+  },
+  "media_unsupported": {
+    "message": "Медіа або метод запиту не підтримується.",
+    "description": "Media discovery: unsupported"
+  },
+  "media_invalid": {
+    "message": "Виберіть підтримуване поєднання доріжок, формату й тривалості.",
+    "description": "Media discovery: invalid"
+  },
+  "media_unavailable": {
+    "message": "Motrix Next поки не підтримує медіаінтерфейс.",
+    "description": "Media discovery: unavailable"
+  },
+  "media_expired": {
+    "message": "Джерело або перевірка застаріли. Відтворіть медіа й перевірте знову.",
+    "description": "Media discovery: expired"
+  },
+  "media_auth": {
+    "message": "Перевірте вхід на сайт, пересилання запитів або ключ API застосунку.",
+    "description": "Media discovery: auth"
+  },
+  "media_connection": {
+    "message": "Запустіть Motrix Next і перевірте з’єднання.",
+    "description": "Media discovery: connection"
+  },
+  "media_size_unknown": {
+    "message": "Розмір невідомий",
+    "description": "Media discovery: size unknown"
+  },
+  "media_duration_unknown": {
+    "message": "Тривалість невідома",
+    "description": "Media discovery: duration unknown"
+  },
+  "media_includes_audio": {
+    "message": "Містить аудіо",
+    "description": "Media discovery: includes audio"
+  },
+  "media_record_hint": {
+    "message": "Нуль означає запис до зупинки в Motrix Next.",
+    "description": "Media discovery: record hint"
+  },
+  "media_inspect_hint": {
+    "message": "Спочатку перевірте формати, потім підтвердьте завантаження.",
+    "description": "Media discovery: inspect hint"
+  },
+  "media_open_page": {
+    "message": "Відкрийте вебсторінку для виявлення медіа.",
+    "description": "Media discovery: open page"
+  },
+  "media_hint": {
+    "message": "Відтворіть відео або аудіо для автоматичного виявлення джерел.",
+    "description": "Media discovery: hint"
+  },
+  "media_ready": {
+    "message": "Формати готові",
+    "description": "Media discovery: ready"
+  },
+  "media_confirming": {
+    "message": "Підтвердження завантаження…",
+    "description": "Media discovery: confirming"
+  },
+  "media_cancelling": {
+    "message": "Скасування перевірки…",
+    "description": "Media discovery: cancelling"
   }
 }

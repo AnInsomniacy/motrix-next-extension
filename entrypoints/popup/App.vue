@@ -8,7 +8,7 @@
  */
 import { onMounted, onUnmounted, provide, ref } from 'vue';
 import { browser } from 'wxt/browser';
-import { NButton, NConfigProvider, NIcon, NSkeleton, NSpin } from 'naive-ui';
+import { NButton, NConfigProvider, NIcon, NSkeleton, NSpin, NTabs, NTabPane } from 'naive-ui';
 import { AlertCircleOutline, PauseOutline, PlayOutline, RocketOutline } from '@vicons/ionicons5';
 import { DesktopApiClient, checkConnection, type StatResponse } from '@/lib/api';
 import { loadSnapshot, updateSettings } from '@/lib/storage';
@@ -29,6 +29,7 @@ import { createI18n, I18N_KEY, useNaiveLocale } from '@/shared/i18n/engine';
 
 import PopupHeader from './components/PopupHeader.vue';
 import StatDashboard from './components/StatDashboard.vue';
+import MediaPanel from './components/MediaPanel.vue';
 
 // ─── i18n + Theme ───────────────────────────────────────
 
@@ -49,6 +50,20 @@ const connectionPort = ref(DEFAULT_CONNECTION_CONFIG.port);
 const globalStat = ref<StatResponse | null>(null);
 const enabled = ref(true);
 const opening = ref(false);
+const view = ref('downloads');
+const popupContent = ref<InstanceType<typeof window.HTMLElement>>();
+const popupHeight = ref<number>();
+let resizeObserver: InstanceType<typeof window.ResizeObserver> | undefined;
+
+onMounted(() => {
+  if (!popupContent.value) return;
+  // Observe natural content size, not the animated viewport: no resize feedback loop.
+  resizeObserver = new window.ResizeObserver(([entry]) => {
+    const height = entry?.borderBoxSize[0]?.blockSize;
+    if (height !== undefined) popupHeight.value = height;
+  });
+  resizeObserver.observe(popupContent.value, { box: 'border-box' });
+});
 
 const apiClient = new DesktopApiClient({ ...DEFAULT_CONNECTION_CONFIG });
 let stopPolling: (() => void) | null = null;
@@ -184,6 +199,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  resizeObserver?.disconnect();
   stopPolling?.();
   stopStorageListener?.();
 });
@@ -197,174 +213,203 @@ onUnmounted(() => {
     :date-locale="naiveDateLocale"
     inline-theme-disabled
   >
-    <div class="popup-root">
-      <div v-if="phase === 'initializing'" class="popup-skeleton" aria-busy="true">
-        <div class="popup-skeleton__header">
-          <NSkeleton width="64px" height="24px" />
-          <NSkeleton width="84px" height="18px" round />
-          <span class="popup-skeleton__spacer" />
-          <NSkeleton width="96px" height="20px" round />
+    <div
+      class="popup-root"
+      :style="{ height: popupHeight === undefined ? undefined : `${popupHeight}px` }"
+      :dir="['ar', 'fa'].includes(effectiveLocale) ? 'rtl' : 'ltr'"
+    >
+      <div ref="popupContent" class="popup-content">
+        <div v-if="phase === 'initializing'" class="popup-skeleton" aria-busy="true">
+          <div class="popup-skeleton__header">
+            <NSkeleton width="64px" height="24px" />
+            <NSkeleton width="84px" height="18px" round />
+            <span class="popup-skeleton__spacer" />
+            <NSkeleton width="96px" height="20px" round />
+          </div>
+          <div class="popup-skeleton__body">
+            <NSkeleton height="108px" :sharp="false" />
+            <NSkeleton height="108px" :sharp="false" />
+          </div>
+          <div class="popup-skeleton__footer">
+            <NSkeleton width="140px" height="24px" :sharp="false" />
+          </div>
         </div>
-        <div class="popup-skeleton__body">
-          <NSkeleton height="108px" :sharp="false" />
-          <NSkeleton height="108px" :sharp="false" />
-        </div>
-        <div class="popup-skeleton__footer">
-          <NSkeleton width="140px" height="24px" :sharp="false" />
-        </div>
+
+        <template v-else>
+          <PopupHeader
+            :status="
+              phase === 'connected'
+                ? 'connected'
+                : phase === 'launching'
+                  ? 'launching'
+                  : 'disconnected'
+            "
+            :version="version"
+            :enabled="enabled"
+            @settings="openSettings"
+            @toggle-enabled="toggleEnabled"
+          />
+
+          <NTabs
+            v-model:value="view"
+            type="line"
+            animated
+            pane-wrapper-style="transition: none"
+            :tabs-padding="16"
+            size="small"
+          >
+            <NTabPane name="downloads" :tab="i18n('media_downloads')" display-directive="show:lazy">
+              <div class="popup-viewport">
+                <Transition name="phase-switch" mode="out-in">
+                  <section
+                    v-if="phase === 'launching'"
+                    key="launching"
+                    class="popup-page popup-launching"
+                  >
+                    <div class="popup-launching__content">
+                      <NSpin size="large" />
+                      <div class="popup-launching__copy" role="status" aria-live="polite">
+                        <h2>{{ i18n('popup_launching_title', 'Starting Motrix Next') }}</h2>
+                        <p>
+                          {{
+                            i18n(
+                              'popup_launching_hint',
+                              'Waiting for the desktop app to become ready…',
+                            )
+                          }}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section
+                    v-else-if="phase === 'connected' && globalStat"
+                    key="connected"
+                    class="popup-page"
+                  >
+                    <StatDashboard :stat="globalStat" :disabled="!enabled" />
+                    <div class="popup-actions">
+                      <div class="popup-actions__left">
+                        <NButton size="tiny" quaternary :disabled="!enabled" @click="pauseAll">
+                          <template #icon>
+                            <NIcon :size="12"><PauseOutline /></NIcon>
+                          </template>
+                          {{ i18n('popup_action_pause_all', 'Pause All') }}
+                        </NButton>
+                        <NButton size="tiny" quaternary :disabled="!enabled" @click="resumeAll">
+                          <template #icon>
+                            <NIcon :size="12"><PlayOutline /></NIcon>
+                          </template>
+                          {{ i18n('popup_action_resume_all', 'Resume All') }}
+                        </NButton>
+                      </div>
+                      <NButton size="tiny" type="primary" :loading="opening" @click="openApp">
+                        <template #icon>
+                          <NIcon :size="12"><RocketOutline /></NIcon>
+                        </template>
+                        {{ i18n('popup_action_open', 'Open Motrix Next') }}
+                      </NButton>
+                    </div>
+                  </section>
+
+                  <section v-else :key="phase" class="popup-page popup-unavailable">
+                    <div class="popup-banner popup-banner--error">
+                      <NIcon :size="16" class="popup-banner__icon">
+                        <AlertCircleOutline />
+                      </NIcon>
+                      <div v-if="phase === 'failed'">
+                        <p class="popup-banner__title">
+                          {{ i18n('popup_launch_failed_title', 'Could not start Motrix Next') }}
+                        </p>
+                        <p class="popup-banner__hint">
+                          {{
+                            i18n(
+                              'popup_launch_failed_hint',
+                              'Check that Motrix Next is installed and its API settings are correct.',
+                            )
+                          }}
+                        </p>
+                      </div>
+                      <div v-else-if="errorType === 'ApiAuthError'">
+                        <p class="popup-banner__title">
+                          {{ i18n('popup_error_auth', 'API secret mismatch') }}
+                        </p>
+                        <p class="popup-banner__hint">
+                          {{
+                            i18n(
+                              'popup_error_auth_hint',
+                              'Check that the API secret in Settings matches your Motrix Next configuration.',
+                            )
+                          }}
+                        </p>
+                      </div>
+                      <div v-else-if="errorType === 'ApiTimeoutError'">
+                        <p class="popup-banner__title">
+                          {{ i18n('popup_error_timeout', 'Connection timed out') }}
+                        </p>
+                        <p class="popup-banner__hint">
+                          {{
+                            i18nSub(
+                              'popup_error_timeout_hint',
+                              [String(connectionPort)],
+                              `Check your network or firewall settings. API port: ${connectionPort}`,
+                            )
+                          }}
+                        </p>
+                      </div>
+                      <div v-else>
+                        <p class="popup-banner__title">
+                          {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
+                        </p>
+                        <p class="popup-banner__hint">
+                          {{
+                            i18nSub(
+                              'popup_error_unreachable_hint',
+                              [String(connectionPort)],
+                              `Make sure Motrix Next is running. API port: ${connectionPort}`,
+                            )
+                          }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="popup-actions popup-actions--unavailable">
+                      <NButton size="tiny" type="primary" @click="launchApp">
+                        <template #icon>
+                          <NIcon :size="12"><RocketOutline /></NIcon>
+                        </template>
+                        {{
+                          phase === 'failed'
+                            ? i18n('popup_action_retry', 'Try Again')
+                            : i18n('popup_action_launch', 'Launch Motrix Next')
+                        }}
+                      </NButton>
+                    </div>
+                  </section>
+                </Transition>
+              </div>
+            </NTabPane>
+            <NTabPane name="media" :tab="i18n('media_tab')" display-directive="show:lazy"
+              ><MediaPanel :active="view === 'media'"
+            /></NTabPane>
+          </NTabs>
+        </template>
       </div>
-
-      <template v-else>
-        <PopupHeader
-          :status="
-            phase === 'connected'
-              ? 'connected'
-              : phase === 'launching'
-                ? 'launching'
-                : 'disconnected'
-          "
-          :version="version"
-          :enabled="enabled"
-          @settings="openSettings"
-          @toggle-enabled="toggleEnabled"
-        />
-
-        <div class="popup-viewport">
-          <Transition name="phase-switch" mode="out-in">
-            <section
-              v-if="phase === 'launching'"
-              key="launching"
-              class="popup-page popup-launching"
-            >
-              <div class="popup-launching__content">
-                <NSpin size="large" />
-                <div class="popup-launching__copy" role="status" aria-live="polite">
-                  <h2>{{ i18n('popup_launching_title', 'Starting Motrix Next') }}</h2>
-                  <p>
-                    {{
-                      i18n('popup_launching_hint', 'Waiting for the desktop app to become ready…')
-                    }}
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <section
-              v-else-if="phase === 'connected' && globalStat"
-              key="connected"
-              class="popup-page"
-            >
-              <StatDashboard :stat="globalStat" :disabled="!enabled" />
-              <div class="popup-actions">
-                <div class="popup-actions__left">
-                  <NButton size="tiny" quaternary :disabled="!enabled" @click="pauseAll">
-                    <template #icon>
-                      <NIcon :size="12"><PauseOutline /></NIcon>
-                    </template>
-                    {{ i18n('popup_action_pause_all', 'Pause All') }}
-                  </NButton>
-                  <NButton size="tiny" quaternary :disabled="!enabled" @click="resumeAll">
-                    <template #icon>
-                      <NIcon :size="12"><PlayOutline /></NIcon>
-                    </template>
-                    {{ i18n('popup_action_resume_all', 'Resume All') }}
-                  </NButton>
-                </div>
-                <NButton size="tiny" type="primary" :loading="opening" @click="openApp">
-                  <template #icon>
-                    <NIcon :size="12"><RocketOutline /></NIcon>
-                  </template>
-                  {{ i18n('popup_action_open', 'Open Motrix Next') }}
-                </NButton>
-              </div>
-            </section>
-
-            <section v-else :key="phase" class="popup-page popup-unavailable">
-              <div class="popup-banner popup-banner--error">
-                <NIcon :size="16" class="popup-banner__icon">
-                  <AlertCircleOutline />
-                </NIcon>
-                <div v-if="phase === 'failed'">
-                  <p class="popup-banner__title">
-                    {{ i18n('popup_launch_failed_title', 'Could not start Motrix Next') }}
-                  </p>
-                  <p class="popup-banner__hint">
-                    {{
-                      i18n(
-                        'popup_launch_failed_hint',
-                        'Check that Motrix Next is installed and its API settings are correct.',
-                      )
-                    }}
-                  </p>
-                </div>
-                <div v-else-if="errorType === 'ApiAuthError'">
-                  <p class="popup-banner__title">
-                    {{ i18n('popup_error_auth', 'API secret mismatch') }}
-                  </p>
-                  <p class="popup-banner__hint">
-                    {{
-                      i18n(
-                        'popup_error_auth_hint',
-                        'Check that the API secret in Settings matches your Motrix Next configuration.',
-                      )
-                    }}
-                  </p>
-                </div>
-                <div v-else-if="errorType === 'ApiTimeoutError'">
-                  <p class="popup-banner__title">
-                    {{ i18n('popup_error_timeout', 'Connection timed out') }}
-                  </p>
-                  <p class="popup-banner__hint">
-                    {{
-                      i18nSub(
-                        'popup_error_timeout_hint',
-                        [String(connectionPort)],
-                        `Check your network or firewall settings. API port: ${connectionPort}`,
-                      )
-                    }}
-                  </p>
-                </div>
-                <div v-else>
-                  <p class="popup-banner__title">
-                    {{ i18n('popup_error_unreachable', 'Cannot connect to Motrix Next') }}
-                  </p>
-                  <p class="popup-banner__hint">
-                    {{
-                      i18nSub(
-                        'popup_error_unreachable_hint',
-                        [String(connectionPort)],
-                        `Make sure Motrix Next is running. API port: ${connectionPort}`,
-                      )
-                    }}
-                  </p>
-                </div>
-              </div>
-              <div class="popup-actions popup-actions--unavailable">
-                <NButton size="tiny" type="primary" @click="launchApp">
-                  <template #icon>
-                    <NIcon :size="12"><RocketOutline /></NIcon>
-                  </template>
-                  {{
-                    phase === 'failed'
-                      ? i18n('popup_action_retry', 'Try Again')
-                      : i18n('popup_action_launch', 'Launch Motrix Next')
-                  }}
-                </NButton>
-              </div>
-            </section>
-          </Transition>
-        </div>
-      </template>
     </div>
   </NConfigProvider>
 </template>
 
 <style scoped>
 .popup-root {
-  width: 380px;
+  width: 420px;
+  overflow: hidden;
+  transition: height 200ms cubic-bezier(0.2, 0, 0, 1);
   background: var(--color-surface);
   color: var(--color-on-surface);
   font-family: var(--font-sans);
+}
+
+.popup-content {
+  display: flow-root;
 }
 
 /* ── Skeleton ─────────────────────────────────────────────────── */
