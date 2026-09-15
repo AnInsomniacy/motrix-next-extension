@@ -6,6 +6,14 @@
 ![Build](https://img.shields.io/github/actions/workflow/status/AnInsomniacy/motrix-next-extension/ci.yml?branch=main&label=Build)
 ![Manifest](https://img.shields.io/badge/manifest-v3-blue)
 
+  <p>
+    <a href="https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb"><img src="docs/badges/edge-add-ons.png?v=2" alt="Get it from Microsoft Edge" height="58" /></a>
+    &nbsp;&nbsp;
+    <a href="https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl"><img src="docs/badges/chrome-web-store.png?v=2" alt="Available in the Chrome Web Store" height="58" /></a>
+    &nbsp;&nbsp;
+    <a href="https://addons.mozilla.org/firefox/addon/motrix-next-extension/"><img src="docs/badges/firefox-add-ons.svg?v=2" alt="Get the Add-on for Firefox" height="58" /></a>
+  </p>
+
 </div>
 
 > [!IMPORTANT]
@@ -13,9 +21,21 @@
 
 ---
 
+<div align="center">
+  <table><tr>
+    <td><img src="docs/images/popup.png" alt="Popup" width="400" /></td>
+    <td><img src="docs/images/settings.png" alt="Settings" width="400" /></td>
+  </tr><tr>
+    <td align="center"><sub>Popup — Live speed &amp; task dashboard</sub></td>
+    <td align="center"><sub>Settings — Connection, behavior, rules, appearance</sub></td>
+  </tr></table>
+</div>
+
+<p align="center"><sub>Motrix Next interface before rebranding. Rayburst Connect uses the new branding.</sub></p>
+
 ## Features
 
-- **Page media discovery** — Detect HLS/DASH manifests and audio/video sources without interrupting playback. Inspect and choose native tracks from the extension's Media tab when the desktop implements the [media API](docs/MEDIA_API.md). See [scope and local testing](docs/MEDIA.md).
+- **Page media discovery** — Detect HLS/DASH manifests and audio/video sources without interrupting playback. Inspect and choose native tracks from the player button or the extension's Media tab through Rayburst's [media API](docs/MEDIA_API.md). See [scope and local testing](docs/MEDIA.md).
 
 - **Download interception** — Automatically captures browser downloads and routes them to Rayburst for multi-threaded acceleration
 - **Smart filtering** — Ordered checks for interception settings, extension-owned downloads, URL schemes, site rules, MIME types, file extensions, and minimum file size
@@ -33,9 +53,19 @@
 
 ## Installation
 
+### From Store
+
+The store links currently provide the Motrix Next Extension for Motrix Next 3.9.x. Rayburst Connect requires the new Rayburst desktop app.
+
+| Browser | Link                                                                                               |
+| ------- | -------------------------------------------------------------------------------------------------- |
+| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/ofeajdebdjajhkmcmamagokecnbephhl)      |
+| Edge    | [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/loojjolhejmakcdlbidigoniobfanjlb) |
+| Firefox | [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/motrix-next-extension/)                 |
+
 ### From GitHub Releases
 
-Download `rayburst-connect-x.x.x-chromium-mv3.zip` or `rayburst-connect-x.x.x-firefox-mv3.zip` from [Releases](https://github.com/AnInsomniacy/motrix-next-extension/releases), unpack it, then load it as described under [From Source](#from-source).
+Once the Rayburst Connect release is published, download `rayburst-connect-x.x.x-chromium-mv3.zip` or `rayburst-connect-x.x.x-firefox-mv3.zip` from [Releases](https://github.com/AnInsomniacy/motrix-next-extension/releases), unpack it, then load it as described under [From Source](#from-source). Until then, build from source below.
 
 ### From Source
 
