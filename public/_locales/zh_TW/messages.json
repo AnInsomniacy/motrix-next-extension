@@ -808,5 +808,9 @@
   },
   "options_color_scheme_rayburst": {
     "message": "Rayburst"
+  },
+  "brand_tagline": {
+    "message": "溯網尋蹤，隔空引渡。",
+    "description": "Localized Rayburst Connect brand slogan"
   }
 }

@@ -808,5 +808,9 @@
   },
   "options_color_scheme_rayburst": {
     "message": "Rayburst"
+  },
+  "brand_tagline": {
+    "message": "Siga o fluxo, transponha o vazio.",
+    "description": "Localized Rayburst Connect brand slogan"
   }
 }

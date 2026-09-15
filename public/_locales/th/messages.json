@@ -808,5 +808,9 @@
   },
   "options_color_scheme_rayburst": {
     "message": "Rayburst"
+  },
+  "brand_tagline": {
+    "message": "ตามรอยกระแส เชื่อมข้ามความว่างเปล่า",
+    "description": "Localized Rayburst Connect brand slogan"
   }
 }

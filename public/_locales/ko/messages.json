@@ -808,5 +808,9 @@
   },
   "options_color_scheme_rayburst": {
     "message": "Rayburst"
+  },
+  "brand_tagline": {
+    "message": "흐름을 따라, 빈틈을 잇다.",
+    "description": "Localized Rayburst Connect brand slogan"
   }
 }

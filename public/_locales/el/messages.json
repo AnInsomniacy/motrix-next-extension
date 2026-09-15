@@ -808,5 +808,9 @@
   },
   "options_color_scheme_rayburst": {
     "message": "Rayburst"
+  },
+  "brand_tagline": {
+    "message": "Ακολούθησε τη ροή, γεφύρωσε το κενό.",
+    "description": "Localized Rayburst Connect brand slogan"
   }
 }

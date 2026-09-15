@@ -371,8 +371,9 @@ All checks must pass with zero errors before any PR or release.
 ## Brand and delivery
 
 Use the supplied SVG master and purple seed `#7B3ED1`. Keep all implementation
-comments, documentation and new brand copy in English. Existing interface translations
-remain supported. Product names and approved slogans are invariant. Review prose with Sepia.
+comments and documentation in English. Product names remain untranslated. Localize
+interface copy and slogans in every supported locale, preserving the approved English
+and Chinese slogans. Keep the approved promotional banners in English. Review prose with Sepia.
 
 Follow `docs/BRAND.md` and `docs/RELEASING.md`. Store identities and update signing must
 be configured explicitly for Rayburst. Local verification never submits to a store,

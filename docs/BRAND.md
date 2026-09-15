@@ -15,3 +15,8 @@ popup, options and media frame share the theme module and pre-mount bootstrap.
 Use Rayburst Connect for the extension and Rayburst for the desktop destination.
 Names are not translated. Use the slogan in promotional material; use direct action
 labels in the interface. Review all project prose with Sepia.
+
+Interface slogans use the existing i18n dictionaries in all 27 supported locales.
+The approved Simplified Chinese slogan is “溯网寻踪，隔空引渡。”
+Use its Traditional Chinese equivalent for zh-TW. Preserve the approved English
+slogan in English interfaces, README banners and promotional artwork.

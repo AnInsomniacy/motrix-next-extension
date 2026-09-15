@@ -667,6 +667,7 @@ onUnmounted(() => {
 
       <!-- ── Footer ──────────────────────────────────────────── -->
       <footer class="options-footer">
+        <p>{{ i18n('brand_tagline', 'Trace the stream, bridge the void.') }}</p>
         {{ i18nSub('options_footer', [extensionVersion], `Rayburst Connect v${extensionVersion}`) }}
       </footer>
     </div>
@@ -737,6 +738,11 @@ onUnmounted(() => {
   opacity: 0.5;
   padding: 16px;
   border-top: 1px solid var(--color-outline-variant);
+}
+
+.options-footer p {
+  margin: 0 0 6px;
+  text-wrap: balance;
 }
 
 /* ── Responsive: ≤640px → stacked layout ─────────────────────── */

@@ -808,5 +808,9 @@
   },
   "options_color_scheme_rayburst": {
     "message": "Rayburst"
+  },
+  "brand_tagline": {
+    "message": "流れをたどり、隔たりをつなぐ。",
+    "description": "Localized Rayburst Connect brand slogan"
   }
 }
